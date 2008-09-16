@@ -5,6 +5,9 @@ class TestOutcomes(object):
 
     def test_populate(self):
         rev_outcome_set = summary.RevisionOutcomeSet(50000)
+
+        assert rev_outcome_set.revision == 50000
+
         log = StringIO("""F a/b.py:test_one
 . a/b.py:test_two
 s a/b.py:test_three
@@ -23,7 +26,6 @@ s a/b.py:test_three
 
         res = rev_outcome_set.get_outcome(("a.b", "test_two"))
         assert res == '.'
-
 
     def test_GatherOutcomeSet(self):
         rev_outcome_set_foo = summary.RevisionOutcomeSet(50000)
@@ -48,6 +50,7 @@ s a/b.py:test_three
 
         goutcome = summary.GatherOutcomeSet(d)
 
+        assert goutcome.revision == 50000
         
         assert goutcome.failed == set([('foo', 'a.b', 'test_one')])
         assert goutcome.failed == set([('foo', 'a.b', 'test_one')])
@@ -73,3 +76,12 @@ s a/b.py:test_three
 
         res = goutcome_top.get_outcome(('sub', 'foo', 'a.b', 'test_one'))
         assert res == 'F'
+
+    def test_colsizes(self):
+        failed = [('a', 'abc', 'd'), ('ab', 'c', 'xy'),
+                  ('ab', '', 'cd')]
+
+        res = summary.colsizes(failed)
+
+        assert res == [2,3,2]
+
