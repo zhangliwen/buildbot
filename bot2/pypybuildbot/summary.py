@@ -2,7 +2,7 @@
 from buildbot.status.web.base import HtmlResource
 
 # xxx caching?
-class RevOutcome(object):
+class RevisionOutcomeSet(object):
 
     def __init__(self, rev):
         self.rev = rev
@@ -12,7 +12,7 @@ class RevOutcome(object):
         # xxx failure tracebacks
 
     def populate_one(self, name, shortrepr):
-        namekey = name.split(':', 1)
+        namekey = name.split(':', 1) # xxx not always the correct thing
         if namekey[0].endswith('.py'):
             namekey[0] = namekey[0][:-3].replace('/', '.')
 
@@ -37,7 +37,7 @@ class RevOutcome(object):
         return self._outcomes[namekey]
 
 
-class GatherOutcome(object):
+class GatherOutcomeSet(object):
 
     def __init__(self, map):
         self.map = map
@@ -85,7 +85,7 @@ class Summary(HtmlResource):
                     # the log is there
                     log = [log for log in build.getLogs()
                            if log.getName() == "pytestLog"][0]
-                    revBuilds[builderName] = RevOutcome(log)
+                    revBuilds[builderName] = RevisionOutcomeSet(log)
         revs = revs.items()
         revs.sort()
         return revs

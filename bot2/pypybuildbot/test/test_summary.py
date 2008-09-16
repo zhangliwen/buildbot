@@ -4,49 +4,49 @@ from StringIO import StringIO
 class TestOutcomes(object):
 
     def test_populate(self):
-        rev_outcome = summary.RevOutcome(50000)
+        rev_outcome_set = summary.RevisionOutcomeSet(50000)
         log = StringIO("""F a/b.py:test_one
 . a/b.py:test_two
 s a/b.py:test_three
 """)
         
-        rev_outcome.populate(log)
+        rev_outcome_set.populate(log)
 
-        assert rev_outcome.skipped == set([("a.b","test_three")])
-        assert rev_outcome.failed == set([("a.b", "test_one")])
+        assert rev_outcome_set.skipped == set([("a.b","test_three")])
+        assert rev_outcome_set.failed == set([("a.b", "test_one")])
 
-        res = rev_outcome.get_outcome(("a.b", "test_one"))
+        res = rev_outcome_set.get_outcome(("a.b", "test_one"))
         assert res == 'F'
 
-        res = rev_outcome.get_outcome(("a.b", "test_three"))
+        res = rev_outcome_set.get_outcome(("a.b", "test_three"))
         assert res == 's'
 
-        res = rev_outcome.get_outcome(("a.b", "test_two"))
+        res = rev_outcome_set.get_outcome(("a.b", "test_two"))
         assert res == '.'
 
 
-    def test_GatherOutcome(self):
-        rev_outcome_foo = summary.RevOutcome(50000)
+    def test_GatherOutcomeSet(self):
+        rev_outcome_set_foo = summary.RevisionOutcomeSet(50000)
         log = StringIO("""F a/b.py:test_one
 . a/b.py:test_two
 s a/b.py:test_three
 """)
         
-        rev_outcome_foo.populate(log)
+        rev_outcome_set_foo.populate(log)
 
         
-        rev_outcome_bar = summary.RevOutcome(50000)
+        rev_outcome_set_bar = summary.RevisionOutcomeSet(50000)
         log = StringIO(""". a/b.py:test_one
 . a/b.py:test_two
 s a/b.py:test_three
 """)
         
-        rev_outcome_bar.populate(log)
+        rev_outcome_set_bar.populate(log)
 
-        d = {'foo': rev_outcome_foo,
-             'bar': rev_outcome_bar}
+        d = {'foo': rev_outcome_set_foo,
+             'bar': rev_outcome_set_bar}
 
-        goutcome = summary.GatherOutcome(d)
+        goutcome = summary.GatherOutcomeSet(d)
 
         
         assert goutcome.failed == set([('foo', 'a.b', 'test_one')])
@@ -67,7 +67,7 @@ s a/b.py:test_three
                 outcome2 = goutcome.get_outcome((prefix, mod, testname))
                 assert outcome2 == outcome1
 
-        goutcome_top = summary.GatherOutcome({'sub': goutcome})
+        goutcome_top = summary.GatherOutcomeSet({'sub': goutcome})
 
         assert goutcome_top.failed == set([('sub', 'foo', 'a.b', 'test_one')])
 
