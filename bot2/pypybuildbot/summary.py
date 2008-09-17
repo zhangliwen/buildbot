@@ -55,13 +55,13 @@ class RevisionOutcomeSet(object):
         add_one()
 
     def get_outcome(self, namekey):
-        return self._outcomes[namekey]
-
-    def get_key_namekey(self, namekey):
-        return (self.key, namekey)
+        return self._outcomes.get(namekey, ' ')
 
     def get_longrepr(self, namekey):
         return self.longreprs.get(namekey, '')
+
+    def get_key_namekey(self, namekey):
+        return (self.key, namekey)
 
     def get_run_stdios(self):
         return {self.key: self._run_stdio}
@@ -143,13 +143,19 @@ class GatherOutcomeSet(object):
         return self._skipped
 
     def get_outcome(self, namekey):
-        return self.map[namekey[0]].get_outcome(namekey[1:])
+        which = namekey[0]
+        if which not in self.map:
+            return ' '
+        return self.map[which].get_outcome(namekey[1:])
+
+    def get_longrepr(self, namekey):
+        which = namekey[0]
+        if which not in self.map:
+            return ''
+        return self.map[which].get_longrepr(namekey[1:])
 
     def get_key_namekey(self, namekey):
         return self.map[namekey[0]].get_key_namekey(namekey[1:])
-
-    def get_longrepr(self, namekey):
-        return self.map[namekey[0]].get_longrepr(namekey[1:])
 
     def get_run_stdios(self):
         all = {}
@@ -235,6 +241,18 @@ class SummaryPage(object):
         section = html.pre(lines)
         self.sections.append(section)
 
+    def add_no_revision_builds(self, status, no_revision_builds):
+        section = html.div(html.p("builds aborted without getting a revision"))
+
+        for build in no_revision_builds:
+            builderName = build.getBuilder().getName()
+            num = build.getNumber()
+            descr = "%s #%d" % (builderName, num)
+            url = status.getURLForThing(build)
+            section.append(html.a(descr, href=url))
+            section.append(html.br())
+        self.sections.append(section)
+
     def render(self):
         body_html = html.div(self.sections)
         return body_html.unicode()
@@ -280,7 +298,12 @@ class LongRepr(HtmlResource):
 
         return html.pre(longrepr).unicode()
 
-
+def getProp(obj, name, default=None):
+    try:
+        return obj.getProperty(name)
+    except KeyError:
+        return default
+    
 class Summary(HtmlResource):
     title="Summary" # xxx
 
@@ -288,27 +311,34 @@ class Summary(HtmlResource):
         HtmlResource.__init__(self)
         self.putChild('longrepr', LongRepr())
 
-    def recentRevisions(self, request):
+    def recentRevisions(self, status):
         # xxx branches
-        status = self.getStatus(request)
         revs = {}
+        no_revision_builds = []
         for builderName in status.getBuilderNames():
             builderStatus = status.getBuilder(builderName)
             for build in builderStatus.generateFinishedBuilds(num_builds=N):
-                rev = int(build.getProperty("got_revision"))
-                revBuilds = revs.setdefault(rev, {})
-                if builderName not in revBuilds: # pick the most recent or ?
-                    key = (builderName, build.getNumber())
-                    outcome_set = outcome_set_cache.get(status, key)
-                    revBuilds[builderName] = outcome_set
+                got_rev = getProp(build, 'got_revision', None)
+                if got_rev is None:
+                    no_revision_builds.append(build)
+                else:
+                    rev = int(got_rev)
+                    revBuilds = revs.setdefault(rev, {})
+                    if builderName not in revBuilds: # pick the most recent or ?
+                        key = (builderName, build.getNumber())
+                        outcome_set = outcome_set_cache.get(status, key)
+                        revBuilds[builderName] = outcome_set
                             
-        return revs
+        return revs, no_revision_builds
                             
     def body(self, request):
-        revs = self.recentRevisions(request)
+        status = self.getStatus(request)
+        
+        revs, no_revision_builds = self.recentRevisions(status)
         outcome_sets = []
         for rev, by_build in revs.items():
             outcome_sets.append(GatherOutcomeSet(by_build))
         page = SummaryPage()
-        page.add_section(outcome_sets)        
+        page.add_section(outcome_sets)
+        page.add_no_revision_builds(status, no_revision_builds)
         return page.render()

@@ -53,7 +53,8 @@ class PyPyOwnTestFactory(factory.BuildFactory):
         self.addStep(CondShellCommand(
             description="wcrevert",
             cond=not_first_time,
-            command = ["python", "py/bin/py.svnwcrevert", "."],
+            command = ["python", "py/bin/py.svnwcrevert", ".",
+                       ".buildbot-sourcedata"],
             haltOnFailure=True))
         self.addStep(source.SVN("https://codespeak.net/svn/pypy/"
                                 "branch/pypy-pytrunk"))

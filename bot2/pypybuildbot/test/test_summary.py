@@ -81,6 +81,11 @@ s a/c.py
         assert rev_outcome_set.skipped == set([
             ("a.c", '')])
         
+    def test_absent_outcome(self):
+        rev_outcome_set = summary.RevisionOutcomeSet(50000)
+
+        res = rev_outcome_set.get_outcome(('a', 'b'))
+        assert res == ' '
 
     def test_RevisionOutcomeSetCache(self):
         cache = summary.RevisionOutcomeSetCache()
@@ -185,6 +190,13 @@ s a/b.py:test_three
 
         res = goutcome_top.get_longrepr(('sub', 'foo', 'a.b', 'test_one'))
         assert res == "some\ntraceback\n"
+
+        # absent
+        res = goutcome_top.get_outcome(('what', 'foo', 'a.b', 'test_one'))
+        assert res == ' '
+
+        res = goutcome_top.get_longrepr(('what', 'foo', 'a.b', 'test_one'))
+        assert res == ''        
 
     def test_colsizes(self):
         failed = [('a', 'abc', 'd'), ('ab', 'c', 'xy'),
