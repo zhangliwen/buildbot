@@ -7,13 +7,14 @@ from buildbot.status.web.base import HtmlResource
 
 class RevisionOutcomeSet(object):
 
-    def __init__(self, rev, key=None):
+    def __init__(self, rev, key=None, run_stdio=None):
         self.revision = rev
         self.key = key
         self._outcomes = {}
         self.failed = set()
         self.skipped = set()
         self.longreprs = {}
+        self._run_stdio = run_stdio
 
     def populate_one(self, name, shortrepr, longrepr=None):
         if shortrepr == '!':
@@ -62,6 +63,9 @@ class RevisionOutcomeSet(object):
     def get_longrepr(self, namekey):
         return self.longreprs.get(namekey, '')
 
+    def get_run_stdios(self):
+        return {self.key: self._run_stdio}
+
 class RevisionOutcomeSetCache(object):
     CACHESIZE = 10
 
@@ -75,19 +79,22 @@ class RevisionOutcomeSetCache(object):
         build = builderStatus.getBuild(buildNumber)
 
         rev = int(build.getProperty("got_revision"))
-        log = None
+        pytest_log = None
+        stdio_url = "no_log"
         for step in build.getSteps():
-            candLogs = [log for log in step.getLogs()
-                        if log.getName() == "pytestLog"]
-            if candLogs:
-                log = candLogs[0]
+            logs = dict((log.getName(), log) for log in step.getLogs())
+            if 'pytestLog' in logs:
+                pytest_log = logs['pytestLog']
+                stdio_url = status.getURLForThing(logs['stdio'])
+                # builbot is broken in this :(
+                stdio_url = stdio_url[:-1]+"stdio"
                 break
 
-        outcome_set = RevisionOutcomeSet(rev, key) 
-        if log is None or not log.hasContents():
+        outcome_set = RevisionOutcomeSet(rev, key, stdio_url) 
+        if pytest_log is None or not pytest_log.hasContents():
             outcome_set.populate_one('<run>', '!', "no log from the test run")
         else:
-            outcome_set.populate(log)
+            outcome_set.populate(pytest_log)
         return outcome_set
         
     def get(self, status, key):
@@ -143,6 +150,12 @@ class GatherOutcomeSet(object):
 
     def get_longrepr(self, namekey):
         return self.map[namekey[0]].get_longrepr(namekey[1:])
+
+    def get_run_stdios(self):
+        all = {}
+        for outcome_set in self.map.itervalues():
+            all.update(outcome_set.get_run_stdios())
+        return all
          
 # ________________________________________________________________
 
@@ -174,6 +187,15 @@ class SummaryPage(object):
         qs = urllib.urlencode(parms)
         return "/summary/longrepr?" + qs
 
+    def make_stdio_anchors_for(self, outcome_set):
+        anchors = []
+        stdios = sorted(outcome_set.get_run_stdios().items())
+        for cachekey, url in stdios:
+            builder = cachekey[0]
+            anchors.append('  ')
+            anchors.append(html.a(builder, href=url))
+        return anchors
+        
     def add_section(self, outcome_sets):
         by_rev = sorted((outcome_set.revision, outcome_set) for outcome_set
                          in outcome_sets)
@@ -183,7 +205,10 @@ class SummaryPage(object):
         for rev, outcome_set in by_rev:
             count_failures = len(outcome_set.failed)
             count_skipped = len(outcome_set.skipped)
-            lines.append(["%s %d" % (bars(),rev), "\n"])
+            line = ["%s %d" % (bars(),rev)]
+            line.append(self.make_stdio_anchors_for(outcome_set))
+            line.append('\n')
+            lines.append(line)
         lines.append([bars(), "\n"])
         
         failed = set()
