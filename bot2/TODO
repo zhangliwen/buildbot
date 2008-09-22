@@ -1,6 +1,6 @@
 - runner for running tests per directory and optionally in parallel
   (this should be inspired by the current autotest.py running strategy minus the htmlconftest
-   details)
+   details) [IN-PROGRESS]
 
 - buildbot Nightly scheduler that can pick a uniform revision server side and with support
   for specifying possibly branches
