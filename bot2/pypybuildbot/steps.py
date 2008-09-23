@@ -53,14 +53,17 @@ class PyPyOwnTestFactory(factory.BuildFactory):
         self.addStep(CondShellCommand(
             description="wcrevert",
             cond=not_first_time,
-            command = ["python", "py/bin/py.svnwcrevert", ".",
-                       ".buildbot-sourcedata"],
-            haltOnFailure=True))
+            command = ["python", "py/bin/py.svnwcrevert", 
+                       "-p.buildbot-sourcedata", "."],
+            ))
         self.addStep(source.SVN("https://codespeak.net/svn/pypy/"
                                 "branch/pypy-pytrunk"))
         self.addStep(shell.ShellCommand(
             description="pytest",
-            command=["python", "py/bin/py.test",
-                     "pypy/module/__builtin__", "pypy/module/operator",
-                     "--session=FileLogSession", "--filelog=pytest.log"],
-            logfiles={'pytestLog': 'pytest.log'}))
+            command=["python", "testrunner/runner.py",
+                     "--logfile=testrun.log", "--dry-run",
+                     "--config=pypy/testrunner_cfg.py",
+                     "--config=~/machine_cfg.py",
+                     "--root=pypy"],
+            logfiles={'pytestLog': 'testrun.log'},
+            env={"PYTHONPATH": ['.']}))
