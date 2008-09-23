@@ -30,7 +30,8 @@ BuildmasterConfig = {
 
     'change_source': [],
     'schedulers': [Nightly("nightly",
-                           ["own-linux-x86-32"], hour=19)], # xxx time
+                           ["own-linux-x86-32"],
+                           hour=4, minute=45)],   
     'status': [status],
 
     'slaves': [BuildSlave(name, password)
