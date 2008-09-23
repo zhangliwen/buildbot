@@ -15,9 +15,12 @@ if server.Site.__name__ == 'Site':
 
 status = WebStatus(httpPortNumber, allowForce=True)
 
-import pypybuildbot.steps
-reload(pypybuildbot.steps)
-pypysteps = pypybuildbot.steps
+# pypy test summary page
+summary = load('pypybuildbot.summary')
+status.putChild('summary', summary.Summary())
+
+
+pypysteps = load('pypybuildbot.steps')
 
 pypyOwnTestFactory = pypysteps.PyPyOwnTestFactory()
 pypyOwnTestFactoryWin = pypysteps.PyPyOwnTestFactory(platform="win32")
@@ -42,13 +45,7 @@ BuildmasterConfig = {
                   },
                 ],
 
-    'buildbotURL': 'http://wyvern.cs.uni-duesseldorf.de:%d/' % (httpPortNumber,),
+    'buildbotURL': 'http://wyvern.cs.uni-duesseldorf.de:%d/'%(httpPortNumber),
     'projectURL': 'http://codespeak.net/pypy/',
     'projectName': 'PyPy'}
 
-import pypybuildbot.summary
-reload(pypybuildbot.summary)
-summary = pypybuildbot.summary
-
-# pypy test summary page
-status.putChild('summary', summary.Summary())
