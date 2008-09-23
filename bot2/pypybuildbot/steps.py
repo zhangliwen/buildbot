@@ -61,7 +61,7 @@ class PyPyOwnTestFactory(factory.BuildFactory):
         self.addStep(shell.ShellCommand(
             description="pytest",
             command=["python", "testrunner/runner.py",
-                     "--logfile=testrun.log", "--dry-run",
+                     "--logfile=testrun.log",
                      "--config=pypy/testrunner_cfg.py",
                      "--config=~/machine_cfg.py",
                      "--root=pypy"],

@@ -27,8 +27,7 @@ BuildmasterConfig = {
 
     'change_source': [],
     'schedulers': [Nightly("nightly",
-                           ["pypy-own-linux", "pypy-own-other-linux",
-                            "pypy-own-win"], hour=19)],
+                           ["own-linux-x86-32"], hour=19)], # xxx time
     'status': [status],
 
     'slaves': [BuildSlave(name, password)
@@ -36,23 +35,14 @@ BuildmasterConfig = {
                in passwords.iteritems()],
 
     'builders': [
-                  {"name": "pypy-own-linux",
-                   "slavenames": ["vitaly"],
-                   "builddir": "pypy-own-linux",
+                  {"name": "own-linux-x86-32",
+                   "slavenames": ["wyvern"],
+                   "builddir": "own-linux-x86-32",
                    "factory": pypyOwnTestFactory
                   },
-                  {"name": "pypy-own-other-linux",
-                   "slavenames": ["fido"],
-                   "builddir": "pypy-own-other-linux",
-                   "factory": pypyOwnTestFactory
-                  },
-                  {"name": "pypy-own-win",
-                   "slavenames": ['ebgoc'],
-                   "builddir": "pypy-own-win",
-                   "factory": pypyOwnTestFactoryWin}
                 ],
 
-    'buildbotURL': 'http://localhost:%d/' % (httpPortNumber,),
+    'buildbotURL': 'http://wyvern.cs.uni-duesseldorf.de:%d/' % (httpPortNumber,),
     'projectURL': 'http://codespeak.net/pypy/',
     'projectName': 'PyPy'}
 
