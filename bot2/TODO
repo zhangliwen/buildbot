@@ -1,12 +1,11 @@
-- runner for running tests per directory and optionally in parallel
-  (this should be inspired by the current autotest.py running strategy minus the htmlconftest
-   details) [IN-PROGRESS]
-
+- tweak setup for operating on branches
 - buildbot Nightly scheduler that can pick a uniform revision server side and with support
   for specifying possibly branches
 
 - improve summary page (defined in pypybuildbot/summary.page),  support querying/slicing
   by builders/revisions(/branches), formatting and css
+
+- some kind of progress information for a run
 
 - build/support for running cpython on tests, adaptations to produce structured logs and be compatible
   with the py.lib trunk are probably necessary for lib-python/conftest.py
