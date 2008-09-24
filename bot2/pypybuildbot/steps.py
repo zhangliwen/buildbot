@@ -56,8 +56,8 @@ class PyPyOwnTestFactory(factory.BuildFactory):
             command = ["python", "py/bin/py.svnwcrevert", 
                        "-p.buildbot-sourcedata", "."],
             ))
-        self.addStep(source.SVN("https://codespeak.net/svn/pypy/"
-                                "branch/pypy-pytrunk"))
+        self.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
+                                defaultBranch="branch/pypy-pytrunk"))
         self.addStep(shell.ShellCommand(
             description="pytest",
             command=["python", "testrunner/runner.py",

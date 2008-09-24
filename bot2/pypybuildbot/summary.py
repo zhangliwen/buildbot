@@ -64,7 +64,7 @@ class RevisionOutcomeSet(object):
         return (self.key, namekey)
 
     def get_run_stdios(self):
-        return {self.key: self._run_stdio}
+        return {self.key: (self, self._run_stdio)}
 
 class RevisionOutcomeSetCache(object):
     CACHESIZE = 10
@@ -196,22 +196,32 @@ class SummaryPage(object):
     def make_stdio_anchors_for(self, outcome_set):
         anchors = []
         stdios = sorted(outcome_set.get_run_stdios().items())
-        for cachekey, url in stdios:
+        for cachekey, (run, url) in stdios:
             builder = cachekey[0]
             anchors.append('  ')
-            anchors.append(html.a(builder, href=url))
+            text = "%s [%d failed; %d skipped]" % (builder,
+                                                   len(run.failed),
+                                                   len(run.skipped))
+            anchors.append(html.a(text, href=url))
         return anchors
+
+    def add_title(self, title):
+        self.sections.append(html.h2(title))
         
     def add_section(self, outcome_sets):
+        revs = sorted(outcome_set.revision for outcome_set in outcome_sets)
         by_rev = sorted((outcome_set.revision, outcome_set) for outcome_set
                          in outcome_sets)
         lines = []
+
+        align = 2*len(revs)-1+len(str(revs[-1]))
         def bars():
             return ' |'*len(lines)
         for rev, outcome_set in by_rev:
             count_failures = len(outcome_set.failed)
             count_skipped = len(outcome_set.skipped)
             line = ["%s %d" % (bars(),rev)]
+            line.append((align-len(line[0]))*" ")
             line.append(self.make_stdio_anchors_for(outcome_set))
             line.append('\n')
             lines.append(line)
@@ -242,7 +252,8 @@ class SummaryPage(object):
         self.sections.append(section)
 
     def add_no_revision_builds(self, status, no_revision_builds):
-        section = html.div(html.p("builds aborted without getting a revision"))
+        section = html.div(html.p("builds aborted without getting"
+                                  " a revision:"))
 
         for build in no_revision_builds:
             builderName = build.getBuilder().getName()
@@ -305,40 +316,65 @@ def getProp(obj, name, default=None):
         return default
     
 class Summary(HtmlResource):
-    title="Summary" # xxx
 
     def __init__(self):
         HtmlResource.__init__(self)
         self.putChild('longrepr', LongRepr())
 
+    def getTitle(self, request):
+        status = self.getStatus(request)        
+        return "%s: summaries of last %d revisions" % (status.getProjectName(),
+                                                       N)
+
+    @staticmethod
+    def _prune_revs(revs, cutnum):
+        if len(revs) > cutnum:
+            for rev in sorted(revs.keys())[:-cutnum]:
+                del revs[rev]
+
     def recentRevisions(self, status):
-        # xxx branches
-        revs = {}
-        no_revision_builds = []
+        branches = {}
+
         for builderName in status.getBuilderNames():
             builderStatus = status.getBuilder(builderName)
-            for build in builderStatus.generateFinishedBuilds(num_builds=N):
+            for build in builderStatus.generateFinishedBuilds(num_builds=5*N):
+                branch = getProp(build, 'branch')
                 got_rev = getProp(build, 'got_revision', None)
+
+                revs, no_revision_builds = branches.setdefault(branch,
+                                                               ({}, []))
+
                 if got_rev is None:
                     no_revision_builds.append(build)
                 else:
                     rev = int(got_rev)
                     revBuilds = revs.setdefault(rev, {})
-                    if builderName not in revBuilds: # pick the most recent or ?
+                    # pick the most recent or ?
+                    if builderName not in revBuilds:
                         key = (builderName, build.getNumber())
                         outcome_set = outcome_set_cache.get(status, key)
                         revBuilds[builderName] = outcome_set
+
+        for branch, (revs, no_revision_builds) in branches.items():
+            self._prune_revs(revs, N)
                             
-        return revs, no_revision_builds
+        return branches
                             
     def body(self, request):
         status = self.getStatus(request)
-        
-        revs, no_revision_builds = self.recentRevisions(status)
-        outcome_sets = []
-        for rev, by_build in revs.items():
-            outcome_sets.append(GatherOutcomeSet(by_build))
+
         page = SummaryPage()
-        page.add_section(outcome_sets)
-        page.add_no_revision_builds(status, no_revision_builds)
+        
+        branches = self.recentRevisions(status)
+
+        for branch, (revs, no_revision_builds) in sorted(branches.iteritems()):
+            outcome_sets = []
+            for rev, by_build in revs.items():
+                outcome_sets.append(GatherOutcomeSet(by_build))
+            if branch is None:
+                branch = "<trunk>"
+            page.add_title(branch)
+            page.add_section(outcome_sets)
+            page.add_no_revision_builds(status, no_revision_builds)
+
         return page.render()

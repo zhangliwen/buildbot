@@ -198,11 +198,21 @@ s a/b.py:test_three
         res = goutcome_top.get_longrepr(('what', 'foo', 'a.b', 'test_one'))
         assert res == ''        
 
-    def test_colsizes(self):
-        failed = [('a', 'abc', 'd'), ('ab', 'c', 'xy'),
-                  ('ab', '', 'cd')]
+def test_colsizes():
+    failed = [('a', 'abc', 'd'), ('ab', 'c', 'xy'),
+              ('ab', '', 'cd')]
+    
+    res = summary.colsizes(failed)
+    
+    assert res == [2,3,2]
 
-        res = summary.colsizes(failed)
+def test__prune_revs():
+    revs = dict(zip(range(100), range(100, 200)))
 
-        assert res == [2,3,2]
+    summary.Summary._prune_revs(revs, 4)
+
+    assert len(revs) == 4
+
+    assert revs == {99: 199, 98: 198, 97: 197, 96: 196}
+    
 
