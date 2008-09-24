@@ -1,4 +1,3 @@
-- tweak setup for operating on branches
 - buildbot Nightly scheduler that can pick a uniform revision server side and with support
   for specifying possibly branches
 
