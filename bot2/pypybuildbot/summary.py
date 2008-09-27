@@ -181,6 +181,7 @@ class SummaryPage(object):
 
     def __init__(self):
         self.sections = []
+        self.cur_branch=None
 
     def make_longrepr_url_for(self, outcome_set, namekey):
         cachekey, namekey = outcome_set.get_key_namekey(namekey)
@@ -205,9 +206,16 @@ class SummaryPage(object):
             anchors.append(html.a(text, href=url))
         return anchors
 
-    def add_title(self, title):
-        self.sections.append(html.h2(title))
-        
+    def start_branch(self, branch):
+        self.cur_branch = branch
+        branch_anchor = html.a(branch, href="/summary?branch=%s" % branch)
+        self.sections.append(html.h2(branch_anchor))
+
+    def _rev_anchor(self, rev):
+        rev_anchor = html.a(str(rev), href="/summary?branch=%s&recentrev=%d" %
+                            (self.cur_branch, rev))
+        return rev_anchor
+                            
     def add_section(self, outcome_sets):
         revs = sorted(outcome_set.revision for outcome_set in outcome_sets)
         by_rev = sorted((outcome_set.revision, outcome_set) for outcome_set
@@ -220,7 +228,7 @@ class SummaryPage(object):
         for rev, outcome_set in by_rev:
             count_failures = len(outcome_set.failed)
             count_skipped = len(outcome_set.skipped)
-            line = ["%s %d" % (bars(),rev)]
+            line = [bars(), ' ', self._rev_anchor(rev)]
             line.append((align-len(line[0]))*" ")
             line.append(self.make_stdio_anchors_for(outcome_set))
             line.append('\n')
@@ -314,6 +322,24 @@ def getProp(obj, name, default=None):
         return obj.getProperty(name)
     except KeyError:
         return default
+
+def make_test(lst):
+    if lst is None:
+        return lambda v: True
+    else:
+        membs = set(lst)
+        return lambda v: v in membs
+
+def make_subst(v1, v2):
+    def subst(v):
+        if v == v1:
+            return v2
+        return v
+    return subst
+
+trunk_name = make_subst(None, "<trunk>")
+trunk_value = make_subst("<trunk>", None)
+
     
 class Summary(HtmlResource):
 
@@ -332,14 +358,21 @@ class Summary(HtmlResource):
             for rev in sorted(revs.keys())[:-cutnum]:
                 del revs[rev]
 
-    def recentRevisions(self, status):
+    def recentRevisions(self, status, only_recentrevs=None, only_branches=None):
+        test_rev = make_test(only_recentrevs)
+        test_branch = make_test(only_branches)
+        
         branches = {}
 
         for builderName in status.getBuilderNames():
             builderStatus = status.getBuilder(builderName)
             for build in builderStatus.generateFinishedBuilds(num_builds=5*N):
                 branch = getProp(build, 'branch')
+                if not test_branch(branch):
+                    continue
                 got_rev = getProp(build, 'got_revision', None)
+                if not test_rev(got_rev):
+                    continue
 
                 revs, no_revision_builds = branches.setdefault(branch,
                                                                ({}, []))
@@ -364,16 +397,23 @@ class Summary(HtmlResource):
         status = self.getStatus(request)
 
         page = SummaryPage()
+        #page.sections.append(repr(request.args))
         
-        branches = self.recentRevisions(status)
+        only_branches = request.args.get('branch', None)
+        only_recentrevs = request.args.get('recentrev', None)
+        if only_branches is not None:
+            only_branches = map(trunk_value, only_branches)
+        
+        branches = self.recentRevisions(status,
+                                        only_recentrevs=only_recentrevs,
+                                        only_branches=only_branches)
 
         for branch, (revs, no_revision_builds) in sorted(branches.iteritems()):
             outcome_sets = []
             for rev, by_build in revs.items():
                 outcome_sets.append(GatherOutcomeSet(by_build))
-            if branch is None:
-                branch = "<trunk>"
-            page.add_title(branch)
+            branch = trunk_name(branch)
+            page.start_branch(branch)
             page.add_section(outcome_sets)
             page.add_no_revision_builds(status, no_revision_builds)
 
