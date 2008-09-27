@@ -5,6 +5,7 @@
   by builders/revisions(/branches), formatting and css
 
 - some kind of progress information for a run
+- support for better information in case of runner-level killed hanging tests
 
 - build/support for running cpython on tests, adaptations to produce structured logs and be compatible
   with the py.lib trunk are probably necessary for lib-python/conftest.py
