@@ -25,6 +25,8 @@ pypysteps = load('pypybuildbot.steps')
 pypyOwnTestFactory = pypysteps.PyPyOwnTestFactory()
 pypyOwnTestFactoryWin = pypysteps.PyPyOwnTestFactory(platform="win32")
 
+pypyTranslatedLibPythonTestFactory = pypysteps.PyPyTranslaledLibPythonTestFactory()
+
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
@@ -44,6 +46,12 @@ BuildmasterConfig = {
                    "builddir": "own-linux-x86-32",
                    "factory": pypyOwnTestFactory
                   },
+                  {"name": "pypy-c-lib-python-linux-x86-32",
+                   "slavenames": ["wyvern"],
+                   "builddir": "pypy-c-lib-python-linux-x86-32",
+                   "factory": pypyTranslatedLibPythonTestFactory
+                  },
+                  
                 ],
 
     'buildbotURL': 'http://wyvern.cs.uni-duesseldorf.de:%d/'%(httpPortNumber),

@@ -32,11 +32,44 @@ class CondShellCommand(shell.ShellCommand):
             self.setStatus(None, SUCCESS)
             self.finished(SUCCESS)
 
+class Translate(shell.ShellCommand):
+    name = "translate"
+    description = ["translating"]
+    descriptionDone = ["translation"]
+
+    command = ["echo", "python", "translate.py", "--batch"]
+    translationTarget = "targetpypystandalone"
+
+    def __init__(self, translationArgs, targetArgs,
+                 workdir="build/pypy/translator/goal",
+                 *a, **kw):
+        self.command = (self.command + translationArgs +
+                        [self.translationTarget] + targetArgs)
+        ShellCommand.__init__(self, workdir, *a, **kw)
+
+
 # ________________________________________________________________
 
 def not_first_time(props):
     first_time = props.getProperty("first-time")
     return not first_time 
+
+def setup_steps(platform, factory):
+    if platform == "win32":
+        first_time_check = WindowsFirstTime()
+    else:
+        first_time_check = PosixFirstTime()
+
+    factory.addStep(first_time_check)
+    factory.addStep(CondShellCommand(
+        description="wcrevert",
+        cond=not_first_time,
+        command = ["python", "py/bin/py.svnwcrevert", 
+                   "-p.buildbot-sourcedata", "."],
+        ))
+    factory.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
+                            defaultBranch="dist"))    
+
 
 class PyPyOwnTestFactory(factory.BuildFactory):
 
@@ -44,20 +77,8 @@ class PyPyOwnTestFactory(factory.BuildFactory):
         platform = kw.pop('platform', 'linux')
         factory.BuildFactory.__init__(self, *a, **kw)
 
-        if platform == "win32":
-            first_time_check = WindowsFirstTime()
-        else:
-            first_time_check = PosixFirstTime()
+        setup_steps(platform, factory)
 
-        self.addStep(first_time_check)
-        self.addStep(CondShellCommand(
-            description="wcrevert",
-            cond=not_first_time,
-            command = ["python", "py/bin/py.svnwcrevert", 
-                       "-p.buildbot-sourcedata", "."],
-            ))
-        self.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
-                                defaultBranch="dist"))
         self.addStep(shell.ShellCommand(
             description="pytest",
             command=["python", "testrunner/runner.py",
@@ -67,3 +88,20 @@ class PyPyOwnTestFactory(factory.BuildFactory):
                      "--root=pypy"],
             logfiles={'pytestLog': 'testrun.log'},
             env={"PYTHONPATH": ['.']}))
+
+class PyPyTranslaledLibPythonTestFactory(factory.BuildFactory):
+
+    def __init__(self, *a, **kw):
+        platform = kw.pop('platform', 'linux')
+        factory.BuildFactory.__init__(self, *a, **kw)
+
+        setup_steps(platform, factory)
+
+        self.addStep(Translate(["-O0"], ["-no-allworkingmodules"])
+
+        self.addStep(shell.ShellCommand(
+            description="lib-python test",
+            command=["python", "pypy/test_all.py",
+                     "--pypy=pypy/translator/goal/pypy-c",
+                     "--resultlog=cpython.log"],           
+            logfiles={'pytestLog': 'cpython.log'}))
