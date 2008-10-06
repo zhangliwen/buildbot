@@ -57,12 +57,12 @@ class PyPyOwnTestFactory(factory.BuildFactory):
                        "-p.buildbot-sourcedata", "."],
             ))
         self.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
-                                defaultBranch="branch/pypy-pytrunk"))
+                                defaultBranch="dist"))
         self.addStep(shell.ShellCommand(
             description="pytest",
             command=["python", "testrunner/runner.py",
                      "--logfile=testrun.log",
-                     "--config=pypy/testrunner_cfg.py",
+                     "--config=pypy/testrunner_cfg.py", "--dry-run",
                      "--config=~/machine_cfg.py",
                      "--root=pypy"],
             logfiles={'pytestLog': 'testrun.log'},
