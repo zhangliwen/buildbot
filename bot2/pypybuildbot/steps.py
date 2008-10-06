@@ -45,7 +45,7 @@ class Translate(shell.ShellCommand):
                  *a, **kw):
         self.command = (self.command + translationArgs +
                         [self.translationTarget] + targetArgs)
-        ShellCommand.__init__(self, workdir, *a, **kw)
+        shell.ShellCommand.__init__(self, workdir, *a, **kw)
 
 
 # ________________________________________________________________
@@ -77,7 +77,7 @@ class PyPyOwnTestFactory(factory.BuildFactory):
         platform = kw.pop('platform', 'linux')
         factory.BuildFactory.__init__(self, *a, **kw)
 
-        setup_steps(platform, factory)
+        setup_steps(platform, self)
 
         self.addStep(shell.ShellCommand(
             description="pytest",
@@ -95,9 +95,9 @@ class PyPyTranslaledLibPythonTestFactory(factory.BuildFactory):
         platform = kw.pop('platform', 'linux')
         factory.BuildFactory.__init__(self, *a, **kw)
 
-        setup_steps(platform, factory)
+        setup_steps(platform, self)
 
-        self.addStep(Translate(["-O0"], ["-no-allworkingmodules"])
+        self.addStep(Translate(translationArgs=["-O0"], targetArgs=["-no-allworkingmodules"]))
 
         self.addStep(shell.ShellCommand(
             description="lib-python test",
