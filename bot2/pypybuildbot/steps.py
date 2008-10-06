@@ -62,7 +62,7 @@ class PyPyOwnTestFactory(factory.BuildFactory):
             description="pytest",
             command=["python", "testrunner/runner.py",
                      "--logfile=testrun.log",
-                     "--config=pypy/testrunner_cfg.py", "--dry-run",
+                     "--config=pypy/testrunner_cfg.py",
                      "--config=~/machine_cfg.py",
                      "--root=pypy"],
             logfiles={'pytestLog': 'testrun.log'},
