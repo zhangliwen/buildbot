@@ -99,7 +99,7 @@ class PyPyTranslaledLibPythonTestFactory(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(["-O0"], ["-no-allworkingmodules"]))
+        self.addStep(Translate(["-O0"], []))
 
         self.addStep(shell.ShellCommand(
             description="lib-python test",
