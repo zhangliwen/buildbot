@@ -20,12 +20,12 @@ summary = load('pypybuildbot.summary')
 status.putChild('summary', summary.Summary())
 
 
-pypysteps = load('pypybuildbot.steps')
+pypybuilds = load('pypybuildbot.builds')
 
-pypyOwnTestFactory = pypysteps.PyPyOwnTestFactory()
-pypyOwnTestFactoryWin = pypysteps.PyPyOwnTestFactory(platform="win32")
+pypyOwnTestFactory = pypybuilds.PyPyOwnTestFactory()
+pypyOwnTestFactoryWin = pypybuilds.PyPyOwnTestFactory(platform="win32")
 
-pypyTranslatedLibPythonTestFactory = pypysteps.PyPyTranslaledLibPythonTestFactory()
+pypyTranslatedLibPythonTestFactory = pypybuilds.PyPyTranslaledLibPythonTestFactory()
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,

@@ -1,11 +1,11 @@
-from pypybuildbot import steps
+from pypybuildbot import builds
 
 
 def test_Translate():
     expected = ['translate.py', '--batch', '-O0',
                 'targetpypystandalone', '--no-allworkingmodules']
 
-    translateInst = steps.Translate(['-O0'], ['--no-allworkingmodules'])
+    translateInst = builds.Translate(['-O0'], ['--no-allworkingmodules'])
 
     assert translateInst.command[-len(expected):] == expected
     
