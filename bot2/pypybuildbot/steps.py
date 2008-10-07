@@ -43,9 +43,11 @@ class Translate(shell.ShellCommand):
     def __init__(self, translationArgs, targetArgs,
                  workdir="build/pypy/translator/goal",
                  *a, **kw):
+        kw['translationArgs'] = translationArgs
+        kw['targetArgs'] = targetArgs
+        shell.ShellCommand.__init__(self, workdir, *a, **kw)
         self.command = (self.command + translationArgs +
                         [self.translationTarget] + targetArgs)
-        shell.ShellCommand.__init__(self, workdir, *a, **kw)
 
 
 # ________________________________________________________________
@@ -97,7 +99,7 @@ class PyPyTranslaledLibPythonTestFactory(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(translationArgs=["-O0"], targetArgs=["-no-allworkingmodules"]))
+        self.addStep(Translate(["-O0"], ["-no-allworkingmodules"]))
 
         self.addStep(shell.ShellCommand(
             description="lib-python test",
