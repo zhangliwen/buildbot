@@ -37,7 +37,7 @@ class Translate(shell.ShellCommand):
     description = ["translating"]
     descriptionDone = ["translation"]
 
-    command = ["echo", "python", "translate.py", "--batch"]
+    command = ["python", "translate.py", "--batch"]
     translationTarget = "targetpypystandalone"
 
     def __init__(self, translationArgs, targetArgs,
@@ -105,6 +105,5 @@ class PyPyTranslaledLibPythonTestFactory(factory.BuildFactory):
             description="lib-python test",
             command=["python", "pypy/test_all.py",
                      "--pypy=pypy/translator/goal/pypy-c",
-                     "--resultlog=cpython.log", "--collectonly",
-                     "lib-python"],           
+                     "--resultlog=cpython.log", "lib-python"],           
             logfiles={'pytestLog': 'cpython.log'}))
