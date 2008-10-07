@@ -15,3 +15,4 @@
 
 - pypy-c py.test -A support
 
+- look into why the full summary page but not single rev is slowish
