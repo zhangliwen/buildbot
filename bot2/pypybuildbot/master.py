@@ -31,9 +31,9 @@ BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
     'change_source': [],
-    'schedulers': [Nightly("nightly",
-                           ["own-linux-x86-32"],
-                           hour=4, minute=45)],   
+    'schedulers': [
+    	Nightly("nightly", ["own-linux-x86-32", "pypy-c-lib-python-linux-x86-32"], hour=4, minute=45),
+    ],   
     'status': [status],
 
     'slaves': [BuildSlave(name, password)
@@ -42,19 +42,19 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": "own-linux-x86-32",
-                   "slavenames": ["wyvern"],
+                   "slavenames": ["wyvern", "cobra"],
                    "builddir": "own-linux-x86-32",
                    "factory": pypyOwnTestFactory
                   },
                   {"name": "pypy-c-lib-python-linux-x86-32",
-                   "slavenames": ["wyvern"],
+                   "slavenames": ["wyvern", "cobra"],
                    "builddir": "pypy-c-lib-python-linux-x86-32",
                    "factory": pypyTranslatedLibPythonTestFactory
                   },
                   
                 ],
 
-    'buildbotURL': 'http://wyvern.cs.uni-duesseldorf.de:%d/'%(httpPortNumber),
+    'buildbotURL': 'http://codespeak.net:%d/'%(httpPortNumber),
     'projectURL': 'http://codespeak.net/pypy/',
     'projectName': 'PyPy'}
 

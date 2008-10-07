@@ -70,7 +70,7 @@ def setup_steps(platform, factory):
                    "-p.buildbot-sourcedata", "."],
         ))
     factory.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
-                            defaultBranch="dist"))    
+                            defaultBranch="branch/2.5-merge"))    
 
 
 class PyPyOwnTestFactory(factory.BuildFactory):
