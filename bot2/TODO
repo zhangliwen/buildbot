@@ -2,15 +2,16 @@
   for specifying possibly branches
 
 - improve summary page (defined in pypybuildbot/summary.page),  support querying/slicing
-  by builders/revisions(/branches), formatting and css
+  by builders, formatting and css
 
 - some kind of progress information for a run
+
+- report translation failures in the summary somehow
+
 - support for better information in case of runner-level killed hanging tests
 
 - build/support for running cpython on tests, adaptations to produce structured logs and be compatible
-  with the py.lib trunk are probably necessary for lib-python/conftest.py
+  with the py.lib trunk are probably necessary for lib-python/conftest.py TESTING
 
 - pypy-c py.test -A support
-
-- fix pypy conftests not to use deprecated interfaces
 
