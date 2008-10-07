@@ -105,5 +105,6 @@ class PyPyTranslaledLibPythonTestFactory(factory.BuildFactory):
             description="lib-python test",
             command=["python", "pypy/test_all.py",
                      "--pypy=pypy/translator/goal/pypy-c",
-                     "--resultlog=cpython.log"],           
+                     "--resultlog=cpython.log", "--collectonly",
+                     "lib-python"],           
             logfiles={'pytestLog': 'cpython.log'}))
