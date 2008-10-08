@@ -47,7 +47,7 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactory
                   },
                   {"name": "pypy-c-lib-python-linux-x86-32",
-                   "slavenames": ["wyvern", "cobra"],
+                   "slavenames": ["wyvern", "cobra", "bigdogvm1"],
                    "builddir": "pypy-c-lib-python-linux-x86-32",
                    "factory": pypyTranslatedLibPythonTestFactory
                   },
