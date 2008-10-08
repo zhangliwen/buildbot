@@ -4,6 +4,7 @@ import py
 html = py.xml.html
 
 from buildbot.status.web.base import HtmlResource
+from buildbot.status.builder import FAILURE
 
 class RevisionOutcomeSet(object):
 
@@ -80,19 +81,29 @@ class RevisionOutcomeSetCache(object):
 
         rev = int(build.getProperty("got_revision"))
         pytest_log = None
-        stdio_url = "no_log"
+        stdio_log = None
+        failure = None
         for step in build.getSteps():
             logs = dict((log.getName(), log) for log in step.getLogs())
             if 'pytestLog' in logs:
                 pytest_log = logs['pytestLog']
-                stdio_url = status.getURLForThing(logs['stdio'])
-                # builbot is broken in this :(
-                stdio_url = stdio_url[:-1]+"stdio"
+                stdio_log = logs['stdio']
                 break
+            elif stdio_log is None and step.getResults()[0] == FAILURE:
+                failure = ' '.join(step.getText())
+                stdio_log = logs.get('stdio')
 
+        if stdio_log is None:
+            stdio_url = "no_log"
+        else:
+            stdio_url = status.getURLForThing(stdio_log)
+            # builbot is broken in this :(
+            stdio_url = stdio_url[:-1]+"stdio"
+            
         outcome_set = RevisionOutcomeSet(rev, key, stdio_url) 
         if pytest_log is None or not pytest_log.hasContents():
-            outcome_set.populate_one('<run>', '!', "no log from the test run")
+            name = failure or '<run>'
+            outcome_set.populate_one(name, '!', "no log from the test run")
         else:
             outcome_set.populate(pytest_log)
         return outcome_set
