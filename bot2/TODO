@@ -16,5 +16,5 @@
 
 - move most buildbots to be over python 2.5 (?)
 
-- wire windows slave
+- wire windows slave IN-PROGRESS
 
