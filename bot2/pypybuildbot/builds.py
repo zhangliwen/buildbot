@@ -39,6 +39,7 @@ class Translate(shell.ShellCommand):
 
     command = ["python", "translate.py", "--batch"]
     translationTarget = "targetpypystandalone"
+    haltOnFailure = True
 
     def __init__(self, translationArgs, targetArgs,
                  workdir="build/pypy/translator/goal",
