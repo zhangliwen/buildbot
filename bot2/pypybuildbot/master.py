@@ -26,13 +26,19 @@ pypyOwnTestFactory = pypybuilds.PyPyOwnTestFactory()
 pypyOwnTestFactoryWin = pypybuilds.PyPyOwnTestFactory(platform="win32")
 
 pypyTranslatedLibPythonTestFactory = pypybuilds.PyPyTranslaledLibPythonTestFactory()
+pypyTranslatedLibPythonTestFactoryWin = pypybuilds.PyPyTranslaledLibPythonTestFactory(platform="win32")
+
+
+LINUX32 = "own-linux-x86-32"
+CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
+CPYWIN32 = "pypy-c-lib-python-win-32"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
     'change_source': [],
     'schedulers': [
-    	Nightly("nightly", ["own-linux-x86-32", "pypy-c-lib-python-linux-x86-32"], hour=4, minute=45),
+    	Nightly("nightly", [LINUX32, CPYLINUX32], hour=4, minute=45),
     ],   
     'status': [status],
 
@@ -41,17 +47,21 @@ BuildmasterConfig = {
                in passwords.iteritems()],
 
     'builders': [
-                  {"name": "own-linux-x86-32",
+                  {"name": LINUX32,
                    "slavenames": ["wyvern", "cobra"],
-                   "builddir": "own-linux-x86-32",
+                   "builddir": LINUX2,
                    "factory": pypyOwnTestFactory
                   },
-                  {"name": "pypy-c-lib-python-linux-x86-32",
+                  {"name": CPYLINUX32,
                    "slavenames": ["wyvern", "cobra", "bigdogvm1"],
-                   "builddir": "pypy-c-lib-python-linux-x86-32",
+                   "builddir": CPYLINUX32,
                    "factory": pypyTranslatedLibPythonTestFactory
                   },
-                  
+                  {"name": CPYWIN32,
+                   "slavenames": ["winxp32-py2.5"],
+                   "builddir": CPYWIN32,
+                   "factory": pypyTranslatedLibPythonTestFactoryWin
+                  },                  
                 ],
 
     'buildbotURL': 'http://codespeak.net:%d/'%(httpPortNumber),
