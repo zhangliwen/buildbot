@@ -8,9 +8,6 @@
 
 - support for better information in case of runner-level killed hanging tests
 
-- build/support for running cpython on tests, adaptations to produce structured logs and be compatible
-  with the py.lib trunk are probably necessary for lib-python/conftest.py TESTING
-
 - pypy-c py.test -A support
 
 - look into why the full summary page but not single rev is slowish
