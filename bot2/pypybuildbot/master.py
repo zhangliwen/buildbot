@@ -32,6 +32,7 @@ pypyTranslatedLibPythonTestFactoryWin = pypybuilds.PyPyTranslaledLibPythonTestFa
 LINUX32 = "own-linux-x86-32"
 CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
 CPYWIN32 = "pypy-c-lib-python-win-32"
+CPYLINUX32_VM = 'pypy-c-lib-python-linux-x86-32vm'
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
@@ -53,10 +54,15 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactory
                   },
                   {"name": CPYLINUX32,
-                   "slavenames": ["wyvern", "cobra", "bigdogvm1"],
+                   "slavenames": ["wyvern", "cobra"],
                    "builddir": CPYLINUX32,
                    "factory": pypyTranslatedLibPythonTestFactory
                   },
+                  {"name" : CPYLINUX32_VM,
+                   "slavenames": ['bigdogvm1'],
+                   "builddir": CPYLINUX32_VM,
+                   "factory": pypyTranslatedLibPythonTestFactory
+                   },
                   {"name": CPYWIN32,
                    "slavenames": ["winxp32-py2.5"],
                    "builddir": CPYWIN32,
