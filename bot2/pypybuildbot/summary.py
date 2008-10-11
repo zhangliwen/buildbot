@@ -228,6 +228,8 @@ class SummaryPage(object):
         return rev_anchor
                             
     def add_section(self, outcome_sets):
+        if not outcome_sets:
+            return
         revs = sorted(outcome_set.revision for outcome_set in outcome_sets)
         by_rev = sorted((outcome_set.revision, outcome_set) for outcome_set
                          in outcome_sets)
