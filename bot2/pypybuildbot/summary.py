@@ -39,6 +39,10 @@ class RevisionOutcomeSet(object):
         if longrepr:
             self.longreprs[namekey] = longrepr
 
+    @property
+    def numpassed(self):
+        return len(self._outcomes) - len(self.skipped) - len(self.failed)
+
     def populate(self, log):
         kind = None
         def add_one():
@@ -133,6 +137,7 @@ class GatherOutcomeSet(object):
         self.map = map
         self._failed = None
         self._skipped = None
+        self._numpassed = None
         self.revision = map.values()[0].revision
         
     @property
@@ -152,6 +157,15 @@ class GatherOutcomeSet(object):
                 self._skipped.update([(prefix,) + namekey for namekey in
                                      outcome.skipped])
         return self._skipped
+
+    @property
+    def numpassed(self):
+        if self._numpassed is None:
+            numpassed = 0
+            for  prefix, outcome in self.map.items():
+                numpassed += outcome.numpassed
+            self._numpassed = numpassed
+        return self._numpassed
 
     def get_outcome(self, namekey):
         which = namekey[0]
@@ -211,9 +225,10 @@ class SummaryPage(object):
         for cachekey, (run, url) in stdios:
             builder = cachekey[0]
             anchors.append('  ')
-            text = "%s [%d failed; %d skipped]" % (builder,
-                                                   len(run.failed),
-                                                   len(run.skipped))
+            text = "%s [%d, %d F, %d s]" % (builder,
+                                            run.numpassed,
+                                            len(run.failed),
+                                            len(run.skipped))
             anchors.append(html.a(text, href=url))
         return anchors
 

@@ -18,6 +18,7 @@ s a/b.py:test_three
 
         assert rev_outcome_set.skipped == set([("a.b","test_three")])
         assert rev_outcome_set.failed == set([("a.b", "test_one")])
+        assert rev_outcome_set.numpassed == 1
 
         res = rev_outcome_set.get_outcome(("a.b", "test_one"))
         assert res == 'F'
@@ -51,6 +52,7 @@ s a/b.py:test_three
 
         assert len(rev_outcome_set.skipped) == 1
         assert len(rev_outcome_set.failed) == 1
+        assert rev_outcome_set.numpassed == 1
 
         assert rev_outcome_set.longreprs == {
 ("a.b","test_three"): "some skip\n",
@@ -80,6 +82,8 @@ s a/c.py
 
         assert rev_outcome_set.skipped == set([
             ("a.c", '')])
+
+        assert rev_outcome_set.numpassed == 0
         
     def test_absent_outcome(self):
         rev_outcome_set = summary.RevisionOutcomeSet(50000)
@@ -162,6 +166,7 @@ s a/b.py:test_three
         assert goutcome.skipped == set([('foo', 'a.b', 'test_three'),
                                         ('bar', 'a.b', 'test_three'),
                                         ])
+        assert goutcome.numpassed == 3
 
         for prefix in ('foo', 'bar'):
             for mod, testname in (("a.b", "test_one"), ("a.b", "test_two"),
@@ -181,6 +186,8 @@ s a/b.py:test_three
         goutcome_top = summary.GatherOutcomeSet({'sub': goutcome})
 
         assert goutcome_top.failed == set([('sub', 'foo', 'a.b', 'test_one')])
+
+        assert goutcome_top.numpassed == 3
 
         res = goutcome_top.get_outcome(('sub', 'foo', 'a.b', 'test_one'))
         assert res == 'F'
