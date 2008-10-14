@@ -1,10 +1,10 @@
-import urllib
+import urllib, time
 
 import py
 html = py.xml.html
 
 from buildbot.status.web.base import HtmlResource
-from buildbot.status.builder import FAILURE
+from buildbot.status.builder import FAILURE, EXCEPTION
 
 class RevisionOutcomeSet(object):
 
@@ -71,12 +71,22 @@ class RevisionOutcomeSet(object):
     def get_run_stdios(self):
         return {self.key: (self, self._run_stdio)}
 
-class RevisionOutcomeSetCache(object):
-    CACHESIZE = 10
 
-    def __init__(self):
+class RevisionOutcomeSetCache(object):
+
+    def __init__(self, cachesize=10):
         self._outcome_sets = {}
         self._lru = []
+        self._hits = 0
+        self._misses = 0
+        self.cachesize = cachesize
+
+    def reset(self):
+        self._hits = 0
+        self._misses = 0
+
+    def stats(self):
+        return "hits: %d, misses: %d" % (self._hits, self._misses)
 
     def _load_outcome_set(self, status, key):
         builderName, buildNumber = key
@@ -93,7 +103,8 @@ class RevisionOutcomeSetCache(object):
                 pytest_log = logs['pytestLog']
                 stdio_log = logs['stdio']
                 break
-            elif stdio_log is None and step.getResults()[0] == FAILURE:
+            elif (stdio_log is None and
+                  step.getResults()[0] in (FAILURE, EXCEPTION)):
                 failure = ' '.join(step.getText())
                 stdio_log = logs.get('stdio')
 
@@ -119,17 +130,18 @@ class RevisionOutcomeSetCache(object):
             pass
         self._lru.append(key)
         try:
-            return self._outcome_sets[key]
+            outcome_set = self._outcome_sets[key]
+            self._hits += 1
+            return outcome_set
         except KeyError:
             pass
-        if len(self._lru) > self.CACHESIZE:
+        self._misses += 1
+        if len(self._lru) > self.cachesize:
             dead_key = self._lru.pop(0)
             self._outcome_sets.pop(dead_key, None)
         outcome_set = self._load_outcome_set(status, key)
         self._outcome_sets[key] = outcome_set
         return outcome_set
-
-outcome_set_cache = RevisionOutcomeSetCache()
 
 class GatherOutcomeSet(object):
 
@@ -190,7 +202,10 @@ class GatherOutcomeSet(object):
          
 # ________________________________________________________________
 
-N = 10
+N = 5
+
+outcome_set_cache = RevisionOutcomeSetCache(10*(N+1))
+
 
 def colsizes(namekeys):
     colsizes = None
@@ -300,6 +315,9 @@ class SummaryPage(object):
             section.append(html.br())
         self.sections.append(section)
 
+    def add_comment(self, comm):
+        self.sections.append(py.xml.raw("<!-- %s -->" % comm))
+
     def render(self):
         body_html = html.div(self.sections)
         return body_html.unicode()
@@ -328,6 +346,9 @@ class LongRepr(HtmlResource):
         return "%s %s" % (mod, testname)        
 
     def body(self, request):
+        t0 = time.time()
+        outcome_set_cache.reset()
+        
         builder = request.args.get('builder', [])
         build = request.args.get('build', [])
         if not builder or not build:
@@ -343,7 +364,9 @@ class LongRepr(HtmlResource):
 
         longrepr = outcome_set.get_longrepr(namekey)
 
-        return html.pre(longrepr).unicode()
+        return html.div([html.pre(longrepr),
+                         py.xml.raw("<!-- %s -->" % outcome_set_cache.stats())
+                         ]).unicode()
 
 def getProp(obj, name, default=None):
     try:
@@ -412,16 +435,22 @@ class Summary(HtmlResource):
                     revBuilds = revs.setdefault(rev, {})
                     # pick the most recent or ?
                     if builderName not in revBuilds:
-                        key = (builderName, build.getNumber())
-                        outcome_set = outcome_set_cache.get(status, key)
-                        revBuilds[builderName] = outcome_set
+                        revBuilds[builderName] = build.getNumber()
 
         for branch, (revs, no_revision_builds) in branches.items():
             self._prune_revs(revs, N)
+            for rev, revBuilds in revs.iteritems():
+                for builderName, buildNumber in revBuilds.items():
+                    key = (builderName, buildNumber)
+                    outcome_set = outcome_set_cache.get(status, key)
+                    revBuilds[builderName] = outcome_set
                             
         return branches
                             
     def body(self, request):
+        t0 = time.time()
+        outcome_set_cache.reset()
+        
         status = self.getStatus(request)
 
         page = SummaryPage()
@@ -445,4 +474,8 @@ class Summary(HtmlResource):
             page.add_section(outcome_sets)
             page.add_no_revision_builds(status, no_revision_builds)
 
+        t1 = time.time()
+        total_time = time.time()-t0
+        page.add_comment('t=%.2f; %s' % (total_time,
+                                         outcome_set_cache.stats()))
         return page.render()

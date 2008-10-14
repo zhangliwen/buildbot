@@ -92,8 +92,7 @@ s a/c.py
         assert res == ' '
 
     def test_RevisionOutcomeSetCache(self):
-        cache = summary.RevisionOutcomeSetCache()
-        cache.CACHESIZE = 3
+        cache = summary.RevisionOutcomeSetCache(cachesize=3)
         calls = []
         def load(x, y):
             calls.append(y)
