@@ -279,12 +279,20 @@ class SummaryPage(object):
         lines.append([bars(), "\n"])
         
         failed = set()
-        for rev, outcome_set in by_rev:            
-            failed.update(outcome_set.failed)
+        exploded = set()
+        for rev, outcome_set in by_rev:
+            for failure in outcome_set.failed:
+                letter = outcome_set.get_outcome(failure)
+                if letter == '!':
+                    exploded.add(failure)
+                failed.add(failure)
 
         colwidths = colsizes(failed)
 
-        for failure in sorted(failed):
+        def sorting(x):
+            return (x not in exploded, x)
+
+        for failure in sorted(failed, key=sorting):
             line = []
             for rev, outcome_set in by_rev:
                 letter = outcome_set.get_outcome(failure)
