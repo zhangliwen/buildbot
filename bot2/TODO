@@ -12,8 +12,6 @@
 
 - pypy-c py.test -A support
 
-- look into why the full summary page but not single rev is slowish
-
 - have a way for the involved tool to avoid color escapes even when there's a tty (because of buildbot pty usage)
 
 - move most buildbots to be over python 2.5 (?)
