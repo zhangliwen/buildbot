@@ -18,4 +18,8 @@
 
 - convention for naming and coalescing alternative builders for the same build
 
-- svnwcrevert is followed by full svn co, this makes little sense, investigate
+- implement pre-switch logic to avoid the full checkouts when running non default branches
+
+- timeout issues with the run of our own rests, probably increase timeout and/or explode other dirs
+  but also adding better debugging info, right now that the problem is there is not evident
+
