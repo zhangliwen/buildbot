@@ -18,3 +18,4 @@
 
 - convention for naming and coalescing alternative builders for the same build
 
+- svnwcrevert is followed by full svn co, this makes little sense, investigate
