@@ -46,6 +46,7 @@ class Translate(shell.ShellCommand):
                  *a, **kw):
         kw['translationArgs'] = translationArgs
         kw['targetArgs'] = targetArgs
+        kw['timeout'] = 3600
         shell.ShellCommand.__init__(self, workdir, *a, **kw)
         self.command = (self.command + translationArgs +
                         [self.translationTarget] + targetArgs)
