@@ -91,6 +91,7 @@ class PyPyOwnTestFactory(factory.BuildFactory):
                      "--config=~/machine_cfg.py",
                      "--root=pypy"],
             logfiles={'pytestLog': 'testrun.log'},
+            timeout = 2400,
             env={"PYTHONPATH": ['.']}))
 
 class PyPyTranslaledLibPythonTestFactory(factory.BuildFactory):
