@@ -49,7 +49,7 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": LINUX32,
-                   "slavenames": ["wyvern", "cobra"],
+                   "slavenames": ["wyvern"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory
                   },
