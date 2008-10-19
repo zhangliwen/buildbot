@@ -3,6 +3,15 @@ from buildbot.steps import source, shell
 from buildbot.status.builder import SUCCESS
 
 
+class ShellCmd(shell.ShellCommand):
+    # our own version that can distinguish abort cases (rc == -1)
+
+    def getText(self, cmd, results):
+        if cmd.rc == -1:
+            return self.describe(True) + ['aborted']
+        return shell.ShellCommand.getText(self, cmd, results)
+    
+
 class FirstTime(shell.SetProperty):
 
     def __init__(self, **kwds):
@@ -17,22 +26,22 @@ class WindowsFirstTime(FirstTime):
     command = "if not exist pypy echo yes"    
 
 
-class CondShellCommand(shell.ShellCommand):
+class CondShellCommand(ShellCmd):
 
     def __init__(self, **kwds):
-        shell.ShellCommand.__init__(self, **kwds)
+        ShellCmd.__init__(self, **kwds)
         self.cond = kwds.get('cond', lambda props: True)
 
     def start(self):
         props = self.build.getProperties()
         yes = self.cond(props)
         if yes:
-            shell.ShellCommand.start(self)
+            ShellCmd.start(self)
         else:
             self.setStatus(None, SUCCESS)
             self.finished(SUCCESS)
 
-class Translate(shell.ShellCommand):
+class Translate(ShellCmd):
     name = "translate"
     description = ["translating"]
     descriptionDone = ["translation"]
@@ -47,7 +56,7 @@ class Translate(shell.ShellCommand):
         kw['translationArgs'] = translationArgs
         kw['targetArgs'] = targetArgs
         kw['timeout'] = 3600
-        shell.ShellCommand.__init__(self, workdir, *a, **kw)
+        ShellCmd.__init__(self, workdir, *a, **kw)
         self.command = (self.command + translationArgs +
                         [self.translationTarget] + targetArgs)
 
@@ -83,7 +92,7 @@ class PyPyOwnTestFactory(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(shell.ShellCommand(
+        self.addStep(ShellCmd(
             description="pytest",
             command=["python", "testrunner/runner.py",
                      "--logfile=testrun.log",
@@ -104,7 +113,7 @@ class PyPyTranslaledLibPythonTestFactory(factory.BuildFactory):
 
         self.addStep(Translate(["-O2"], []))
 
-        self.addStep(shell.ShellCommand(
+        self.addStep(ShellCmd(
             description="lib-python test",
             command=["python", "pypy/test_all.py",
                      "--pypy=pypy/translator/goal/pypy-c",

@@ -97,11 +97,14 @@ class RevisionOutcomeSetCache(object):
         pytest_log = None
         stdio_log = None
         failure = None
+        aborted = False
         for step in build.getSteps():
             logs = dict((log.getName(), log) for log in step.getLogs())
             if 'pytestLog' in logs:
-                pytest_log = logs['pytestLog']
                 stdio_log = logs['stdio']
+                if 'aborted' in step.getText():
+                    aborted = True
+                pytest_log = logs['pytestLog']
                 break
             elif (stdio_log is None and
                   step.getResults()[0] in (FAILURE, EXCEPTION)):
@@ -120,6 +123,8 @@ class RevisionOutcomeSetCache(object):
             name = failure or '<run>'
             outcome_set.populate_one(name, '!', "no log from the test run")
         else:
+            if aborted:
+                outcome_set.populate_one('<run> aborted', '!', "")
             outcome_set.populate(pytest_log)
         return outcome_set
         
