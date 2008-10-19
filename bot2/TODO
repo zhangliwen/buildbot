@@ -16,6 +16,8 @@
 
 - wire windows slave IN-PROGRESS
 
+- slave for own test need pexect (seems not to be there on wyvern's python?)
+
 - convention for naming and coalescing alternative builders for the same build
 
 - implement pre-switch logic to avoid the full checkouts when running non default branches
