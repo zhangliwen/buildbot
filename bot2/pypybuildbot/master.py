@@ -74,6 +74,7 @@ BuildmasterConfig = {
                    "slavenames": ['bigdogvm1'],
                    "builddir" : CPYMAEMO,
                    "factory": pypyTranslatedLibPythonMaemoTestFactory,
+                   },
                 ],
 
     'buildbotURL': 'http://codespeak.net:%d/'%(httpPortNumber),
