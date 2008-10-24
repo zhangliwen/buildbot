@@ -123,12 +123,11 @@ class PyPyTranslatedLibPythonTestFactory(factory.BuildFactory):
 class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
         platform = kw.pop('platform', 'linux')
-        
         factory.BuildFactory.__init__(self, *a, **kw)
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(["--platform", "maemo", "-Omem"], []))
+        self.addStep(Translate(["-Omem"], []))
 
         self.addStep(ShellCmd(
             description="lib-python test",
