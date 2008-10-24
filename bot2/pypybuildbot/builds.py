@@ -103,7 +103,7 @@ class PyPyOwnTestFactory(factory.BuildFactory):
             timeout = 2400,
             env={"PYTHONPATH": ['.']}))
 
-class PyPyTranslaledLibPythonTestFactory(factory.BuildFactory):
+class PyPyTranslatedLibPythonTestFactory(factory.BuildFactory):
 
     def __init__(self, *a, **kw):
         platform = kw.pop('platform', 'linux')

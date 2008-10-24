@@ -25,8 +25,8 @@ pypybuilds = load('pypybuildbot.builds')
 pypyOwnTestFactory = pypybuilds.PyPyOwnTestFactory()
 pypyOwnTestFactoryWin = pypybuilds.PyPyOwnTestFactory(platform="win32")
 
-pypyTranslatedLibPythonTestFactory = pypybuilds.PyPyTranslaledLibPythonTestFactory()
-pypyTranslatedLibPythonTestFactoryWin = pypybuilds.PyPyTranslaledLibPythonTestFactory(platform="win32")
+pypyTranslatedLibPythonTestFactory = pypybuilds.PyPyTranslatedLibPythonTestFactory()
+pypyTranslatedLibPythonTestFactoryWin = pypybuilds.PyPyTranslatedLibPythonTestFactory(platform="win32")
 pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.PyPyTranslatedScratchboxTestFactory()
 
 
