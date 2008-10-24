@@ -128,7 +128,7 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(["--platform maemo", "-Omem"], []))
+        self.addStep(Translate(["--platform", "maemo", "-Omem"], []))
 
         self.addStep(ShellCmd(
             description="lib-python test",
