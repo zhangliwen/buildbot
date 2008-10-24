@@ -7,7 +7,7 @@ class ShellCmd(shell.ShellCommand):
     # our own version that can distinguish abort cases (rc == -1)
 
     def getText(self, cmd, results):
-        if cmd.rc == -1:
+        if cmd is not None and cmd.rc == -1:
             return self.describe(True) + ['aborted']
         return shell.ShellCommand.getText(self, cmd, results)
     
@@ -127,7 +127,7 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(["-Omem"], []))
+        self.addStep(Translate(["--platform", "maemo", "-Omem"], []))
 
         self.addStep(ShellCmd(
             description="lib-python test",
