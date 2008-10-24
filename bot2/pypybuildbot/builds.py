@@ -120,7 +120,7 @@ class PyPyTranslaledLibPythonTestFactory(factory.BuildFactory):
                      "--resultlog=cpython.log", "lib-python"],           
             logfiles={'pytestLog': 'cpython.log'}))
 
-class PyPyTranslatedScratchbox(factory.BuildFactory):
+class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
         platform = kw.pop('platform', 'linux')
         

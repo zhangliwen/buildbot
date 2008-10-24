@@ -27,12 +27,14 @@ pypyOwnTestFactoryWin = pypybuilds.PyPyOwnTestFactory(platform="win32")
 
 pypyTranslatedLibPythonTestFactory = pypybuilds.PyPyTranslaledLibPythonTestFactory()
 pypyTranslatedLibPythonTestFactoryWin = pypybuilds.PyPyTranslaledLibPythonTestFactory(platform="win32")
+pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.PyPyTranslatedScratchboxTestFactory()
 
 
 LINUX32 = "own-linux-x86-32"
 CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
 CPYWIN32 = "pypy-c-lib-python-win-32"
 CPYLINUX32_VM = 'pypy-c-lib-python-linux-x86-32vm'
+CPYMAEMO = "pypy-c-lib-python-maemo"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
@@ -67,7 +69,11 @@ BuildmasterConfig = {
                    "slavenames": ["winxp32-py2.5"],
                    "builddir": CPYWIN32,
                    "factory": pypyTranslatedLibPythonTestFactoryWin
-                  },                  
+                  },
+                  {"name" : CPYMAEMO,
+                   "slavenames": ['bigdogvm1'],
+                   "builddir" : CPYMAEMO,
+                   "factory": pypyTranslatedLibPythonMaemoTestFactory,
                 ],
 
     'buildbotURL': 'http://codespeak.net:%d/'%(httpPortNumber),
