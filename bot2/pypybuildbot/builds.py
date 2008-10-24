@@ -119,3 +119,15 @@ class PyPyTranslaledLibPythonTestFactory(factory.BuildFactory):
                      "--pypy=pypy/translator/goal/pypy-c",
                      "--resultlog=cpython.log", "lib-python"],           
             logfiles={'pytestLog': 'cpython.log'}))
+
+class PyPyTranslatedScratchbox(factory.BuildFactory):
+    def __init__(self, *a, **kw):
+        platform = kw.pop('platform', 'linux')
+        
+        factory.BuildFactory.__init__(self, *a, **kw)
+
+        setup_steps(platform, self)
+
+        self.addStep(Translate(["--platform maemo", "-Omem"], []))
+        # right now we stop here, this is mostly a copy of what was
+        # before, try to share more code
