@@ -128,10 +128,3 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
         setup_steps(platform, self)
 
         self.addStep(Translate(["--platform", "maemo", "-Omem"], []))
-
-        self.addStep(ShellCmd(
-            description="lib-python test",
-            command=["python", "pypy/test_all.py",
-                     "--pypy=pypy/translator/goal/pypy-c",
-                     "--resultlog=cpython.log", "lib-python"],           
-            logfiles={'pytestLog': 'cpython.log'}))
