@@ -98,7 +98,7 @@ class PyPyOwnTestFactory(factory.BuildFactory):
                      "--logfile=testrun.log",
                      "--config=pypy/testrunner_cfg.py",
                      "--config=~/machine_cfg.py",
-                     "--root=pypy", "--dry-run", "--timeout=3600"],
+                     "--root=pypy", "--timeout=3600"],
             logfiles={'pytestLog': 'testrun.log'},
             timeout = 4000,
             env={"PYTHONPATH": ['.']}))
