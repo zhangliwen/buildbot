@@ -8,7 +8,7 @@
 
 - support for better information in case of runner-level killed hanging tests
 
-- pypy-c py.test -A support
+- pypy-c py.test -A support IN-PROGRESS
 
 - have a way for the involved tool to avoid color escapes even when there's a tty (because of buildbot pty usage)
 
@@ -22,6 +22,5 @@
 
 - implement pre-switch logic to avoid the full checkouts when running non default branches
 
-- timeout issues with the run of our own rests, probably increase timeout and/or explode other dirs
-  but also adding better debugging info, right now that the problem is there is not evident
+- it seems there is no timeout detection anymore for the lib-python tests (?)
 
