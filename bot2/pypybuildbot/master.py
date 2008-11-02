@@ -36,7 +36,7 @@ CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
 CPYWIN32 = "pypy-c-lib-python-win-32"
 CPYLINUX32_VM = 'pypy-c-lib-python-linux-x86-32vm'
 CPYMAEMO = "pypy-c-lib-python-maemo"
-APPLLVLINUX32 = "pypy-c-app-level-linux-x86-32"
+APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
