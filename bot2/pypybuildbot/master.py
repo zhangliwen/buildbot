@@ -29,12 +29,14 @@ pypyTranslatedLibPythonTestFactory = pypybuilds.PyPyTranslatedLibPythonTestFacto
 pypyTranslatedLibPythonTestFactoryWin = pypybuilds.PyPyTranslatedLibPythonTestFactory(platform="win32")
 pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.PyPyTranslatedScratchboxTestFactory()
 
+pypyTranslatedAppLevelTestFactory = pypybuilds.PyPyTranslatedAppLevelTestFactory()
 
 LINUX32 = "own-linux-x86-32"
 CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
 CPYWIN32 = "pypy-c-lib-python-win-32"
 CPYLINUX32_VM = 'pypy-c-lib-python-linux-x86-32vm'
 CPYMAEMO = "pypy-c-lib-python-maemo"
+APPLLVLINUX32 = "pypy-c-app-level-linux-x86-32"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
@@ -60,6 +62,11 @@ BuildmasterConfig = {
                    "builddir": CPYLINUX32,
                    "factory": pypyTranslatedLibPythonTestFactory
                   },
+                  {"name": APPLVLLINUX32,
+                   "slavenames": ["wyvern", "cobra"],
+                   "builddir": APPLVLLINUX32,
+                   "factory": pypyTranslatedAppLevelTestFactory
+                  },                  
                   {"name" : CPYLINUX32_VM,
                    "slavenames": ['bigdogvm1'],
                    "builddir": CPYLINUX32_VM,

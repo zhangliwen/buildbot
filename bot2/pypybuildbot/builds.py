@@ -120,6 +120,26 @@ class PyPyTranslatedLibPythonTestFactory(factory.BuildFactory):
                      "--resultlog=cpython.log", "lib-python"],           
             logfiles={'pytestLog': 'cpython.log'}))
 
+class PyPyTranslatedAppLevelTestFactory(factory.BuildFactory):
+
+    def __init__(self, *a, **kw):
+        platform = kw.pop('platform', 'linux')
+        factory.BuildFactory.__init__(self, *a, **kw)
+
+        setup_steps(platform, self)
+
+        self.addStep(Translate(["-O2"], []))
+
+        self.addStep(ShellCmd(
+            description="app-level (-A) test",
+            command=["python", "testrunner/runner.py",
+                     "--logfile=pytest-A.log",
+                     "--config=pypy/pytest-A.cfg",
+                     "--root=pypy", "--timeout=1800"],
+            logfiles={'pytestLog': 'pytest-A.log'},
+            timeout = 4000,
+            env={"PYTHONPATH": ['.']}))
+
 class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
         platform = kw.pop('platform', 'linux')
