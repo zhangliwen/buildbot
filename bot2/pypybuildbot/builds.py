@@ -144,7 +144,7 @@ class PyPyTranslatedAppLevelTestFactory(factory.BuildFactory):
 
 class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
-        USERNAME = os.environ['HOME'].split(os.sep)[-1]
+        USERNAME = 'buildbot'
         WORKDIR = '/scratchbox/users/%s/home/%s/' % (USERNAME, USERNAME)
         
         factory.BuildFactory.__init__(self, *a, **kw)
