@@ -154,3 +154,22 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
 
         self.addStep(Translate(["--platform", "maemo", "-Omem"], [],
                                workdir=workdir))
+
+        self.addStep(ShellCmd(
+            description="lib-python test",
+            command=["python", "pypy/test_all.py",
+                     "--pypy=pypy/translator/goal/pypy-c",
+                     "--resultlog=cpython.log", "lib-python"],           
+            logfiles={'pytestLog': 'cpython.log'}),
+            workdir=WORKDIR)
+        
+        self.addStep(ShellCmd(
+            description="app-level (-A) test",
+            command=["python", "testrunner/runner.py",
+                     "--logfile=pytest-A.log",
+                     "--config=pypy/pytest-A.cfg",
+                     "--root=pypy", "--timeout=1800"],
+            logfiles={'pytestLog': 'pytest-A.log'},
+            timeout = 4000,
+            workdir = WORKDIR,
+            env={"PYTHONPATH": ['.']}))
