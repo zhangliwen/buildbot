@@ -1,7 +1,7 @@
 from buildbot.process import factory
 from buildbot.steps import source, shell
 from buildbot.status.builder import SUCCESS
-import os
+
 
 class ShellCmd(shell.ShellCommand):
     # our own version that can distinguish abort cases (rc == -1)
@@ -16,7 +16,7 @@ class FirstTime(shell.SetProperty):
 
     def __init__(self, **kwds):
         shell.SetProperty.__init__(self, description="first-time",
-                                   property="first-time", **kwds)
+                                   property="first-time")
 
 
 class PosixFirstTime(FirstTime):
@@ -65,13 +65,13 @@ class Translate(ShellCmd):
 
 def not_first_time(props):
     first_time = props.getProperty("first-time")
-    return not first_time
+    return not first_time 
 
-def setup_steps(platform, factory, workdir=None):
+def setup_steps(platform, factory):
     if platform == "win32":
-        first_time_check = WindowsFirstTime(workdir=workdir)
+        first_time_check = WindowsFirstTime()
     else:
-        first_time_check = PosixFirstTime(workdir=workdir)
+        first_time_check = PosixFirstTime()
 
     factory.addStep(first_time_check)
     factory.addStep(CondShellCommand(
@@ -79,10 +79,9 @@ def setup_steps(platform, factory, workdir=None):
         cond=not_first_time,
         command = ["python", "py/bin/py.svnwcrevert", 
                    "-p.buildbot-sourcedata", "."],
-        workdir=workdir,
         ))
     factory.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
-                            defaultBranch="trunk", workdir=workdir))
+                            defaultBranch="trunk"))
 
 
 class PyPyOwnTestFactory(factory.BuildFactory):
@@ -143,14 +142,9 @@ class PyPyTranslatedAppLevelTestFactory(factory.BuildFactory):
 
 class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
-        factory.BuildFactory.__init__(self, *a, **kw)
         platform = kw.pop('platform', 'linux')
+        factory.BuildFactory.__init__(self, *a, **kw)
+
         setup_steps(platform, self)
-        return
-        USERNAME = os.environ['HOME'].split(os.sep)[-1]
-        SCRATCHBOX_WORKDIR = ("/scratchbox/users/%s/home/%s/build" %
-                              (USERNAME, USERNAME))
-        setup_steps(platform, self, workdir=SCRATCHBOX_WORKDIR)
-        workdir = os.path.join(SCRATCHBOX_WORKDIR, 'pypy', 'translator', 'goal')
-        self.addStep(Translate(["--platform", "maemo", "-Omem"], [],
-                               workdir=workdir))
+
+        self.addStep(Translate(["--platform", "maemo", "-Omem"], []))
