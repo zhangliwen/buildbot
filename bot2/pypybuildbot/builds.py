@@ -1,7 +1,7 @@
 from buildbot.process import factory
 from buildbot.steps import source, shell
 from buildbot.status.builder import SUCCESS
-
+import os
 
 class ShellCmd(shell.ShellCommand):
     # our own version that can distinguish abort cases (rc == -1)
