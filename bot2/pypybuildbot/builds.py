@@ -16,7 +16,7 @@ class FirstTime(shell.SetProperty):
 
     def __init__(self, **kwds):
         shell.SetProperty.__init__(self, description="first-time",
-                                   property="first-time")
+                                   property="first-time", **kwds)
 
 
 class PosixFirstTime(FirstTime):
@@ -67,11 +67,11 @@ def not_first_time(props):
     first_time = props.getProperty("first-time")
     return not first_time 
 
-def setup_steps(platform, factory):
+def setup_steps(platform, factory, workdir=None):
     if platform == "win32":
-        first_time_check = WindowsFirstTime()
+        first_time_check = WindowsFirstTime(workdir=workdir)
     else:
-        first_time_check = PosixFirstTime()
+        first_time_check = PosixFirstTime(workdir=workdir)
 
     factory.addStep(first_time_check)
     factory.addStep(CondShellCommand(
@@ -79,9 +79,11 @@ def setup_steps(platform, factory):
         cond=not_first_time,
         command = ["python", "py/bin/py.svnwcrevert", 
                    "-p.buildbot-sourcedata", "."],
+        workdi = workdir,
         ))
     factory.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
-                            defaultBranch="trunk"))
+                               defaultBranch="trunk",
+                               workdir=workdir))
 
 
 class PyPyOwnTestFactory(factory.BuildFactory):
@@ -142,9 +144,13 @@ class PyPyTranslatedAppLevelTestFactory(factory.BuildFactory):
 
 class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
-        platform = kw.pop('platform', 'linux')
+        USERNAME = os.environ['HOME'].split(os.sep)[-1]
+        WORKDIR = '/scratchbox/users/%s/home/%s/' % (USERNAME, USERNAME)
+        
         factory.BuildFactory.__init__(self, *a, **kw)
+        platform = kw.pop('platform', 'linux')
+        setup_steps(platform, self, WORKDIR)
+        workdir = os.path.join(WORKDIR, 'pypy', 'translator', 'goal')
 
-        setup_steps(platform, self)
-
-        self.addStep(Translate(["--platform", "maemo", "-Omem"], []))
+        self.addStep(Translate(["--platform", "maemo", "-Omem"], [],
+                               workdir=workdir))
