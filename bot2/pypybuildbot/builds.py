@@ -15,8 +15,10 @@ class ShellCmd(shell.ShellCommand):
 class FirstTime(shell.SetProperty):
 
     def __init__(self, **kwds):
+        workdir = kwds.pop('workdir', None)
         shell.SetProperty.__init__(self, description="first-time",
-                                   property="first-time", **kwds)
+                                   property="first-time",
+                                   workdir=workdir)
 
 
 class PosixFirstTime(FirstTime):
