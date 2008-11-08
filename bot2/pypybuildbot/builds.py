@@ -79,7 +79,7 @@ def setup_steps(platform, factory, workdir=None):
         cond=not_first_time,
         command = ["python", "py/bin/py.svnwcrevert", 
                    "-p.buildbot-sourcedata", "."],
-        workdi = workdir,
+        workdir = workdir,
         ))
     factory.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
                                defaultBranch="trunk",
