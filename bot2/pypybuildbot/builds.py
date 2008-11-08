@@ -15,10 +15,8 @@ class ShellCmd(shell.ShellCommand):
 class FirstTime(shell.SetProperty):
 
     def __init__(self, **kwds):
-        workdir = kwds.pop('workdir', None)
         shell.SetProperty.__init__(self, description="first-time",
-                                   property="first-time",
-                                   workdir=workdir)
+                                   property="first-time")
 
 
 class PosixFirstTime(FirstTime):
@@ -71,9 +69,9 @@ def not_first_time(props):
 
 def setup_steps(platform, factory, workdir=None):
     if platform == "win32":
-        first_time_check = WindowsFirstTime(workdir=workdir)
+        first_time_check = WindowsFirstTime()
     else:
-        first_time_check = PosixFirstTime(workdir=workdir)
+        first_time_check = PosixFirstTime()
 
     factory.addStep(first_time_check)
     factory.addStep(CondShellCommand(
