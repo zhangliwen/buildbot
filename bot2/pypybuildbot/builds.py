@@ -67,7 +67,7 @@ def not_first_time(props):
     first_time = props.getProperty("first-time")
     return not first_time
 
-def setup_steps(platform, factory, workdir='.'):
+def setup_steps(platform, factory, workdir=None):
     if platform == "win32":
         first_time_check = WindowsFirstTime(workdir=workdir)
     else:
