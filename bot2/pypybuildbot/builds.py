@@ -143,12 +143,12 @@ class PyPyTranslatedAppLevelTestFactory(factory.BuildFactory):
 
 class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
+        platform = kw.pop('platform', 'linux')
         setup_steps(platform, self)
         return
         USERNAME = os.environ['HOME'].split(os.sep)[-1]
         SCRATCHBOX_WORKDIR = ("/scratchbox/users/%s/home/%s/build" %
                               (USERNAME, USERNAME))
-        platform = kw.pop('platform', 'linux')
         factory.BuildFactory.__init__(self, *a, **kw)
         setup_steps(platform, self, workdir=SCRATCHBOX_WORKDIR)
         workdir = os.path.join(SCRATCHBOX_WORKDIR, 'pypy', 'translator', 'goal')
