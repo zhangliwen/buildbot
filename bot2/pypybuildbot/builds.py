@@ -149,6 +149,7 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
         platform = kw.pop('platform', 'linux')
         factory.BuildFactory.__init__(self, *a, **kw)
-        setup_steps(platform, self, workdir=str(SCRATCHBOX_WORKDIR))
+        setup_steps(platform, self, workdir=SCRATCHBOX_WORKDIR)
+        workdir = os.path.join(SCRATCHBOX_WORKDIR, 'pypy', 'translator', 'goal')
         self.addStep(Translate(["--platform", "maemo", "-Omem"], [],
-           workdir=str(SCRATCHBOX_WORKDIR.join('pypy', 'translator', 'goal'))))
+                               workdir=workdir))
