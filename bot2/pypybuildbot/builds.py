@@ -1,7 +1,7 @@
 from buildbot.process import factory
 from buildbot.steps import source, shell
 from buildbot.status.builder import SUCCESS
-import os, py
+import os
 
 class ShellCmd(shell.ShellCommand):
     # our own version that can distinguish abort cases (rc == -1)
@@ -121,9 +121,9 @@ class PyPyTranslatedLibPythonTestFactory(factory.BuildFactory):
                      "--resultlog=cpython.log", "lib-python"],           
             logfiles={'pytestLog': 'cpython.log'}))
 
-USERNAME = py.path.local(os.environ['HOME']).basename
-SCRATCHBOX_WORKDIR = py.path.local("/scratchbox/users/%s/home/%s/build" %
-                                   (USERNAME, USERNAME))
+USERNAME = os.environ['HOME'].split(os.sep)[-1]
+SCRATCHBOX_WORKDIR = ("/scratchbox/users/%s/home/%s/build" %
+                      (USERNAME, USERNAME))
 
 class PyPyTranslatedAppLevelTestFactory(factory.BuildFactory):
 
