@@ -79,7 +79,7 @@ def setup_steps(platform, factory, workdir=None):
     factory.addStep(CondShellCommand(
         description="wcrevert",
         cond=not_first_time,
-        command = ["python", os.path.join(os.getcwd(), "py/bin/py.svnwcrevert"), 
+        command = ["python", "py/bin/py.svnwcrevert"), 
                    "-p.buildbot-sourcedata", "."],
         workdir = workdir,
         ))
