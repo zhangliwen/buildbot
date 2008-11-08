@@ -154,7 +154,7 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
         setup_steps(platform, self, WORKDIR)
         workdir = os.path.join(WORKDIR, 'pypy', 'translator', 'goal')
 
-        self.addStep(Translate(["--platform", "maemo", "-Omem"], [],
+        self.addStep(Translate(["--platform", "maemo", "-Omem"], ["--withoutmod-thread"],
                                workdir=workdir))
         
         self.addStep(ShellCmd(
