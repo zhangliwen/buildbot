@@ -166,4 +166,5 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
                      "--root=pypy", "--timeout=1800"],
             logfiles={'pytestLog': 'pytest-A.log'},
             timeout = 4000,
+            workdir = WORKDIR,
             env={"PYTHONPATH": ['.']}))
