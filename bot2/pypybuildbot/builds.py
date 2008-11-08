@@ -15,8 +15,10 @@ class ShellCmd(shell.ShellCommand):
 class FirstTime(shell.SetProperty):
 
     def __init__(self, **kwds):
+        workdir = kwds.pop('workdir', None)
         shell.SetProperty.__init__(self, description="first-time",
-                                   property="first-time")
+                                   property="first-time",
+                                   workdir=workdir)
 
 
 class PosixFirstTime(FirstTime):
@@ -77,7 +79,7 @@ def setup_steps(platform, factory, workdir=None):
     factory.addStep(CondShellCommand(
         description="wcrevert",
         cond=not_first_time,
-        command = ["python", "py/bin/py.svnwcrevert", 
+        command = ["python", os.path.join(os.getcwd(), "py/bin/py.svnwcrevert"), 
                    "-p.buildbot-sourcedata", "."],
         workdir = workdir,
         ))
@@ -145,7 +147,7 @@ class PyPyTranslatedAppLevelTestFactory(factory.BuildFactory):
 class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
         USERNAME = 'buildbot'
-        WORKDIR = '/scratchbox/users/%s/home/%s/' % (USERNAME, USERNAME)
+        WORKDIR = '/scratchbox/users/%s/home/%s/build' % (USERNAME, USERNAME)
         
         factory.BuildFactory.__init__(self, *a, **kw)
         platform = kw.pop('platform', 'linux')
