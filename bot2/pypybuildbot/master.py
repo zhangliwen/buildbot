@@ -37,6 +37,7 @@ CPYWIN32 = "pypy-c-lib-python-win-32"
 CPYLINUX32_VM = 'pypy-c-lib-python-linux-x86-32vm'
 CPYMAEMO = "pypy-c-lib-python-maemo"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
+CPYFREEBSD64 = 'pypy-c-lib-python-freebsd-7-x86-64'
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
@@ -81,6 +82,11 @@ BuildmasterConfig = {
                    "slavenames": ['bigdogvm1'],
                    "builddir" : CPYMAEMO,
                    "factory": pypyTranslatedLibPythonMaemoTestFactory,
+                   },
+                  {"name" : CPYFREEBSD64,
+                   "slavenames": ['headless'],
+                   'builddir' : CPYFREEBSD64,
+                   'factory' : pypyTranslatedLibPythonTestFactory
                    },
                 ],
 
