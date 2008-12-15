@@ -301,12 +301,22 @@ class SummaryPage(object):
             line = []
             for rev, outcome_set in by_rev:
                 letter = outcome_set.get_outcome(failure)
+                failed = letter not in ('s', '.')
                 if outcome_set.get_longrepr(failure):
                     longrepr_url = self.make_longrepr_url_for(outcome_set,
                                                               failure)
-                    line.append([" ",html.a(letter, href=longrepr_url)])
+                    extra = {}
+                    if failed:
+                        extra = {'class': "failSummary failed"}
+                    line.append([" ",html.a(letter, href=longrepr_url,
+                                            **extra)])
                 else:
-                    line.append(" %s" % letter)
+                    if failed:
+                        line.append([" ",
+                                     html.span(letter,
+                                               class_="failSummary failed")])
+                    else:
+                        line.append(" %s" % letter)
             for width, key in zip(colwidths, failure):
                 line.append("  %-*s" % (width, key))
             lines.append(line)
