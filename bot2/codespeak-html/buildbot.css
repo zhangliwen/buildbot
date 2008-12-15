@@ -76,3 +76,19 @@ table.Grid tr td.build {
 div.footer {
     font-size: 80%;
 }
+
+/* failure summary */
+.failSummary.failed {
+    color: #E00000;
+    font-weight: bold;
+}
+
+a.failSummary.failed {
+    color: #E00000;
+    font-weight: bold;
+}
+
+a:visited.failSummary.failed {
+    color: #E0B000;
+    font-weight: bold;
+}
