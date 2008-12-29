@@ -379,26 +379,6 @@ class TestSummary(object):
         assert outcome.revision == 60000
         assert outcome.key == ('builder0', 1)
 
-    def test_two_builds(self):
-        builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, ". a"),
-                             (60001, ". a")])
-
-        s = summary.Summary()
-        res = witness_branches(s)        
-        req = FakeRequest([builder])
-        s.body(req)
-        branches = res()
-
-        revs = branches[None][0]
-        assert sorted(revs.keys()) == [60000, 60001]        
-        outcome = revs[60000]['builder0']
-        assert outcome.revision == 60000
-        assert outcome.key == ('builder0', 0)
-        outcome = revs[60001]['builder0']
-        assert outcome.revision == 60001
-        assert outcome.key == ('builder0', 1)        
-
     def test_two_builds_recentrev(self):
         builder = status_builder.BuilderStatus('builder0')
         add_builds(builder, [(60000, ". a"),
