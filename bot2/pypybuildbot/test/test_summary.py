@@ -1,3 +1,6 @@
+from zope.interface import implements
+from buildbot import interfaces as buildbot_intefaces
+from buildbot.status import builder as status_builder
 from pypybuildbot import summary
 from StringIO import StringIO
 
@@ -220,5 +223,160 @@ def test__prune_revs():
     assert len(revs) == 4
 
     assert revs == {99: 199, 98: 198, 97: 197, 96: 196}
-    
 
+class _BuilderToStatus(object):
+
+    def __init__(self, status):
+        self.builder_status = status
+
+class FakeRequest(object):
+
+    def __init__(self, builders, args={}):
+        status = status_builder.Status(self, '/tmp')
+        status.basedir = None
+        self.status = status
+        self.args = args
+
+        self.builderNames = []
+        self.builders = {}
+        for builder in builders:
+            name = builder.getName()
+            self.builderNames.append(name)
+            self.builders[name] = _BuilderToStatus(builder)
+
+        self.site = self
+        self.buildbot_service = self
+        self.parent = self
+        self.buildbotURL = "http://buildbot/"
+
+    def getStatus(self):
+        return self.status
+
+def witness_branches(summary):
+    ref = [None]
+    recentRevisions = summary.recentRevisions
+    def witness(*args, **kwds):
+        branches = recentRevisions(*args, **kwds)
+        ref[0] = branches
+        return branches
+    summary.recentRevisions = witness
+
+    return lambda: ref[0]
+
+class FakeLog(object):
+    implements(buildbot_intefaces.IStatusLog)
+
+    def __init__(self, step, name, cont=""):
+        self.step = step
+        self.name = name
+        self.cont = cont
+        
+    def getStep(self):
+        return self.step
+
+    def getName(self):
+        return self.name
+
+    def hasContents(self):
+        return True
+
+    def readlines(self):
+        return [l+'\n' for l in self.cont.splitlines()]
+
+def add_builds(builder, builds):
+    n = getattr(builder, 'nextBuildNumber', 0)
+    for rev, reslog in builds:
+        build = status_builder.BuildStatus(builder, n)
+        build.setProperty('got_revision', rev, None)
+        step = build.addStepWithName('pytest')
+        step.logs.extend([FakeLog(step, 'pytestLog', reslog),
+                          FakeLog(step, 'stdio')])
+        build.buildFinished()
+        builder.addBuildToCache(build)
+        n += 1
+    builder.nextBuildNumber = n
+        
+
+class TestSummary(object):
+
+    def setup_method(self, meth):
+        summary.outcome_set_cache.clear()
+
+    def test_sanity(self):
+        s = summary.Summary()
+        res = witness_branches(s)
+        req = FakeRequest([])
+        s.body(req)
+        branches = res()
+
+        assert branches == {}
+
+    def test_one_build_no_rev(self):
+        builder = status_builder.BuilderStatus('builder0')
+        build = status_builder.BuildStatus(builder, 0)
+        build.buildFinished()
+        builder.addBuildToCache(build)
+        builder.nextBuildNumber = len(builder.buildCache)
+
+        s = summary.Summary()
+        res = witness_branches(s)        
+        req = FakeRequest([builder])
+        s.body(req)
+        branches = res()
+
+        assert branches == {None: ({}, [build])}
+
+    def test_one_build(self):
+        builder = status_builder.BuilderStatus('builder0')
+        add_builds(builder, [(60000, ". a")])
+
+        s = summary.Summary()
+        res = witness_branches(s)        
+        req = FakeRequest([builder])
+        s.body(req)
+        branches = res()
+
+        revs = branches[None][0]
+        assert revs.keys() == [60000]
+        outcome = revs[60000]['builder0']
+        assert outcome.revision == 60000
+        assert outcome.key == ('builder0', 0)
+
+    def test_two_builds(self):
+        builder = status_builder.BuilderStatus('builder0')
+        add_builds(builder, [(60000, ". a"),
+                             (60001, ". a")])
+
+        s = summary.Summary()
+        res = witness_branches(s)        
+        req = FakeRequest([builder])
+        s.body(req)
+        branches = res()
+
+        revs = branches[None][0]
+        assert sorted(revs.keys()) == [60000, 60001]        
+        outcome = revs[60000]['builder0']
+        assert outcome.revision == 60000
+        assert outcome.key == ('builder0', 0)
+        outcome = revs[60001]['builder0']
+        assert outcome.revision == 60001
+        assert outcome.key == ('builder0', 1)        
+
+    def test_two_builds_samerev(self):
+        builder = status_builder.BuilderStatus('builder0')
+        add_builds(builder, [(60000, ". a"),
+                             (60000, ". a")])        
+
+        s = summary.Summary()
+        res = witness_branches(s)        
+        req = FakeRequest([builder])
+        out = s.body(req)
+        branches = res()
+
+        revs = branches[None][0]
+        assert sorted(revs.keys()) == [60000]
+        outcome = revs[60000]['builder0']
+        assert outcome.revision == 60000
+        assert outcome.key == ('builder0', 1)
+
+        

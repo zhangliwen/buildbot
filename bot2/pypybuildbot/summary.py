@@ -81,7 +81,11 @@ class RevisionOutcomeSetCache(object):
         self._misses = 0
         self.cachesize = cachesize
 
-    def reset(self):
+    def clear(self): # for testing
+        self._outcome_sets = {}
+        self._lru = []
+
+    def reset_counters(self):
         self._hits = 0
         self._misses = 0
 
@@ -370,7 +374,7 @@ class LongRepr(HtmlResource):
 
     def body(self, request):
         t0 = time.time()
-        outcome_set_cache.reset()
+        outcome_set_cache.reset_counters()
         
         builder = request.args.get('builder', [])
         build = request.args.get('build', [])
@@ -472,7 +476,7 @@ class Summary(HtmlResource):
                             
     def body(self, request):
         t0 = time.time()
-        outcome_set_cache.reset()
+        outcome_set_cache.reset_counters()
         
         status = self.getStatus(request)
 
