@@ -3,6 +3,7 @@ from buildbot import interfaces as buildbot_intefaces
 from buildbot.status import builder as status_builder
 from pypybuildbot import summary
 from StringIO import StringIO
+import re
 
 class TestOutcomes(object):
 
@@ -215,14 +216,14 @@ def test_colsizes():
     
     assert res == [2,3,2]
 
-def test__prune_revs():
-    revs = dict(zip(range(100), range(100, 200)))
+def test__prune_runs():
+    runs = dict(zip(range(100), range(100, 200)))
 
-    summary.Summary._prune_revs(revs, 4)
+    summary.Summary._prune_runs(runs, 4)
 
-    assert len(revs) == 4
+    assert len(runs) == 4
 
-    assert revs == {99: 199, 98: 198, 97: 197, 96: 196}
+    assert runs == {99: 199, 98: 198, 97: 197, 96: 196}
 
 class _BuilderToStatus(object):
 
@@ -254,12 +255,12 @@ class FakeRequest(object):
 
 def witness_branches(summary):
     ref = [None]
-    recentRevisions = summary.recentRevisions
+    recentRuns = summary.recentRuns
     def witness(*args, **kwds):
-        branches = recentRevisions(*args, **kwds)
+        branches = recentRuns(*args, **kwds)
         ref[0] = branches
         return branches
-    summary.recentRevisions = witness
+    summary.recentRuns = witness
 
     return lambda: ref[0]
 
@@ -328,7 +329,7 @@ class TestSummary(object):
 
     def test_one_build(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, ". a")])
+        add_builds(builder, [(60000, "F a\n. b")])
 
         s = summary.Summary()
         res = witness_branches(s)        
@@ -344,13 +345,13 @@ class TestSummary(object):
 
     def test_two_builds(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, ". a"),
-                             (60001, ". a")])
+        add_builds(builder, [(60000, "F a\n. b"),
+                             (60001, "F a\n. b")])
 
         s = summary.Summary()
         res = witness_branches(s)        
         req = FakeRequest([builder])
-        s.body(req)
+        out = s.body(req)
         branches = res()
 
         revs = branches[None][0]
@@ -360,12 +361,18 @@ class TestSummary(object):
         assert outcome.key == ('builder0', 0)
         outcome = revs[60001]['builder0']
         assert outcome.revision == 60001
-        assert outcome.key == ('builder0', 1)        
+        assert outcome.key == ('builder0', 1)
+
+        revs = []
+        for m in re.finditer(r'recentrev=(\d+)', out):
+            revs.append(int(m.group(1)))
+
+        assert revs == [60000, 60001]
 
     def test_two_builds_samerev(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, ". a"),
-                             (60000, ". a")])        
+        add_builds(builder, [(60000, "F a\n. b"),
+                             (60000, "F a\n. b")])        
 
         s = summary.Summary()
         res = witness_branches(s)        
@@ -381,8 +388,8 @@ class TestSummary(object):
 
     def test_two_builds_recentrev(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, ". a"),
-                             (60001, ". a")])
+        add_builds(builder, [(60000, "F a\n. b"),
+                             (60001, "F a\n. b")])
 
         s = summary.Summary()
         res = witness_branches(s)        
@@ -397,4 +404,66 @@ class TestSummary(object):
         assert outcome.revision == 60000
         assert outcome.key == ('builder0', 0)
 
-        
+    def test_many_builds_query_builder(self):
+        builder = status_builder.BuilderStatus('builder0')
+        add_builds(builder, [(60000, "F a\n. b"),
+                             (60000, ". a\n. b"),
+                             (60001, "F a\n. b")])        
+
+        s = summary.Summary()
+        res = witness_branches(s)        
+        req = FakeRequest([builder])
+        req.args={'builder': ['builder0']}
+        out = s.body(req)
+        branches = res()
+
+        runs = branches[None][0]
+        assert sorted(runs.keys()) == [(60000,0), (60000,1), (60001,2)]
+        outcome = runs[(60000,0)]['builder0']
+        assert outcome.revision == 60000
+        assert outcome.key == ('builder0', 0)
+        outcome = runs[(60000,1)]['builder0']
+        assert outcome.revision == 60000
+        assert outcome.key == ('builder0', 1)
+        outcome = runs[(60001,2)]['builder0']
+        assert outcome.revision == 60001
+        assert outcome.key == ('builder0', 2)
+
+        runs = []
+        for m in re.finditer(r'builder=(\w+)&amp;builds=(\d+)', out):
+            runs.append((m.group(1), int(m.group(2))))
+
+        assert runs == [('builder0', 0),
+                        ('builder0', 1),
+                        ('builder0', 2)]
+
+
+    def test_many_builds_query_builder_builds(self):
+        builder = status_builder.BuilderStatus('builder0')
+        add_builds(builder, [(60000, "F a\n. b"),
+                             (60000, ". a\n. b"),
+                             (60001, "F a\n. b")])        
+
+        s = summary.Summary()
+        res = witness_branches(s)        
+        req = FakeRequest([builder])
+        req.args={'builder': ['builder0'],
+                  'builds': ['0','2-2', '7']}
+        out = s.body(req)
+        branches = res()
+
+        runs = branches[None][0]
+        assert sorted(runs.keys()) == [(60000,0), (60001,2)]
+        outcome = runs[(60000,0)]['builder0']
+        assert outcome.revision == 60000
+        assert outcome.key == ('builder0', 0)
+        outcome = runs[(60001,2)]['builder0']
+        assert outcome.revision == 60001
+        assert outcome.key == ('builder0', 2)
+
+        runs = []
+        for m in re.finditer(r'builder=(\w+)&amp;builds=(\d+)', out):
+            runs.append((m.group(1), int(m.group(2))))
+
+        assert runs == [('builder0', 0),
+                        ('builder0', 2)]

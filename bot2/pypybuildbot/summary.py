@@ -160,7 +160,7 @@ class GatherOutcomeSet(object):
         self._skipped = None
         self._numpassed = None
         self.revision = map.values()[0].revision
-        
+                
     @property
     def failed(self):
         if self._failed is None:
@@ -231,6 +231,7 @@ class SummaryPage(object):
     def __init__(self):
         self.sections = []
         self.cur_branch=None
+        self.fixed_builder = False
 
     def make_longrepr_url_for(self, outcome_set, namekey):
         cachekey, namekey = outcome_set.get_key_namekey(namekey)
@@ -261,26 +262,43 @@ class SummaryPage(object):
         branch_anchor = html.a(branch, href="/summary?branch=%s" % branch)
         self.sections.append(html.h2(branch_anchor))
 
-    def _rev_anchor(self, rev):
-        rev_anchor = html.a(str(rev), href="/summary?branch=%s&recentrev=%d" %
-                            (self.cur_branch, rev))
+    def _builder_num(self, outcome_set):
+        return outcome_set.map.values()[0].key
+
+    def _label(self, outcome_set):
+        if self.fixed_builder:
+            # (rev, buildNumber)
+            buildNumber = self._builder_num(outcome_set)[1]
+            return (outcome_set.revision, buildNumber)
+        else:
+            # rev
+            return outcome_set.revision
+
+    def _label_anchor(self, outcome_set):
+        rev = outcome_set.revision
+        if self.fixed_builder:
+            pick = "builder=%s&builds=%d" % self._builder_num(outcome_set)
+        else:
+            pick = "recentrev=%d" % rev
+        rev_anchor = html.a(str(rev), href="/summary?branch=%s&%s" %
+                            (self.cur_branch, pick))
         return rev_anchor
                             
     def add_section(self, outcome_sets):
         if not outcome_sets:
             return
-        revs = sorted(outcome_set.revision for outcome_set in outcome_sets)
-        by_rev = sorted((outcome_set.revision, outcome_set) for outcome_set
+        labels = sorted(self._label(outcome_set) for outcome_set in outcome_sets)
+        by_label = sorted((self._label(outcome_set), outcome_set) for outcome_set
                          in outcome_sets)
         lines = []
 
-        align = 2*len(revs)-1+len(str(revs[-1]))
+        align = 2*len(labels)-1+len(str(labels[-1]))
         def bars():
             return ' |'*len(lines)
-        for rev, outcome_set in by_rev:
+        for label, outcome_set in by_label:
             count_failures = len(outcome_set.failed)
             count_skipped = len(outcome_set.skipped)
-            line = [bars(), ' ', self._rev_anchor(rev)]
+            line = [bars(), ' ', self._label_anchor(outcome_set)]
             line.append((align-len(line[0]))*" ")
             line.append(self.make_stdio_anchors_for(outcome_set))
             line.append('\n')
@@ -289,7 +307,7 @@ class SummaryPage(object):
         
         failed = set()
         exploded = set()
-        for rev, outcome_set in by_rev:
+        for label, outcome_set in by_label:
             for failure in outcome_set.failed:
                 letter = outcome_set.get_outcome(failure)
                 if letter == '!':
@@ -303,7 +321,7 @@ class SummaryPage(object):
 
         for failure in sorted(failed, key=sorting):
             line = []
-            for rev, outcome_set in by_rev:
+            for label, outcome_set in by_label:
                 letter = outcome_set.get_outcome(failure)
                 failed = letter not in ('s', '.')
                 if outcome_set.get_longrepr(failure):
@@ -418,7 +436,12 @@ def make_subst(v1, v2):
 trunk_name = make_subst(None, "<trunk>")
 trunk_value = make_subst("<trunk>", None)
 
-    
+def safe_int(v):
+    try:
+        return int(v)
+    except ValueError:
+        return None
+
 class Summary(HtmlResource):
 
     def __init__(self):
@@ -431,20 +454,35 @@ class Summary(HtmlResource):
                                                        N)
 
     @staticmethod
-    def _prune_revs(revs, cutnum):
-        if len(revs) > cutnum:
-            for rev in sorted(revs.keys())[:-cutnum]:
-                del revs[rev]
+    def _prune_runs(runs, cutnum):
+        if len(runs) > cutnum:
+            for rev in sorted(runs.keys())[:-cutnum]:
+                del runs[rev]
 
-    def recentRevisions(self, status, only_recentrevs=None, only_branches=None):
+    def recentRuns(self, status, only_recentrevs=None, only_branches=None,
+                                 only_builder=None, only_builds=None):
         test_rev = make_test(only_recentrevs)
         test_branch = make_test(only_branches)
+        test_builder = make_test(only_builder)
+        fixed_builder = bool(only_builder)
         
         branches = {}
 
         for builderName in status.getBuilderNames():
+            if not test_builder(builderName):
+                continue
             builderStatus = status.getBuilder(builderName)
-            for build in builderStatus.generateFinishedBuilds(num_builds=5*N):
+            if only_builds:
+                def builditer():
+                    for num in only_builds:
+                        b = builderStatus.getBuild(num)
+                        if b is not None:
+                            yield b
+                builditer = builditer()
+            else:
+                builditer = builderStatus.generateFinishedBuilds(num_builds=5*N)
+            
+            for build in builditer:
                 branch = getProp(build, 'branch')
                 if not test_branch(branch):
                     continue
@@ -452,27 +490,49 @@ class Summary(HtmlResource):
                 if not test_rev(got_rev):
                     continue
 
-                revs, no_revision_builds = branches.setdefault(branch,
+                runs, no_revision_builds = branches.setdefault(branch,
                                                                ({}, []))
 
                 if got_rev is None:
                     no_revision_builds.append(build)
                 else:
                     rev = int(got_rev)
-                    revBuilds = revs.setdefault(rev, {})
-                    # pick the most recent or ?
-                    if builderName not in revBuilds:
-                        revBuilds[builderName] = build.getNumber()
+                    buildNumber = build.getNumber()
+                    if fixed_builder:
+                        builds = runs.setdefault((rev, buildNumber), {})
+                    else:
+                        builds = runs.setdefault(rev, {})
+                        # pick the most recent or ?
 
-        for branch, (revs, no_revision_builds) in branches.items():
-            self._prune_revs(revs, N)
-            for rev, revBuilds in revs.iteritems():
-                for builderName, buildNumber in revBuilds.items():
+                    if builderName not in builds:
+                        builds[builderName] = build.getNumber()
+
+        for branch, (runs, no_revision_builds) in branches.items():
+            self._prune_runs(runs, N)
+            for label, runBuilds in runs.iteritems():
+                for builderName, buildNumber in runBuilds.items():
                     key = (builderName, buildNumber)
                     outcome_set = outcome_set_cache.get(status, key)
-                    revBuilds[builderName] = outcome_set
+                    runBuilds[builderName] = outcome_set
                             
         return branches
+
+    @staticmethod
+    def _parse_builds(build_select):
+        builds = set()
+        for sel in build_select:
+            for onesel in sel.split(','):
+                build = safe_int(onesel)
+                if build is not None:
+                    builds.add(build)
+                    continue
+                build_start_end = onesel.split('-')
+                if len(build_start_end) == 2:
+                    build_start = safe_int(build_start_end[0])
+                    build_end = safe_int(build_start_end[1])
+                    if (build_start is not None and build_end is not None):
+                        builds.update(range(build_start, build_end+1))
+        return builds
                             
     def body(self, request):
         t0 = time.time()
@@ -487,14 +547,24 @@ class Summary(HtmlResource):
         only_recentrevs = request.args.get('recentrev', None)
         if only_branches is not None:
             only_branches = map(trunk_value, only_branches)
-        
-        branches = self.recentRevisions(status,
-                                        only_recentrevs=only_recentrevs,
-                                        only_branches=only_branches)
+        only_builder = request.args.get('builder', None)
+        only_builds = None
+        if only_builder is not None:
+            only_builder = only_builder[-1:] # pick exactly one
+            page.fixed_builder = True
+            build_select = request.args.get('builds', None)
+            if build_select is not None:
+                only_builds = self._parse_builds(build_select)
 
-        for branch, (revs, no_revision_builds) in sorted(branches.iteritems()):
+        branches = self.recentRuns(status,
+                                   only_recentrevs=only_recentrevs,
+                                   only_branches=only_branches,
+                                   only_builder=only_builder,
+                                   only_builds=only_builds)
+
+        for branch, (runs, no_revision_builds) in sorted(branches.iteritems()):
             outcome_sets = []
-            for rev, by_build in revs.items():
+            for label, by_build in runs.items():
                 outcome_sets.append(GatherOutcomeSet(by_build))
             branch = trunk_name(branch)
             page.start_branch(branch)
