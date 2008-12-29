@@ -287,7 +287,7 @@ def add_builds(builder, builds):
     n = getattr(builder, 'nextBuildNumber', 0)
     for rev, reslog in builds:
         build = status_builder.BuildStatus(builder, n)
-        build.setProperty('got_revision', rev, None)
+        build.setProperty('got_revision', str(rev), None)
         step = build.addStepWithName('pytest')
         step.logs.extend([FakeLog(step, 'pytestLog', reslog),
                           FakeLog(step, 'stdio')])
@@ -378,5 +378,43 @@ class TestSummary(object):
         outcome = revs[60000]['builder0']
         assert outcome.revision == 60000
         assert outcome.key == ('builder0', 1)
+
+    def test_two_builds(self):
+        builder = status_builder.BuilderStatus('builder0')
+        add_builds(builder, [(60000, ". a"),
+                             (60001, ". a")])
+
+        s = summary.Summary()
+        res = witness_branches(s)        
+        req = FakeRequest([builder])
+        s.body(req)
+        branches = res()
+
+        revs = branches[None][0]
+        assert sorted(revs.keys()) == [60000, 60001]        
+        outcome = revs[60000]['builder0']
+        assert outcome.revision == 60000
+        assert outcome.key == ('builder0', 0)
+        outcome = revs[60001]['builder0']
+        assert outcome.revision == 60001
+        assert outcome.key == ('builder0', 1)        
+
+    def test_two_builds_recentrev(self):
+        builder = status_builder.BuilderStatus('builder0')
+        add_builds(builder, [(60000, ". a"),
+                             (60001, ". a")])
+
+        s = summary.Summary()
+        res = witness_branches(s)        
+        req = FakeRequest([builder])
+        req.args = {'recentrev': ['60000']}
+        s.body(req)
+        branches = res()
+
+        revs = branches[None][0]
+        assert sorted(revs.keys()) == [60000]
+        outcome = revs[60000]['builder0']
+        assert outcome.revision == 60000
+        assert outcome.key == ('builder0', 0)
 
         
