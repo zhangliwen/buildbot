@@ -261,10 +261,7 @@ class SummaryPage(object):
         branch_anchor = html.a(branch, href="/summary?branch=%s" % branch)
         self.sections.append(html.h2(branch_anchor))
 
-    def _label(self, outcome_set):
-        return outcome_set.revision
-
-    def _label_anchor(self, rev):
+    def _rev_anchor(self, rev):
         rev_anchor = html.a(str(rev), href="/summary?branch=%s&recentrev=%d" %
                             (self.cur_branch, rev))
         return rev_anchor
@@ -272,18 +269,18 @@ class SummaryPage(object):
     def add_section(self, outcome_sets):
         if not outcome_sets:
             return
-        labels = sorted(self._label(outcome_set) for outcome_set in outcome_sets)
-        by_label = sorted((self._label(outcome_set), outcome_set) for outcome_set
+        revs = sorted(outcome_set.revision for outcome_set in outcome_sets)
+        by_rev = sorted((outcome_set.revision, outcome_set) for outcome_set
                          in outcome_sets)
         lines = []
 
-        align = 2*len(labels)-1+len(str(labels[-1]))
+        align = 2*len(revs)-1+len(str(revs[-1]))
         def bars():
             return ' |'*len(lines)
-        for label, outcome_set in by_label:
+        for rev, outcome_set in by_rev:
             count_failures = len(outcome_set.failed)
             count_skipped = len(outcome_set.skipped)
-            line = [bars(), ' ', self._label_anchor(label)]
+            line = [bars(), ' ', self._rev_anchor(rev)]
             line.append((align-len(line[0]))*" ")
             line.append(self.make_stdio_anchors_for(outcome_set))
             line.append('\n')
@@ -292,7 +289,7 @@ class SummaryPage(object):
         
         failed = set()
         exploded = set()
-        for label, outcome_set in by_label:
+        for rev, outcome_set in by_rev:
             for failure in outcome_set.failed:
                 letter = outcome_set.get_outcome(failure)
                 if letter == '!':
@@ -306,7 +303,7 @@ class SummaryPage(object):
 
         for failure in sorted(failed, key=sorting):
             line = []
-            for label, outcome_set in by_label:
+            for rev, outcome_set in by_rev:
                 letter = outcome_set.get_outcome(failure)
                 failed = letter not in ('s', '.')
                 if outcome_set.get_longrepr(failure):
