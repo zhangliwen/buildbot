@@ -225,6 +225,30 @@ def test__prune_runs():
 
     assert runs == {99: 199, 98: 198, 97: 197, 96: 196}
 
+def test_show_elapsed():
+    res = summary.show_elapsed(0.25)
+    assert res == "0.25s"
+    res = summary.show_elapsed(1.0)
+    assert res == "1.00s"           
+    res = summary.show_elapsed(1.25)
+    assert res == "1.25s"   
+    res = summary.show_elapsed(4.5)
+    assert res == "4.50s"
+    res = summary.show_elapsed(5.25)
+    assert res == "5s"
+    res = summary.show_elapsed(5.5)
+    assert res == "6s"            
+    res = summary.show_elapsed(2*60+30)
+    assert res == "2m30"
+    res = summary.show_elapsed(4*60+30)
+    assert res == "4m30"
+    res = summary.show_elapsed(5*60+30)
+    assert res == "6m"
+    res = summary.show_elapsed(61*60)
+    assert res == "1h1"
+    res = summary.show_elapsed(90*60)
+    assert res == "1h30"                
+
 class _BuilderToStatus(object):
 
     def __init__(self, status):
@@ -286,12 +310,16 @@ class FakeLog(object):
 
 def add_builds(builder, builds):
     n = getattr(builder, 'nextBuildNumber', 0)
+    t = 1000
     for rev, reslog in builds:
         build = status_builder.BuildStatus(builder, n)
         build.setProperty('got_revision', str(rev), None)
         step = build.addStepWithName('pytest')
         step.logs.extend([FakeLog(step, 'pytestLog', reslog),
                           FakeLog(step, 'stdio')])
+        step.started = t
+        step.finished = t + (n+1)*60
+        t = step.finished + 30
         build.buildFinished()
         builder.addBuildToCache(build)
         n += 1
@@ -322,19 +350,64 @@ class TestSummary(object):
         s = summary.Summary()
         res = witness_branches(s)        
         req = FakeRequest([builder])
-        s.body(req)
+        out = s.body(req)
         branches = res()
 
         assert branches == {None: ({}, [build])}
 
-    def test_one_build(self):
+    def test_one_build_no_logs(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, "F a\n. b")])
+        build = status_builder.BuildStatus(builder, 0)
+        build.setProperty('got_revision', '50000', None)
+        build.buildFinished()
+        builder.addBuildToCache(build)
+        builder.nextBuildNumber = len(builder.buildCache)
 
         s = summary.Summary()
         res = witness_branches(s)        
         req = FakeRequest([builder])
-        s.body(req)
+        out = s.body(req)
+        branches = res()
+        
+        revs = branches[None][0]
+        assert revs.keys() == [50000]
+
+        assert '&lt;run&gt;' in out
+
+    def test_one_build_no_logs_failure(self):
+        builder = status_builder.BuilderStatus('builder0')
+        build = status_builder.BuildStatus(builder, 0)
+        build.setProperty('got_revision', '50000', None)
+        step = build.addStepWithName('step')
+        step.setText(['step', 'borken'])
+        step.stepFinished(summary.FAILURE)
+        step1 = build.addStepWithName('other')
+        step1.setText(['other', 'borken'])
+        step1.stepFinished(summary.FAILURE)        
+        build.buildFinished()
+        builder.addBuildToCache(build)
+        builder.nextBuildNumber = len(builder.buildCache)
+
+        s = summary.Summary()
+        res = witness_branches(s)        
+        req = FakeRequest([builder])
+        out = s.body(req)
+        branches = res()
+        
+        revs = branches[None][0]
+        assert revs.keys() == [50000]
+
+        assert 'step borken' in out
+        assert 'other borken' not in out        
+        
+    def test_one_build(self):
+        builder = status_builder.BuilderStatus('builder0')
+        add_builds(builder, [(60000, "F TEST1\n. b")])
+
+        s = summary.Summary()
+        res = witness_branches(s)        
+        req = FakeRequest([builder])
+        out = s.body(req)
         branches = res()
 
         revs = branches[None][0]
@@ -343,10 +416,12 @@ class TestSummary(object):
         assert outcome.revision == 60000
         assert outcome.key == ('builder0', 0)
 
+        assert 'TEST1' in out
+
     def test_two_builds(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, "F a\n. b"),
-                             (60001, "F a\n. b")])
+        add_builds(builder, [(60000, "F TEST1\n. b"),
+                             (60001, "F TEST1\n. b")])
 
         s = summary.Summary()
         res = witness_branches(s)        
@@ -369,10 +444,12 @@ class TestSummary(object):
 
         assert revs == [60000, 60001]
 
+        assert 'TEST1' in out        
+
     def test_two_builds_samerev(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, "F a\n. b"),
-                             (60000, "F a\n. b")])        
+        add_builds(builder, [(60000, "F TEST1\n. b"),
+                             (60000, "F TEST1\n. b")])        
 
         s = summary.Summary()
         res = witness_branches(s)        
@@ -386,16 +463,18 @@ class TestSummary(object):
         assert outcome.revision == 60000
         assert outcome.key == ('builder0', 1)
 
+        assert 'TEST1' in out
+
     def test_two_builds_recentrev(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, "F a\n. b"),
-                             (60001, "F a\n. b")])
+        add_builds(builder, [(60000, "F TEST1\n. b"),
+                             (60001, "F TEST1\n. b")])
 
         s = summary.Summary()
         res = witness_branches(s)        
         req = FakeRequest([builder])
         req.args = {'recentrev': ['60000']}
-        s.body(req)
+        out = s.body(req)
         branches = res()
 
         revs = branches[None][0]
@@ -404,11 +483,13 @@ class TestSummary(object):
         assert outcome.revision == 60000
         assert outcome.key == ('builder0', 0)
 
+        assert 'TEST1' in out
+
     def test_many_builds_query_builder(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, "F a\n. b"),
+        add_builds(builder, [(60000, "F TEST1\n. b"),
                              (60000, ". a\n. b"),
-                             (60001, "F a\n. b")])        
+                             (60001, "F TEST1\n. b")])        
 
         s = summary.Summary()
         res = witness_branches(s)        
@@ -437,12 +518,14 @@ class TestSummary(object):
                         ('builder0', 1),
                         ('builder0', 2)]
 
+        assert 'TEST1' in out
+
 
     def test_many_builds_query_builder_builds(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, "F a\n. b"),
+        add_builds(builder, [(60000, "F TEST1\n. b"),
                              (60000, ". a\n. b"),
-                             (60001, "F a\n. b")])        
+                             (60001, "F TEST1\n. b")])        
 
         s = summary.Summary()
         res = witness_branches(s)        
@@ -467,3 +550,27 @@ class TestSummary(object):
 
         assert runs == [('builder0', 0),
                         ('builder0', 2)]
+
+        assert 'TEST1' in out
+
+    def test_many_pytestLogs(self):
+        builder = status_builder.BuilderStatus('builder1')
+        build = status_builder.BuildStatus(builder, 0)
+        build.setProperty('got_revision', '70000', None)
+        step = build.addStepWithName('pytest')
+        step.logs.extend([FakeLog(step, 'pytestLog', "F TEST1")])
+        step2 = build.addStepWithName('pytest2')
+        step2.logs.extend([FakeLog(step, 'pytestLog', ". x\nF TEST2")])
+        step2.setText(["pytest2", "aborted"])
+        build.buildFinished()
+        builder.addBuildToCache(build)
+        builder.nextBuildNumber = 1
+
+        s = summary.Summary()
+        req = FakeRequest([builder])
+        out = s.body(req)
+
+        assert 'TEST1' in out
+        assert 'TEST2' in out
+        assert 'pytest aborted' not in out        
+        assert 'pytest2 aborted' in out

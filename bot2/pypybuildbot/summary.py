@@ -1,4 +1,4 @@
-import urllib, time
+import time, urlparse, urllib
 
 import py
 html = py.xml.html
@@ -6,16 +6,33 @@ html = py.xml.html
 from buildbot.status.web.base import HtmlResource
 from buildbot.status.builder import FAILURE, EXCEPTION
 
+def host_agnostic(url):
+    parts = urlparse.urlsplit(url)
+    return urlparse.urlunsplit(('','')+parts[2:])
+
+def show_elapsed(secs):
+    if secs < 5:
+        return "%.02fs" % secs
+    secs = int(round(secs))
+    if secs < 60:
+        return "%ds" % secs
+    if secs < 5*60:
+        return "%dm%d" % (secs/60, secs%60)
+    mins = int(round(secs/60.))
+    if mins < 60:
+        return "%dm" % mins
+    return "%dh%d" % (mins/60, mins%60)
+
 class RevisionOutcomeSet(object):
 
-    def __init__(self, rev, key=None, run_stdio=None):
+    def __init__(self, rev, key=None, run_info=None):
         self.revision = rev
         self.key = key
         self._outcomes = {}
         self.failed = set()
         self.skipped = set()
         self.longreprs = {}
-        self._run_stdio = run_stdio
+        self._run_info = run_info
 
     def populate_one(self, name, shortrepr, longrepr=None):
         if shortrepr == '!':
@@ -68,8 +85,8 @@ class RevisionOutcomeSet(object):
     def get_key_namekey(self, namekey):
         return (self.key, namekey)
 
-    def get_run_stdios(self):
-        return {self.key: (self, self._run_stdio)}
+    def get_run_infos(self):
+        return {self.key: (self, self._run_info)}
 
 
 class RevisionOutcomeSetCache(object):
@@ -96,40 +113,42 @@ class RevisionOutcomeSetCache(object):
         builderName, buildNumber = key
         builderStatus = status.getBuilder(builderName)
         build = builderStatus.getBuild(buildNumber)
+        run_url = status.getURLForThing(build)
 
         rev = int(build.getProperty("got_revision"))
-        pytest_log = None
-        stdio_log = None
+        pytest_logs = []
+        pytest_elapsed = 0
         failure = None
-        aborted = False
         for step in build.getSteps():
             logs = dict((log.getName(), log) for log in step.getLogs())
             if 'pytestLog' in logs:
-                stdio_log = logs['stdio']
-                if 'aborted' in step.getText():
-                    aborted = True
-                pytest_log = logs['pytestLog']
-                break
-            elif (stdio_log is None and
+                aborted = 'aborted' in step.getText()
+                pytest_logs.append((step.getName(), logs['pytestLog'], aborted))
+                ts = step.getTimes()
+                if ts[0] is not None and ts[1] is not None:
+                    pytest_elapsed += ts[1]-ts[0]
+            elif (failure is None and
                   step.getResults()[0] in (FAILURE, EXCEPTION)):
                 failure = ' '.join(step.getText())
-                stdio_log = logs.get('stdio')
 
-        if stdio_log is None:
-            stdio_url = "no_log"
-        else:
-            stdio_url = status.getURLForThing(stdio_log)
-            # builbot is broken in this :(
-            stdio_url = stdio_url[:-1]+"stdio"
-            
-        outcome_set = RevisionOutcomeSet(rev, key, stdio_url) 
-        if pytest_log is None or not pytest_log.hasContents():
-            name = failure or '<run>'
-            outcome_set.populate_one(name, '!', "no log from the test run")
-        else:
-            if aborted:
-                outcome_set.populate_one('<run> aborted', '!', "")
-            outcome_set.populate(pytest_log)
+        run_info = {'URL': run_url, 'elapsed': pytest_elapsed or None}
+        outcome_set = RevisionOutcomeSet(rev, key, run_info)
+        someresult = False
+        if pytest_logs:
+            for stepName, resultLog, aborted in pytest_logs:
+                if resultLog.hasContents():
+                    someresult = True
+                    if aborted:
+                        outcome_set.populate_one(stepName+' aborted', '!', "")
+                    outcome_set.populate(resultLog)
+
+        if not someresult:
+            if failure:
+                name = '"%s"' % failure # quote
+            else:
+                name = '<run>'
+            outcome_set.populate_one(name, '!', "no logs from the test run")
+
         return outcome_set
         
     def get(self, status, key):
@@ -203,10 +222,10 @@ class GatherOutcomeSet(object):
     def get_key_namekey(self, namekey):
         return self.map[namekey[0]].get_key_namekey(namekey[1:])
 
-    def get_run_stdios(self):
+    def get_run_infos(self):
         all = {}
         for outcome_set in self.map.itervalues():
-            all.update(outcome_set.get_run_stdios())
+            all.update(outcome_set.get_run_infos())
         return all
          
 # ________________________________________________________________
@@ -228,10 +247,11 @@ def colsizes(namekeys):
 
 class SummaryPage(object):
 
-    def __init__(self):
+    def __init__(self, status):
         self.sections = []
         self.cur_branch=None
         self.fixed_builder = False
+        self.status = status
 
     def make_longrepr_url_for(self, outcome_set, namekey):
         cachekey, namekey = outcome_set.get_key_namekey(namekey)
@@ -244,24 +264,39 @@ class SummaryPage(object):
         qs = urllib.urlencode(parms)
         return "/summary/longrepr?" + qs
 
-    def make_stdio_anchors_for(self, outcome_set):
+    def make_run_anchors_for(self, outcome_set):
         anchors = []
-        stdios = sorted(outcome_set.get_run_stdios().items())
-        for cachekey, (run, url) in stdios:
+        infos = sorted(outcome_set.get_run_infos().items())
+        for cachekey, (run, info) in infos:
             builder = cachekey[0]
             anchors.append('  ')
-            text = "%s [%d, %d F, %d s]" % (builder,
+            timing = ""
+            if self.fixed_builder and info['elapsed'] is not None:
+                timing = " in %s" % show_elapsed(info['elapsed'])
+            text = "%s [%d, %d F, %d s%s]" % (builder,
                                             run.numpassed,
                                             len(run.failed),
-                                            len(run.skipped))
-            anchors.append(html.a(text, href=url))
+                                            len(run.skipped),
+                                            timing)
+            anchors.append(html.a(text, href=host_agnostic(info['URL'])))
         return anchors
 
     def start_branch(self, branch):
         self.cur_branch = branch
-        branch_anchor = html.a(branch, href="/summary?branch=%s" % branch)
+        branch_anchor = html.a(branch, href="/summary?branch=%s" % branch,
+                               class_="failSummary branch")
         self.sections.append(html.h2(branch_anchor))
 
+    def _builder_anchor(self, builder):
+        if self.fixed_builder:
+            url = self.status.getURLForThing(self.status.getBuilder(builder))
+            cls = "builder"
+        else:
+            url = "/summary?builder=%s" % builder
+            cls = "builderquery"
+        return html.a(builder, href=host_agnostic(url),
+                      class_=' '.join(["failSummary", cls]))
+        
     def _builder_num(self, outcome_set):
         return outcome_set.map.values()[0].key
 
@@ -287,9 +322,10 @@ class SummaryPage(object):
     def add_section(self, outcome_sets):
         if not outcome_sets:
             return
-        labels = sorted(self._label(outcome_set) for outcome_set in outcome_sets)
-        by_label = sorted((self._label(outcome_set), outcome_set) for outcome_set
-                         in outcome_sets)
+        labels = sorted(self._label(outcome_set)
+                        for outcome_set in outcome_sets)
+        by_label = sorted((self._label(outcome_set), outcome_set)
+                          for outcome_set in outcome_sets)
         lines = []
 
         align = 2*len(labels)-1+len(str(labels[-1]))
@@ -300,7 +336,7 @@ class SummaryPage(object):
             count_skipped = len(outcome_set.skipped)
             line = [bars(), ' ', self._label_anchor(outcome_set)]
             line.append((align-len(line[0]))*" ")
-            line.append(self.make_stdio_anchors_for(outcome_set))
+            line.append(self.make_run_anchors_for(outcome_set))
             line.append('\n')
             lines.append(line)
         lines.append([bars(), "\n"])
@@ -339,7 +375,14 @@ class SummaryPage(object):
                                                class_="failSummary failed")])
                     else:
                         line.append(" %s" % letter)
-            for width, key in zip(colwidths, failure):
+            # builder
+            builder_width = colwidths[0]
+            builder = failure[0]
+            spacing = ("  %-*s" % (builder_width, 'x'*len(builder))).rstrip('x')
+            builder_anchor = self._builder_anchor(builder)
+            line.append([spacing, builder_anchor])
+            
+            for width, key in zip(colwidths[1:], failure[1:]):
                 line.append("  %-*s" % (width, key))
             lines.append(line)
             lines.append("\n")
@@ -356,7 +399,7 @@ class SummaryPage(object):
             num = build.getNumber()
             descr = "%s #%d" % (builderName, num)
             url = status.getURLForThing(build)
-            section.append(html.a(descr, href=url))
+            section.append(html.a(descr, href=host_agnostic(url)))
             section.append(html.br())
         self.sections.append(section)
 
@@ -540,7 +583,7 @@ class Summary(HtmlResource):
         
         status = self.getStatus(request)
 
-        page = SummaryPage()
+        page = SummaryPage(status)
         #page.sections.append(repr(request.args))
         
         only_branches = request.args.get('branch', None)
