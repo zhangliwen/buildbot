@@ -92,3 +92,15 @@ a:visited.failSummary.failed {
     color: #E0B000;
     font-weight: bold;
 }
+
+a.failSummary.branch, a:visited.failSummary.branch { 
+    color: black;
+}
+
+a.failSummary.builderquery, a:visited.failSummary.builderquery {
+    color: black;
+}
+
+a.failSummary.builder, a:visited.failSummary.builder {
+    color: grey;
+}
