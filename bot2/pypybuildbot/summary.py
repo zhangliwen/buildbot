@@ -378,9 +378,11 @@ class SummaryPage(object):
             # builder
             builder_width = colwidths[0]
             builder = failure[0]
-            spacing = ("  %-*s" % (builder_width, 'x'*len(builder))).rstrip('x')
+            spacing = ("  %-*s" % (builder_width, 'x'*len(builder))).split('x')
+            spaceleft = spacing[0]
+            spaceright = spacing[1]
             builder_anchor = self._builder_anchor(builder)
-            line.append([spacing, builder_anchor])
+            line.append([spaceleft, builder_anchor, spaceright])
             
             for width, key in zip(colwidths[1:], failure[1:]):
                 line.append("  %-*s" % (width, key))
