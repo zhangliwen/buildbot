@@ -380,7 +380,7 @@ class SummaryPage(object):
             builder = failure[0]
             spacing = ("  %-*s" % (builder_width, 'x'*len(builder))).split('x')
             spaceleft = spacing[0]
-            spaceright = spacing[1]
+            spaceright = spacing[-1]
             builder_anchor = self._builder_anchor(builder)
             line.append([spaceleft, builder_anchor, spaceright])
             
