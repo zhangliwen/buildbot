@@ -1,23 +1,22 @@
-- buildbot Nightly scheduler that can pick a uniform revision server side and with support
-  for specifying possibly branches
-
-- some kind of progress information for a run
-
-- support for better information in case of runner-level killed hanging tests
-
-- pypy-c py.test -A support IN-PROGRESS
-
-- have a way for the involved tool to avoid color escapes even when there's a tty (because of buildbot pty usage)
-
-- move most buildbots to be over python 2.5 (?)
-
-- wire windows slave IN-PROGRESS
+Issues (in descending priority order)
+----------------------------------------
+- it seems there is no timeout detection anymore for the lib-python tests (?) !
 
 - slave for own test need pexect (seems not to be there on wyvern's python?)
 
+- move most buildbots to be over python 2.5 or 2.6 (LIKELY)
+
+- buildbot Nightly scheduler that can pick a uniform revision server side and with support
+  for specifying possibly branches
+
 - convention for naming and coalescing alternative builders for the same build
+
+Nice to have
+---------------
 
 - implement pre-switch logic to avoid the full checkouts when running non default branches
 
-- it seems there is no timeout detection anymore for the lib-python tests (?)
+- some kind of progress information for a run
+
+- have a way for the involved tool to avoid color escapes even when there's a tty (because of buildbot pty usage)
 
