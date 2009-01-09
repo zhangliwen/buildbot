@@ -31,12 +31,15 @@ pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.PyPyTranslatedScratchboxTes
 
 pypyTranslatedAppLevelTestFactory = pypybuilds.PyPyTranslatedAppLevelTestFactory()
 
+pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.PyPyStacklessTranslatedAppLevelTestFactory()
+
 LINUX32 = "own-linux-x86-32"
 CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
 CPYWIN32 = "pypy-c-lib-python-win-32"
 CPYLINUX32_VM = 'pypy-c-lib-python-linux-x86-32vm'
 CPYMAEMO = "pypy-c-lib-python-maemo"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
+STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 CPYFREEBSD64 = 'pypy-c-lib-python-freebsd-7-x86-64'
 
 BuildmasterConfig = {
@@ -68,7 +71,12 @@ BuildmasterConfig = {
                    "slavenames": ["wyvern", "cobra"],
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory
-                  },                  
+                  },
+                  {"name": STACKLESSAPPLVLLINUX32,
+                   "slavenames": ["wyvern", "cobra"],
+                   "builddir": STACKLESSAPPLVLLINUX32,
+                   "factory": pypyStacklessTranslatedAppLevelTestFactory
+                  },                                    
                   {"name" : CPYLINUX32_VM,
                    "slavenames": ['bigdogvm1'],
                    "builddir": CPYLINUX32_VM,

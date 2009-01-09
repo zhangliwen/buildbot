@@ -144,6 +144,29 @@ class PyPyTranslatedAppLevelTestFactory(factory.BuildFactory):
             timeout = 4000,
             env={"PYTHONPATH": ['.']}))
 
+
+class PyPyStacklessTranslatedAppLevelTestFactory(factory.BuildFactory):
+
+    def __init__(self, *a, **kw):
+        platform = kw.pop('platform', 'linux')
+        factory.BuildFactory.__init__(self, *a, **kw)
+
+        setup_steps(platform, self)
+
+        self.addStep(Translate(["-O2", "--stackless"], []))
+
+        self.addStep(ShellCmd(
+            description="app-level (-A) test",
+            command=["python", "testrunner/runner.py",
+                     "--logfile=pytest-A.log",
+                     "--config=pypy/pytest-A.cfg",
+                     "--config=pypy/pytest-A-stackless.cfg",                     
+                     "--root=pypy", "--timeout=1800"],
+            logfiles={'pytestLog': 'pytest-A.log'},
+            timeout = 4000,
+            env={"PYTHONPATH": ['.']}))
+
+
 class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
         USERNAME = 'buildbot'
