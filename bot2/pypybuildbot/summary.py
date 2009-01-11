@@ -54,6 +54,11 @@ class RevisionOutcomeSet(object):
             self.failed.add(namekey)
 
         if longrepr:
+            try:
+                longrepr = longrepr.decode("utf-8")
+            except UnicodeDecodeError:
+                longrepr = longrepr.decode("latin-1")
+            
             self.longreprs[namekey] = longrepr
 
     @property

@@ -69,6 +69,24 @@ s a/b.py:test_three
         res = rev_outcome_set.get_longrepr(("a.b", "test_one"))
         assert res == "some\ntraceback\n"
 
+    def test_populate_encodings(self):
+        rev_outcome_set = summary.RevisionOutcomeSet(50000)
+        log = StringIO("""F a/b.py:test_one
+ \xe5 foo
+F a/b.py:test_two
+ \xc3\xa5 bar
+""")
+        
+        rev_outcome_set.populate(log)
+
+        assert len(rev_outcome_set.failed) == 2
+        assert rev_outcome_set.numpassed == 0
+
+        assert rev_outcome_set.longreprs == {
+("a.b","test_one"): u"\xe5 foo\n",
+("a.b", "test_two"): u"\xe5 bar\n"
+            }
+
     def test_populate_special(self):
         rev_outcome_set = summary.RevisionOutcomeSet(50000)
         log = StringIO("""F a/b.py
