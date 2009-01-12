@@ -1,6 +1,8 @@
 from zope.interface import implements
 from buildbot import interfaces as buildbot_intefaces
 from buildbot.status import builder as status_builder
+from buildbot.process import builder as process_builder
+from buildbot.process import factory as process_factory
 from pypybuildbot import summary
 from StringIO import StringIO
 import re
@@ -267,10 +269,11 @@ def test_show_elapsed():
     res = summary.show_elapsed(90*60)
     assert res == "1h30"                
 
-class _BuilderToStatus(object):
+def _BuilderToStatus(status):
 
-    def __init__(self, status):
-        self.builder_status = status
+    setup = {'name': 'builder', 'builddir': 'BUILDDIR',
+             'factory': process_factory.BuildFactory() }
+    return process_builder.Builder(setup, status)
 
 class FakeRequest(object):
 

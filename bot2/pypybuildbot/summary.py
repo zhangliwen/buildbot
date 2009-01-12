@@ -497,6 +497,7 @@ class Summary(HtmlResource):
     def __init__(self):
         HtmlResource.__init__(self)
         self.putChild('longrepr', LongRepr())
+        self._defaultBranchCache = {}
 
     def getTitle(self, request):
         status = self.getStatus(request)        
@@ -508,6 +509,30 @@ class Summary(HtmlResource):
         if len(runs) > cutnum:
             for rev in sorted(runs.keys())[:-cutnum]:
                 del runs[rev]
+
+    def _fish_defaultBranch(self, status, builderName):
+        try:
+            return self._defaultBranchCache[builderName]
+        except KeyError:
+            pass
+        builder = status.botmaster.builders[builderName]
+        branch = None
+        for _, kw in builder.buildFactory.steps:
+            if 'defaultBranch' in kw:
+                if kw.get('explicitBranch'):
+                    branch = kw['defaultBranch']
+                break
+        self._defaultBranchCache[builderName] = branch
+        return branch
+
+    def _get_branch(self, status, build):
+        branch = getProp(build, 'explicitBranch')
+        # fish
+        if branch is None:
+            builderName = build.getBuilder().getName()
+            branch = self._fish_defaultBranch(status, builderName)
+            branch = branch or getProp(build, 'branch')
+        return branch
 
     def recentRuns(self, status, only_recentrevs=None, only_branches=None,
                                  only_builder=None, only_builds=None):
@@ -533,7 +558,7 @@ class Summary(HtmlResource):
                 builditer = builderStatus.generateFinishedBuilds(num_builds=5*N)
             
             for build in builditer:
-                branch = getProp(build, 'branch')
+                branch = self._get_branch(status, build)
                 if not test_branch(branch):
                     continue
                 got_rev = getProp(build, 'got_revision', None)
