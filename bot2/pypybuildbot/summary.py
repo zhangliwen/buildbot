@@ -289,12 +289,9 @@ class SummaryPage(object):
     def start_cat_branch(self, cat_branch):
         category, branch = cat_branch
         branch = trunk_name(branch)
+        category = category_name(category)
 
-        if category is None:
-            cat_branch = ('-', branch)
-        self.cur_cat_branch = cat_branch
-
-        category, branch = cat_branch
+        cat_branch = self.cur_cat_branch = (category, branch)
 
         cat_anchor = html.a("{%s}" % category,
                             href="/summary?category=%s" % category,
@@ -501,6 +498,7 @@ def make_subst(v1, v2):
 
 trunk_name = make_subst(None, "<trunk>")
 trunk_value = make_subst("<trunk>", None)
+category_name = make_subst(None, '-')
 nocat_value = make_subst("-", None)
 
 def safe_int(v):
