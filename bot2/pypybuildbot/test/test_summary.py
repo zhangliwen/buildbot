@@ -298,13 +298,13 @@ class FakeRequest(object):
     def getStatus(self):
         return self.status
 
-def witness_branches(summary):
+def witness_cat_branch(summary):
     ref = [None]
     recentRuns = summary.recentRuns
     def witness(*args, **kwds):
-        branches = recentRuns(*args, **kwds)
-        ref[0] = branches
-        return branches
+        cat_branch = recentRuns(*args, **kwds)
+        ref[0] = cat_branch
+        return cat_branch
     summary.recentRuns = witness
 
     return lambda: ref[0]
@@ -354,12 +354,12 @@ class TestSummary(object):
 
     def test_sanity(self):
         s = summary.Summary()
-        res = witness_branches(s)
+        res = witness_cat_branch(s)
         req = FakeRequest([])
         s.body(req)
-        branches = res()
+        cat_branch = res()
 
-        assert branches == {}
+        assert cat_branch == {}
 
     def test_one_build_no_rev(self):
         builder = status_builder.BuilderStatus('builder0')
@@ -369,12 +369,12 @@ class TestSummary(object):
         builder.nextBuildNumber = len(builder.buildCache)
 
         s = summary.Summary()
-        res = witness_branches(s)        
+        res = witness_cat_branch(s)        
         req = FakeRequest([builder])
         out = s.body(req)
-        branches = res()
+        cat_branch = res()
 
-        assert branches == {None: ({}, [build])}
+        assert cat_branch == {(None, None): ({}, [build])}
 
     def test_one_build_no_logs(self):
         builder = status_builder.BuilderStatus('builder0')
@@ -385,12 +385,12 @@ class TestSummary(object):
         builder.nextBuildNumber = len(builder.buildCache)
 
         s = summary.Summary()
-        res = witness_branches(s)        
+        res = witness_cat_branch(s)        
         req = FakeRequest([builder])
         out = s.body(req)
-        branches = res()
+        cat_branch = res()
         
-        revs = branches[None][0]
+        revs = cat_branch[(None, None)][0]
         assert revs.keys() == [50000]
 
         assert '&lt;run&gt;' in out
@@ -410,12 +410,12 @@ class TestSummary(object):
         builder.nextBuildNumber = len(builder.buildCache)
 
         s = summary.Summary()
-        res = witness_branches(s)        
+        res = witness_cat_branch(s)        
         req = FakeRequest([builder])
         out = s.body(req)
-        branches = res()
+        cat_branch = res()
         
-        revs = branches[None][0]
+        revs = cat_branch[(None, None)][0]
         assert revs.keys() == [50000]
 
         assert 'step borken' in out
@@ -426,12 +426,12 @@ class TestSummary(object):
         add_builds(builder, [(60000, "F TEST1\n. b")])
 
         s = summary.Summary()
-        res = witness_branches(s)        
+        res = witness_cat_branch(s)        
         req = FakeRequest([builder])
         out = s.body(req)
-        branches = res()
+        cat_branch = res()
 
-        revs = branches[None][0]
+        revs = cat_branch[(None, None)][0]
         assert revs.keys() == [60000]
         outcome = revs[60000]['builder0']
         assert outcome.revision == 60000
@@ -445,12 +445,12 @@ class TestSummary(object):
                              (60001, "F TEST1\n. b")])
 
         s = summary.Summary()
-        res = witness_branches(s)        
+        res = witness_cat_branch(s)        
         req = FakeRequest([builder])
         out = s.body(req)
-        branches = res()
+        cat_branch = res()
 
-        revs = branches[None][0]
+        revs = cat_branch[(None, None)][0]
         assert sorted(revs.keys()) == [60000, 60001]        
         outcome = revs[60000]['builder0']
         assert outcome.revision == 60000
@@ -473,12 +473,12 @@ class TestSummary(object):
                              (60000, "F TEST1\n. b")])        
 
         s = summary.Summary()
-        res = witness_branches(s)        
+        res = witness_cat_branch(s)        
         req = FakeRequest([builder])
         out = s.body(req)
-        branches = res()
+        cat_branch = res()
 
-        revs = branches[None][0]
+        revs = cat_branch[(None, None)][0]
         assert sorted(revs.keys()) == [60000]
         outcome = revs[60000]['builder0']
         assert outcome.revision == 60000
@@ -492,13 +492,13 @@ class TestSummary(object):
                              (60001, "F TEST1\n. b")])
 
         s = summary.Summary()
-        res = witness_branches(s)        
+        res = witness_cat_branch(s)        
         req = FakeRequest([builder])
         req.args = {'recentrev': ['60000']}
         out = s.body(req)
-        branches = res()
+        cat_branch = res()
 
-        revs = branches[None][0]
+        revs = cat_branch[(None, None)][0]
         assert sorted(revs.keys()) == [60000]
         outcome = revs[60000]['builder0']
         assert outcome.revision == 60000
@@ -513,13 +513,13 @@ class TestSummary(object):
                              (60001, "F TEST1\n. b")])        
 
         s = summary.Summary()
-        res = witness_branches(s)        
+        res = witness_cat_branch(s)        
         req = FakeRequest([builder])
         req.args={'builder': ['builder0']}
         out = s.body(req)
-        branches = res()
+        cat_branch = res()
 
-        runs = branches[None][0]
+        runs = cat_branch[(None, None)][0]
         assert sorted(runs.keys()) == [(60000,0), (60000,1), (60001,2)]
         outcome = runs[(60000,0)]['builder0']
         assert outcome.revision == 60000
@@ -549,14 +549,14 @@ class TestSummary(object):
                              (60001, "F TEST1\n. b")])        
 
         s = summary.Summary()
-        res = witness_branches(s)        
+        res = witness_cat_branch(s)        
         req = FakeRequest([builder])
         req.args={'builder': ['builder0'],
                   'builds': ['0','2-2', '7']}
         out = s.body(req)
-        branches = res()
+        cat_branch = res()
 
-        runs = branches[None][0]
+        runs = cat_branch[(None, None)][0]
         assert sorted(runs.keys()) == [(60000,0), (60001,2)]
         outcome = runs[(60000,0)]['builder0']
         assert outcome.revision == 60000
@@ -595,3 +595,45 @@ class TestSummary(object):
         assert 'TEST2' in out
         assert 'pytest aborted' not in out        
         assert 'pytest2 aborted' in out
+
+    def test_category_sorting_key(self):
+        s = summary.Summary(['foo', 'bar'])
+
+        res = s._cat_branch_key(('foo', 'trunk'))
+        assert res == (0, 0, 'trunk')
+
+        res = s._cat_branch_key(('bar', 'trunk'))
+        assert res == (0, 1, 'trunk')
+
+        res = s._cat_branch_key((None, 'trunk'))
+        assert res == (1, None, 'trunk')
+
+        res = s._cat_branch_key(('dontknow', 'trunk'))
+        assert res == (1, 'dontknow', 'trunk')                        
+
+    def test_builders_with_categories(self):
+        builder1 = status_builder.BuilderStatus('builder_foo')
+        builder1.category = 'foo'
+        builder2 = status_builder.BuilderStatus('builder_bar')
+        builder2.category = 'bar'
+        builder3 = status_builder.BuilderStatus('builder_')
+        builder3.category = None            
+
+        add_builds(builder1, [(60000, "F TEST1\n")])
+        add_builds(builder2, [(60000, "F TEST2\n")])
+        add_builds(builder3, [(60000, "F TEST3\n")])            
+
+        s = summary.Summary(['foo', 'bar'])
+        req = FakeRequest([builder1, builder2, builder3])
+        out = s.body(req)
+
+        rel1 = out.index('TEST1')
+        rel2 = out.index('TEST2')
+        rel3 = out.index('TEST3')
+
+        assert rel3 > rel2 > rel1
+
+        assert "{foo}" in out
+        assert "{bar}" in out
+
+        

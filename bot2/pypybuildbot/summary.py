@@ -254,7 +254,7 @@ class SummaryPage(object):
 
     def __init__(self, status):
         self.sections = []
-        self.cur_branch=None
+        self.cur_cat_branch=None
         self.fixed_builder = False
         self.status = status
 
@@ -286,11 +286,26 @@ class SummaryPage(object):
             anchors.append(html.a(text, href=host_agnostic(info['URL'])))
         return anchors
 
-    def start_branch(self, branch):
-        self.cur_branch = branch
-        branch_anchor = html.a(branch, href="/summary?branch=%s" % branch,
+    def start_cat_branch(self, cat_branch):
+        category, branch = cat_branch
+        branch = trunk_name(branch)
+
+        if category is None:
+            cat_branch = ('-', branch)
+        self.cur_cat_branch = cat_branch
+
+        category, branch = cat_branch
+
+        cat_anchor = html.a("{%s}" % category,
+                            href="/summary?category=%s" % category,
+                            class_="failSummary branch")
+
+        branch_anchor = html.a(branch,
+                               href="/summary?category=%s&branch=%s" %
+                               cat_branch,
                                class_="failSummary branch")
-        self.sections.append(html.h2(branch_anchor))
+        
+        self.sections.append(html.h2(cat_anchor," ",branch_anchor))
 
     def _builder_anchor(self, builder):
         if self.fixed_builder:
@@ -320,8 +335,9 @@ class SummaryPage(object):
             pick = "builder=%s&builds=%d" % self._builder_num(outcome_set)
         else:
             pick = "recentrev=%d" % rev
-        rev_anchor = html.a(str(rev), href="/summary?branch=%s&%s" %
-                            (self.cur_branch, pick))
+        category, branch = self.cur_cat_branch
+        rev_anchor = html.a(str(rev), href="/summary?category=%s&branch=%s&%s" %
+                            (category, branch, pick))
         return rev_anchor
                             
     def add_section(self, outcome_sets):
@@ -485,6 +501,7 @@ def make_subst(v1, v2):
 
 trunk_name = make_subst(None, "<trunk>")
 trunk_value = make_subst("<trunk>", None)
+nocat_value = make_subst("-", None)
 
 def safe_int(v):
     try:
@@ -494,10 +511,11 @@ def safe_int(v):
 
 class Summary(HtmlResource):
 
-    def __init__(self):
+    def __init__(self, categories=[]):
         HtmlResource.__init__(self)
         self.putChild('longrepr', LongRepr())
         self._defaultBranchCache = {}
+        self.categories = categories
 
     def getTitle(self, request):
         status = self.getStatus(request)        
@@ -535,15 +553,16 @@ class Summary(HtmlResource):
         return branch
 
     def recentRuns(self, status, only_recentrevs=None, only_branches=None,
-                                 only_builder=None, only_builds=None):
+                                 only_builder=None, only_builds=None,
+                                 only_categories=None):
         test_rev = make_test(only_recentrevs)
         test_branch = make_test(only_branches)
         test_builder = make_test(only_builder)
         fixed_builder = bool(only_builder)
         
-        branches = {}
+        cat_branches = {}
 
-        for builderName in status.getBuilderNames():
+        for builderName in status.getBuilderNames(only_categories):
             if not test_builder(builderName):
                 continue
             builderStatus = status.getBuilder(builderName)
@@ -565,7 +584,10 @@ class Summary(HtmlResource):
                 if not test_rev(got_rev):
                     continue
 
-                runs, no_revision_builds = branches.setdefault(branch,
+
+                cat_branch = (builderStatus.category, branch)
+
+                runs, no_revision_builds = cat_branches.setdefault(cat_branch,
                                                                ({}, []))
 
                 if got_rev is None:
@@ -582,7 +604,7 @@ class Summary(HtmlResource):
                     if builderName not in builds:
                         builds[builderName] = build.getNumber()
 
-        for branch, (runs, no_revision_builds) in branches.items():
+        for cat_branch, (runs, no_revision_builds) in cat_branches.items():
             self._prune_runs(runs, N)
             for label, runBuilds in runs.iteritems():
                 for builderName, buildNumber in runBuilds.items():
@@ -590,7 +612,7 @@ class Summary(HtmlResource):
                     outcome_set = outcome_set_cache.get(status, key)
                     runBuilds[builderName] = outcome_set
                             
-        return branches
+        return cat_branches
 
     @staticmethod
     def _parse_builds(build_select):
@@ -608,6 +630,13 @@ class Summary(HtmlResource):
                     if (build_start is not None and build_end is not None):
                         builds.update(range(build_start, build_end+1))
         return builds
+
+    def _cat_branch_key(self, (category, branch)):
+        try:
+            i = self.categories.index(category)
+            return (0, i, branch)
+        except ValueError:
+            return (1, category, branch)
                             
     def body(self, request):
         t0 = time.time()
@@ -630,19 +659,26 @@ class Summary(HtmlResource):
             build_select = request.args.get('builds', None)
             if build_select is not None:
                 only_builds = self._parse_builds(build_select)
+        only_categories = request.args.get('category', None)
+        if only_categories is not None:
+            only_categories = map(nocat_value, only_categories)
 
-        branches = self.recentRuns(status,
-                                   only_recentrevs=only_recentrevs,
-                                   only_branches=only_branches,
-                                   only_builder=only_builder,
-                                   only_builds=only_builds)
+        cat_branches = self.recentRuns(status,
+                                   only_recentrevs = only_recentrevs,
+                                   only_branches = only_branches,
+                                   only_builder = only_builder,
+                                   only_builds = only_builds,
+                                   only_categories = only_categories
+                                   )
 
-        for branch, (runs, no_revision_builds) in sorted(branches.iteritems()):
+
+        sorting = sorted(cat_branches.iterkeys(), key=self._cat_branch_key)
+        for cat_branch in sorting:
+            runs, no_revision_builds = cat_branches[cat_branch]
             outcome_sets = []
             for label, by_build in runs.items():
                 outcome_sets.append(GatherOutcomeSet(by_build))
-            branch = trunk_name(branch)
-            page.start_branch(branch)
+            page.start_cat_branch(cat_branch)
             page.add_section(outcome_sets)
             page.add_no_revision_builds(status, no_revision_builds)
 
