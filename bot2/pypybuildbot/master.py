@@ -17,7 +17,8 @@ status = WebStatus(httpPortNumber, allowForce=True)
 
 # pypy test summary page
 summary = load('pypybuildbot.summary')
-status.putChild('summary', summary.Summary(['own', 'applevel', 'stackless',
+status.putChild('summary', summary.Summary(['own', 'applevel', 'lib-python',
+                                            'stackless',
                                             'windows', 'maemo', 'other']))
 
 
