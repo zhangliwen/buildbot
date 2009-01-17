@@ -17,7 +17,8 @@ status = WebStatus(httpPortNumber, allowForce=True)
 
 # pypy test summary page
 summary = load('pypybuildbot.summary')
-status.putChild('summary', summary.Summary())
+status.putChild('summary', summary.Summary(['own', 'applevel', 'stackless',
+                                            'windows', 'maemo', 'other']))
 
 
 pypybuilds = load('pypybuildbot.builds')
@@ -60,42 +61,50 @@ BuildmasterConfig = {
                   {"name": LINUX32,
                    "slavenames": ["wyvern"],
                    "builddir": LINUX32,
-                   "factory": pypyOwnTestFactory
+                   "factory": pypyOwnTestFactory,
+                   "category": 'own'
                   },
                   {"name": CPYLINUX32,
                    "slavenames": ["wyvern", "cobra"],
                    "builddir": CPYLINUX32,
-                   "factory": pypyTranslatedLibPythonTestFactory
+                   "factory": pypyTranslatedLibPythonTestFactory,
+                   "category": 'lib-python'
                   },
                   {"name": APPLVLLINUX32,
                    "slavenames": ["wyvern", "cobra"],
                    "builddir": APPLVLLINUX32,
-                   "factory": pypyTranslatedAppLevelTestFactory
+                   "factory": pypyTranslatedAppLevelTestFactory,
+                   'category': 'applevel'
                   },
                   {"name": STACKLESSAPPLVLLINUX32,
                    "slavenames": ["wyvern", "cobra"],
                    "builddir": STACKLESSAPPLVLLINUX32,
-                   "factory": pypyStacklessTranslatedAppLevelTestFactory
+                   "factory": pypyStacklessTranslatedAppLevelTestFactory,
+                   "category": 'stackless'
                   },                                    
                   {"name" : CPYLINUX32_VM,
                    "slavenames": ['bigdogvm1'],
                    "builddir": CPYLINUX32_VM,
-                   "factory": pypyTranslatedLibPythonTestFactory
+                   "factory": pypyTranslatedLibPythonTestFactory,
+                   "category": 'lib-python'
                    },
                   {"name": CPYWIN32,
                    "slavenames": ["winxp32-py2.5"],
                    "builddir": CPYWIN32,
-                   "factory": pypyTranslatedLibPythonTestFactoryWin
+                   "factory": pypyTranslatedLibPythonTestFactoryWin,
+                   "category": "windows"
                   },
                   {"name" : CPYMAEMO,
                    "slavenames": ['bigdogvm1'],
                    "builddir" : CPYMAEMO,
                    "factory": pypyTranslatedLibPythonMaemoTestFactory,
+                   "category": 'maemo'
                    },
                   {"name" : CPYFREEBSD64,
                    "slavenames": ['headless'],
                    'builddir' : CPYFREEBSD64,
-                   'factory' : pypyTranslatedLibPythonTestFactory
+                   'factory' : pypyTranslatedLibPythonTestFactory,
+                   "category": 'other'
                    },
                 ],
 
