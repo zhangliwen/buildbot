@@ -1,7 +1,5 @@
 Issues (in descending priority order)
 ----------------------------------------
-- it seems there is no timeout detection anymore for the lib-python tests (?) !
-
 - (fijal) There is a bunch of exceptions that should be reported as skipped on view.
 
   TestSkipped, ResourceDenied comes to mind. Not sure what else
