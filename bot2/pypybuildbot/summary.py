@@ -1,4 +1,4 @@
-import time, urlparse, urllib
+import time, datetime, urlparse, urllib
 
 import py
 html = py.xml.html
@@ -298,8 +298,8 @@ class SummaryPage(object):
                                             timing)
             anchors.append(html.a(text, href=host_agnostic(info['URL'])))
         if maxend is not None:
-            mintxt = time.strftime("%d %b", minend+(0,)*6)
-            maxtxt = time.strftime("%d %b", maxend+(0,)*6)
+            mintxt = datetime.date(*minend).strftime("%d %b")
+            maxtxt = datetime.date(*maxend).strftime("%d %b")
             if maxend == minend:
                 anchors.append(' (%s)' % maxtxt)
             else:
