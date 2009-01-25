@@ -636,4 +636,35 @@ class TestSummary(object):
         assert "{foo}" in out
         assert "{bar}" in out
 
-        
+    def test_two_builds_different_rev_digits(self):
+        builder = status_builder.BuilderStatus('builder0')
+        add_builds(builder, [(999, "F TEST1\n. b"),
+                             (1000, "F TEST1\n. b")])
+
+        s = summary.Summary()
+        req = FakeRequest([builder])
+        out = s.body(req)
+        p999 = out.find('999')
+        p999builder0 = out.find('builder0', p999)
+        p1000 = out.find('1000')
+        p1000builder0 = out.find('builder0', p1000)
+        assert p999builder0-p999 == p1000builder0-p1000+1
+
+    def test_build_times(self):
+        builder1 = status_builder.BuilderStatus('builder1')
+        builder2 = status_builder.BuilderStatus('builder2')
+ 
+        add_builds(builder1, [(60000, "F TEST1\n")])
+        add_builds(builder2, [(60000, "F TEST2\n")])
+
+        builder1.getBuild(0).finished = 1228258800 # 3 Dec 2008
+        builder2.getBuild(0).finished = 1228431600 # 5 Dec 2008
+
+        s = summary.Summary()
+        req = FakeRequest([builder1, builder2])
+        out = s.body(req)
+
+        assert '(03 Dec..05 Dec)' in out
+         
+
+         

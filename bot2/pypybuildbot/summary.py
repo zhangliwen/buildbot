@@ -136,7 +136,8 @@ class RevisionOutcomeSetCache(object):
                   step.getResults()[0] in (FAILURE, EXCEPTION)):
                 failure = ' '.join(step.getText())
 
-        run_info = {'URL': run_url, 'elapsed': pytest_elapsed or None}
+        run_info = {'URL': run_url, 'elapsed': pytest_elapsed or None,
+                    'times': build.getTimes()}
         outcome_set = RevisionOutcomeSet(rev, key, run_info)
         someresult = False
         if pytest_logs:
@@ -272,18 +273,37 @@ class SummaryPage(object):
     def make_run_anchors_for(self, outcome_set):
         anchors = []
         infos = sorted(outcome_set.get_run_infos().items())
+        minend = None
+        maxend = None
         for cachekey, (run, info) in infos:
             builder = cachekey[0]
             anchors.append('  ')
             timing = ""
             if self.fixed_builder and info['elapsed'] is not None:
                 timing = " in %s" % show_elapsed(info['elapsed'])
+            if info['times'][1] is not None:
+                day = time.localtime(info['times'][1])[:3]
+                if minend is None:
+                    minend = day
+                else:
+                    minend = min(minend, day)
+                if maxend is None:
+                    maxend = day
+                else:
+                    maxend = max(maxend, day)
             text = "%s [%d, %d F, %d s%s]" % (builder,
                                             run.numpassed,
                                             len(run.failed),
                                             len(run.skipped),
                                             timing)
             anchors.append(html.a(text, href=host_agnostic(info['URL'])))
+        if maxend is not None:
+            mintxt = time.strftime("%d %b", minend+(0,)*6)
+            maxtxt = time.strftime("%d %b", maxend+(0,)*6)
+            if maxend == minend:
+                anchors.append(' (%s)' % maxtxt)
+            else:
+                anchors.append(' (%s..%s)' % (mintxt, maxtxt))
         return anchors
 
     def start_cat_branch(self, cat_branch):
@@ -326,16 +346,18 @@ class SummaryPage(object):
             # rev
             return outcome_set.revision
 
-    def _label_anchor(self, outcome_set):
+    def _label_anchor(self, outcome_set, revsize):
         rev = outcome_set.revision
         if self.fixed_builder:
             pick = "builder=%s&builds=%d" % self._builder_num(outcome_set)
         else:
             pick = "recentrev=%d" % rev
         category, branch = self.cur_cat_branch
-        rev_anchor = html.a(str(rev), href="/summary?category=%s&branch=%s&%s" %
+        revtxt = str(rev)
+        rev_anchor = html.a(revtxt, href="/summary?category=%s&branch=%s&%s" %
                             (category, branch, pick))
-        return rev_anchor
+        rightalign = ' '*(revsize-len(revtxt))
+        return [rev_anchor, rightalign]
                             
     def add_section(self, outcome_sets):
         if not outcome_sets:
@@ -344,15 +366,19 @@ class SummaryPage(object):
                         for outcome_set in outcome_sets)
         by_label = sorted((self._label(outcome_set), outcome_set)
                           for outcome_set in outcome_sets)
+        revs = [outcome_set.revision for outcome_set in outcome_sets]
+
         lines = []
 
-        align = 2*len(labels)-1+len(str(labels[-1]))
+        revsize = len(str(max(revs)))
+
+        align = 2*len(labels)-1+revsize
         def bars():
             return ' |'*len(lines)
         for label, outcome_set in by_label:
             count_failures = len(outcome_set.failed)
             count_skipped = len(outcome_set.skipped)
-            line = [bars(), ' ', self._label_anchor(outcome_set)]
+            line = [bars(), ' '] + self._label_anchor(outcome_set, revsize)
             line.append((align-len(line[0]))*" ")
             line.append(self.make_run_anchors_for(outcome_set))
             line.append('\n')
