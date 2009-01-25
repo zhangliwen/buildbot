@@ -1,9 +1,5 @@
 Issues (in descending priority order)
 ----------------------------------------
-- (fijal) There is a bunch of exceptions that should be reported as skipped on view.
-
-  TestSkipped, ResourceDenied comes to mind. Not sure what else
-
 - slave for own test need pexect (seems not to be there on wyvern's python?)
 
 - move most buildbots to be over python 2.5 or 2.6 (LIKELY)
