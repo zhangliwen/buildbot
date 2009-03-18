@@ -46,7 +46,7 @@ class RevisionOutcomeSet(object):
 
         namekey = tuple(namekey)
         self._outcomes[namekey] = shortrepr
-        if shortrepr == 's':
+        if shortrepr.lower() == 's':
             self.skipped.add(namekey)
         elif shortrepr == '.':
             pass
@@ -403,7 +403,7 @@ class SummaryPage(object):
             line = []
             for label, outcome_set in by_label:
                 letter = outcome_set.get_outcome(failure)
-                failed = letter not in ('s', '.')
+                failed = letter.lower() not in ('s', '.')
                 if outcome_set.get_longrepr(failure):
                     longrepr_url = self.make_longrepr_url_for(outcome_set,
                                                               failure)

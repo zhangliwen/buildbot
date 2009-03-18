@@ -18,11 +18,13 @@ class TestOutcomes(object):
         log = StringIO("""F a/b.py:test_one
 . a/b.py:test_two
 s a/b.py:test_three
+S a/c.py:test_four
 """)
         
         rev_outcome_set.populate(log)
 
-        assert rev_outcome_set.skipped == set([("a.b","test_three")])
+        assert rev_outcome_set.skipped == set([("a.b","test_three"),
+                                               ("a.c", "test_four")])
         assert rev_outcome_set.failed == set([("a.b", "test_one")])
         assert rev_outcome_set.numpassed == 1
 
@@ -38,6 +40,11 @@ s a/b.py:test_three
 
         res = rev_outcome_set.get_outcome(("a.b", "test_two"))
         assert res == '.'
+
+        res = rev_outcome_set.get_outcome(("a.c", "test_four"))
+        assert res == 'S'
+        key_namekey = rev_outcome_set.get_key_namekey(("a.c", "test_four"))
+        assert key_namekey == (('foo', 40), ("a.c", "test_four"))
 
     def test_populate_from_empty(self):
         rev_outcome_set = summary.RevisionOutcomeSet(0)
