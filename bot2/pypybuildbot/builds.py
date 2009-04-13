@@ -62,6 +62,23 @@ class Translate(ShellCmd):
         self.command = (self.command + translationArgs +
                         [self.translationTarget] + targetArgs)
 
+class TranslateJIT(ShellCmd):
+    name = "translate_jit"
+    description = ["translating"]
+    descriptionDone = ["translation"]
+
+    command = ["python", "../../translator/goal/translate.py", "--jit", "--batch"]
+    translationTarget = "targetpypyjit"
+
+    def __init__(self, translationArgs, targetArgs,
+                 workdir="build/pypy/jit/tl",
+                 *a, **kw):
+        kw['translationArgs'] = translationArgs
+        kw['targetArgs'] = targetArgs
+        kw['timeout'] = 3600
+        ShellCmd.__init__(self, workdir, *a, **kw)
+        self.command = (self.command + translationArgs +
+                        [self.translationTarget] + targetArgs)
 
 # ________________________________________________________________
 
@@ -190,3 +207,13 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
             timeout = 4000,
             workdir = WORKDIR,
             env={"PYTHONPATH": ['.']}))
+
+class PyPyJITTranslatedTestFactory(factory.BuildFactory):
+    def __init__(self, *a, **kw):
+        platform = kw.pop('platform', 'linux')
+        factory.BuildFactory.__init__(self, *a, **kw)
+
+        setup_steps(platform, self)
+
+        self.addStep(TranslateJIT([], [], workdir=workdir))
+        

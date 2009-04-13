@@ -34,6 +34,7 @@ pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.PyPyTranslatedScratchboxTes
 pypyTranslatedAppLevelTestFactory = pypybuilds.PyPyTranslatedAppLevelTestFactory()
 
 pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.PyPyStacklessTranslatedAppLevelTestFactory()
+pypyJITTranslatedTestFactory = pypybuilds.PyPyJITTranslatedTestFactory()
 
 LINUX32 = "own-linux-x86-32"
 CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
@@ -43,6 +44,7 @@ CPYMAEMO = "pypy-c-lib-python-maemo"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 CPYFREEBSD64 = 'pypy-c-lib-python-freebsd-7-x86-64'
+JITLINUX32 = "jit-linux-x86-32"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
@@ -108,6 +110,12 @@ BuildmasterConfig = {
                    'factory' : pypyTranslatedLibPythonTestFactory,
                    "category": 'other'
                    },
+                  {"name" : JITLINUX32,
+                   "slavenames": ["wyvern"],
+                   'builddir' : JITLINUX32,
+                   'factory' : pypyJITTranslatedTestFactory,
+                   'category' : 'other',
+                   }
                 ],
 
     'buildbotURL': 'http://codespeak.net:%d/'%(httpPortNumber),
