@@ -215,5 +215,5 @@ class PyPyJITTranslatedTestFactory(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(TranslateJIT([], [], workdir=workdir))
+        self.addStep(TranslateJIT([], []))
         
