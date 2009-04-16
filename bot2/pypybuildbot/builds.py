@@ -209,7 +209,7 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
         #    env={"PYTHONPATH": ['.']}))
         self.addStep(ShellCmd(
             description="copy build",
-            command=["scp", "pypy-c", "fijal@codespeak.net:builds/pypy-c-scratchbox"], workdir = WORKDIR))
+            command=["scp", "pypy-c", "fijal@codespeak.net:builds/pypy-c-scratchbox"], workdir = workdir))
 
 class PyPyJITTranslatedTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
