@@ -93,7 +93,7 @@ BuildmasterConfig = {
                    "category": 'lib-python'
                    },
                   {"name": CPYWIN32,
-                   "slavenames": ["winxp32-py2.5"],
+                   "slavenames": ["bigboard"],
                    "builddir": CPYWIN32,
                    "factory": pypyTranslatedLibPythonTestFactoryWin,
                    "category": "windows"
