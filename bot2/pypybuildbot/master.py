@@ -40,7 +40,7 @@ LINUX32 = "own-linux-x86-32"
 CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
 CPYWIN32 = "pypy-c-lib-python-win-32"
 CPYLINUX32_VM = 'pypy-c-lib-python-linux-x86-32vm'
-CPYMAEMO = "pypy-c-lib-python-maemo"
+BUILDMAEMO = "pypy-c-maemo-build"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 CPYFREEBSD64 = 'pypy-c-lib-python-freebsd-7-x86-64'
@@ -98,9 +98,9 @@ BuildmasterConfig = {
                    "factory": pypyTranslatedLibPythonTestFactoryWin,
                    "category": "windows"
                   },
-                  {"name" : CPYMAEMO,
+                  {"name" : BUILDMAEMO,
                    "slavenames": ['bigdogvm1'],
-                   "builddir" : CPYMAEMO,
+                   "builddir" : BUILDMAEMO,
                    "factory": pypyTranslatedLibPythonMaemoTestFactory,
                    "category": 'maemo'
                    },
