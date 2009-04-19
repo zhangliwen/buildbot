@@ -51,6 +51,10 @@ BuildmasterConfig = {
 
     'change_source': [],
     'schedulers': [
+    	Nightly("nightly-1.1.x", [LINUX32, CPYLINUX32, APPLVLLINUX32, CPYWIN32,
+                            STACKLESSAPPLVLLINUX32],
+                hour=0, minute=45, branch="release/1.1.x",
+                ),    
     	Nightly("nightly", [LINUX32, CPYLINUX32, APPLVLLINUX32, CPYWIN32,
                             STACKLESSAPPLVLLINUX32],
                 hour=4, minute=45),
