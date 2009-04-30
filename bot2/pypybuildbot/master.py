@@ -44,7 +44,7 @@ BUILDMAEMO = "pypy-c-maemo-build"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 CPYFREEBSD64 = 'pypy-c-lib-python-freebsd-7-x86-64'
-JITLINUX32 = "jit-linux-x86-32"
+JITLINUX32 = "pypy-c-jit-lib-python-linux-x86-32"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
