@@ -62,24 +62,6 @@ class Translate(ShellCmd):
         self.command = (self.command + translationArgs +
                         [self.translationTarget] + targetArgs)
 
-class TranslateJIT(ShellCmd):
-    name = "translate_jit"
-    description = ["translating"]
-    descriptionDone = ["translation"]
-
-    command = ["python", "../../translator/goal/translate.py", "--jit", "--batch"]
-    translationTarget = "targetpypyjit"
-
-    def __init__(self, translationArgs, targetArgs,
-                 workdir="build/pypy/jit/tl",
-                 *a, **kw):
-        kw['translationArgs'] = translationArgs
-        kw['targetArgs'] = targetArgs
-        kw['timeout'] = 3600
-        ShellCmd.__init__(self, workdir, *a, **kw)
-        self.command = (self.command + translationArgs +
-                        [self.translationTarget] + targetArgs)
-
 # ________________________________________________________________
 
 def not_first_time(props):
@@ -211,12 +193,18 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
             description="copy build",
             command=["scp", "pypy-c", "fijal@codespeak.net:builds/pypy-c-scratchbox"], workdir = workdir))
 
-class PyPyJITTranslatedTestFactory(factory.BuildFactory):
+class PyPyJITTranslatedLibPythonTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
         platform = kw.pop('platform', 'linux')
         factory.BuildFactory.__init__(self, *a, **kw)
 
         setup_steps(platform, self)
 
-        self.addStep(TranslateJIT([], []))
+        self.addStep(Translate(['--jit'], ['--withoutmod-thread']))
         
+        self.addStep(ShellCmd(
+            description="lib-python test",
+            command=["python", "pypy/test_all.py",
+                     "--pypy=pypy/translator/goal/pypy-c",
+                     "--resultlog=cpython.log", "lib-python"],           
+            logfiles={'pytestLog': 'cpython.log'}))

@@ -34,7 +34,7 @@ pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.PyPyTranslatedScratchboxTes
 pypyTranslatedAppLevelTestFactory = pypybuilds.PyPyTranslatedAppLevelTestFactory()
 
 pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.PyPyStacklessTranslatedAppLevelTestFactory()
-pypyJITTranslatedTestFactory = pypybuilds.PyPyJITTranslatedTestFactory()
+pypyJITTranslatedTestFactory = pypybuilds.PyPyJITTranslatedLibPythonTestFactory()
 
 LINUX32 = "own-linux-x86-32"
 CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
@@ -56,7 +56,7 @@ BuildmasterConfig = {
                 hour=0, minute=45, branch="release/1.1.x",
                 ),    
     	Nightly("nightly", [LINUX32, CPYLINUX32, APPLVLLINUX32, CPYWIN32,
-                            STACKLESSAPPLVLLINUX32],
+                            STACKLESSAPPLVLLINUX32, JITLINUX32],
                 hour=4, minute=45),
     ],   
     'status': [status],
@@ -115,7 +115,7 @@ BuildmasterConfig = {
                    "category": 'other'
                    },
                   {"name" : JITLINUX32,
-                   "slavenames": ["wyvern"],
+                   "slavenames": ["bigdogvm1"],
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'other',
