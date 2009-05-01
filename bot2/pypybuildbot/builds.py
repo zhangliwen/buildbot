@@ -204,8 +204,7 @@ class PyPyJITTranslatedLibPythonTestFactory(factory.BuildFactory):
         
         self.addStep(ShellCmd(
             description="lib-python test",
-            command=["python", "test_all.py",
-                     "--pypy=translator/goal/pypy-c",
-                     "--resultlog=../cpython.log", "../lib-python"],
-            workdir="pypy",
+            command=["python", "pypy/test_all.py",
+                     "--pypy=pypy/translator/goal/pypy-c",
+                     "--resultlog=cpython.log", "lib-python"],
             logfiles={'pytestLog': 'cpython.log'}))
