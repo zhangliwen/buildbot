@@ -437,6 +437,8 @@ class SummaryPage(object):
         self.sections.append(section)
 
     def add_no_revision_builds(self, status, no_revision_builds):
+        if not no_revision_builds:
+            return
         section = html.div(html.p("builds aborted without getting"
                                   " a revision:"))
 
