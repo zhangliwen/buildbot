@@ -132,8 +132,8 @@ class RevisionOutcomeSetCache(object):
                 ts = step.getTimes()
                 if ts[0] is not None and ts[1] is not None:
                     pytest_elapsed += ts[1]-ts[0]
-            elif (failure is None and
-                  step.getResults()[0] in (FAILURE, EXCEPTION)):
+            if (failure is None and
+                step.getResults()[0] in (FAILURE, EXCEPTION)):
                 failure = ' '.join(step.getText())
 
         run_info = {'URL': run_url, 'elapsed': pytest_elapsed or None,
@@ -148,12 +148,12 @@ class RevisionOutcomeSetCache(object):
                         outcome_set.populate_one(stepName+' aborted', '!', "")
                     outcome_set.populate(resultLog)
 
-        if not someresult:
+        if not someresult or failure is not None:
             if failure:
                 name = '"%s"' % failure # quote
             else:
                 name = '<run>'
-            outcome_set.populate_one(name, '!', "no logs from the test run")
+            outcome_set.populate_one(name, '!')
 
         return outcome_set
         
