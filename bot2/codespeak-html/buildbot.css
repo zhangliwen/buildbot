@@ -80,6 +80,7 @@ div.footer {
 /* failure summary */
 .failSummary.success {
     color: #408000;
+    background-color: #ffffff;
     font-weight: bold;
 }
 
