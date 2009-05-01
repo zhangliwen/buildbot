@@ -474,6 +474,7 @@ class TestSummary(object):
 
         assert 'TEST1' in out
         assert ':-)' in out
+        assert '\n   <span class="failSummary success">+</span>  success' in out   
 
     def test_two_builds_samerev(self):
         builder = status_builder.BuilderStatus('builder0')

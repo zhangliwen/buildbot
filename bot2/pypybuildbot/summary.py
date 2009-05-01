@@ -322,7 +322,7 @@ class SummaryPage(object):
                                cat_branch,
                                class_="failSummary branch")
         if fine:
-            extra = html.img(alt=":-)", src="sucess.png")
+            extra = html.img(alt=":-)", src="success.png")
         else:
             extra = ""
         self.sections.append(html.h2(cat_anchor," ",branch_anchor, " ", extra))
@@ -388,7 +388,18 @@ class SummaryPage(object):
             line.append('\n')
             lines.append(line)
         lines.append([bars(), "\n"])
-        
+
+        success = []
+        for label, outcome_set in by_label:
+            if not outcome_set.failed:
+                success.append([" ",
+                             html.span("+",
+                                       class_="failSummary success")])
+            else:
+                success.append("  ")
+        success.append("  success\n")
+        lines.append(success)
+            
         failed = set()
         exploded = set()
         for label, outcome_set in by_label:
