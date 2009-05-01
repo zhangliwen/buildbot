@@ -252,6 +252,7 @@ def colsizes(namekeys):
     
 
 class SummaryPage(object):
+    SUCCESS_LINE = True
 
     def __init__(self, status):
         self.sections = []
@@ -389,16 +390,17 @@ class SummaryPage(object):
             lines.append(line)
         lines.append([bars(), "\n"])
 
-        success = []
-        for label, outcome_set in by_label:
-            if not outcome_set.failed:
-                success.append([" ",
-                             html.span("+",
-                                       class_="failSummary success")])
-            else:
-                success.append("  ")
-        success.append("  success\n")
-        lines.append(success)
+        if self.SUCCESS_LINE:
+            success = []
+            for label, outcome_set in by_label:
+                if not outcome_set.failed:
+                    success.append([" ",
+                                 html.span("+",
+                                           class_="failSummary success")])
+                else:
+                    success.append("  ")
+            success.append("  success\n")
+            lines.append(success)
             
         failed = set()
         exploded = set()
