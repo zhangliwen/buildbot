@@ -336,6 +336,9 @@ class FakeLog(object):
     def readlines(self):
         return [l+'\n' for l in self.cont.splitlines()]
 
+    def isFinished(self):
+        return True
+
 def add_builds(builder, builds):
     n = getattr(builder, 'nextBuildNumber', 0)
     t = 1000
@@ -589,9 +592,12 @@ class TestSummary(object):
         build.setProperty('got_revision', '70000', None)
         step = build.addStepWithName('pytest')
         step.logs.extend([FakeLog(step, 'pytestLog', "F TEST1")])
+        step.setText(["pytest", "failed"])
+        step.stepFinished(summary.FAILURE)        
         step2 = build.addStepWithName('pytest2')
         step2.logs.extend([FakeLog(step, 'pytestLog', ". x\nF TEST2")])
         step2.setText(["pytest2", "aborted"])
+        step2.stepFinished(summary.EXCEPTION)
         build.buildFinished()
         builder.addBuildToCache(build)
         builder.nextBuildNumber = 1
@@ -602,8 +608,28 @@ class TestSummary(object):
 
         assert 'TEST1' in out
         assert 'TEST2' in out
-        assert 'pytest aborted' not in out        
+        assert 'pytest aborted' not in out
+        #assert 'pytest failed' not in out
         assert 'pytest2 aborted' in out
+
+    def test_subtle_failures(self):
+        builder = status_builder.BuilderStatus('builder1')
+        build = status_builder.BuildStatus(builder, 0)
+        build.setProperty('got_revision', '70000', None)
+        step = build.addStepWithName('pytest')        
+        step.logs.extend([FakeLog(step, 'pytestLog', ". TEST1")])
+        step.setText(["pytest", "failed slave lost"])
+        step.stepFinished(summary.FAILURE)        
+        build.buildFinished()
+        builder.addBuildToCache(build)
+        builder.nextBuildNumber = 1
+
+        s = summary.Summary()
+        req = FakeRequest([builder])
+        out = s.body(req)
+
+        assert 'pytest failed slave lost' in out        
+
 
     def test_category_sorting_key(self):
         s = summary.Summary(['foo', 'bar'])
