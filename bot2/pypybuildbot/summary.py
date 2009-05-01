@@ -123,30 +123,37 @@ class RevisionOutcomeSetCache(object):
         rev = int(build.getProperty("got_revision"))
         pytest_logs = []
         pytest_elapsed = 0
-        failure = None
+        with_logs = set()
         for step in build.getSteps():
             logs = dict((log.getName(), log) for log in step.getLogs())
             if 'pytestLog' in logs:
-                aborted = 'aborted' in step.getText()
-                pytest_logs.append((step.getName(), logs['pytestLog'], aborted))
+                with_logs.add(step)
+                pytest_logs.append((step.getName(), logs['pytestLog']))
                 ts = step.getTimes()
                 if ts[0] is not None and ts[1] is not None:
                     pytest_elapsed += ts[1]-ts[0]
-            if (failure is None and
-                step.getResults()[0] in (FAILURE, EXCEPTION)):
-                failure = ' '.join(step.getText())
 
         run_info = {'URL': run_url, 'elapsed': pytest_elapsed or None,
                     'times': build.getTimes()}
         outcome_set = RevisionOutcomeSet(rev, key, run_info)
         someresult = False
         if pytest_logs:
-            for stepName, resultLog, aborted in pytest_logs:
+            for stepName, resultLog in pytest_logs:
                 if resultLog.hasContents():
                     someresult = True
-                    if aborted:
-                        outcome_set.populate_one(stepName+' aborted', '!', "")
                     outcome_set.populate(resultLog)
+
+        failedtests = not not outcome_set.failed
+
+        failure = None
+        for step in build.getSteps():
+            if step.getResults()[0] in (FAILURE, EXCEPTION):
+                text = ' '.join(step.getText())
+                if step in with_logs:
+                    if failedtests and text.endswith('failed'):
+                        continue
+                failure = text
+                break
 
         if not someresult or failure is not None:
             if failure:

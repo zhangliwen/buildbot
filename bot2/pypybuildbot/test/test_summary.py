@@ -609,7 +609,7 @@ class TestSummary(object):
         assert 'TEST1' in out
         assert 'TEST2' in out
         assert 'pytest aborted' not in out
-        #assert 'pytest failed' not in out
+        assert 'pytest failed' not in out
         assert 'pytest2 aborted' in out
 
     def test_subtle_failures(self):
