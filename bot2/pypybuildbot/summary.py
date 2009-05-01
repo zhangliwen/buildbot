@@ -306,7 +306,7 @@ class SummaryPage(object):
                 anchors.append(' (%s..%s)' % (mintxt, maxtxt))
         return anchors
 
-    def start_cat_branch(self, cat_branch):
+    def _start_cat_branch(self, cat_branch, fine=False):
         category, branch = cat_branch
         branch = trunk_name(branch)
         category = category_name(category)
@@ -321,8 +321,11 @@ class SummaryPage(object):
                                href="/summary?category=%s&branch=%s" %
                                cat_branch,
                                class_="failSummary branch")
-        
-        self.sections.append(html.h2(cat_anchor," ",branch_anchor))
+        if fine:
+            extra = html.img(alt=":-)", src="sucess.png")
+        else:
+            extra = ""
+        self.sections.append(html.h2(cat_anchor," ",branch_anchor, " ", extra))
 
     def _builder_anchor(self, builder):
         if self.fixed_builder:
@@ -359,7 +362,7 @@ class SummaryPage(object):
         rightalign = ' '*(revsize-len(revtxt))
         return [rev_anchor, rightalign]
                             
-    def add_section(self, outcome_sets):
+    def add_section(self, cat_branch, outcome_sets):
         if not outcome_sets:
             return
         labels = sorted(self._label(outcome_set)
@@ -368,10 +371,11 @@ class SummaryPage(object):
                           for outcome_set in outcome_sets)
         revs = [outcome_set.revision for outcome_set in outcome_sets]
 
+        _, last = by_label[-1]
+        self._start_cat_branch(cat_branch, fine = not last.failed)
+        
         lines = []
-
         revsize = len(str(max(revs)))
-
         align = 2*len(labels)-1+revsize
         def bars():
             return ' |'*len(lines)
@@ -704,8 +708,7 @@ class Summary(HtmlResource):
             outcome_sets = []
             for label, by_build in runs.items():
                 outcome_sets.append(GatherOutcomeSet(by_build))
-            page.start_cat_branch(cat_branch)
-            page.add_section(outcome_sets)
+            page.add_section(cat_branch, outcome_sets)
             page.add_no_revision_builds(status, no_revision_builds)
 
         t1 = time.time()

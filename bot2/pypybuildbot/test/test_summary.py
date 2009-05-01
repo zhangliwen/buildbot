@@ -449,7 +449,7 @@ class TestSummary(object):
     def test_two_builds(self):
         builder = status_builder.BuilderStatus('builder0')
         add_builds(builder, [(60000, "F TEST1\n. b"),
-                             (60001, "F TEST1\n. b")])
+                             (60001, ". TEST1\n. b")])
 
         s = summary.Summary()
         res = witness_cat_branch(s)        
@@ -472,7 +472,8 @@ class TestSummary(object):
 
         assert revs == [60000, 60001]
 
-        assert 'TEST1' in out        
+        assert 'TEST1' in out
+        assert ':-)' in out
 
     def test_two_builds_samerev(self):
         builder = status_builder.BuilderStatus('builder0')
