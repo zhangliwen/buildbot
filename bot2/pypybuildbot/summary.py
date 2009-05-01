@@ -393,12 +393,14 @@ class SummaryPage(object):
         if self.SUCCESS_LINE:
             success = []
             for label, outcome_set in by_label:
-                if not outcome_set.failed:
-                    success.append([" ",
-                                 html.span("+",
-                                           class_="failSummary success")])
-                else:
-                    success.append("  ")
+                symbol = "+"
+                clazz = "success"
+                if outcome_set.failed:
+                    symbol = "-"
+                    clazz = "failed"
+                success.append([" ",
+                                html.span(symbol,
+                                          class_="failSummary "+clazz)])
             success.append("  success\n")
             lines.append(success)
             
