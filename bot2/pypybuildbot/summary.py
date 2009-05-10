@@ -563,11 +563,12 @@ def safe_int(v):
 
 class Summary(HtmlResource):
 
-    def __init__(self, categories=[]):
+    def __init__(self, categories=[], branch_order_prefixes=[]):
         HtmlResource.__init__(self)
         self.putChild('longrepr', LongRepr())
         self._defaultBranchCache = {}
         self.categories = categories
+        self.branch_order_prefixes = branch_order_prefixes
 
     def getTitle(self, request):
         status = self.getStatus(request)        
@@ -604,6 +605,13 @@ class Summary(HtmlResource):
             branch = branch or getProp(build, 'branch')
         return branch
 
+    def _now(self):
+        return time.time()
+
+    def _age(self, build):
+        start, _ = build.getTimes()
+        return (self._now()-start)/(60*60*24) # in days
+
     def recentRuns(self, status, only_recentrevs=None, only_branches=None,
                                  only_builder=None, only_builds=None,
                                  only_categories=None):
@@ -611,6 +619,8 @@ class Summary(HtmlResource):
         test_branch = make_test(only_branches)
         test_builder = make_test(only_builder)
         fixed_builder = bool(only_builder)
+        prune_old = not (only_builds or only_recentrevs or
+                         only_builder or only_branches)
         
         cat_branches = {}
 
@@ -629,6 +639,8 @@ class Summary(HtmlResource):
                 builditer = builderStatus.generateFinishedBuilds(num_builds=5*N)
             
             for build in builditer:
+                if prune_old and self._age(build) > 7:
+                    continue
                 branch = self._get_branch(status, build)
                 if not test_branch(branch):
                     continue
@@ -636,14 +648,14 @@ class Summary(HtmlResource):
                 if not test_rev(got_rev):
                     continue
 
-
                 cat_branch = (builderStatus.category, branch)
 
                 runs, no_revision_builds = cat_branches.setdefault(cat_branch,
                                                                ({}, []))
 
                 if got_rev is None:
-                    no_revision_builds.append(build)
+                    if self._age(build) <= 7:
+                        no_revision_builds.append(build)
                 else:
                     rev = int(got_rev)
                     buildNumber = build.getNumber()
@@ -684,11 +696,21 @@ class Summary(HtmlResource):
         return builds
 
     def _cat_branch_key(self, (category, branch)):
+        branch_key = (0,)
+        if branch is not None:
+            for j, prefix in enumerate(self.branch_order_prefixes):
+                if branch.startswith(prefix):
+                    branch_key = (j+1, branch)
+                    break
+            else:
+                branch_key = (len(self.branch_order_prefixes)+1, branch)
         try:
             i = self.categories.index(category)
-            return (0, i, branch)
+            cat_key =  (0, i)
         except ValueError:
-            return (1, category, branch)
+            cat_key = (1, category)
+
+        return cat_key + branch_key
                             
     def body(self, request):
         t0 = time.time()

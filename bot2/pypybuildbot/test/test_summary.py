@@ -5,7 +5,7 @@ from buildbot.process import builder as process_builder
 from buildbot.process import factory as process_factory
 from pypybuildbot import summary
 from StringIO import StringIO
-import re
+import re, time
 
 class TestOutcomes(object):
 
@@ -344,6 +344,7 @@ def add_builds(builder, builds):
     t = 1000
     for rev, reslog in builds:
         build = status_builder.BuildStatus(builder, n)
+        build.started = time.time()
         build.setProperty('got_revision', str(rev), None)
         step = build.addStepWithName('pytest')
         step.logs.extend([FakeLog(step, 'pytestLog', reslog),
@@ -374,6 +375,7 @@ class TestSummary(object):
     def test_one_build_no_rev(self):
         builder = status_builder.BuilderStatus('builder0')
         build = status_builder.BuildStatus(builder, 0)
+        build.started = time.time()
         build.buildFinished()
         builder.addBuildToCache(build)
         builder.nextBuildNumber = len(builder.buildCache)
@@ -389,6 +391,7 @@ class TestSummary(object):
     def test_one_build_no_logs(self):
         builder = status_builder.BuilderStatus('builder0')
         build = status_builder.BuildStatus(builder, 0)
+        build.started = time.time()        
         build.setProperty('got_revision', '50000', None)
         build.buildFinished()
         builder.addBuildToCache(build)
@@ -408,6 +411,7 @@ class TestSummary(object):
     def test_one_build_no_logs_failure(self):
         builder = status_builder.BuilderStatus('builder0')
         build = status_builder.BuildStatus(builder, 0)
+        build.started = time.time()        
         build.setProperty('got_revision', '50000', None)
         step = build.addStepWithName('step')
         step.setText(['step', 'borken'])
@@ -589,6 +593,7 @@ class TestSummary(object):
     def test_many_pytestLogs(self):
         builder = status_builder.BuilderStatus('builder1')
         build = status_builder.BuildStatus(builder, 0)
+        build.started = time.time()
         build.setProperty('got_revision', '70000', None)
         step = build.addStepWithName('pytest')
         step.logs.extend([FakeLog(step, 'pytestLog', "F TEST1")])
@@ -615,6 +620,7 @@ class TestSummary(object):
     def test_subtle_failures(self):
         builder = status_builder.BuilderStatus('builder1')
         build = status_builder.BuildStatus(builder, 0)
+        build.started = time.time()
         build.setProperty('got_revision', '70000', None)
         step = build.addStepWithName('pytest')        
         step.logs.extend([FakeLog(step, 'pytestLog', ". TEST1")])
@@ -631,20 +637,33 @@ class TestSummary(object):
         assert 'pytest failed slave lost' in out        
 
 
-    def test_category_sorting_key(self):
-        s = summary.Summary(['foo', 'bar'])
+    def test_category_branch_sorting_key(self):
+        s = summary.Summary(['foo', 'bar'],
+                            ['trunk', 'release/', 'branch/'])
+
+        res = s._cat_branch_key(('foo', None))
+        assert res == (0, 0, 0)
 
         res = s._cat_branch_key(('foo', 'trunk'))
-        assert res == (0, 0, 'trunk')
+        assert res == (0, 0, 1, 'trunk')
 
         res = s._cat_branch_key(('bar', 'trunk'))
-        assert res == (0, 1, 'trunk')
+        assert res == (0, 1, 1, 'trunk')
 
         res = s._cat_branch_key((None, 'trunk'))
-        assert res == (1, None, 'trunk')
+        assert res == (1, None, 1, 'trunk')
 
         res = s._cat_branch_key(('dontknow', 'trunk'))
-        assert res == (1, 'dontknow', 'trunk')                        
+        assert res == (1, 'dontknow', 1, 'trunk')
+
+        res = s._cat_branch_key((None, 'branch/foo'))
+        assert res == (1, None, 3, 'branch/foo')
+
+        res = s._cat_branch_key((None, 'release/1'))
+        assert res == (1, None, 2, 'release/1')
+
+        res = s._cat_branch_key((None, 'what'))
+        assert res == (1, None, 4, 'what')                
 
     def test_builders_with_categories(self):
         builder1 = status_builder.BuilderStatus('builder_foo')
@@ -685,21 +704,30 @@ class TestSummary(object):
         p1000builder0 = out.find('builder0', p1000)
         assert p999builder0-p999 == p1000builder0-p1000+1
 
-    def test_build_times(self):
+    def test_build_times_and_filtering(self):
         builder1 = status_builder.BuilderStatus('builder1')
         builder2 = status_builder.BuilderStatus('builder2')
  
         add_builds(builder1, [(60000, "F TEST1\n")])
+        add_builds(builder2, [(50000, ". TEST2\n")])        
         add_builds(builder2, [(60000, "F TEST2\n")])
 
+        builder1.getBuild(0).started  = 1228258800 # 3 Dec 2008
         builder1.getBuild(0).finished = 1228258800 # 3 Dec 2008
-        builder2.getBuild(0).finished = 1228431600 # 5 Dec 2008
+        builder2.getBuild(1).started  = 1228431600 # 5 Dec 2008        
+        builder2.getBuild(1).finished = 1228431600 # 5 Dec 2008
+
+        builder2.getBuild(0).started  = 1227913200 # 29 Nov 2008
+        builder2.getBuild(0).finished = 1227913200 # 29 Nov 2008
 
         s = summary.Summary()
+        s._now = lambda: 1228604400 # 7 Dec 2008
         req = FakeRequest([builder1, builder2])
         out = s.body(req)
 
         assert '(03 Dec..05 Dec)' in out
+        # pruning of builds older than 7 days
+        assert '(29 Nov)' not in out
          
 
          
