@@ -17,7 +17,6 @@ status = WebStatus(httpPortNumber, allowForce=True)
 
 # pypy test summary page
 summary = load('pypybuildbot.summary')
-summary.outcome_set_cache = summary.RevisionOutcomeSetCache(80)
 status.putChild('summary', summary.Summary(['own', 'applevel', 'lib-python',
                                             'stackless',
                                             'windows', 'maemo', 'other']))
@@ -129,3 +128,6 @@ BuildmasterConfig = {
     'projectURL': 'http://codespeak.net/pypy/',
     'projectName': 'PyPy'}
 
+summary.outcome_set_cache = summary.RevisionOutcomeSetCache(
+    sum([len(_sched.listBuilderNames())
+             for _sched in BuildmasterConfig['schedulers']]) * 6)
