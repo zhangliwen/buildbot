@@ -200,7 +200,8 @@ class PyPyJITTranslatedLibPythonTestFactory(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(['--jit'], ['--withoutmod-thread']))
+        self.addStep(Translate(['--jit', '--gc=boehm'], 
+                               ['--withoutmod-thread']))
         
         self.addStep(ShellCmd(
             description="lib-python test",
