@@ -120,7 +120,7 @@ BuildmasterConfig = {
                    "slavenames": ["bigdogvm1"],
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
-                   'category' : 'other',
+                   'category' : 'lib-python',
                    }
                 ],
 
