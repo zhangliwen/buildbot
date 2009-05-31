@@ -54,8 +54,10 @@ BuildmasterConfig = {
     	Nightly("nightly", [LINUX32, CPYLINUX32, APPLVLLINUX32, CPYWIN32,
                             STACKLESSAPPLVLLINUX32],
                 hour=4, minute=45),
+        #Nightly("nightly-jit", [LINUX32, JITLINUX32],
+        #        hour=1, minute=45, branch="branch/pyjitpl5"),
         Nightly("nightly-jit", [LINUX32, JITLINUX32],
-                hour=1, minute=45, branch="branch/pyjitpl5"),
+                hour=1, minute=45, branch="branch/pyjitpl5-experiments"),
     ],   
     'status': [status],
 
