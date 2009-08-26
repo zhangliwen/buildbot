@@ -200,7 +200,7 @@ class PyPyJITTranslatedLibPythonTestFactory(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(['-Ojit', '--gc=boehm'], 
+        self.addStep(Translate(['-Ojit', '--gc=hybrid','--gcrootfinder=asmgcc'],
                                ['--withoutmod-thread']))
         
         self.addStep(ShellCmd(
