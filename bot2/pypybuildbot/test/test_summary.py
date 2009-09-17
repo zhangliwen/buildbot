@@ -115,6 +115,17 @@ s a/c.py
             ("a.c", '')])
 
         assert rev_outcome_set.numpassed == 0
+
+    def test_populate_xfailed(self):
+        rev_outcome_set = summary.RevisionOutcomeSet(50000)
+        log = StringIO("""x a/b.py
+ EXC
+""")
+        
+        rev_outcome_set.populate(log)
+
+        assert rev_outcome_set.numxfailed == 1
+  
         
     def test_absent_outcome(self):
         rev_outcome_set = summary.RevisionOutcomeSet(50000)
@@ -165,6 +176,7 @@ s a/c.py
  traceback
 . a/b.py:test_two
 s a/b.py:test_three
+x a/b.py:test_four
 """)
         
         rev_outcome_set_foo.populate(log)
@@ -188,15 +200,12 @@ s a/b.py:test_three
         assert goutcome.revision == 50000
         
         assert goutcome.failed == set([('foo', 'a.b', 'test_one')])
-        assert goutcome.failed == set([('foo', 'a.b', 'test_one')])
 
         assert goutcome.skipped == set([('foo', 'a.b', 'test_three'),
                                         ('bar', 'a.b', 'test_three'),
                                         ])
-        assert goutcome.skipped == set([('foo', 'a.b', 'test_three'),
-                                        ('bar', 'a.b', 'test_three'),
-                                        ])
         assert goutcome.numpassed == 3
+        assert goutcome.numxfailed == 1
 
         for prefix in ('foo', 'bar'):
             for mod, testname in (("a.b", "test_one"), ("a.b", "test_two"),
@@ -218,6 +227,7 @@ s a/b.py:test_three
         assert goutcome_top.failed == set([('sub', 'foo', 'a.b', 'test_one')])
 
         assert goutcome_top.numpassed == 3
+        assert goutcome_top.numxfailed == 1
 
         res = goutcome_top.get_outcome(('sub', 'foo', 'a.b', 'test_one'))
         assert res == 'F'

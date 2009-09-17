@@ -31,6 +31,7 @@ class RevisionOutcomeSet(object):
         self._outcomes = {}
         self.failed = set()
         self.skipped = set()
+        self._xfailed = 0
         self.longreprs = {}
         self._run_info = run_info
 
@@ -50,6 +51,8 @@ class RevisionOutcomeSet(object):
             self.skipped.add(namekey)
         elif shortrepr == '.':
             pass
+        elif shortrepr == 'x':
+            self._xfailed += 1
         else:
             self.failed.add(namekey)
 
@@ -63,7 +66,12 @@ class RevisionOutcomeSet(object):
 
     @property
     def numpassed(self):
-        return len(self._outcomes) - len(self.skipped) - len(self.failed)
+        return (len(self._outcomes) - len(self.skipped) - len(self.failed)
+                                    - self._xfailed)
+
+    @property
+    def numxfailed(self):
+        return self._xfailed
 
     def populate(self, log):
         kind = None
@@ -191,6 +199,7 @@ class GatherOutcomeSet(object):
         self._failed = None
         self._skipped = None
         self._numpassed = None
+        self._numxfailed = None
         self.revision = map.values()[0].revision
                 
     @property
@@ -219,6 +228,16 @@ class GatherOutcomeSet(object):
                 numpassed += outcome.numpassed
             self._numpassed = numpassed
         return self._numpassed
+
+    @property
+    def numxfailed(self):
+        if self._numxfailed is None:
+            numxfailed = 0
+            for  prefix, outcome in self.map.items():
+                numxfailed += outcome.numxfailed
+            self._numxfailed = numxfailed
+        return self._numxfailed
+    
 
     def get_outcome(self, namekey):
         which = namekey[0]
@@ -299,11 +318,12 @@ class SummaryPage(object):
                     maxend = day
                 else:
                     maxend = max(maxend, day)
-            text = "%s [%d, %d F, %d s%s]" % (builder,
-                                            run.numpassed,
-                                            len(run.failed),
-                                            len(run.skipped),
-                                            timing)
+            text = "%s [%d, %d F, %d s, %d x%s]" % (builder,
+                                                    run.numpassed,
+                                                    len(run.failed),
+                                                    len(run.skipped),
+                                                    run.numxfailed,
+                                                    timing)
             anchors.append(html.a(text, href=host_agnostic(info['URL'])))
         if maxend is not None:
             mintxt = datetime.date(*minend).strftime("%d %b")
@@ -388,8 +408,6 @@ class SummaryPage(object):
         def bars():
             return ' |'*len(lines)
         for label, outcome_set in by_label:
-            count_failures = len(outcome_set.failed)
-            count_skipped = len(outcome_set.skipped)
             line = [bars(), ' '] + self._label_anchor(outcome_set, revsize)
             line.append((align-len(line[0]))*" ")
             line.append(self.make_run_anchors_for(outcome_set))
