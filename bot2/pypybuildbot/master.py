@@ -44,6 +44,8 @@ pypybuilds = load('pypybuildbot.builds')
 pypyOwnTestFactory = pypybuilds.PyPyOwnTestFactory()
 pypyOwnTestFactoryWin = pypybuilds.PyPyOwnTestFactory(platform="win32")
 
+pypyJitOnlyOwnTestFactory = pypybuilds.PyPyOwnTestFactory(cherrypick="jit")
+
 pypyTranslatedLibPythonTestFactory = pypybuilds.PyPyTranslatedLibPythonTestFactory()
 pypyTranslatedLibPythonTestFactoryWin = pypybuilds.PyPyTranslatedLibPythonTestFactory(platform="win32")
 pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.PyPyTranslatedScratchboxTestFactory()
@@ -61,7 +63,8 @@ BUILDMAEMO = "pypy-c-maemo-build"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 CPYFREEBSD64 = 'pypy-c-lib-python-freebsd-7-x86-64'
-JITLINUX32 = "pypy-c-jit-lib-python-linux-x86-32"
+JITCPYLINUX32 = "pypy-c-jit-lib-python-linux-x86-32"
+JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
@@ -69,7 +72,7 @@ BuildmasterConfig = {
     'change_source': [],
     'schedulers': [
     	Nightly("nightly", [LINUX32, CPYLINUX32, APPLVLLINUX32, CPYWIN32,
-                            STACKLESSAPPLVLLINUX32, JITLINUX32],
+                            STACKLESSAPPLVLLINUX32, JITCPYLINUX32],
                 hour=4, minute=45),
     ],   
     'status': [status],
@@ -127,12 +130,18 @@ BuildmasterConfig = {
                    'factory' : pypyTranslatedLibPythonTestFactory,
                    "category": 'other'
                    },
-                  {"name" : JITLINUX32,
+                  {"name" : JITCPYLINUX32,
                    "slavenames": ["bigdogvm1"],
-                   'builddir' : JITLINUX32,
+                   'builddir' : JITCPYLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'lib-python',
-                   }
+                   },
+                  {"name": JITONLYLINUX32,
+                   "slavenames": ["wyvern"],
+                   "builddir": JITONLYLINUX32,
+                   "factory": pypyJitOnlyOwnTestFactory,
+                   "category": 'own'
+                  },
                 ],
 
     'buildbotURL': 'http://codespeak.net:%d/'%(httpPortNumber),

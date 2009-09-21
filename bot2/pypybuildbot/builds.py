@@ -91,6 +91,7 @@ class PyPyOwnTestFactory(factory.BuildFactory):
 
     def __init__(self, *a, **kw):
         platform = kw.pop('platform', 'linux')
+        cherrypick = kw.pop('cherrypick', '')
         factory.BuildFactory.__init__(self, *a, **kw)
 
         setup_steps(platform, self)
@@ -104,7 +105,8 @@ class PyPyOwnTestFactory(factory.BuildFactory):
                      "--root=pypy", "--timeout=10800"],
             logfiles={'pytestLog': 'testrun.log'},
             timeout = 4000,
-            env={"PYTHONPATH": ['.']}))
+            env={"PYTHONPATH": ['.'],
+                 "PYPYCHERRYPICK": cherrypick}))
 
 class PyPyTranslatedLibPythonTestFactory(factory.BuildFactory):
 
