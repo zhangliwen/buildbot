@@ -13,6 +13,23 @@ if server.Site.__name__ == 'Site':
     server.Site = LoggingSite
 # So I did.
 
+
+# The button Resubmit Build is quite confusing, so disable it
+from buildbot.status.web.build import StatusResourceBuild
+StatusResourceBuild_init = StatusResourceBuild.__init__
+def my_init(self, build_status, build_control, builder_control):
+    StatusResourceBuild_init(self, build_status, build_control, None)
+StatusResourceBuild.__init__ = my_init
+# Disabled.
+
+# Disable pinging, as it seems to deadlock the client
+from buildbot.status.web.builder import StatusResourceBuilder
+def my_ping(self, req):
+    raise Exception("pinging is disabled, as it seems to deadlock clients")
+StatusResourceBuilder.ping = my_ping
+# Disabled.
+
+
 status = WebStatus(httpPortNumber, allowForce=True)
 
 # pypy test summary page
