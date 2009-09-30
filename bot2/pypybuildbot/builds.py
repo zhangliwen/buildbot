@@ -202,7 +202,9 @@ class PyPyJITTranslatedLibPythonTestFactory(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(['-Ojit', '--gc=hybrid','--gcrootfinder=asmgcc'],
+        self.addStep(Translate(['-Ojit', '--gc=hybrid',
+                                '--gcrootfinder=asmgcc',
+                                '--jit-debug=steps'],
                                ['--withoutmod-thread']))
         
         self.addStep(ShellCmd(
