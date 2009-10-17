@@ -415,14 +415,18 @@ class SummaryPage(object):
             lines.append(line)
         lines.append([bars(), "\n"])
 
+        a_num = len(self.sections)
         if self.SUCCESS_LINE:
             success = []
             for label, outcome_set in by_label:
                 symbol = "+"
                 clazz = "success"
                 if outcome_set.failed:
-                    symbol = "-"
                     clazz = "failed"
+                    symbol = html.a("-",
+                        id="a%dc%d" % (a_num, 1<<len(success)),
+                        href="javascript:togglestate(%d,%d)" % (
+                                       a_num, 1<<len(success)))
                 success.append([" ",
                                 html.span(symbol,
                                           class_="failSummary "+clazz)])
@@ -445,9 +449,12 @@ class SummaryPage(object):
 
         for failure in sorted(failed, key=sorting):
             line = []
-            for label, outcome_set in by_label:
+            combination = 0
+            for i, (label, outcome_set) in enumerate(by_label):
                 letter = outcome_set.get_outcome(failure)
-                failed = letter.lower() not in ('s', '.')
+                failed = letter.lower() not in ('s', '.', ' ')
+                if failed:
+                    combination |= 1 << i
                 if outcome_set.get_longrepr(failure):
                     longrepr_url = self.make_longrepr_url_for(outcome_set,
                                                               failure)
@@ -474,8 +481,9 @@ class SummaryPage(object):
             
             for width, key in zip(colwidths[1:], failure[1:]):
                 line.append("  %-*s" % (width, key))
-            lines.append(line)
-            lines.append("\n")
+            line.append('\n')
+            lines.append(html.span(line,
+                                   class_="a%dc%d" % (a_num, combination)))
         
         section = html.pre(lines)
         self.sections.append(section)
@@ -778,3 +786,39 @@ class Summary(HtmlResource):
         page.add_comment('t=%.2f; %s' % (total_time,
                                          outcome_set_cache.stats()))
         return page.render()
+
+    def head(self, request):
+        return """
+        <script language=javascript type='text/javascript'>
+        hiddenstates = [ ];
+        function togglestate(a, c) {
+          var start = "a" + a + "c";
+          var link = document.getElementById(start + c);
+          var state = hiddenstates[a];
+          if (!state) state = 0;
+          if (state & c) {
+            state = state - c;
+            link.textContent = '-';
+          }
+          else {
+            state = state | c;
+            link.textContent = 'H';
+          }
+          hiddenstates[a] = state;
+          var items = document.getElementsByTagName('span');
+          var i = items.length;
+          var toggle = "";
+          while (i > 0) {
+            i--;
+            var span = items.item(i);
+            if (span.className.substr(0, start.length) == start) {
+              var k = span.className.substr(start.length);
+              if ((state & k) == k)
+                span.style.display = 'none';
+              else
+                span.style.display = 'block';
+            }
+          }
+        }
+        </script>
+        """
