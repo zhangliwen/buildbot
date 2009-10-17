@@ -491,7 +491,7 @@ class TestSummary(object):
 
         assert 'TEST1' in out
         assert ':-)' in out
-        assert '\n <span class="failSummary failed"><a href="javascript:togglestate(1,1)" id="a1c1">-</a></span> <span class="failSummary success">+</span>  success' in out
+        assert '\n <a class="failSummary failed" href="javascript:togglestate(1,1)" id="a1c1">-</a> <span class="failSummary success">+</span>  success' in out
 
     def test_two_builds_samerev(self):
         builder = status_builder.BuilderStatus('builder0')

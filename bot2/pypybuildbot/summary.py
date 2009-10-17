@@ -419,17 +419,15 @@ class SummaryPage(object):
         if self.SUCCESS_LINE:
             success = []
             for label, outcome_set in by_label:
-                symbol = "+"
-                clazz = "success"
                 if outcome_set.failed:
-                    clazz = "failed"
                     symbol = html.a("-",
                         id="a%dc%d" % (a_num, 1<<len(success)),
                         href="javascript:togglestate(%d,%d)" % (
-                                       a_num, 1<<len(success)))
-                success.append([" ",
-                                html.span(symbol,
-                                          class_="failSummary "+clazz)])
+                                       a_num, 1<<len(success)),
+                        class_="failSummary failed")
+                else:
+                    symbol = html.span("+", class_="failSummary success")
+                success.append([" ", symbol])
             success.append("  success\n")
             lines.append(success)
             
