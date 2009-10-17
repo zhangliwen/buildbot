@@ -213,3 +213,19 @@ class PyPyJITTranslatedLibPythonTestFactory(factory.BuildFactory):
                      "--pypy=pypy/translator/goal/pypy-c",
                      "--resultlog=cpython.log", "lib-python"],
             logfiles={'pytestLog': 'cpython.log'}))
+
+class PyPyJITBenchmarkFactory(factory.BuildFactory):
+    def __init__(self, *a, **kw):
+        platform = kw.pop('platform', 'linux')
+        factory.BuildFactory.__init__(self, *a, **kw)
+
+        setup_steps(platform, self)
+
+        self.addStep(Translate(['-Ojit', '--gc=hybrid',
+                                '--gcrootfinder=asmgcc']
+                               ['--withoutmod-thread']))
+        self.addStep(ShellCmd(
+            descritpion="run richards & upload results",
+            command=["python", "pypy/translator/jitbench.py",
+                     "pypy/translator/goal/pypy-c"]))
+

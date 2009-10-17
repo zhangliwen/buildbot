@@ -54,6 +54,7 @@ pypyTranslatedAppLevelTestFactory = pypybuilds.PyPyTranslatedAppLevelTestFactory
 
 pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.PyPyStacklessTranslatedAppLevelTestFactory()
 pypyJITTranslatedTestFactory = pypybuilds.PyPyJITTranslatedLibPythonTestFactory()
+pypyJITBenchmarkFactory = pypybuilds.PyPyJITBenchmarkFactory()
 
 LINUX32 = "own-linux-x86-32"
 CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
@@ -65,6 +66,7 @@ STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 CPYFREEBSD64 = 'pypy-c-lib-python-freebsd-7-x86-64'
 JITCPYLINUX32 = "pypy-c-jit-lib-python-linux-x86-32"
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
+JITBENCH = "jit-benchmark-linux-x86-32"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
@@ -74,7 +76,9 @@ BuildmasterConfig = {
     	Nightly("nightly", [LINUX32, CPYLINUX32, APPLVLLINUX32, CPYWIN32,
                             STACKLESSAPPLVLLINUX32, JITCPYLINUX32],
                 hour=4, minute=45),
-    ],   
+      Nightly("nightly", [JITBENCH],
+              hour=2, minute=25),
+    ],
     'status': [status],
 
     'slaves': [BuildSlave(name, password)
@@ -141,6 +145,12 @@ BuildmasterConfig = {
                    "builddir": JITONLYLINUX32,
                    "factory": pypyJitOnlyOwnTestFactory,
                    "category": 'own'
+                  },
+                  {"name": JITBENCH:
+                   "slavenames": ["bigdog-vm2"],
+                   "builddir": JITBENCH,
+                   "factory": pypyJITBenchmarkFactory,
+                   "category": 'other',
                   },
                 ],
 
