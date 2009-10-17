@@ -76,7 +76,7 @@ BuildmasterConfig = {
     	Nightly("nightly", [LINUX32, CPYLINUX32, APPLVLLINUX32, CPYWIN32,
                             STACKLESSAPPLVLLINUX32, JITCPYLINUX32],
                 hour=4, minute=45),
-      Nightly("nightly", [JITBENCH],
+      Nightly("nightly-benchmark", [JITBENCH],
               hour=2, minute=25),
     ],
     'status': [status],
@@ -146,8 +146,8 @@ BuildmasterConfig = {
                    "factory": pypyJitOnlyOwnTestFactory,
                    "category": 'own'
                   },
-                  {"name": JITBENCH:
-                   "slavenames": ["bigdog-vm2"],
+                  {"name": JITBENCH,
+                   "slavenames": ["bigdogvm2"],
                    "builddir": JITBENCH,
                    "factory": pypyJITBenchmarkFactory,
                    "category": 'other',
