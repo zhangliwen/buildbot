@@ -195,7 +195,7 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
             description="copy build",
             command=["scp", "pypy-c", "fijal@codespeak.net:builds/pypy-c-scratchbox"], workdir = workdir))
 
-class PyPyJITTranslatedLibPythonTestFactory(factory.BuildFactory):
+class PyPyJITTranslatedTestFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):
         platform = kw.pop('platform', 'linux')
         factory.BuildFactory.__init__(self, *a, **kw)
@@ -213,6 +213,14 @@ class PyPyJITTranslatedLibPythonTestFactory(factory.BuildFactory):
                      "--pypy=pypy/translator/goal/pypy-c",
                      "--resultlog=cpython.log", "lib-python"],
             logfiles={'pytestLog': 'cpython.log'}))
+
+        self.addStep(ShellCmd(
+            description="pypyjit tests",
+            command=["python", "pypy/test_all.py",
+                     "--pypy=pypy/translator/goal/pypy-c",
+                     "--resultlog=pypyjit.log",
+                     "pypy/module/pypyjit/test/test_pypy_c.py"],
+            logfiles={'pytestLog': 'pypyjit.log'}))
 
 class PyPyJITBenchmarkFactory(factory.BuildFactory):
     def __init__(self, *a, **kw):

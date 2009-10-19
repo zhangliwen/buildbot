@@ -53,7 +53,7 @@ pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.PyPyTranslatedScratchboxTes
 pypyTranslatedAppLevelTestFactory = pypybuilds.PyPyTranslatedAppLevelTestFactory()
 
 pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.PyPyStacklessTranslatedAppLevelTestFactory()
-pypyJITTranslatedTestFactory = pypybuilds.PyPyJITTranslatedLibPythonTestFactory()
+pypyJITTranslatedTestFactory = pypybuilds.PyPyJITTranslatedTestFactory()
 pypyJITBenchmarkFactory = pypybuilds.PyPyJITBenchmarkFactory()
 
 LINUX32 = "own-linux-x86-32"
@@ -138,7 +138,7 @@ BuildmasterConfig = {
                    "slavenames": ["bigdogvm1"],
                    'builddir' : JITCPYLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
-                   'category' : 'lib-python',
+                   'category' : 'jit',
                    },
                   {"name": JITONLYLINUX32,
                    "slavenames": ["wyvern"],
