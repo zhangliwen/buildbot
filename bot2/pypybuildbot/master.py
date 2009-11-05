@@ -151,7 +151,7 @@ BuildmasterConfig = {
                    "slavenames": ["bigdogvm2"],
                    "builddir": JITBENCH,
                    "factory": pypyJITBenchmarkFactory,
-                   "category": 'other',
+                   "category": 'benchmark',
                   },
                 ],
 
