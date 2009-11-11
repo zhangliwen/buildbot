@@ -58,6 +58,7 @@ pypyJITTranslatedTestFactory = pypybuilds.PyPyJITTranslatedTestFactory()
 pypyJITBenchmarkFactory = pypybuilds.PyPyJITBenchmarkFactory()
 
 LINUX32 = "own-linux-x86-32"
+MACOSX32 =  "own-macosx-x86-32"
 CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
 CPYWIN32 = "pypy-c-lib-python-win-32"
 CPYLINUX32_VM = 'pypy-c-lib-python-linux-x86-32vm'
@@ -93,6 +94,12 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactory,
                    "category": 'own'
                   },
+                  {"name": MACOSX32,
+                   "slavenames": ["minime"],
+                   "builddir": MACOSX32,
+                   "factory": pypyOwnTestFactory,
+                   "category": 'own'
+                  },                  
                   {"name": CPYLINUX32,
                    "slavenames": ["wyvern", "cobra"],
                    "builddir": CPYLINUX32,
