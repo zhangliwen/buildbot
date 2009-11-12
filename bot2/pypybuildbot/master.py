@@ -37,7 +37,7 @@ summary = load('pypybuildbot.summary')
 status.putChild('summary', summary.Summary(['own', 'applevel',
                                             'lib-python', 'jit',
                                             'stackless',
-                                            'windows', 'maemo', 'other']))
+                                            'windows', 'mac', 'maemo', 'other']))
 
 
 pypybuilds = load('pypybuildbot.builds')
@@ -76,7 +76,8 @@ BuildmasterConfig = {
     'change_source': [],
     'schedulers': [
     	Nightly("nightly", [LINUX32, CPYLINUX32, APPLVLLINUX32, CPYWIN32,
-                            STACKLESSAPPLVLLINUX32, JITCPYLINUX32],
+                            STACKLESSAPPLVLLINUX32, JITCPYLINUX32,
+                            MACOSX32],
                 hour=4, minute=45),
         Nightly("nightly-benchmark", [JITBENCH],
                 hour=2, minute=25),
@@ -98,7 +99,7 @@ BuildmasterConfig = {
                    "slavenames": ["minime"],
                    "builddir": MACOSX32,
                    "factory": pypyOwnTestFactory,
-                   "category": 'own'
+                   "category": 'mac'
                   },                  
                   {"name": CPYLINUX32,
                    "slavenames": ["wyvern", "cobra"],
