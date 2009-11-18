@@ -794,7 +794,7 @@ class Summary(HtmlResource):
         trunk_vs_any_anchor = html.a(trunk_vs_any_text,
                                      href="/summary%s" %
                                      trunk_vs_any_query,
-                                     class_="failSummary branch")
+                                     class_="failSummary trunkVsAny")
         trunk_vs_any = html.div(html.h2(trunk_vs_any_anchor),
                                 style="position: absolute; right: 5%;")
         return trunk_vs_any.unicode() + page.render()
