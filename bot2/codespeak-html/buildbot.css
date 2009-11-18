@@ -104,7 +104,7 @@ a.failSummary.branch, a:visited.failSummary.branch {
 }
 
 a.failSummary.trunkVsAny, a:visited.failSummary.trunkVsAny { 
-    color: #a9a9aa9;
+    color: #a9a9a9;
 }
 
 a.failSummary.builderquery, a:visited.failSummary.builderquery {
