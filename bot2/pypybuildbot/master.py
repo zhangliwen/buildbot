@@ -37,9 +37,7 @@ summary = load('pypybuildbot.summary')
 status.putChild('summary', summary.Summary(['own', 'applevel',
                                             'lib-python', 'jit',
                                             'stackless',
-                                            'windows', 'mac',
-                                            'benchmark-run',
-                                            'maemo', 'other']))
+                                            'windows', 'mac', 'maemo', 'other']))
 
 
 pypybuilds = load('pypybuildbot.builds')
@@ -161,7 +159,7 @@ BuildmasterConfig = {
                    "slavenames": ["bigdogvm2"],
                    "builddir": JITBENCH,
                    "factory": pypyJITBenchmarkFactory,
-                   "category": 'benchmark-run',
+                   "category": 'benchmark',
                   },
                 ],
 
