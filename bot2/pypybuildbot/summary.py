@@ -145,6 +145,9 @@ class RevisionOutcomeSetCache(object):
                     'times': build.getTimes()}
         outcome_set = RevisionOutcomeSet(rev, key, run_info)
         someresult = False
+        # "*-run" categories mean the build is not a test build!
+        if builderStatus.category:
+            someresult = builderStatus.category.endswith("-run")
         if pytest_logs:
             for stepName, resultLog in pytest_logs:
                 if resultLog.hasContents():
