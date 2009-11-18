@@ -783,7 +783,21 @@ class Summary(HtmlResource):
         total_time = time.time()-t0
         page.add_comment('t=%.2f; %s' % (total_time,
                                          outcome_set_cache.stats()))
-        return page.render()
+
+        if request.args:
+            trunk_vs_any_text = "filter nothing"
+            trunk_vs_any_query = ""
+        else:
+            trunk_vs_any_text = "all <trunk>"
+            trunk_vs_any_query = "?branch=<trunk>"
+        
+        trunk_vs_any_anchor = html.a(trunk_vs_any_text,
+                                     href="/summary%s" %
+                                     trunk_vs_any_query,
+                                     class_="failSummary branch")
+        trunk_vs_any = html.div(html.h2(trunk_vs_any_anchor),
+                                style="position: absolute; right: 5%;")
+        return trunk_vs_any.unicode() + page.render()
 
     def head(self, request):
         return """
