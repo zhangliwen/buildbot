@@ -48,36 +48,56 @@ pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
 pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 
-pypyTranslatedLibPythonTestFactory = pypybuilds.PyPyTranslatedLibPythonTestFactory()
-pypyTranslatedLibPythonTestFactoryWin = pypybuilds.PyPyTranslatedLibPythonTestFactory(platform="win32")
-pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.PyPyTranslatedScratchboxTestFactory()
+pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
+                                                          app_tests=True)
 
-pypyTranslatedAppLevelTestFactory = pypybuilds.PyPyTranslatedAppLevelTestFactory()
+pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.Translated(
+    translationArgs=["-O2", "--stackless"], targetArgs=[],
+    lib_python=False,
+    app_tests = ["pypy/pytest-A-stackless.cfg"]
+)
 
-pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.PyPyStacklessTranslatedAppLevelTestFactory()
-pypyJITTranslatedTestFactory = pypybuilds.PyPyJITTranslatedTestFactory()
-pypyJITBenchmarkFactory = pypybuilds.PyPyJITBenchmarkFactory()
+pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
+    platform="win32",
+    lib_python=True,
+    app_tests=True)
+
+pypyJITTranslatedTestFactory = pypybuilds.Translated(
+    translationArgs=['-Ojit', '--gc=hybrid',
+                     '--gcrootfinder=asmgcc',
+                     '--jit-debug=steps'],
+    targetArgs = ['--withoutmod-thread'],
+    lib_python=True,
+    pypyjit=True
+    )
+
+pypyJITBenchmarkFactory = pypybuilds.JITBenchmark()
+
+pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.TranslatedScratchbox()
+
 
 LINUX32 = "own-linux-x86-32"
 MACOSX32 =  "own-macosx-x86-32"
-CPYLINUX32 = "pypy-c-lib-python-linux-x86-32"
-CPYWIN32 = "pypy-c-lib-python-win-32"
-CPYLINUX32_VM = 'pypy-c-lib-python-linux-x86-32vm'
-BUILDMAEMO = "pypy-c-maemo-build"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
-CPYFREEBSD64 = 'pypy-c-lib-python-freebsd-7-x86-64'
-JITCPYLINUX32 = "pypy-c-jit-lib-python-linux-x86-32"
+
+APPLVLWIN32 = "pypy-c-app-level-win-32"
+APPLVLFREEBSD64 = 'pypy-c-app-level-freebsd-7-x86-64'
+
+JITLINUX32 = "pypy-c-jit-linux-x86-32"
+
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
+
+BUILDMAEMO = "pypy-c-maemo-build"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
     'change_source': [],
     'schedulers': [
-    	Nightly("nightly", [LINUX32, CPYLINUX32, APPLVLLINUX32, CPYWIN32,
-                            STACKLESSAPPLVLLINUX32, JITCPYLINUX32,
+    	Nightly("nightly", [LINUX32, APPLVLLINUX32, APPLVLWIN32,
+                            STACKLESSAPPLVLLINUX32, JITLINUX32,
                             MACOSX32],
                 hour=4, minute=45),
         Nightly("nightly-benchmark", [JITBENCH],
@@ -102,12 +122,6 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactory,
                    "category": 'mac'
                   },                  
-                  {"name": CPYLINUX32,
-                   "slavenames": ["wyvern", "cobra"],
-                   "builddir": CPYLINUX32,
-                   "factory": pypyTranslatedLibPythonTestFactory,
-                   "category": 'lib-python'
-                  },
                   {"name": APPLVLLINUX32,
                    "slavenames": ["wyvern", "cobra"],
                    "builddir": APPLVLLINUX32,
@@ -120,16 +134,10 @@ BuildmasterConfig = {
                    "factory": pypyStacklessTranslatedAppLevelTestFactory,
                    "category": 'stackless'
                   },                                    
-                  {"name" : CPYLINUX32_VM,
-                   "slavenames": ['bigdogvm1'],
-                   "builddir": CPYLINUX32_VM,
-                   "factory": pypyTranslatedLibPythonTestFactory,
-                   "category": 'lib-python'
-                   },
-                  {"name": CPYWIN32,
+                  {"name": APPLVLWIN32,
                    "slavenames": ["bigboard"],
-                   "builddir": CPYWIN32,
-                   "factory": pypyTranslatedLibPythonTestFactoryWin,
+                   "builddir": APPLVLWIN32,
+                   "factory": pypyTranslatedAppLevelTestFactoryWin,
                    "category": "windows"
                   },
                   {"name" : BUILDMAEMO,
@@ -138,15 +146,15 @@ BuildmasterConfig = {
                    "factory": pypyTranslatedLibPythonMaemoTestFactory,
                    "category": 'maemo'
                    },
-                  {"name" : CPYFREEBSD64,
+                  {"name" : APPLVLFREEBSD64,
                    "slavenames": ['headless'],
-                   'builddir' : CPYFREEBSD64,
-                   'factory' : pypyTranslatedLibPythonTestFactory,
+                   'builddir' : APPLVLFREEBSD64,
+                   'factory' : pypyTranslatedAppLevelTestFactory,
                    "category": 'other'
                    },
-                  {"name" : JITCPYLINUX32,
+                  {"name" : JITLINUX32,
                    "slavenames": ["bigdogvm1"],
-                   'builddir' : JITCPYLINUX32,
+                   'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'jit',
                    },

@@ -107,67 +107,70 @@ class Own(factory.BuildFactory):
             env={"PYTHONPATH": ['.'],
                  "PYPYCHERRYPICK": cherrypick}))
 
-class PyPyTranslatedLibPythonTestFactory(factory.BuildFactory):
+class Translated(factory.BuildFactory):
 
-    def __init__(self, *a, **kw):
-        platform = kw.pop('platform', 'linux')
-        factory.BuildFactory.__init__(self, *a, **kw)
-
-        setup_steps(platform, self)
-
-        self.addStep(Translate(["-O2"], []))
-
-        self.addStep(ShellCmd(
-            description="lib-python test",
-            command=["python", "pypy/test_all.py",
-                     "--pypy=pypy/translator/goal/pypy-c",
-                     "--resultlog=cpython.log", "lib-python"],           
-            logfiles={'pytestLog': 'cpython.log'}))
-
-class PyPyTranslatedAppLevelTestFactory(factory.BuildFactory):
-
-    def __init__(self, *a, **kw):
-        platform = kw.pop('platform', 'linux')
-        factory.BuildFactory.__init__(self, *a, **kw)
+    def __init__(self, platform='linux',
+                 translationArgs=['-O2'], targetArgs=[],
+                 app_tests=False,
+                 lib_python=False,
+                 pypyjit=False                 
+                 ):
+        factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(["-O2"], []))
+        self.addStep(Translate(translationArgs, targetArgs))
 
-        self.addStep(ShellCmd(
-            description="app-level (-A) test",
-            command=["python", "testrunner/runner.py",
-                     "--logfile=pytest-A.log",
-                     "--config=pypy/pytest-A.cfg",
-                     "--root=pypy", "--timeout=1800"],
-            logfiles={'pytestLog': 'pytest-A.log'},
-            timeout = 4000,
-            env={"PYTHONPATH": ['.']}))
+        if app_tests:
+            if app_tests == True:
+                app_tests = []
+            self.addStep(ShellCmd(
+                description="app-level (-A) test",
+                command=["python", "testrunner/runner.py",
+                         "--logfile=pytest-A.log",
+                         "--config=pypy/pytest-A.cfg",
+                         "--root=pypy", "--timeout=1800"
+                         ] + ["--config=%s" % cfg for cfg in app_tests],
+                logfiles={'pytestLog': 'pytest-A.log'},
+                timeout = 4000,
+                env={"PYTHONPATH": ['.']}))
+
+        if lib_python:
+            self.addStep(ShellCmd(
+                description="lib-python test",
+                command=["python", "pypy/test_all.py",
+                         "--pypy=pypy/translator/goal/pypy-c",
+                         "--resultlog=cpython.log", "lib-python"],           
+                logfiles={'pytestLog': 'cpython.log'}))
+
+        if pypyjit:
+            self.addStep(ShellCmd(
+                description="pypyjit tests",
+                command=["python", "pypy/test_all.py",
+                         "--pypy=pypy/translator/goal/pypy-c",
+                         "--resultlog=pypyjit.log",
+                         "pypy/module/pypyjit/test/test_pypy_c.py"],
+                logfiles={'pytestLog': 'pypyjit.log'}))            
 
 
-class PyPyStacklessTranslatedAppLevelTestFactory(factory.BuildFactory):
-
-    def __init__(self, *a, **kw):
-        platform = kw.pop('platform', 'linux')
-        factory.BuildFactory.__init__(self, *a, **kw)
+class JITBenchmark(factory.BuildFactory):
+    def __init__(self, platform='linux'):
+        factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(["-O2", "--stackless"], []))
-
+        self.addStep(Translate(['-Ojit', '--gc=hybrid',
+                                '--gcrootfinder=asmgcc'],
+                               ['--withoutmod-thread']))
         self.addStep(ShellCmd(
-            description="app-level (-A) test",
-            command=["python", "testrunner/runner.py",
-                     "--logfile=pytest-A.log",
-                     "--config=pypy/pytest-A.cfg",
-                     "--config=pypy/pytest-A-stackless.cfg",                     
-                     "--root=pypy", "--timeout=1800"],
-            logfiles={'pytestLog': 'pytest-A.log'},
-            timeout = 4000,
-            env={"PYTHONPATH": ['.']}))
+            descritpion="run richards & upload results",
+            command=["python", "pypy/translator/benchmark/jitbench.py",
+                     "pypy/translator/goal/pypy-c"]))
 
 
-class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
+
+# xxx keep style
+class TranslatedScratchbox(factory.BuildFactory):
     def __init__(self, *a, **kw):
         USERNAME = 'buildbot'
         WORKDIR = '/scratchbox/users/%s/home/%s/build' % (USERNAME, USERNAME)
@@ -193,46 +196,3 @@ class PyPyTranslatedScratchboxTestFactory(factory.BuildFactory):
         self.addStep(ShellCmd(
             description="copy build",
             command=["scp", "pypy-c", "fijal@codespeak.net:builds/pypy-c-scratchbox"], workdir = workdir))
-
-class PyPyJITTranslatedTestFactory(factory.BuildFactory):
-    def __init__(self, *a, **kw):
-        platform = kw.pop('platform', 'linux')
-        factory.BuildFactory.__init__(self, *a, **kw)
-
-        setup_steps(platform, self)
-
-        self.addStep(Translate(['-Ojit', '--gc=hybrid',
-                                '--gcrootfinder=asmgcc',
-                                '--jit-debug=steps'],
-                               ['--withoutmod-thread']))
-        
-        self.addStep(ShellCmd(
-            description="lib-python test",
-            command=["python", "pypy/test_all.py",
-                     "--pypy=pypy/translator/goal/pypy-c",
-                     "--resultlog=cpython.log", "lib-python"],
-            logfiles={'pytestLog': 'cpython.log'}))
-
-        self.addStep(ShellCmd(
-            description="pypyjit tests",
-            command=["python", "pypy/test_all.py",
-                     "--pypy=pypy/translator/goal/pypy-c",
-                     "--resultlog=pypyjit.log",
-                     "pypy/module/pypyjit/test/test_pypy_c.py"],
-            logfiles={'pytestLog': 'pypyjit.log'}))
-
-class PyPyJITBenchmarkFactory(factory.BuildFactory):
-    def __init__(self, *a, **kw):
-        platform = kw.pop('platform', 'linux')
-        factory.BuildFactory.__init__(self, *a, **kw)
-
-        setup_steps(platform, self)
-
-        self.addStep(Translate(['-Ojit', '--gc=hybrid',
-                                '--gcrootfinder=asmgcc'],
-                               ['--withoutmod-thread']))
-        self.addStep(ShellCmd(
-            descritpion="run richards & upload results",
-            command=["python", "pypy/translator/benchmark/jitbench.py",
-                     "pypy/translator/goal/pypy-c"]))
-
