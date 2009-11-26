@@ -44,10 +44,9 @@ status.putChild('summary', summary.Summary(['own', 'applevel',
 
 pypybuilds = load('pypybuildbot.builds')
 
-pypyOwnTestFactory = pypybuilds.PyPyOwnTestFactory()
-pypyOwnTestFactoryWin = pypybuilds.PyPyOwnTestFactory(platform="win32")
-
-pypyJitOnlyOwnTestFactory = pypybuilds.PyPyOwnTestFactory(cherrypick="jit")
+pypyOwnTestFactory = pypybuilds.Own()
+pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
+pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 
 pypyTranslatedLibPythonTestFactory = pypybuilds.PyPyTranslatedLibPythonTestFactory()
 pypyTranslatedLibPythonTestFactoryWin = pypybuilds.PyPyTranslatedLibPythonTestFactory(platform="win32")

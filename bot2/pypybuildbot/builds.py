@@ -87,12 +87,10 @@ def setup_steps(platform, factory, workdir=None):
                                workdir=workdir))
 
 
-class PyPyOwnTestFactory(factory.BuildFactory):
+class Own(factory.BuildFactory):
 
-    def __init__(self, *a, **kw):
-        platform = kw.pop('platform', 'linux')
-        cherrypick = kw.pop('cherrypick', '')
-        factory.BuildFactory.__init__(self, *a, **kw)
+    def __init__(self, platform='linux', cherrypick='', extra_cfgs=[]):
+        factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
 
@@ -102,7 +100,8 @@ class PyPyOwnTestFactory(factory.BuildFactory):
                      "--logfile=testrun.log",
                      "--config=pypy/testrunner_cfg.py",
                      "--config=~/machine_cfg.py",
-                     "--root=pypy", "--timeout=10800"],
+                     "--root=pypy", "--timeout=10800"
+                     ] + ["--config=%s" % cfg for cfg in extra_cfgs],
             logfiles={'pytestLog': 'testrun.log'},
             timeout = 4000,
             env={"PYTHONPATH": ['.'],
