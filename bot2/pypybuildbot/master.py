@@ -71,6 +71,13 @@ pypyJITTranslatedTestFactory = pypybuilds.Translated(
     pypyjit=True
     )
 
+pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
+    translationArgs=['-Ojit', '--gc=hybrid', '--no-translation-jit'
+                     '--gcrootfinder=asmgcc'],
+    lib_python=True,
+    app_tests=True
+    )
+
 pypyJITBenchmarkFactory = pypybuilds.JITBenchmark()
 
 pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.TranslatedScratchbox()
@@ -85,6 +92,7 @@ APPLVLWIN32 = "pypy-c-app-level-win-32"
 APPLVLFREEBSD64 = 'pypy-c-app-level-freebsd-7-x86-64'
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
+OJITLINUX32 = "pypy-c-Ojit-no-jit-linux-x86-32"
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
@@ -97,7 +105,7 @@ BuildmasterConfig = {
     'change_source': [],
     'schedulers': [
     	Nightly("nightly", [LINUX32, APPLVLLINUX32, APPLVLWIN32,
-                            STACKLESSAPPLVLLINUX32, JITLINUX32,
+                            STACKLESSAPPLVLLINUX32, JITLINUX32, OJITLINUX32,
                             MACOSX32],
                 hour=4, minute=45),
         Nightly("nightly-benchmark", [JITBENCH],
@@ -133,7 +141,13 @@ BuildmasterConfig = {
                    "builddir": STACKLESSAPPLVLLINUX32,
                    "factory": pypyStacklessTranslatedAppLevelTestFactory,
                    "category": 'stackless'
-                  },                                    
+                  },
+                  {"name": OJITLINUX32,
+                   "slavenames": ["wyvern", "cobra"],
+                   "builddir": OJITLINUX32,
+                   "factory": pypy_OjitTranslatedTestFactory,
+                   "category": 'applevel'
+                  },                   
                   {"name": APPLVLWIN32,
                    "slavenames": ["bigboard"],
                    "builddir": APPLVLWIN32,
