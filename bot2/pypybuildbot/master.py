@@ -72,7 +72,7 @@ pypyJITTranslatedTestFactory = pypybuilds.Translated(
     )
 
 pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
-    translationArgs=['-Ojit', '--gc=hybrid', '--no-translation-jit'
+    translationArgs=['-Ojit', '--gc=hybrid', '--no-translation-jit',
                      '--gcrootfinder=asmgcc'],
     lib_python=True,
     app_tests=True
