@@ -342,15 +342,14 @@ class SummaryPage(object):
         branch = trunk_name(branch)
         category = category_name(category)
 
-        cat_branch = self.cur_cat_branch = (category, branch)
+        self.cur_cat_branch = (category, branch)
 
         cat_anchor = html.a("{%s}" % category,
                             href="/summary?category=%s" % category,
                             class_="failSummary branch")
 
         branch_anchor = html.a(branch,
-                               href="/summary?category=%s&branch=%s" %
-                               cat_branch,
+                               href="/summary?branch=%s" % branch,
                                class_="failSummary branch")
         if fine:
             extra = html.img(alt=":-)", src="success.png")
