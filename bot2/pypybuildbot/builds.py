@@ -159,9 +159,7 @@ class JITBenchmark(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(['-Ojit', '--gc=hybrid',
-                                '--gcrootfinder=asmgcc'],
-                               ['--withoutmod-thread']))
+        self.addStep(Translate(['-Ojit'], []))
         self.addStep(ShellCmd(
             descritpion="run richards & upload results",
             command=["python", "pypy/translator/benchmark/jitbench.py",
