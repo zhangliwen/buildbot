@@ -149,7 +149,7 @@ class Translated(factory.BuildFactory):
                 command=["python", "pypy/test_all.py",
                          "--pypy=pypy/translator/goal/pypy-c",
                          "--resultlog=pypyjit.log",
-                         "pypy/module/pypyjit/test/test_pypy_c.py"],
+                         "pypy/module/pypyjit/test"],
                 logfiles={'pytestLog': 'pypyjit.log'}))            
 
 
