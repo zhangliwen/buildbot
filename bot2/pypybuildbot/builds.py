@@ -1,6 +1,7 @@
 from buildbot.process import factory
-from buildbot.steps import source, shell
+from buildbot.steps import source, shell, transfer
 from buildbot.status.builder import SUCCESS
+from buildbot.process.properties import WithProperties
 import os
 
 class ShellCmd(shell.ShellCommand):
@@ -158,14 +159,23 @@ class JITBenchmark(factory.BuildFactory):
         factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
-
+        self.addStep(ShellCmd(description="checkout benchmarks",
+            command=['svn', 'co', 'http://codespeak.net/svn/pypy/benchmarks',
+                     'benchmarks'],
+            workdir=''))
         self.addStep(Translate(['-Ojit'], []))
+        self.addStep(ShellCmd(
+            description="run more benchmarks",
+            commad=["python", "runner.py", 'result.json',
+                    '../build/pypy/translator/goal/pypy-c'],
+            workdir='benchmarks'))
+        self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
+                masterdest=WithProperties("~/bench_results/%(revision)s.json")
+                                         workdir=""))
         self.addStep(ShellCmd(
             descritpion="run benchmarks",
             command=["python", "pypy/translator/benchmark/jitbench.py",
                      "pypy/translator/goal/pypy-c"]))
-
-
 
 # xxx keep style
 class TranslatedScratchbox(factory.BuildFactory):
