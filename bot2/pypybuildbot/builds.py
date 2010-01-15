@@ -162,7 +162,7 @@ class JITBenchmark(factory.BuildFactory):
         self.addStep(ShellCmd(description="checkout benchmarks",
             command=['svn', 'co', 'http://codespeak.net/svn/pypy/benchmarks',
                      'benchmarks'],
-            workdir=''))
+            workdir='./'))
         self.addStep(Translate(['-Ojit'], []))
         self.addStep(ShellCmd(
             description="run more benchmarks",
@@ -171,7 +171,7 @@ class JITBenchmark(factory.BuildFactory):
             workdir='benchmarks'))
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                 masterdest=WithProperties("~/bench_results/%(revision)s.json"),
-                                         workdir=""))
+                                         workdir="./"))
         self.addStep(ShellCmd(
             descritpion="run benchmarks",
             command=["python", "pypy/translator/benchmark/jitbench.py",
