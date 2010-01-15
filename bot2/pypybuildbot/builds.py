@@ -166,7 +166,7 @@ class JITBenchmark(factory.BuildFactory):
         self.addStep(Translate(['-Ojit'], []))
         self.addStep(ShellCmd(
             description="run more benchmarks",
-            commad=["python", "runner.py", 'result.json',
+            command=["python", "runner.py", 'result.json',
                     '../build/pypy/translator/goal/pypy-c'],
             workdir='benchmarks'))
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
