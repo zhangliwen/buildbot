@@ -60,7 +60,7 @@ class Translate(ShellCmd):
         kw['timeout'] = 3600
         ShellCmd.__init__(self, workdir, *a, **kw)
         self.command = (self.command + translationArgs +
-                        [self.translationTarget] + targetArgs)
+                        [self.translationTarget] + targetArgs)               
 
 # ________________________________________________________________
 
@@ -161,7 +161,7 @@ class JITBenchmark(factory.BuildFactory):
 
         self.addStep(Translate(['-Ojit'], []))
         self.addStep(ShellCmd(
-            descritpion="run richards & upload results",
+            descritpion="run benchmarks",
             command=["python", "pypy/translator/benchmark/jitbench.py",
                      "pypy/translator/goal/pypy-c"]))
 
