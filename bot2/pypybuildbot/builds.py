@@ -169,7 +169,8 @@ class JITBenchmark(factory.BuildFactory):
             description="run more benchmarks",
             command=["python", "runner.py", 'result.json',
                     '../build/pypy/translator/goal/pypy-c'],
-            workdir='./benchmarks'))
+            workdir='./benchmarks',
+            haltOnFailure=True))
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                 masterdest=WithProperties("~/bench_results/%(revision)s.json"),
                                          workdir="."))
