@@ -172,7 +172,7 @@ class JITBenchmark(factory.BuildFactory):
             workdir='./benchmarks',
             haltOnFailure=True))
         # a bit obscure hack to get both os.path.expand and a property
-        resfile = os.path.expanduser("~/bench_results/%(revision)s.json")
+        resfile = os.path.expanduser("~/bench_results/%(got_revision)s.json")
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                                          masterdest=WithProperties(resfile),
                                          workdir="."))
