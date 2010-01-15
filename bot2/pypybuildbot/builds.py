@@ -171,8 +171,10 @@ class JITBenchmark(factory.BuildFactory):
                     '../build/pypy/translator/goal/pypy-c'],
             workdir='./benchmarks',
             haltOnFailure=True))
+        # a bit obscure hack to get both os.path.expand and a property
+        resfile = os.path.expand("~/bench_results/%(revision)s.json")
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
-                masterdest=WithProperties("~/bench_results/%(revision)s.json"),
+                                         masterdest=WithProperties(resfile),
                                          workdir="."))
         self.addStep(ShellCmd(
             descritpion="run benchmarks",
