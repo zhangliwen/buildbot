@@ -60,9 +60,9 @@ class Translate(ShellCmd):
         kw['targetArgs'] = targetArgs
         kw['timeout'] = 3600
         ShellCmd.__init__(self, workdir, *a, **kw)
-        self.command = (self.command + translationArgs +
-                        [self.translationTarget] + targetArgs)
-        #self.command = ['cp', '/tmp/pypy-c', '.']
+        #self.command = (self.command + translationArgs +
+        #                [self.translationTarget] + targetArgs)
+        self.command = ['cp', '/tmp/pypy-c', '.']
 
 # ________________________________________________________________
 
@@ -168,7 +168,8 @@ class JITBenchmark(factory.BuildFactory):
         self.addStep(ShellCmd(
             description="run more benchmarks",
             command=["python", "runner.py", 'result.json',
-                    '../build/pypy/translator/goal/pypy-c'],
+                    '../build/pypy/translator/goal/pypy-c',
+                     WithProperties('%(got_revision)s')],
             workdir='./benchmarks',
             haltOnFailure=True))
         # a bit obscure hack to get both os.path.expand and a property
