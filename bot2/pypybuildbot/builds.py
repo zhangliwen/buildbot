@@ -60,9 +60,9 @@ class Translate(ShellCmd):
         kw['targetArgs'] = targetArgs
         kw['timeout'] = 3600
         ShellCmd.__init__(self, workdir, *a, **kw)
-        #self.command = (self.command + translationArgs +
-        #                [self.translationTarget] + targetArgs)
-        self.command = ['cp', '/tmp/pypy-c', '.']
+        self.command = (self.command + translationArgs +
+                        [self.translationTarget] + targetArgs)
+        #self.command = ['cp', '/tmp/pypy-c', '.']
 
 # ________________________________________________________________
 
