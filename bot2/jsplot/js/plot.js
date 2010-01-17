@@ -61,7 +61,7 @@ function plot_miniature(benchname, benchresults, cpython_results, lasttime)
         $("#placeholder").append("<tr></tr>");
     }
     var capt = benchname + " " + lasttime;
-    $("#placeholder").find("tr:last").append("<td><p class='smallcaption'>" + capt + "</p><a href='#' id='goto_" + benchname + "'><div class='miniplot'></div></a></td>");
+    $("#placeholder").find("tr:last").append("<td><p class='smallcaption'>" + capt + "</p><a href='#down' id='goto_" + benchname + "'><div class='miniplot'></div></a></td>");
     $("#goto_" + benchname).click(function(e) {
         display_large(benchname, benchresults, cpython_results);
     });
