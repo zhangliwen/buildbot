@@ -15,7 +15,8 @@ function Collector(revnos)
             var cpyend = benchresults[benchresults.length - 1][0];
             var cpyval = this.plotdata.cpytimes[benchname];
             var cpython_results = [[cpystart, cpyval], [cpyend, cpyval]]
-            this.plot(benchname, benchresults, cpython_results)
+            this.plot(benchname, benchresults, cpython_results,
+                      this.plotdata.lasttimes[benchname])
         }
     }
 
@@ -56,6 +57,7 @@ function extract_benchmark_data(data)
 {
     var retval = {};
     var cpytimes = {};
+    var lasttimes = {}
     var lastrev = 0;
     var lastrevindex = 0;
     for (var i = 0; i < data.length; i++) {
@@ -97,11 +99,14 @@ function extract_benchmark_data(data)
         var benchname = cpyelem.results[i][0];
         if (dataelem.avg_base) {
             cpytimes[benchname] = dataelem.avg_base;
+            lasttimes[benchname] = dataelem.delta_avg;
         } else {
             cpytimes[benchname] = dataelem.base_time;
+            lasttimes[benchname] = dataelem.time_delta;
         }
     }
-    return {'results': retval, 'cpytimes': cpytimes};
+    return {'results': retval, 'cpytimes': cpytimes,
+            'lasttimes': lasttimes};
 }
 
 function extract_revnos(xmldoc)

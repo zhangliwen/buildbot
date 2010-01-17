@@ -30,6 +30,7 @@ test_extract_benchmark_data: function() {
     benchnames.sort();
     aisDeeply(benchnames, expected_benchnames);
     ais(bench_data.cpytimes.ai, 0.43372206687940001);
+    ais(bench_data.lasttimes.ai, "1.0207x faster");
 },
 
 test_extract_revnos: function() {

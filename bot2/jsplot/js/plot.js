@@ -43,21 +43,31 @@ function get_plot_input(benchresults, cpython_results)
 
 var MAX_PER_LINE = 4;
 
-function plot_miniature(benchname, benchresults, cpython_results)
+function plot_miniature(benchname, benchresults, cpython_results, lasttime)
 {
     if ($("#placeholder").find("td").length % MAX_PER_LINE == 0) {
         $("#placeholder").append("<tr></tr>");
     }
-    $("#placeholder").find("tr:last").append("<td><p class='smallcaption'>" + benchname + "</p><div class='miniplot'></div></td>");
+    var capt = benchname + " " + lasttime;
+    $("#placeholder").find("tr:last").append("<td><p class='smallcaption'>" + capt + "</p><div class='miniplot'></div></td>");
     var elem = $("#placeholder").find("div:last");
     var attrs = common_attrs();
     attrs.xaxis.ticks = 0;
     attrs.yaxis.ticks = 0;
-    $.plot(elem, [benchresults, cpython_results], attrs);
+    var data;
+    if (!$("#legend").children() == []) {
+        // a bit of a hack, if we didn't add a legend, do it now
+        data = get_plot_input(benchresults, cpython_results);
+        attrs.legend.container = "#legend";
+    } else {
+        data = [benchresults, cpython_results];
+    }
+    $.plot(elem, data, attrs);
 }
 
-function plot_main(benchname, benchresults, cpython_results) {
-    $("#placeholder").append("<p class='caption'>" + benchname + "</p>");
+function plot_main(benchname, benchresults, cpython_results, lasttime) {
+    var capt = benchname + " " + lasttime;
+    $("#placeholder").append("<p class='caption'>" + capt + "</p>");
     $("#placeholder").append("<div class='plot'></div>");
     var plotinput = get_plot_input(benchresults, cpython_results)
     $.plot($("#placeholder").children(":last"), plotinput, common_attrs());
