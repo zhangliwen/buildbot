@@ -3,7 +3,16 @@
     width: 600px;
     height: 300px;
 }
+.miniplot {
+    width: 200px;
+    height: 100px;
+}
 .caption {
     font-size: 14pt;
     font-family: Verdana;
+}
+.smallcaption {
+    font-size: 10pt;
+    font-family: Verdana;
+    text-align: center;
 }

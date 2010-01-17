@@ -1,0 +1,23 @@
+
+<html>
+  <head>
+    <script src="js/underscore-min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.flot.js"></script>
+    <script src="js/collect.js"></script>
+    <script src="js/plot.js"></script>
+    <script>    
+      $(document).ready(function() {
+        collect_data(plot_miniature, JSON_DIR_LIST, JSON_DIR_URL, true);
+      });
+    </script>
+    <link rel="stylesheet" href="css/main.css" type="text/css"/>
+  </head>
+  <body>
+    <h1>Benchmarks</h1>
+    <table id="placeholder">
+      <tr>
+      </tr>
+    </table>
+  </body>
+</html>
