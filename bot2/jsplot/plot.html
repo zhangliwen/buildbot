@@ -3,7 +3,13 @@
   <script src="js/underscore-min.js"></script>
   <script src="js/jquery.min.js"></script>
   <script src="js/jquery.flot.js"></script>
+  <script src="js/collect.js"></script>
   <script src="js/plot.js"></script>
+  <script>    
+    $(document).ready(function() {
+      collect_data(myplot, JSON_DIR_LIST, JSON_DIR_URL, true);
+    });
+  </script>
   <link rel="stylesheet" href="css/main.css" type="text/css"/>
 </head>
 <body>

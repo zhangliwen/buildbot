@@ -1,5 +1,5 @@
 
-OpenEnd.require("/js/plot.js")
+OpenEnd.require("/js/collect.js")
 OpenEnd.require("/js/jquery.min.js")
 OpenEnd.require("/js/underscore-min.js")
 
