@@ -22,6 +22,7 @@ function common_attrs()
         },
         'yaxis': {
             'min': 0,
+            'autoscaleMargin': 0.1,
         },
         'legend' : {
             'position': 'nw',
