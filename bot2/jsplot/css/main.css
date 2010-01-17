@@ -7,6 +7,10 @@
     width: 200px;
     height: 100px;
 }
+.largeplot {
+    width: 800px;
+    height: 400px;
+}
 .caption {
     font-size: 14pt;
     font-family: Verdana;
