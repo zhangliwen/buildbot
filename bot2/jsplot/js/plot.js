@@ -36,7 +36,7 @@ function get_plot_input(benchresults, cpython_results)
         data : benchresults,
     },
     {
-        label: 'cpython',
+        label: 'cpython 2.6.2',
         data : cpython_results
     }];
 }
