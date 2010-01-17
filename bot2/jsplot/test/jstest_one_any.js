@@ -36,9 +36,9 @@ test_extract_revnos: function() {
     $.ajax({
         url: "/test/data/dir",
         contentType: "text/xml",
-        dataType: "xml",
+        dataType: "html",
         success: function (result) {
-            dirdoc = result;
+            dirdoc = $(result);
         },
         async: false,
     });

@@ -56,9 +56,9 @@ function Collector(revnos)
 $(document).ready(function() {
     $.ajax({
         url: JSON_DIR_LIST,
-        dataType: 'xml',
-        success: function(xmldoc) {
-            var revnos = extract_revnos(xmldoc);
+        dataType: 'html',
+        success: function(htmlstr) {
+            var revnos = extract_revnos($(htmlstr));
             collector = new Collector(revnos);
             for (var i in revnos) {
                 $.getJSON(JSON_DIR_URL + revnos[i] + '.json', function(data) {
