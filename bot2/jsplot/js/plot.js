@@ -25,22 +25,7 @@ function Collector(revnos)
             var cpyend = benchresults[benchresults.length - 1][0];
             var cpyval = this.plotdata.cpytimes[benchname];
             var cpython_results = [[cpystart, cpyval], [cpyend, cpyval]]
-            $("#placeholder").append("<p>" + benchname + "</p>");
-            $("#placeholder").append("<div class='plot'></div>");
-            $.plot($("#placeholder").children(":last"), [benchresults, cpython_results], {
-                'series': {
-                    'points': {'show': true},
-                    'lines' : {'show': true},
-                },
-                'xaxis': {
-                    'min': 70630,
-                    'max': revnos[revnos.length - 1],
-                    'tickDecimals': 0,
-                },
-                'yaxis': {
-                    'min': 0,
-                }
-            });
+            this.plot(benchname, benchresults, cpython_results)
         }
     }
 
@@ -53,23 +38,61 @@ function Collector(revnos)
     }
 }
 
-$(document).ready(function() {
+function myplot(benchname, benchresults, cpython_results) {
+    $("#placeholder").append("<p class='caption'>" + benchname + "</p>");
+    $("#placeholder").append("<div class='plot'></div>");
+    var plotinput = [{
+        label: 'pypy-c-jit',
+        data : benchresults,
+    },
+    {
+        label: 'cpython',
+        data : cpython_results
+    }];
+    $.plot($("#placeholder").children(":last"), plotinput, {
+        'series': {
+            'points': {'show': true},
+            'lines' : {'show': true},
+        },
+        'xaxis': {
+            'min': 70630,
+            'tickDecimals': 0,
+        },
+        'yaxis': {
+            'min': 0,
+        },
+        'legend' : {
+            'position' : 'sw'
+        }
+    });
+}
+
+function collect_data(plot_function, revlist_url, base_url, async)
+{
     $.ajax({
-        url: JSON_DIR_LIST,
+        url: revlist_url,
         dataType: 'html',
         success: function(htmlstr) {
             var revnos = extract_revnos($(htmlstr));
-            collector = new Collector(revnos);
+            var collector = new Collector(revnos);
+            collector.plot = plot_function;
             for (var i in revnos) {
-                $.getJSON(JSON_DIR_URL + revnos[i] + '.json', function(data) {
+                $.ajax({
+                    url: base_url + revnos[i] + '.json',
+                    success: function(data) {
                     collector.collect(data)
+                    },
+                    dataType: 'json',
+                    async: async,
                 });
             }
         },
-        error: function (a, b, c) {
-            console.log(a, b, c);
-        },
+        async: async,
     });
+}
+
+$(document).ready(function() {
+    collect_data(myplot, JSON_DIR_LIST, JSON_DIR_URL, true);
 });
 
 function extract_benchmark_data(data)
