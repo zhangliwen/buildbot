@@ -76,8 +76,14 @@ function extract_benchmark_data(data)
 {
     var retval = {};
     var cpytimes = {};
+    var lastrev = 0;
+    var lastrevindex = 0;
     for (var i = 0; i < data.length; i++) {
         var revno = data[i]["revision"];
+        if (revno > lastrev) {
+            lastrev = revno;
+            lastrevindex = i;
+        }
         var results = data[i]["results"];
         for (var j = 0; j < results.length; j++) {
             var result = results[j];
@@ -96,7 +102,16 @@ function extract_benchmark_data(data)
             }
         }
     }
-    var cpyelem = data[data.length - 1]
+    for (var name in retval) {
+        retval[name].sort(function (a, b) {
+            if (a[0] > b[0]) {
+                return 1;
+            } else {
+                return -1;
+            }
+        });
+    }
+    var cpyelem = data[lastrevindex]
     for (var i = 0; i < cpyelem.results.length; i++) {
         var dataelem = cpyelem.results[i][2];
         var benchname = cpyelem.results[i][0];

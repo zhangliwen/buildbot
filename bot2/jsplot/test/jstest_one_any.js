@@ -5,7 +5,7 @@ OpenEnd.require("/js/underscore-min.js")
 
 Tests = {
 test_load_data: function() {
-    var revnos = [70632, 70634];
+    var revnos = [70634, 70632];
     var loaded_data = [];
     for (var i in revnos) {
         $.ajax({
