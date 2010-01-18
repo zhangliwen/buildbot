@@ -68,7 +68,12 @@ function plot_miniature(benchname, benchresults, cpython_results, lasttime)
     var elem = $("#placeholder").find("div:last");
     var attrs = attrs_for_miniature();
     var data;
-    $("#revstart")[0].value = benchresults[0][0];
+    var oldval = $("#revstart")[0].value;
+    if (!oldval || benchresults[0][0] < oldval) {
+        // only update stuff when our starting revision is smaller, so we
+        // get a minimum
+        $("#revstart")[0].value = benchresults[0][0];
+    }
     $("#revstart").change(function(event) {
         redisplay(elem, benchresults, cpython_results);
     });
