@@ -29,28 +29,79 @@ function Collector(revnos)
     }
 }
 
-function collect_data(plot_function, revlist_url, base_url, async)
+function _collect(foreachrev, plot_function, revlist_url, base_url, async)
 {
     $.ajax({
         url: revlist_url,
         dataType: 'html',
         success: function(htmlstr) {
             var revnos = extract_revnos($(htmlstr));
-            var collector = new Collector(revnos);
-            collector.plot = plot_function;
-            for (var i in revnos) {
-                $.ajax({
-                    url: base_url + revnos[i] + '.json',
-                    success: function(data) {
-                    collector.collect(data)
-                    },
-                    dataType: 'json',
-                    async: async,
-                });
-            }
+            foreachrev(revnos);
         },
         async: async,
     });
+}
+
+function collect_data(plot_function, revlist_url, base_url, async)
+{
+    _collect(function (revnos) {
+        var collector = new Collector(revnos);
+            collector.plot = plot_function;
+        for (var i in revnos) {
+            $.ajax({
+                url: base_url + revnos[i] + '.json',
+                success: function(data) {
+                    collector.collect(data)
+                },
+                dataType: 'json',
+                async: async,
+            });
+        }
+    }, plot_function, revlist_url, base_url, async);
+}
+
+function collect_latest_data(plot_function, revlist_url, base_url, async)
+{
+    function extract_ch(elem) {
+        if (elem.avg_changed) {
+            return elem.avg_changed;
+        }
+        return elem.changed_time;
+    }
+
+    function extract_base(elem) {
+        if (elem.avg_base) {
+            return elem.avg_base;
+        }
+        return elem.base_time;
+    }
+
+    function postprocess(data) {
+        var res = [[], []];
+        var benchnames = [];
+        for (var i = 0; i < data.results.length; ++i) {
+            var elem = data.results[i];
+            benchnames.push(elem[0]);
+            res[0].push(extract_ch(elem[2]));
+            res[1].push(extract_base(elem[2]));
+        }
+        data.results = res;
+        data.benchnames = benchnames;
+        return data;
+    }
+
+    _collect(function (revnos) {
+        revnos.sort();
+        var lastrev = revnos[revnos.length - 1];
+        $.ajax({
+            url: base_url + lastrev + '.json',
+            success: function(data) {
+                plot_function(postprocess(data));
+            },
+            dataType: 'json',
+            async: async,
+        });
+    }, plot_function, revlist_url, base_url, async);
 }
 
 function extract_benchmark_data(data)

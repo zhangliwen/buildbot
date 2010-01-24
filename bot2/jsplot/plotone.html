@@ -1,0 +1,22 @@
+
+<html>
+  <head>
+    <script src="js/underscore-min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.flot.js"></script>
+    <script src="js/collect.js"></script>
+    <script src="js/plot.js"></script>
+    <script>    
+      $(document).ready(function() {
+        collect_latest_data(plot_one, JSON_DIR_LIST, JSON_DIR_URL, true);
+      });
+    </script>
+    <link rel="stylesheet" href="css/main.css" type="text/css"/>
+  </head>
+  <body>
+    <h1>Last run view</h1>
+    <p>PyPy with JIT against CPython</p>
+    <div id="placeholder" class="largeplot">
+    </div>
+  </body>
+</html>

@@ -6,7 +6,7 @@ if (window.location.toString().indexOf('file:///') == -1) {
     JSON_DIR_LIST = JSON_DIR_URL;
 } else {
     JSON_DIR_URL  = "test/data/";
-    JSON_DIR_LIST = JSON_DIR_URL + "dir";
+    JSON_DIR_LIST = JSON_DIR_URL + "dir.html";
 }
 
 var large_displayed = false;
@@ -109,4 +109,63 @@ function plot_main(benchname, benchresults, cpython_results, lasttime) {
     $("#placeholder").append("<div class='plot'></div>");
     var plotinput = get_plot_input(benchresults, cpython_results)
     $.plot($("#placeholder").children(":last"), plotinput, common_attrs());
+}
+
+function plot_one(plotdata) {
+    function lg(v) {
+        return Math.log(v) / Math.log(2);
+    }
+
+    var results = plotdata.results;
+    var data = [];
+    var min = 1, max = 1;
+    for (var i = 0; i < results[0].length; ++i) {
+        var next = lg(results[1][i] / results[0][i]);
+        if (next < min) {
+            min = Math.floor(next);
+        }
+        if (next > max) {
+            max = Math.ceil(next);
+        }
+        data.push([i - .3, next]);
+    }
+    var yticks = [];
+    for (var i = min; i < max; i++) {
+        var v = Math.pow(2, i);
+        if (v < 1) {
+            yticks.push([i, 1/v + "x slower"]);
+        } else if (v == 1) {
+            yticks.push([i, "equal"]);
+        } else {
+            yticks.push([i, v + "x faster"]);
+        }
+    }
+    var xticks = [];
+    for (var i = 0; i < plotdata.benchnames.length; ++i) {
+        xticks.push([i, plotdata.benchnames[i]]);
+    }
+    $.plot($("#placeholder"), [data],
+           {
+               series: {
+                   bars: {
+                       show: true,
+                       barWidth: .6,
+                       align: 'left',
+                   },
+                   hoverable: true,
+               },
+               yaxis: {
+                   ticks: yticks,
+               },
+               xaxis: {
+                   ticks: xticks,
+               },
+               grid: {
+                   hoverable: true,
+               }
+           });
+    $("#placeholder").bind("plothover", function (event, pos, item) {
+        if (item) {
+        }
+    });
 }
