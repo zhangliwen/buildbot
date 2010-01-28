@@ -82,15 +82,50 @@ function plot_miniature(benchname, benchresults, cpython_results, lasttime)
     $.plot(elem, data, attrs);
 }
 
+function showTooltip(x, y, contents) {
+    $('<div id="tooltip">' + contents + '</div>').css( {
+        position: 'absolute',
+        display: 'none',
+        top: y + 5,
+        left: x + 5,
+        border: '1px solid #fdd',
+        padding: '2px',
+        'background-color': '#fee',
+        opacity: 0.80
+    }).appendTo("body").fadeIn(200);
+}
+
 function display_large(benchname, benchresults, cpython_results, lasttime)
 {
     $("#large_caption").html(benchname + " " + lasttime);
     var attrs = common_attrs();
     attrs.xaxis.min = $("#revstart")[0].value;
+    attrs.grid = {hoverable: true};
     $.plot($("#large_graph"), get_plot_input(benchresults, cpython_results),
           attrs);
     large_displayed = true;
     large_data = [benchname, benchresults, cpython_results, lasttime];
+
+    var previousPoint = null;
+
+    $("#large_graph").bind("plothover", function (event, pos, item) {
+        if (item) {
+            if (previousPoint != item.datapoint) {
+                previousPoint = item.datapoint;
+                    
+                $("#tooltip").remove();
+                var x = item.datapoint[0].toFixed(2),
+                y = item.datapoint[1].toFixed(2);
+                
+                showTooltip(item.pageX, item.pageY,
+                            item.series.label + " of " + x + " = " + y);
+            }
+        }
+        else {
+            $("#tooltip").remove();
+            previousPoint = null;            
+        }
+    });
 }
 
 function redisplay(elem, benchresults, cpython_results)
@@ -99,7 +134,8 @@ function redisplay(elem, benchresults, cpython_results)
     attrs.xaxis.min = $("#revstart")[0].value;
     $.plot(elem, [benchresults, cpython_results], attrs);
     if (large_displayed) {
-        display_large(large_data[0], large_data[1], large_data[2], large_data[3]);
+        display_large(large_data[0], large_data[1], large_data[2],
+                      large_data[3], fals);
     }
 }
 
@@ -164,8 +200,4 @@ function plot_one(plotdata) {
                    hoverable: true,
                }
            });
-    $("#placeholder").bind("plothover", function (event, pos, item) {
-        if (item) {
-        }
-    });
 }
