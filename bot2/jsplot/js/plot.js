@@ -114,7 +114,7 @@ function display_large(benchname, benchresults, cpython_results, lasttime)
                 previousPoint = item.datapoint;
                     
                 $("#tooltip").remove();
-                var x = item.datapoint[0].toFixed(2),
+                var x = item.datapoint[0].toFixed(0),
                 y = item.datapoint[1].toFixed(2);
                 
                 showTooltip(item.pageX, item.pageY,
