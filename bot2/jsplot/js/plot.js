@@ -169,7 +169,7 @@ function plot_one(plotdata) {
     for (var i = min; i < max; i++) {
         var v = Math.pow(2, i);
         if (v < 1) {
-            yticks.push([i, 1/v + "x <font color=red>slower</font>"]);
+            yticks.push([i, 1/v + "x slower"]);
         } else if (v == 1) {
             yticks.push([i, "equal"]);
         } else {
