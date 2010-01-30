@@ -55,12 +55,17 @@ function attrs_for_miniature()
 
 var MAX_PER_LINE = 4;
 
+function colored_capt(benchname, lasttime) {
+    return benchname + " " + lasttime.replace('slower', 
+                                              '<font color="red">slower</font')
+}
+
 function plot_miniature(benchname, benchresults, cpython_results, lasttime)
 {
     if ($("#placeholder").find("td").length % MAX_PER_LINE == 0) {
         $("#placeholder").append("<tr></tr>");
     }
-    var capt = benchname + " " + lasttime;
+    var capt = colored_capt(benchname, lasttime);
     $("#placeholder").find("tr:last").append("<td><p class='smallcaption'>" + capt + "</p><a href='#down' id='goto_" + benchname + "'><div class='miniplot'></div></a></td>");
     $("#goto_" + benchname).click(function(e) {
         display_large(benchname, benchresults, cpython_results, lasttime);
