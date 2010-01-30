@@ -178,7 +178,7 @@ class JITBenchmark(factory.BuildFactory):
                                          masterdest=WithProperties(resfile),
                                          workdir="."))
         self.addStep(ShellCmd(
-            descritpion="run benchmarks",
+            description="run benchmarks 1",
             command=["python", "pypy/translator/benchmark/jitbench.py",
                      "pypy/translator/goal/pypy-c"]))
 
