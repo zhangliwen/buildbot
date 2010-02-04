@@ -66,7 +66,7 @@ pypyJITTranslatedTestFactory = pypybuilds.Translated(
     translationArgs=['-Ojit', '--gc=hybrid',
                      '--gcrootfinder=asmgcc',
                      '--jit-debug=steps'],
-    targetArgs = ['--withoutmod-thread'],
+    targetArgs = [], #'--withoutmod-thread'],
     lib_python=True,
     pypyjit=True,
     app_tests=True,
