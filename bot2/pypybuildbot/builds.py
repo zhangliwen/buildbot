@@ -166,7 +166,7 @@ class JITBenchmark(factory.BuildFactory):
             workdir='.'))
         self.addStep(Translate(['-Ojit'], []))
         self.addStep(ShellCmd(
-            description="run more benchmarks",
+            description="run more benchmarks on top of pypy-c-jit",
             command=["python", "runner.py", '--output-filename', 'result.json',
                     '--pypy-c', '../build/pypy/translator/goal/pypy-c',
                      '--revision', WithProperties('%(got_revision)s')],
@@ -178,7 +178,20 @@ class JITBenchmark(factory.BuildFactory):
                                          masterdest=WithProperties(resfile),
                                          workdir="."))
         self.addStep(ShellCmd(
-            description="run benchmarks 1",
+            description="run more benchmarks on top of pypy-c no jit",
+            command=["python", "runner.py", '--output-filename', 'result.json',
+                    '--pypy-c', '../build/pypy/translator/goal/pypy-c',
+                     '--revision', WithProperties('%(got_revision)s'),
+                     '--args', ',--jit threshold=1000000000'],
+            workdir='./benchmarks',
+            haltOnFailure=True))
+        resfile = os.path.expanduser("~/bench_results_nojit/%(got_revision)s.json")
+        self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
+                                         masterdest=WithProperties(resfile),
+                                         workdir="."))
+        
+        self.addStep(ShellCmd(
+            descritpion="run benchmarks 1",
             command=["python", "pypy/translator/benchmark/jitbench.py",
                      "pypy/translator/goal/pypy-c"]))
 
