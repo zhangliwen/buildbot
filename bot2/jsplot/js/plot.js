@@ -2,7 +2,11 @@
 var JSON_DIR_URL;
 var JSON_DIR_LIST;
 if (window.location.toString().indexOf('file:///') == -1) {
-    JSON_DIR_URL = "bench_results/";
+    if (window.location.toString().indexOf("nojit") == -1) {
+        JSON_DIR_URL = "bench_results/";
+    } else {
+        JSON_DIR_URL = "bench_results_nojit/";
+    }
     JSON_DIR_LIST = JSON_DIR_URL;
 } else {
     JSON_DIR_URL  = "test/data/";
