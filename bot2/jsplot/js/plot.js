@@ -213,7 +213,7 @@ function plot_one(plotdata) {
         $("canvas:last").height();
     $('.tickLabel[style*=center]').each(function() {
         var width = $(this).width();
-        $(this).css("top", canvas_bottom + width - 50);
+        $(this).css("top", canvas_bottom + width);
         $(this).addClass('tickLabelY');
     });
     $('.tickLabelY').css('text-align', 'right');
