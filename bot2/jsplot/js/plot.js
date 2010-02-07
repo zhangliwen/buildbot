@@ -209,4 +209,6 @@ function plot_one(plotdata) {
                    hoverable: true,
                }
            });
+    $('.tickLabel[style*=center]').addClass('tickLabelY');
+    $('.tickLabelY').css('text-align', 'left');
 }
