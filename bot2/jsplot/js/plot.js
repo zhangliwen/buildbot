@@ -209,6 +209,12 @@ function plot_one(plotdata) {
                    hoverable: true,
                }
            });
-    $('.tickLabel[style*=center]').addClass('tickLabelY');
-    $('.tickLabelY').css('text-align', 'left');
+    var canvas_bottom = $("canvas:last").position().top +
+        $("canvas:last").height();
+    $('.tickLabel[style*=center]').each(function() {
+        var width = $(this).width();
+        $(this).css("top", canvas_bottom + width - 50);
+        $(this).addClass('tickLabelY');
+    });
+    $('.tickLabelY').css('text-align', 'right');
 }
