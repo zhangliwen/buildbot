@@ -32,8 +32,8 @@ class WindowsFirstTime(FirstTime):
 class CondShellCommand(ShellCmd):
 
     def __init__(self, **kwds):
+        self.cond = kwds.pop('cond', lambda props: True)
         ShellCmd.__init__(self, **kwds)
-        self.cond = kwds.get('cond', lambda props: True)
 
     def start(self):
         props = self.build.getProperties()
