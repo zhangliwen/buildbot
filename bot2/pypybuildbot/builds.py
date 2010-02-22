@@ -192,7 +192,7 @@ class JITBenchmark(factory.BuildFactory):
                                          workdir="."))
         
         self.addStep(ShellCmd(
-            descritpion="run benchmarks 1",
+            description="run benchmarks 1",
             command=["python", "pypy/translator/benchmark/jitbench.py",
                      "pypy/translator/goal/pypy-c"]))
 
