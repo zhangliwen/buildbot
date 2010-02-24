@@ -587,6 +587,11 @@ def safe_int(v):
     except ValueError:
         return None
 
+HEAD_ELEMENTS = [
+    '<title>%(title)s</title>',
+    '<link href="%(root)ssummary.css" rel="stylesheet" type="text/css" />',
+    ]
+
 class Summary(HtmlResource):
 
     def __init__(self, categories=[], branch_order_prefixes=[]):
@@ -595,6 +600,14 @@ class Summary(HtmlResource):
         self._defaultBranchCache = {}
         self.categories = categories
         self.branch_order_prefixes = branch_order_prefixes
+
+    def content(self, request):
+        old_head_elements = request.site.buildbot_service.head_elements
+        self.head_elements = HEAD_ELEMENTS
+        try:
+            return HtmlResource.content(self, request)
+        finally:
+            request.site.buildbot_service.head_elements = old_head_elements
 
     def getTitle(self, request):
         status = self.getStatus(request)        
