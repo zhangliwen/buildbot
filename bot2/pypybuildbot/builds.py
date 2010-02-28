@@ -170,6 +170,7 @@ class JITBenchmark(factory.BuildFactory):
             description="run more benchmarks on top of pypy-c-jit",
             command=["python", "runner.py", '--output-filename', 'result.json',
                     '--pypy-c', '../build/pypy/translator/goal/pypy-c',
+                     '--upload', '--force-host', 'bigdog',
                      '--revision', WithProperties('%(got_revision)s')],
             workdir='./benchmarks',
             haltOnFailure=True))
@@ -183,6 +184,7 @@ class JITBenchmark(factory.BuildFactory):
             command=["python", "runner.py", '--output-filename', 'result.json',
                     '--pypy-c', '../build/pypy/translator/goal/pypy-c',
                      '--revision', WithProperties('%(got_revision)s'),
+                     '--upload', '--force-host', 'bigdog',
                      '--args', ',--jit threshold=1000000000'],
             workdir='./benchmarks',
             haltOnFailure=True))
