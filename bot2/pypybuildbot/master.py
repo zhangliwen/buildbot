@@ -122,7 +122,7 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": LINUX32,
-                   "slavenames": ["wyvern", "cobra"],
+                   "slavenames": ["bigdogvm1"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory,
                    "category": 'own'
@@ -134,19 +134,19 @@ BuildmasterConfig = {
                    "category": 'mac'
                   },                  
                   {"name": APPLVLLINUX32,
-                   "slavenames": ["wyvern", "cobra"],
+                   "slavenames": ["bigdogvm1"],
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
                    'category': 'applevel'
                   },
                   {"name": STACKLESSAPPLVLLINUX32,
-                   "slavenames": ["wyvern", "cobra"],
+                   "slavenames": ["bigdogvm1"],
                    "builddir": STACKLESSAPPLVLLINUX32,
                    "factory": pypyStacklessTranslatedAppLevelTestFactory,
                    "category": 'stackless'
                   },
                   {"name": OJITLINUX32,
-                   "slavenames": ["wyvern", "cobra"],
+                   "slavenames": ["bigdogvm1"],
                    "builddir": OJITLINUX32,
                    "factory": pypy_OjitTranslatedTestFactory,
                    "category": 'applevel'
@@ -176,7 +176,7 @@ BuildmasterConfig = {
                    'category' : 'jit',
                    },
                   {"name": JITONLYLINUX32,
-                   "slavenames": ["wyvern", "cobra"],
+                   "slavenames": ["bigdogvm1"],
                    "builddir": JITONLYLINUX32,
                    "factory": pypyJitOnlyOwnTestFactory,
                    "category": 'own'
