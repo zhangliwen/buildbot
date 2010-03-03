@@ -122,7 +122,7 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": LINUX32,
-                   "slavenames": ["wyvern"],
+                   "slavenames": ["wyvern", "cobra"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory,
                    "category": 'own'
@@ -176,7 +176,7 @@ BuildmasterConfig = {
                    'category' : 'jit',
                    },
                   {"name": JITONLYLINUX32,
-                   "slavenames": ["wyvern"],
+                   "slavenames": ["wyvern", "cobra"],
                    "builddir": JITONLYLINUX32,
                    "factory": pypyJitOnlyOwnTestFactory,
                    "category": 'own'
