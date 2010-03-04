@@ -122,7 +122,7 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": LINUX32,
-                   "slavenames": ["bigdogvm1"],
+                   "slavenames": ["cobra", "bigdogvm1"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory,
                    "category": 'own'
