@@ -11,38 +11,7 @@ class ShellCmd(shell.ShellCommand):
         if cmd is not None and cmd.rc == -1:
             return self.describe(True) + ['aborted']
         return shell.ShellCommand.getText(self, cmd, results)
-    
 
-class FirstTime(shell.SetProperty):
-
-    def __init__(self, **kwds):
-        workdir = kwds.pop('workdir', None)
-        shell.SetProperty.__init__(self, description="first-time",
-                                   property="first-time",
-                                   workdir=workdir)
-
-
-class PosixFirstTime(FirstTime):
-    command = "test -d pypy || echo yes"
-
-class WindowsFirstTime(FirstTime):
-    command = "if not exist pypy echo yes"    
-
-
-class CondShellCommand(ShellCmd):
-
-    def __init__(self, **kwds):
-        self.cond = kwds.pop('cond', lambda props: True)
-        ShellCmd.__init__(self, **kwds)
-
-    def start(self):
-        props = self.build.getProperties()
-        yes = self.cond(props)
-        if yes:
-            ShellCmd.start(self)
-        else:
-            self.setStatus(None, SUCCESS)
-            self.finished(SUCCESS)
 
 class Translate(ShellCmd):
     name = "translate"
@@ -67,22 +36,15 @@ class Translate(ShellCmd):
 
 # ________________________________________________________________
 
-def not_first_time(props):
-    first_time = props.getProperty("first-time")
-    return not first_time 
-
 def setup_steps(platform, factory, workdir=None):
     if platform == "win32":
-        first_time_check = WindowsFirstTime()
+        command = "if exist pypy %s"
     else:
-        first_time_check = PosixFirstTime()
-
-    factory.addStep(first_time_check)
-    factory.addStep(CondShellCommand(
+        command = "if [ -d pypy ]; then %s; fi"
+    command = command % "python py/bin/py.svnwcrevert -p.buildbot-sourcedata ."
+    factory.addStep(ShellCmd(
         description="wcrevert",
-        cond=not_first_time,
-        command = ["python", "py/bin/py.svnwcrevert", 
-                   "-p.buildbot-sourcedata", "."],
+        command = command,
         workdir = workdir,
         ))
     factory.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
