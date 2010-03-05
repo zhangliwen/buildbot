@@ -1,6 +1,7 @@
 from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
+from buildbot.process.builder import Builder
 
 
 # I really wanted to pass logPath to Site
@@ -28,6 +29,10 @@ def my_ping(self, req):
     raise Exception("pinging is disabled, as it seems to deadlock clients")
 StatusResourceBuilder.ping = my_ping
 # Disabled.
+
+# Picking a random slave is not really what we want;
+# let's pick the first available one instead.
+Builder.CHOOSE_SLAVES_RANDOMLY = False
 
 
 status = WebStatus(httpPortNumber, allowForce=True)
