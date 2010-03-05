@@ -95,6 +95,7 @@ APPLVLFREEBSD64 = 'pypy-c-app-level-freebsd-7-x86-64'
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 OJITLINUX32 = "pypy-c-Ojit-no-jit-linux-x86-32"
 JITMACOSX32 = "pypy-c-jit-macosx-x86-32"
+JITWIN32 = "pypy-c-jit-win-x86-32"
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
@@ -179,6 +180,12 @@ BuildmasterConfig = {
                   {"name" : JITMACOSX32,
                    "slavenames": ["minime"],
                    'builddir' : JITMACOSX32,
+                   'factory' : pypyJITTranslatedTestFactory,
+                   'category' : 'jit',
+                   },
+                  {"name" : JITWIN32,
+                   "slavenames": ["bigboard"],
+                   'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'jit',
                    },
