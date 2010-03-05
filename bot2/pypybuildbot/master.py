@@ -67,11 +67,22 @@ pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
     lib_python=True,
     app_tests=True)
 
+jit_translation_args = ['-Ojit', '--gc=hybrid',
+                        '--gcrootfinder=asmgcc',
+                        '--jit-debug=steps']
+
 pypyJITTranslatedTestFactory = pypybuilds.Translated(
-    translationArgs=['-Ojit', '--gc=hybrid',
-                     '--gcrootfinder=asmgcc',
-                     '--jit-debug=steps'],
-    targetArgs = [], #'--withoutmod-thread'],
+    translationArgs=jit_translation_args,
+    targetArgs=[],
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    )
+
+pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
+    platform="win32",
+    translationArgs=jit_translation_args,
+    targetArgs=[],
     lib_python=True,
     pypyjit=True,
     app_tests=True,
@@ -191,7 +202,7 @@ BuildmasterConfig = {
                   {"name" : JITWIN32,
                    "slavenames": ["bigboard"],
                    'builddir' : JITWIN32,
-                   'factory' : pypyJITTranslatedTestFactory,
+                   'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'jit',
                    },
                   {"name": JITONLYLINUX32,
