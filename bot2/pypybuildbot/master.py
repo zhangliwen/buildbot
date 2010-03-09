@@ -44,7 +44,7 @@ status.putChild('summary', summary.Summary(['own', 'applevel',
                                             'stackless',
                                             'windows', 'mac',
                                             'benchmark-run',
-                                            'maemo', 'other']))
+                                            'other']))
 
 
 pypybuilds = load('pypybuildbot.builds')
@@ -97,9 +97,6 @@ pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
 
 pypyJITBenchmarkFactory = pypybuilds.JITBenchmark()
 
-pypyTranslatedLibPythonMaemoTestFactory = pypybuilds.TranslatedScratchbox()
-
-
 LINUX32 = "own-linux-x86-32"
 MACOSX32 =  "own-macosx-x86-32"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
@@ -115,8 +112,6 @@ JITWIN32 = "pypy-c-jit-win-x86-32"
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
-
-BUILDMAEMO = "pypy-c-maemo-build"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
@@ -175,12 +170,6 @@ BuildmasterConfig = {
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
                    "category": "windows"
                   },
-                  {"name" : BUILDMAEMO,
-                   "slavenames": ['bigdogvm1'],
-                   "builddir" : BUILDMAEMO,
-                   "factory": pypyTranslatedLibPythonMaemoTestFactory,
-                   "category": 'maemo'
-                   },
                   {"name" : APPLVLFREEBSD64,
                    "slavenames": ['headless'],
                    'builddir' : APPLVLFREEBSD64,
