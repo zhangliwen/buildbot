@@ -127,6 +127,18 @@ class JITBenchmark(factory.BuildFactory):
             command=['svn', 'co', 'http://codespeak.net/svn/pypy/benchmarks',
                      'benchmarks'],
             workdir='.'))
+
+        self.addStep(ShellCmd(
+            description="run benchmarks on top of python with psyco",
+            command=["python", "runner.py", '--output-filename', 'result.json',
+                    '--pypy-c', 'psyco/python_with_psyco.sh',
+                     '--revision', WithProperties('%(got_revision)s'),
+                     '--upload', '--force-host', 'bigdog',
+                     '--branch', WithProperties('%(branch)s'),
+                     ],
+            workdir='./benchmarks',
+            haltOnFailure=True))
+
         self.addStep(Translate(['-Ojit'], []))
         self.addStep(ShellCmd(
             description="run more benchmarks on top of pypy-c-jit",
@@ -157,16 +169,7 @@ class JITBenchmark(factory.BuildFactory):
                                          masterdest=WithProperties(resfile),
                                          workdir="."))
 
-        self.addStep(ShellCmd(
-            description="run benchmarks on top of python with psyco",
-            command=["python", "runner.py", '--output-filename', 'result.json',
-                    '--pypy-c', 'psyco/python_with_psyco.sh',
-                     '--revision', WithProperties('%(got_revision)s'),
-                     '--upload', '--force-host', 'bigdog',
-                     '--branch', WithProperties('%(branch)s'),
-                     ],
-            workdir='./benchmarks',
-            haltOnFailure=True))
+
 
         self.addStep(ShellCmd(
             description="run benchmarks 1",
