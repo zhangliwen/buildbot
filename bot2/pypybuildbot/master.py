@@ -125,7 +125,7 @@ BuildmasterConfig = {
                             MACOSX32],
                 hour=4, minute=45),
         Nightly("nightly-benchmark", [JITBENCH],
-                hour=2, minute=25),
+                hour=6, minute=15),
     ],
     'status': [status],
 
