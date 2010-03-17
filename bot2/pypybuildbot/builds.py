@@ -109,10 +109,16 @@ class Translated(factory.BuildFactory):
                 logfiles={'pytestLog': 'cpython.log'}))
 
         if pypyjit:
+            # upload nightly build, if we're running jit tests
+            nightly = 'nightly/pypy-c-jit-%(got_revision)s-' + platform
+            pypy_c_rel = 'pypy/translator/goal/pypy-c'
+            self.addStep(transfer.FileUpload(slavesrc=pypy_c_rel,
+                                             masterdest=WithProperties(nightly),
+                                             workdir='.'))
             self.addStep(ShellCmd(
                 description="pypyjit tests",
                 command=["python", "pypy/test_all.py",
-                         "--pypy=pypy/translator/goal/pypy-c",
+                         "--pypy=" + pypy_c_rel,
                          "--resultlog=pypyjit.log",
                          "pypy/module/pypyjit/test"],
                 logfiles={'pytestLog': 'pypyjit.log'}))            
@@ -128,10 +134,11 @@ class JITBenchmark(factory.BuildFactory):
                      'benchmarks'],
             workdir='.'))
         self.addStep(Translate(['-Ojit'], []))
+        pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
         self.addStep(ShellCmd(
             description="run more benchmarks on top of pypy-c-jit",
             command=["python", "runner.py", '--output-filename', 'result.json',
-                    '--pypy-c', '../build/pypy/translator/goal/pypy-c',
+                    '--pypy-c', pypy_c_rel,
                      '--upload', '--force-host', 'bigdog',
                      '--revision', WithProperties('%(got_revision)s'),
                      '--branch', WithProperties('%(branch)s')],
