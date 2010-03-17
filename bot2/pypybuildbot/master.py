@@ -80,7 +80,7 @@ pypyJITTranslatedTestFactory = pypybuilds.Translated(
     )
 
 pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
-    platform='osx'
+    platform='osx',
     translationArgs=jit_translation_args,
     targetArgs=[],
     lib_python=True,
