@@ -110,7 +110,7 @@ class Translated(factory.BuildFactory):
 
         if pypyjit:
             # upload nightly build, if we're running jit tests
-            nightly = 'nightly/pypy-c-jit-%(got_revision)s-' + platform
+            nightly = os.path.expanduser('~/nightly/pypy-c-jit-%(got_revision)s-' + platform)
             pypy_c_rel = 'build/pypy/translator/goal/pypy-c'
             self.addStep(transfer.FileUpload(slavesrc=pypy_c_rel,
                                              masterdest=WithProperties(nightly),
