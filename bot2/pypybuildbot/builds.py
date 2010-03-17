@@ -111,14 +111,14 @@ class Translated(factory.BuildFactory):
         if pypyjit:
             # upload nightly build, if we're running jit tests
             nightly = 'nightly/pypy-c-jit-%(got_revision)s-' + platform
-            pypy_c_rel = 'pypy/translator/goal/pypy-c'
+            pypy_c_rel = 'build/pypy/translator/goal/pypy-c'
             self.addStep(transfer.FileUpload(slavesrc=pypy_c_rel,
                                              masterdest=WithProperties(nightly),
                                              workdir='.'))
             self.addStep(ShellCmd(
                 description="pypyjit tests",
                 command=["python", "pypy/test_all.py",
-                         "--pypy=" + pypy_c_rel,
+                         "--pypy=pypy/translator/goal/pypy-c",
                          "--resultlog=pypyjit.log",
                          "pypy/module/pypyjit/test"],
                 logfiles={'pytestLog': 'pypyjit.log'}))            
