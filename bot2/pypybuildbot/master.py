@@ -2,7 +2,7 @@ from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
 from buildbot.process.builder import Builder
-from twisted.web.static import DirectoryLister
+from twisted.web.woven.dirlist import DirectoryLister
 
 # I really wanted to pass logPath to Site
 from twisted.web.server import Site
