@@ -146,7 +146,7 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": LINUX32,
-                   "slavenames": ["cobra", "bigdogvm1"],
+                   "slavenames": ["cobra", "bigdogvm1", "tannit"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory,
                    "category": 'own'
@@ -158,19 +158,19 @@ BuildmasterConfig = {
                    "category": 'mac'
                   },                  
                   {"name": APPLVLLINUX32,
-                   "slavenames": ["bigdogvm1"],
+                   "slavenames": ["bigdogvm1", "tannit"],
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
                    'category': 'applevel'
                   },
                   {"name": STACKLESSAPPLVLLINUX32,
-                   "slavenames": ["bigdogvm1"],
+                   "slavenames": ["bigdogvm1", "tannit"],
                    "builddir": STACKLESSAPPLVLLINUX32,
                    "factory": pypyStacklessTranslatedAppLevelTestFactory,
                    "category": 'stackless'
                   },
                   {"name": OJITLINUX32,
-                   "slavenames": ["bigdogvm1"],
+                   "slavenames": ["bigdogvm1", "tannit"],
                    "builddir": OJITLINUX32,
                    "factory": pypy_OjitTranslatedTestFactory,
                    "category": 'applevel'
@@ -188,7 +188,7 @@ BuildmasterConfig = {
                    "category": 'other'
                    },
                   {"name" : JITLINUX32,
-                   "slavenames": ["bigdogvm1"],
+                   "slavenames": ["bigdogvm1", "tannit"],
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'jit',
@@ -206,7 +206,7 @@ BuildmasterConfig = {
                    'category' : 'jit',
                    },
                   {"name": JITONLYLINUX32,
-                   "slavenames": ["bigdogvm1"],
+                   "slavenames": ["tannit", "bigdogvm1"],
                    "builddir": JITONLYLINUX32,
                    "factory": pypyJitOnlyOwnTestFactory,
                    "category": 'own'
