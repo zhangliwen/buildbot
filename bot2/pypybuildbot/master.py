@@ -109,6 +109,7 @@ pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
 pypyJITBenchmarkFactory = pypybuilds.JITBenchmark()
 
 LINUX32 = "own-linux-x86-32"
+LINUX64 = "own-linux-x86-64"
 MACOSX32 =  "own-macosx-x86-32"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
@@ -146,11 +147,17 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": LINUX32,
-                   "slavenames": ["cobra", "bigdogvm1", "tannit"],
+                   "slavenames": ["cobra", "bigdogvm1", "tannit32"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory,
                    "category": 'own'
                   },
+		  {"name": LINUX64,
+		   "slavenames": ["tannit64"],
+		   "builddir": LINUX64,
+		   "factory": pypyOwnTestFactory,
+		   "category": 'own'
+		  },
                   {"name": MACOSX32,
                    "slavenames": ["minime"],
                    "builddir": MACOSX32,
@@ -158,19 +165,19 @@ BuildmasterConfig = {
                    "category": 'mac'
                   },                  
                   {"name": APPLVLLINUX32,
-                   "slavenames": ["bigdogvm1", "tannit"],
+                   "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
                    'category': 'applevel'
                   },
                   {"name": STACKLESSAPPLVLLINUX32,
-                   "slavenames": ["bigdogvm1", "tannit"],
+                   "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": STACKLESSAPPLVLLINUX32,
                    "factory": pypyStacklessTranslatedAppLevelTestFactory,
                    "category": 'stackless'
                   },
                   {"name": OJITLINUX32,
-                   "slavenames": ["bigdogvm1", "tannit"],
+                   "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": OJITLINUX32,
                    "factory": pypy_OjitTranslatedTestFactory,
                    "category": 'applevel'
@@ -188,7 +195,7 @@ BuildmasterConfig = {
                    "category": 'other'
                    },
                   {"name" : JITLINUX32,
-                   "slavenames": ["bigdogvm1", "tannit"],
+                   "slavenames": ["bigdogvm1", "tannit32"],
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'jit',
@@ -206,7 +213,7 @@ BuildmasterConfig = {
                    'category' : 'jit',
                    },
                   {"name": JITONLYLINUX32,
-                   "slavenames": ["tannit", "bigdogvm1"],
+                   "slavenames": ["tannit32", "bigdogvm1"],
                    "builddir": JITONLYLINUX32,
                    "factory": pypyJitOnlyOwnTestFactory,
                    "category": 'own'
