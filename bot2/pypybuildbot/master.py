@@ -156,7 +156,7 @@ BuildmasterConfig = {
 		   "slavenames": ["tannit64"],
 		   "builddir": LINUX64,
 		   "factory": pypyOwnTestFactory,
-		   "category": 'own'
+		   "category": 'own64'
 		  },
                   {"name": MACOSX32,
                    "slavenames": ["minime"],
