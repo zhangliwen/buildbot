@@ -45,8 +45,8 @@ status.putChild('summary', summary.Summary(['own', 'applevel',
                                             'windows', 'mac',
                                             'benchmark-run',
                                             'other']))
-status.site.resource.putChild('nightly', File(os.path.expanduser('~/nightly'),
-                                       defaultType='application/octet-stream'))
+status.putChild('nightly', File(os.path.expanduser('~/nightly'),
+                                defaultType='application/octet-stream'))
 
 
 pypybuilds = load('pypybuildbot.builds')
