@@ -2,7 +2,7 @@ from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
 from buildbot.process.builder import Builder
-from twisted.web.woven.dirlist import DirectoryLister
+from twisted.web.static import File
 
 # I really wanted to pass logPath to Site
 from twisted.web.server import Site
@@ -24,10 +24,10 @@ StatusResourceBuild.__init__ = my_init
 # Disabled.
 
 # Disable pinging, as it seems to deadlock the client
-from buildbot.status.web.builder import StatusResourceBuilder
-def my_ping(self, req):
-    raise Exception("pinging is disabled, as it seems to deadlock clients")
-StatusResourceBuilder.ping = my_ping
+#from buildbot.status.web.builder import StatusResourceBuilder
+#def my_ping(self, req):
+#    raise Exception("pinging is disabled, as it seems to deadlock clients")
+#StatusResourceBuilder.ping = my_ping
 # Disabled.
 
 # Picking a random slave is not really what we want;
@@ -45,8 +45,8 @@ status.putChild('summary', summary.Summary(['own', 'applevel',
                                             'windows', 'mac',
                                             'benchmark-run',
                                             'other']))
-status.putChild('nightly', DirectoryLister(os.path.expanduser('~/nightly'),
-                                           defaultType='application/octet-stream'))
+status.putChild('nightly', File(os.path.expanduser('~/nightly'),
+                                defaultType='application/octet-stream'))
 
 
 pypybuilds = load('pypybuildbot.builds')
