@@ -24,10 +24,10 @@ StatusResourceBuild.__init__ = my_init
 # Disabled.
 
 # Disable pinging, as it seems to deadlock the client
-#from buildbot.status.web.builder import StatusResourceBuilder
-#def my_ping(self, req):
-#    raise Exception("pinging is disabled, as it seems to deadlock clients")
-#StatusResourceBuilder.ping = my_ping
+from buildbot.status.web.builder import StatusResourceBuilder
+def my_ping(self, req):
+    raise Exception("pinging is disabled, as it seems to deadlock clients")
+StatusResourceBuilder.ping = my_ping
 # Disabled.
 
 # Picking a random slave is not really what we want;
