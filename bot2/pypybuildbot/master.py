@@ -112,6 +112,7 @@ LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 MACOSX32 =  "own-macosx-x86-32"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
+APPLVLLINUX64 = "pypy-c-app-level-linux-64"
 STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 
 APPLVLWIN32 = "pypy-c-app-level-win-32"
@@ -132,7 +133,7 @@ BuildmasterConfig = {
     'schedulers': [
         Nightly("nightly-first", [LINUX32, LINUX64],
                 hour=4, minute=44),
-        Nightly("nightly", [APPLVLLINUX32, APPLVLWIN32,
+        Nightly("nightly", [APPLVLLINUX32, APPLVLLINUX64, APPLVLWIN32,
                             STACKLESSAPPLVLLINUX32, JITLINUX32, OJITLINUX32,
                             MACOSX32],
                 hour=4, minute=45),
@@ -169,6 +170,12 @@ BuildmasterConfig = {
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
                    'category': 'applevel'
+                  },
+                  {"name": APPLVLLINUX64,
+                   "slavenames": ["tannit64"],
+                   "builddir": APPLVLLINUX64,
+                   "factory": pypyTranslatedAppLevelTestFactory,
+                   "category": "applevel"
                   },
                   {"name": STACKLESSAPPLVLLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
