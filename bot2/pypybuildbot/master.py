@@ -175,7 +175,7 @@ BuildmasterConfig = {
                    "slavenames": ["tannit64"],
                    "builddir": APPLVLLINUX64,
                    "factory": pypyTranslatedAppLevelTestFactory,
-                   "category": "applevel"
+                   "category": "applevel64"
                   },
                   {"name": STACKLESSAPPLVLLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
