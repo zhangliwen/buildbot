@@ -226,7 +226,7 @@ BuildmasterConfig = {
                    "category": 'own'
                   },
                   {"name": JITBENCH,
-                   "slavenames": ["bigdogvm2"],
+                   "slavenames": ["tannit32"],
                    "builddir": JITBENCH,
                    "factory": pypyJITBenchmarkFactory,
                    "category": 'benchmark-run',
