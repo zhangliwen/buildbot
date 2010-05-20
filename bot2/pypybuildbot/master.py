@@ -199,7 +199,7 @@ BuildmasterConfig = {
                   {"name" : STACKLESSAPPLVLFREEBSD64,
                    "slavenames": ['headless'],
                    'builddir' : STACKLESSAPPLVLFREEBSD64,
-                   'factory' : pypyTranslatedAppLevelTestFactory,
+                   'factory' : pypyStacklessTranslatedAppLevelTestFactory,
                    "category": 'other'
                    },
                   {"name" : JITLINUX32,
