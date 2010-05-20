@@ -116,7 +116,7 @@ APPLVLLINUX64 = "pypy-c-app-level-linux-64"
 STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 
 APPLVLWIN32 = "pypy-c-app-level-win-32"
-APPLVLFREEBSD64 = 'pypy-c-app-level-freebsd-7-x86-64'
+STACKLESSAPPLVLFREEBSD64 = 'pypy-c-stackless-app-level-freebsd-7-x86-64'
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 OJITLINUX32 = "pypy-c-Ojit-no-jit-linux-x86-32"
@@ -134,7 +134,8 @@ BuildmasterConfig = {
         Nightly("nightly-first", [LINUX32, LINUX64],
                 hour=4, minute=44),
         Nightly("nightly", [APPLVLLINUX32, APPLVLLINUX64, APPLVLWIN32,
-                            STACKLESSAPPLVLLINUX32, JITLINUX32, OJITLINUX32,
+                            STACKLESSAPPLVLLINUX32, STACKLESSAPPLVLFREEBSD64,
+                            JITLINUX32, OJITLINUX32,
                             MACOSX32],
                 hour=4, minute=45),
         Nightly("nightly-benchmark", [JITBENCH],
@@ -195,9 +196,9 @@ BuildmasterConfig = {
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
                    "category": "windows"
                   },
-                  {"name" : APPLVLFREEBSD64,
+                  {"name" : STACKLESSAPPLVLFREEBSD64,
                    "slavenames": ['headless'],
-                   'builddir' : APPLVLFREEBSD64,
+                   'builddir' : STACKLESSAPPLVLFREEBSD64,
                    'factory' : pypyTranslatedAppLevelTestFactory,
                    "category": 'other'
                    },
