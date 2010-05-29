@@ -110,15 +110,6 @@ class Translated(factory.BuildFactory):
 
         if pypyjit:
             # upload nightly build, if we're running jit tests
-            nightly = os.path.expanduser('~/nightly/pypy-c-jit-%(got_revision)s-' + platform + '.bz2')
-            self.addStep(ShellCmd(
-                description="compress pypy-c",
-                command=["bzip2", "-kf", "pypy/translator/goal/pypy-c"]))
-            pypy_c_rel = 'build/pypy/translator/goal/pypy-c.bz2'
-            self.addStep(transfer.FileUpload(slavesrc=pypy_c_rel,
-                                             masterdest=WithProperties(nightly),
-                                             workdir='.',
-                                             blocksize=100*1024))
             self.addStep(ShellCmd(
                 description="pypyjit tests",
                 command=["python", "pypy/test_all.py",
@@ -126,6 +117,22 @@ class Translated(factory.BuildFactory):
                          "--resultlog=pypyjit.log",
                          "pypy/module/pypyjit/test"],
                 logfiles={'pytestLog': 'pypyjit.log'}))            
+        self.addStep(ShellCmd(
+            description="compress pypy-c",
+            command=["bzip2", "-kf", "pypy/translator/goal/pypy-c"]))
+        if pypyjit:
+            kind = 'jit'
+        else:
+            if '--stackless' in translationArgs:
+                kind = 'stackless'
+            else:
+                kind = 'nojit'
+        nightly = os.path.expanduser('~/nightly/pypy-c-' + kind + '-%(got_revision)s-' + platform + '.bz2')        
+        pypy_c_rel = 'build/pypy/translator/goal/pypy-c.bz2'
+        self.addStep(transfer.FileUpload(slavesrc=pypy_c_rel,
+                                         masterdest=WithProperties(nightly),
+                                         workdir='.',
+                                         blocksize=100*1024))
 
 
 class JITBenchmark(factory.BuildFactory):
