@@ -116,7 +116,7 @@ class Translated(factory.BuildFactory):
                          "--pypy=pypy/translator/goal/pypy-c",
                          "--resultlog=pypyjit.log",
                          "pypy/module/pypyjit/test"],
-                logfiles={'pytestLog': 'pypyjit.log'}))            
+                logfiles={'pytestLog': 'pypyjit.log'}))
         self.addStep(ShellCmd(
             description="compress pypy-c",
             command=["bzip2", "-kf", "pypy/translator/goal/pypy-c"]))
@@ -147,7 +147,7 @@ class JITBenchmark(factory.BuildFactory):
         self.addStep(Translate(['-Ojit'], []))
         pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
         self.addStep(ShellCmd(
-            description="run more benchmarks on top of pypy-c-jit",
+            description="run benchmarks on top of pypy-c-jit",
             command=["python", "runner.py", '--output-filename', 'result.json',
                     '--pypy-c', pypy_c_rel,
                      '--upload', '--force-host', 'bigdog',
@@ -161,7 +161,7 @@ class JITBenchmark(factory.BuildFactory):
                                          masterdest=WithProperties(resfile),
                                          workdir="."))
         self.addStep(ShellCmd(
-            description="run more benchmarks on top of pypy-c no jit",
+            description="run benchmarks on top of pypy-c no jit",
             command=["python", "runner.py", '--output-filename', 'result.json',
                     '--pypy-c', '../build/pypy/translator/goal/pypy-c',
                      '--revision', WithProperties('%(got_revision)s'),
@@ -176,7 +176,7 @@ class JITBenchmark(factory.BuildFactory):
                                          workdir="."))
 
         self.addStep(ShellCmd(
-            description="run benchmarks on top of python with psyco",
+            description="run on top of python with psyco",
             command=["python", "runner.py", '--output-filename', 'result.json',
                     '--pypy-c', 'psyco/python_with_psyco.sh',
                      '--revision', WithProperties('%(got_revision)s'),
@@ -185,8 +185,3 @@ class JITBenchmark(factory.BuildFactory):
                      ],
             workdir='./benchmarks',
             haltOnFailure=True))
-
-        self.addStep(ShellCmd(
-            description="run benchmarks 1",
-            command=["python", "pypy/translator/benchmark/jitbench.py",
-                     "pypy/translator/goal/pypy-c"]))
