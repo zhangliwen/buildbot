@@ -1,5 +1,5 @@
 from buildbot.process import factory
-from buildbot.steps import source, shell, transfer
+from buildbot.steps import source, shell, transfer, master
 from buildbot.status.builder import SUCCESS
 from buildbot.process.properties import WithProperties
 import os
@@ -12,6 +12,21 @@ class ShellCmd(shell.ShellCommand):
             return self.describe(True) + ['aborted']
         return shell.ShellCommand.getText(self, cmd, results)
 
+class PyPyUpload(transfer.FileUpload):
+    parms = transfer.FileUpload.parms + ['basename']
+    
+    def start(self):
+        properties = self.build.getProperties()
+        branch = properties['branch']
+        if branch is None:
+            branch = 'trunk'
+        masterdest = properties.render(self.masterdest)
+        masterdest = os.path.expanduser(masterdest)
+        masterdest = os.path.join(masterdest, branch)
+        os.makedirs(masterdest)
+        masterdest = os.path.join(masterdest, self.basename)
+        self.masterdest = masterdest
+        transfer.FileUpload.start(self)
 
 class Translate(ShellCmd):
     name = "translate"
@@ -127,12 +142,14 @@ class Translated(factory.BuildFactory):
                 kind = 'stackless'
             else:
                 kind = 'nojit'
-        nightly = os.path.expanduser('~/nightly/pypy-c-' + kind + '-%(got_revision)s-' + platform + '.bz2')        
+        nightly = '~/nightly/'
+        name = 'pypy-c-' + kind + '-%(got_revision)s-' + platform + '.bz2'
         pypy_c_rel = 'build/pypy/translator/goal/pypy-c.bz2'
-        self.addStep(transfer.FileUpload(slavesrc=pypy_c_rel,
-                                         masterdest=WithProperties(nightly),
-                                         workdir='.',
-                                         blocksize=100*1024))
+        self.addStep(PyPyUpload(slavesrc=pypy_c_rel,
+                                masterdest=WithProperties(nightly),
+                                basename=name,
+                                workdir='.',
+                                blocksize=100*1024))
 
 
 class JITBenchmark(factory.BuildFactory):
