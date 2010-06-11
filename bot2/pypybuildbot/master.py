@@ -57,6 +57,9 @@ pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 
 pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
                                                           app_tests=True)
+pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
+                                                            app_tests=True,
+                                                            platform='linux64')
 
 pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.Translated(
     translationArgs=["-O2", "--stackless"], targetArgs=[],
@@ -175,7 +178,7 @@ BuildmasterConfig = {
                   {"name": APPLVLLINUX64,
                    "slavenames": ["tannit64"],
                    "builddir": APPLVLLINUX64,
-                   "factory": pypyTranslatedAppLevelTestFactory,
+                   "factory": pypyTranslatedAppLevelTestFactory64,
                    "category": "applevel64"
                   },
                   {"name": STACKLESSAPPLVLLINUX32,
