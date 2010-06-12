@@ -134,17 +134,10 @@ class Translated(factory.BuildFactory):
                          "--resultlog=pypyjit.log",
                          "pypy/module/pypyjit/test"],
                 logfiles={'pytestLog': 'pypyjit.log'}))
-        if platform != 'win32':
-            self.addStep(ShellCmd(
-                description="compress pypy-c",
-                command=["bzip2", "-kf", "pypy/translator/goal/pypy-c"]))
-        else:
-            self.addStep(ShellCmd(
-                description="compress pypy-c",
-                command=["python", "-c", "from bz2 import BZ2File; "
-                         "BZ2File('pypy/translator/goal/pypy-c.bz2', 'w')"
-                         ".write(open('pypy/translator/goal/pypy-c.exe'"
-                         ", 'rb').read())"]))
+        self.addStep(ShellCmd(
+            description="compress pypy-c",
+            command=["python", "pack.py"],
+            workdir='build/pypy/tool'))
         if pypyjit:
             kind = 'jit'
         else:
