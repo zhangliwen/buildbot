@@ -147,13 +147,12 @@ class Translated(factory.BuildFactory):
                 kind = 'nojit'
         nightly = '~/nightly/'
         name = 'pypy-c-' + kind + '-%(got_revision)s-' + platform + '.bz2'
-        pypy_c_rel = 'build/pypy/translator/goal/pypy-c.bz2'
+        pypy_c_rel = 'build/pypy/translator/goal/pypy-c.tar.bz2'
         self.addStep(PyPyUpload(slavesrc=pypy_c_rel,
                                 masterdest=WithProperties(nightly),
                                 basename=name,
                                 workdir='.',
                                 blocksize=100*1024))
-
 
 class JITBenchmark(factory.BuildFactory):
     def __init__(self, platform='linux'):
