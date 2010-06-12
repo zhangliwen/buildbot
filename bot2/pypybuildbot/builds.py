@@ -25,7 +25,8 @@ class PyPyUpload(transfer.FileUpload):
         masterdest = os.path.join(masterdest, branch)
         if not os.path.exists(masterdest):
             os.makedirs(masterdest)
-        masterdest = os.path.join(masterdest, self.basename)
+        basename = WithProperties(self.basename).render(properties)
+        masterdest = os.path.join(masterdest, basename)
         self.masterdest = masterdest
         transfer.FileUpload.start(self)
 

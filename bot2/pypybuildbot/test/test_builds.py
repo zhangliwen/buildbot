@@ -5,6 +5,8 @@ class FakeProperties(object):
     def __getitem__(self, item):
         if item == 'branch':
             return None
+        if item == 'got_revision':
+            return 123
     
     def render(self, x):
         return x
@@ -48,7 +50,7 @@ def test_Translate():
 def test_pypy_upload():
     pth = py.test.ensuretemp('buildbot')
     inst = builds.PyPyUpload(slavesrc='slavesrc', masterdest=str(pth.join('mstr')),
-                             basename='base', workdir='.',
+                             basename='base-%(got_revision)s', workdir='.',
                              blocksize=100)
     factory, kw = inst.factory
     rebuilt = factory(**kw)
@@ -57,3 +59,4 @@ def test_pypy_upload():
     rebuilt.runCommand = lambda *args: FakeDeferred()
     rebuilt.start()
     assert pth.join('mstr').check(dir=True)
+    assert rebuilt.masterdest == str(pth.join('mstr', 'trunk', 'base-123'))
