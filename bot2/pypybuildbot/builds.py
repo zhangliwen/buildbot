@@ -137,7 +137,7 @@ class Translated(factory.BuildFactory):
         self.addStep(ShellCmd(
             description="compress pypy-c",
             command=["python", "pack.py"],
-            workdir='build/pypy/tool'))
+            workdir='build/pypy/tool/release'))
         if pypyjit:
             kind = 'jit'
         else:
