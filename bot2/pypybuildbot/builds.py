@@ -146,7 +146,7 @@ class Translated(factory.BuildFactory):
             else:
                 kind = 'nojit'
         nightly = '~/nightly/'
-        name = 'pypy-c-' + kind + '-%(got_revision)s-' + platform + '.bz2'
+        name = 'pypy-c-' + kind + '-%(got_revision)s-' + platform + '.tar.bz2'
         pypy_c_rel = 'build/pypy/translator/goal/pypy-c.tar.bz2'
         self.addStep(PyPyUpload(slavesrc=pypy_c_rel,
                                 masterdest=WithProperties(nightly),
