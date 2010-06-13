@@ -22,6 +22,9 @@ class PyPyUpload(transfer.FileUpload):
             branch = 'trunk'
         masterdest = properties.render(self.masterdest)
         masterdest = os.path.expanduser(masterdest)
+        if branch.startswith('/'):
+            branch = branch[1:]
+        # workaround for os.path.join
         masterdest = os.path.join(masterdest, branch)
         if not os.path.exists(masterdest):
             os.makedirs(masterdest)
