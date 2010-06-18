@@ -152,7 +152,7 @@ class Translated(factory.BuildFactory):
             workdir='build'))
         nightly = '~/nightly/'
         pypy_c_rel = "build/" + name + ".tar.bz2"
-        self.addStep(PyPyUpload(slavesrc=pypy_c_rel,
+        self.addStep(PyPyUpload(slavesrc=WithProperties(pypy_c_rel),
                                 masterdest=WithProperties(nightly),
                                 basename=name + ".tar.bz2",
                                 workdir='.',
