@@ -129,7 +129,7 @@ class Translated(factory.BuildFactory):
                 logfiles={'pytestLog': 'cpython.log'}))
 
         if pypyjit:
-            upload nightly build, if we're running jit tests
+            # upload nightly build, if we're running jit tests
             self.addStep(ShellCmd(
                 description="pypyjit tests",
                 command=["python", "pypy/test_all.py",
