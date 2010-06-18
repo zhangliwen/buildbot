@@ -148,7 +148,8 @@ class Translated(factory.BuildFactory):
         self.addStep(ShellCmd(
             description="compress pypy-c",
             command=["python", "pypy/tool/release/package.py",
-                     ".", WithProperties(name)],
+                     ".", WithProperties(name), 'pypy',
+                     '.'],
             workdir='build'))
         nightly = '~/nightly/'
         pypy_c_rel = "build/" + name + ".tar.bz2"
