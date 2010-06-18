@@ -106,37 +106,37 @@ class Translated(factory.BuildFactory):
 
         self.addStep(Translate(translationArgs, targetArgs))
 
-        if app_tests:
-            if app_tests == True:
-                app_tests = []
-            self.addStep(ShellCmd(
-                description="app-level (-A) test",
-                command=["python", "testrunner/runner.py",
-                         "--logfile=pytest-A.log",
-                         "--config=pypy/pytest-A.cfg",
-                         "--root=pypy", "--timeout=1800"
-                         ] + ["--config=%s" % cfg for cfg in app_tests],
-                logfiles={'pytestLog': 'pytest-A.log'},
-                timeout = 4000,
-                env={"PYTHONPATH": ['.']}))
+        # if app_tests:
+        #     if app_tests == True:
+        #         app_tests = []
+        #     self.addStep(ShellCmd(
+        #         description="app-level (-A) test",
+        #         command=["python", "testrunner/runner.py",
+        #                  "--logfile=pytest-A.log",
+        #                  "--config=pypy/pytest-A.cfg",
+        #                  "--root=pypy", "--timeout=1800"
+        #                  ] + ["--config=%s" % cfg for cfg in app_tests],
+        #         logfiles={'pytestLog': 'pytest-A.log'},
+        #         timeout = 4000,
+        #         env={"PYTHONPATH": ['.']}))
 
-        if lib_python:
-            self.addStep(ShellCmd(
-                description="lib-python test",
-                command=["python", "pypy/test_all.py",
-                         "--pypy=pypy/translator/goal/pypy-c",
-                         "--resultlog=cpython.log", "lib-python"],           
-                logfiles={'pytestLog': 'cpython.log'}))
+        # if lib_python:
+        #     self.addStep(ShellCmd(
+        #         description="lib-python test",
+        #         command=["python", "pypy/test_all.py",
+        #                  "--pypy=pypy/translator/goal/pypy-c",
+        #                  "--resultlog=cpython.log", "lib-python"],           
+        #         logfiles={'pytestLog': 'cpython.log'}))
 
-        if pypyjit:
-            # upload nightly build, if we're running jit tests
-            self.addStep(ShellCmd(
-                description="pypyjit tests",
-                command=["python", "pypy/test_all.py",
-                         "--pypy=pypy/translator/goal/pypy-c",
-                         "--resultlog=pypyjit.log",
-                         "pypy/module/pypyjit/test"],
-                logfiles={'pytestLog': 'pypyjit.log'}))
+        # if pypyjit:
+        #     # upload nightly build, if we're running jit tests
+        #     self.addStep(ShellCmd(
+        #         description="pypyjit tests",
+        #         command=["python", "pypy/test_all.py",
+        #                  "--pypy=pypy/translator/goal/pypy-c",
+        #                  "--resultlog=pypyjit.log",
+        #                  "pypy/module/pypyjit/test"],
+        #         logfiles={'pytestLog': 'pypyjit.log'}))
         if pypyjit:
             kind = 'jit'
         else:
