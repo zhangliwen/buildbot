@@ -50,9 +50,9 @@ class Translate(ShellCmd):
         kw['timeout'] = 3600
         ShellCmd.__init__(self, workdir, *a, **kw)
         self.addFactoryArguments(**add_args)
-        self.command = (self.command + translationArgs +
-                        [self.translationTarget] + targetArgs)
-        #self.command = ['cp', '/tmp/pypy-c', '.']
+        #self.command = (self.command + translationArgs +
+        #                [self.translationTarget] + targetArgs)
+        self.command = ['cp', '/tmp/pypy-c', '.']
 
 # ________________________________________________________________
 
@@ -137,10 +137,6 @@ class Translated(factory.BuildFactory):
                          "--resultlog=pypyjit.log",
                          "pypy/module/pypyjit/test"],
                 logfiles={'pytestLog': 'pypyjit.log'}))
-        self.addStep(ShellCmd(
-            description="compress pypy-c",
-            command=["python", "pack.py"],
-            workdir='build/pypy/tool/release'))
         if pypyjit:
             kind = 'jit'
         else:
@@ -148,12 +144,17 @@ class Translated(factory.BuildFactory):
                 kind = 'stackless'
             else:
                 kind = 'nojit'
+        name = 'pypy-c-' + kind + '-%(got_revision)s-' + platform
+        self.addStep(ShellCmd(
+            description="compress pypy-c",
+            command=["python", "pypy/tool/release/package.py",
+                     ".", WithProperties(name)],
+            workdir='build'))
         nightly = '~/nightly/'
-        name = 'pypy-c-' + kind + '-%(got_revision)s-' + platform + '.tar.bz2'
-        pypy_c_rel = 'build/pypy/translator/goal/pypy-c.tar.bz2'
+        pypy_c_rel = "build/" + name + ".tar.bz2"
         self.addStep(PyPyUpload(slavesrc=pypy_c_rel,
                                 masterdest=WithProperties(nightly),
-                                basename=name,
+                                basename=name + ".tar.bz2",
                                 workdir='.',
                                 blocksize=100*1024))
 
