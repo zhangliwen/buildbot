@@ -73,8 +73,7 @@ pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
     app_tests=True)
 
 jit_translation_args = ['-Ojit', '--gc=hybrid',
-                        '--gcrootfinder=asmgcc',
-                        '--jit-debug=steps']
+                        '--gcrootfinder=asmgcc']
 
 pypyJITTranslatedTestFactory = pypybuilds.Translated(
     translationArgs=jit_translation_args,
