@@ -23,7 +23,7 @@ def parsename(name):
     except ValueError:
         return '', name
     else:
-        return rev, PLATFORMS.get(platform, -1), FEATURES.get(features, -1), name
+        return rev, FEATURES.get(features, -1), PLATFORMS.get(platform, -1), name
 
 class PyPyList(File):
 
@@ -33,4 +33,3 @@ class PyPyList(File):
         items.sort()
         items.reverse()
         return [item[-1] for item in items]
-
