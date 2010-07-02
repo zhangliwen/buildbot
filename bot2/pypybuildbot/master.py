@@ -2,7 +2,7 @@ from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
 from buildbot.process.builder import Builder
-from twisted.web.static import File
+from pypybuildbot.pypylist import PyPyList
 
 # I really wanted to pass logPath to Site
 from twisted.web.server import Site
@@ -45,8 +45,8 @@ status.putChild('summary', summary.Summary(['own', 'applevel',
                                             'windows', 'mac',
                                             'benchmark-run',
                                             'other']))
-status.putChild('nightly', File(os.path.expanduser('~/nightly'),
-                                defaultType='application/octet-stream'))
+status.putChild('nightly', PyPyList(os.path.expanduser('~/nightly'),
+                                    defaultType='application/octet-stream'))
 
 
 pypybuilds = load('pypybuildbot.builds')
