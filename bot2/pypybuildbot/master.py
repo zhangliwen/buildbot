@@ -72,8 +72,7 @@ pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
     lib_python=True,
     app_tests=True)
 
-jit_translation_args = ['-Ojit', '--gc=hybrid',
-                        '--gcrootfinder=asmgcc']
+jit_translation_args = ['-Ojit']
 
 pypyJITTranslatedTestFactory = pypybuilds.Translated(
     translationArgs=jit_translation_args,
@@ -121,6 +120,7 @@ APPLVLWIN32 = "pypy-c-app-level-win-32"
 STACKLESSAPPLVLFREEBSD64 = 'pypy-c-stackless-app-level-freebsd-7-x86-64'
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
+JITLINUX64 = "pypy-c-jit-linux-x86-64"
 OJITLINUX32 = "pypy-c-Ojit-no-jit-linux-x86-32"
 JITMACOSX32 = "pypy-c-jit-macosx-x86-32"
 JITWIN32 = "pypy-c-jit-win-x86-32"
@@ -210,6 +210,12 @@ BuildmasterConfig = {
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'jit',
                    },
+                  {'name': JITLINUX64,
+                   'slavenames': ['tannit64'],
+                   'builddir': JITLINUX64,
+                   'factory': pypyJITTranslatedTestFactory,
+                   'category': 'jit',
+                  },
                   {"name" : JITMACOSX32,
                    "slavenames": ["minime"],
                    'builddir' : JITMACOSX32,
