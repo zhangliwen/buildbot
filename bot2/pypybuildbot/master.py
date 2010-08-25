@@ -133,9 +133,9 @@ BuildmasterConfig = {
 
     'change_source': [],
     'schedulers': [
-        Nightly("nightly-1-00", [
+        Nightly("nightly-0-45", [
             JITBENCH,  # on tannit -- nothing else there during first round!
-            ], hour=1, minute=0),
+            ], hour=0, minute=45),
         Nightly("nightly-4-00", [
             # rule: what we pick here on tannit should take at most 8 cores
             # and be hopefully finished after 2 hours 50 minutes
