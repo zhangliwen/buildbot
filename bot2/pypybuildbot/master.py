@@ -133,15 +133,27 @@ BuildmasterConfig = {
 
     'change_source': [],
     'schedulers': [
-        Nightly("nightly-first", [LINUX32, LINUX64],
-                hour=4, minute=44),
-        Nightly("nightly", [APPLVLLINUX32, APPLVLLINUX64, APPLVLWIN32,
-                            STACKLESSAPPLVLLINUX32, STACKLESSAPPLVLFREEBSD64,
-                            JITLINUX32, OJITLINUX32,
-                            MACOSX32],
-                hour=4, minute=45),
-        Nightly("nightly-benchmark", [JITBENCH],
-                hour=6, minute=15),
+        Nightly("nightly-1-00", [
+            JITBENCH,  # on tannit -- nothing else there during first round!
+            ], hour=1, minute=0),
+        Nightly("nightly-4-00", [
+            # rule: what we pick here on tannit should take at most 8 cores
+            # and be hopefully finished after 2 hours 50 minutes
+            LINUX32,                   # on tannit32, uses 4 cores
+            JITLINUX32,                # on tannit32, uses 1 core
+            OJITLINUX32,               # on tannit32, uses 1 core
+            MACOSX32,                  # on minime
+            APPLVLWIN32,               # on bigboard
+            STACKLESSAPPLVLFREEBSD64,  # on headless
+            ], hour=4, minute=0),
+        Nightly("nightly-6-50", [
+            # the remaining stuff on tannit, which should also take at most
+            # 8 cores
+            LINUX64,                 # on tannit64, uses 4 cores
+            APPLVLLINUX32,           # on tannit32, uses 1 core
+            APPLVLLINUX64,           # on tannit64, uses 1 core
+            STACKLESSAPPLVLLINUX32,  # on tannit32, uses 1 core
+            ], hour=6, minute=50),
     ],
     'status': [status],
 
