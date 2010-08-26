@@ -199,13 +199,13 @@ class JITBenchmark(factory.BuildFactory):
                                          masterdest=WithProperties(resfile),
                                          workdir="."))
 
-        self.addStep(ShellCmd(
-            description="run on top of python with psyco",
-            command=["python", "runner.py", '--output-filename', 'result.json',
-                    '--pypy-c', 'psyco/python_with_psyco.sh',
-                     '--revision', WithProperties('%(got_revision)s'),
-                     '--upload', #'--force-host', 'bigdog',
-                     '--branch', WithProperties('%(branch)s'),
-                     ],
-            workdir='./benchmarks',
-            haltOnFailure=True))
+##        self.addStep(ShellCmd(
+##            description="run on top of python with psyco",
+##            command=["python", "runner.py", '--output-filename', 'result.json',
+##                    '--pypy-c', 'psyco/python_with_psyco.sh',
+##                     '--revision', WithProperties('%(got_revision)s'),
+##                     '--upload', #'--force-host', 'bigdog',
+##                     '--branch', WithProperties('%(branch)s'),
+##                     ],
+##            workdir='./benchmarks',
+##            haltOnFailure=True))
