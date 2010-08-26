@@ -138,7 +138,7 @@ BuildmasterConfig = {
             ], hour=0, minute=45),
         Nightly("nightly-4-00", [
             # rule: what we pick here on tannit should take at most 8 cores
-            # and be hopefully finished after 2 hours 50 minutes
+            # and be hopefully finished after 2 hours
             LINUX32,                   # on tannit32, uses 4 cores
             JITLINUX32,                # on tannit32, uses 1 core
             OJITLINUX32,               # on tannit32, uses 1 core
@@ -146,14 +146,17 @@ BuildmasterConfig = {
             APPLVLWIN32,               # on bigboard
             STACKLESSAPPLVLFREEBSD64,  # on headless
             ], hour=4, minute=0),
-        Nightly("nightly-6-50", [
-            # the remaining stuff on tannit, which should also take at most
-            # 8 cores
-            LINUX64,                 # on tannit64, uses 4 cores
+        Nightly("nightly-6-00", [
+            # there should be only JITLINUX32 that takes a bit longer than
+            # that.  We can use a few more cores now.
             APPLVLLINUX32,           # on tannit32, uses 1 core
             APPLVLLINUX64,           # on tannit64, uses 1 core
             STACKLESSAPPLVLLINUX32,  # on tannit32, uses 1 core
-            ], hour=6, minute=50),
+            ], hour=6, minute=0),
+        Nightly("nightly-7-00", [
+            # the remaining quickly-run stuff on tannit
+            LINUX64,                 # on tannit64, uses 4 cores
+            ], hour=7, minute=0),
     ],
     'status': [status],
 
