@@ -289,6 +289,7 @@ def test_show_elapsed():
 def _BuilderToStatus(status):
 
     setup = {'name': 'builder', 'builddir': 'BUILDDIR',
+             'slavebuilddir': 'SLAVEBUILDDIR',
              'factory': process_factory.BuildFactory() }
     return process_builder.Builder(setup, status)
 
@@ -363,7 +364,7 @@ def add_builds(builder, builds):
         step.finished = t + (n+1)*60
         t = step.finished + 30
         build.buildFinished()
-        builder.addBuildToCache(build)
+        builder.touchBuildCache(build)
         n += 1
     builder.nextBuildNumber = n
         
@@ -387,7 +388,7 @@ class TestSummary(object):
         build = status_builder.BuildStatus(builder, 0)
         build.started = time.time()
         build.buildFinished()
-        builder.addBuildToCache(build)
+        builder.touchBuildCache(build)
         builder.nextBuildNumber = len(builder.buildCache)
 
         s = summary.Summary()
@@ -404,7 +405,7 @@ class TestSummary(object):
         build.started = time.time()        
         build.setProperty('got_revision', '50000', None)
         build.buildFinished()
-        builder.addBuildToCache(build)
+        builder.touchBuildCache(build)
         builder.nextBuildNumber = len(builder.buildCache)
 
         s = summary.Summary()
@@ -430,7 +431,7 @@ class TestSummary(object):
         step1.setText(['other', 'borken'])
         step1.stepFinished(summary.FAILURE)        
         build.buildFinished()
-        builder.addBuildToCache(build)
+        builder.touchBuildCache(build)
         builder.nextBuildNumber = len(builder.buildCache)
 
         s = summary.Summary()
@@ -614,7 +615,7 @@ class TestSummary(object):
         step2.setText(["pytest2", "aborted"])
         step2.stepFinished(summary.EXCEPTION)
         build.buildFinished()
-        builder.addBuildToCache(build)
+        builder.touchBuildCache(build)
         builder.nextBuildNumber = 1
 
         s = summary.Summary()
@@ -637,7 +638,7 @@ class TestSummary(object):
         step.setText(["pytest", "failed slave lost"])
         step.stepFinished(summary.FAILURE)        
         build.buildFinished()
-        builder.addBuildToCache(build)
+        builder.touchBuildCache(build)
         builder.nextBuildNumber = 1
 
         s = summary.Summary()
