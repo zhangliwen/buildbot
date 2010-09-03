@@ -30,6 +30,47 @@ def my_ping(self, req):
 StatusResourceBuilder.ping = my_ping
 # Disabled.
 
+# Add a link from the builder page to the summary page
+def my_body(self, req):
+    data = _previous_body(self, req)
+    MARKER = 'waterfall</a>)'
+    i = data.find(MARKER)
+    if i >= 0:
+        from twisted.web import html
+        i += len(MARKER)
+        b = self.builder_status
+        url = self.path_to_root(req)+"summary?builder="+html.escape(b.getName())
+        data = '%s&nbsp;&nbsp;&nbsp;(<a href="%s">view in summary</a>)%s' % (
+            data[:i],
+            url,
+            data[i:])
+    return data
+_previous_body = StatusResourceBuilder.body
+StatusResourceBuilder.body = my_body
+# Done
+
+# Add a similar link from the build page to the summary page
+def my_body_2(self, req):
+    data = _previous_body_2(self, req)
+    MARKER = '<h2>SourceStamp'
+    i = data.find(MARKER)
+    if i >= 0:
+        from twisted.web import html
+        b = self.build_status
+        ss = b.getSourceStamp()
+        branch = ss.branch or '<trunk>'
+        builder_name = b.getBuilder().getName()
+	url = (self.path_to_root(req) + 
+	       "summary?builder=" + html.escape(builder_name) +
+	       "&branch=" + html.escape(branch))
+	data = '%s&nbsp;&nbsp;&nbsp;(<a href="%s">view in summary</a>)\n\n%s'% (
+	    data[:i],
+	    url,
+	    data[i:])
+    return data
+_previous_body_2 = StatusResourceBuild.body
+StatusResourceBuild.body = my_body_2
+
 # Picking a random slave is not really what we want;
 # let's pick the first available one instead.
 Builder.CHOOSE_SLAVES_RANDOMLY = False
