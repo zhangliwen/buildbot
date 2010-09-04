@@ -54,6 +54,19 @@ class Translate(ShellCmd):
                         [self.translationTarget] + targetArgs)
         #self.command = ['cp', '/tmp/pypy-c', '.']
 
+
+class TestRunnerCmd(ShellCmd):
+
+    def commandComplete(self, cmd):
+        from pypybuildbot.summary import RevisionOutcomeSet
+        pytestLog = cmd.logs['pytestLog']
+        outcome = RevisionOutcomeSet(None)
+        outcome.populate(pytestLog)
+        summary = outcome.get_summary()
+        build_status = self.build.build_status
+        build_status.setProperty('test_summary', summary, "TestRunnerCmd")
+        build_status.setProperty('test_description', self.description, "TestRunnerCmd")
+
 # ________________________________________________________________
 
 def setup_steps(platform, factory, workdir=None):
@@ -72,6 +85,7 @@ def setup_steps(platform, factory, workdir=None):
                                workdir=workdir))
 
 
+
 class Own(factory.BuildFactory):
 
     def __init__(self, platform='linux', cherrypick='', extra_cfgs=[]):
@@ -79,7 +93,7 @@ class Own(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(ShellCmd(
+        self.addStep(TestRunnerCmd(
             description="pytest",
             command=["python", "testrunner/runner.py",
                      "--logfile=testrun.log",
@@ -109,7 +123,7 @@ class Translated(factory.BuildFactory):
         if app_tests:
             if app_tests == True:
                 app_tests = []
-            self.addStep(ShellCmd(
+            self.addStep(TestRunnerCmd(
                 description="app-level (-A) test",
                 command=["python", "testrunner/runner.py",
                          "--logfile=pytest-A.log",

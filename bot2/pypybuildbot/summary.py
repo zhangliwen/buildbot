@@ -23,6 +23,16 @@ def show_elapsed(secs):
         return "%dm" % mins
     return "%dh%d" % (mins/60, mins%60)
 
+class OutcomeSummary(object):
+    def __init__(self, p, F, s, x):
+        self.p = p # passed
+        self.F = F # failed
+        self.s = s # skipped
+        self.x = x # xfailed
+
+    def __str__(self):
+        return '%d, %d F, %d s, %d x' % (self.p, self.F, self.s, self.x)
+
 class RevisionOutcomeSet(object):
 
     def __init__(self, rev, key=None, run_info=None):
@@ -34,6 +44,12 @@ class RevisionOutcomeSet(object):
         self._xfailed = 0
         self.longreprs = {}
         self._run_info = run_info
+
+    def get_summary(self):
+        return OutcomeSummary(self.numpassed,
+                              len(self.failed),
+                              len(self.skipped),
+                              self.numxfailed)
 
     def populate_one(self, name, shortrepr, longrepr=None):
         if shortrepr == '!':

@@ -46,6 +46,29 @@ S a/c.py:test_four
         key_namekey = rev_outcome_set.get_key_namekey(("a.c", "test_four"))
         assert key_namekey == (('foo', 40), ("a.c", "test_four"))
 
+    def test_get_summary(self):
+        rev_outcome_set = summary.RevisionOutcomeSet(None)
+
+        log = StringIO(""". a/b.py:test_one
+F a/b.py:test_two
+F a/b.py:test_three
+s a/c.py:test_four
+s a/c.py:test_five
+s a/c.py:test_six
+x a/c.py:test_seven
+x a/c.py:test_eight
+x a/c.py:test_nine
+x a/c.py:test_ten
+""")
+        
+        rev_outcome_set.populate(log)
+        sum = rev_outcome_set.get_summary()
+        assert sum.p == 1
+        assert sum.F == 2
+        assert sum.s == 3
+        assert sum.x == 4
+        assert str(sum) == '1, 2 F, 3 s, 4 x'
+
     def test_populate_from_empty(self):
         rev_outcome_set = summary.RevisionOutcomeSet(0)
         log = StringIO("")
