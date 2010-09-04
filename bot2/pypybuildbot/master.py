@@ -20,14 +20,16 @@ from buildbot.status.web.build import StatusResourceBuild
 StatusResourceBuild_init = StatusResourceBuild.__init__
 def my_init(self, build_status, build_control, builder_control):
     StatusResourceBuild_init(self, build_status, build_control, None)
-StatusResourceBuild.__init__ = my_init
+if StatusResourceBuild.__init__.__name__ == '__init__':
+    StatusResourceBuild.__init__ = my_init
 # Disabled.
 
 # Disable pinging, as it seems to deadlock the client
 from buildbot.status.web.builder import StatusResourceBuilder
 def my_ping(self, req):
     raise Exception("pinging is disabled, as it seems to deadlock clients")
-StatusResourceBuilder.ping = my_ping
+if StatusResourceBuilder.ping.__name__ == 'ping':
+    StatusResourceBuilder.ping = my_ping
 # Disabled.
 
 # Add a link from the builder page to the summary page
@@ -46,15 +48,18 @@ def my_body(self, req):
             data[i:])
     return data
 _previous_body = StatusResourceBuilder.body
-StatusResourceBuilder.body = my_body
+if _previous_body.__name__ == 'body':
+    StatusResourceBuilder.body = my_body
 # Done
 
 # Add a similar link from the build page to the summary page
 def my_body_2(self, req):
     data = _previous_body_2(self, req)
-    MARKER = '<h2>SourceStamp'
-    i = data.find(MARKER)
-    if i >= 0:
+    MARKER1 = '<h2>Results'
+    MARKER2 = '<h2>SourceStamp'
+    i1 = data.find(MARKER1)
+    i2 = data.find(MARKER2)
+    if i1 >= 0 and i2 >= 0:
         from twisted.web import html
         b = self.build_status
         ss = b.getSourceStamp()
@@ -64,12 +69,13 @@ def my_body_2(self, req):
 	       "summary?builder=" + html.escape(builder_name) +
 	       "&branch=" + html.escape(branch))
 	data = '%s&nbsp;&nbsp;&nbsp;(<a href="%s">view in summary</a>)\n\n%s'% (
-	    data[:i],
+	    data[:i2],
 	    url,
-	    data[i:])
+	    data[i2:])
     return data
 _previous_body_2 = StatusResourceBuild.body
-StatusResourceBuild.body = my_body_2
+if _previous_body_2.__name__ == 'body':
+    StatusResourceBuild.body = my_body_2
 
 # Picking a random slave is not really what we want;
 # let's pick the first available one instead.
