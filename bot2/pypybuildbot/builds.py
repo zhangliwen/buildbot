@@ -62,10 +62,17 @@ class TestRunnerCmd(ShellCmd):
         pytestLog = cmd.logs['pytestLog']
         outcome = RevisionOutcomeSet(None)
         outcome.populate(pytestLog)
-        summary = outcome.get_summary()
+        summary = outcome.get_summary()        
         build_status = self.build.build_status
-        build_status.setProperty('test_summary', summary, "TestRunnerCmd")
-        build_status.setProperty('test_description', self.description, "TestRunnerCmd")
+        builder = build_status.builder
+        if not hasattr(builder, 'summary_by_revision'):
+            builder.summary_by_revision = {}
+        try:
+            rev = build_status.getProperty('got_revision')
+        except KeyError:
+            return
+        else:
+            builder.summary_by_revision[rev] = summary
 
 # ________________________________________________________________
 
