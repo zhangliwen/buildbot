@@ -73,6 +73,7 @@ class TestRunnerCmd(ShellCmd):
             return
         else:
             builder.summary_by_revision[rev] = summary
+        builder.saveYourself()
 
 # ________________________________________________________________
 
