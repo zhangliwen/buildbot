@@ -105,6 +105,15 @@ class PyPyDirectoryLister(DirectoryLister):
 .even-failed { background-color: #ffbbbb }
 .odd-failed  { background-color: #ff9797 }
 
+.summary_link {
+    color: black;
+    text-decoration: none;
+}
+.summary_link:hover {
+    color: blue;
+    text-decoration: underline;
+}
+
 .icon { text-align: center }
 .listing {
     margin-left: auto;
@@ -146,8 +155,8 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
     <td><a href="%(href)s">%(text)s</a></td>
     <td>%(size)s</td>
     <td>%(date)s</td>
-    <td class="%(own_summary_class)s">%(own_summary)s</td>
-    <td class="%(app_summary_class)s">%(app_summary)s</td>
+    <td class="%(own_summary_class)s"><a class="summary_link" href="%(own_href)s">%(own_summary)s</a></td>
+    <td class="%(app_summary_class)s"><a class="summary_link" href="%(app_href)s">%(app_summary)s</a></td>
 </tr>
 """
 
@@ -171,20 +180,21 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
         element['date'] = date.isoformat()
         t = PyPyTarball(filename)
         own_builder, app_builder = t.get_builder_names()
-        own_summary = self._get_summary(own_builder, t.rev)
-        app_summary = self._get_summary(app_builder, t.rev)
-        element['own_summary'] = own_summary
-        element['app_summary'] = app_summary
-        element['own_summary_class'] = self._get_summary_class(own_summary, rowClass)
-        element['app_summary_class'] = self._get_summary_class(app_summary, rowClass)
+        self._add_result_for_builder(element, own_builder, 'own_', t.rev, rowClass)
+        self._add_result_for_builder(element, app_builder, 'app_', t.rev, rowClass)
 
-    def _get_summary_class(self, summary, rowClass):
-        if summary is None:
-            return rowClass
-        elif summary.is_ok():
-            return rowClass + '-passed'
+    def _add_result_for_builder(self, element, builder_name, prefix, rev, rowClass):
+        branch = self._get_branch()
+        summary, category = self._get_summary_and_category(builder_name, branch, rev)
+        if branch == 'trunk':
+            branch = '%3Ctrunk%3E' # <trunk>
+        if category:
+            href = '/summary?category=%s&branch=%s&recentrev=%s' % (category, branch, rev)
         else:
-            rowClass + '-failed'
+            href = '#'
+        element[prefix + 'summary'] = summary
+        element[prefix + 'summary_class'] = self._get_summary_class(summary, rowClass)
+        element[prefix + 'href'] = href
 
     def _get_branch(self):
         parts = self.path.split(os.path.sep)
@@ -192,17 +202,25 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
         branch = os.path.sep.join(parts[i+1:])
         return branch
 
-    def _get_summary(self, builder_name, rev):
+    def _get_summary_and_category(self, builder_name, branch, rev):
         try:
-            branch = self._get_branch()
             builder = self.status.getBuilder(builder_name)
-            return builder.summary_by_branch_and_revision[(branch, rev)]
+            return builder.summary_by_branch_and_revision[(branch, rev)], builder.category
         except (AttributeError, KeyError):
-            return None
+            #return None, None
             # for testing
-            ## from pypybuildbot.summary import OutcomeSummary
-            ## import random
-            ## if random.choice([True, True, True, False]):
-            ##     return OutcomeSummary(1000, 0, 2, 4)
-            ## else:
-            ##     return OutcomeSummary(990, 10, 2, 4)
+            from pypybuildbot.summary import OutcomeSummary
+            import random
+            if random.choice([True, True, True, False]):
+                return OutcomeSummary(1000, 0, 2, 4), None
+            else:
+                return OutcomeSummary(990, 10, 2, 4), None
+
+    def _get_summary_class(self, summary, rowClass):
+        if summary is None:
+            return rowClass
+        elif summary.is_ok():
+            return rowClass + '-passed'
+        else:
+            return rowClass + '-failed'
+
