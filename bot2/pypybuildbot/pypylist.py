@@ -207,14 +207,14 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
             builder = self.status.getBuilder(builder_name)
             return builder.summary_by_branch_and_revision[(branch, rev)], builder.category
         except (AttributeError, KeyError):
-            #return None, None
+            return None, None
             # for testing
-            from pypybuildbot.summary import OutcomeSummary
-            import random
-            if random.choice([True, True, True, False]):
-                return OutcomeSummary(1000, 0, 2, 4), None
-            else:
-                return OutcomeSummary(990, 10, 2, 4), None
+            ## from pypybuildbot.summary import OutcomeSummary
+            ## import random
+            ## if random.choice([True, True, True, False]):
+            ##     return OutcomeSummary(1000, 0, 2, 4), None
+            ## else:
+            ##     return OutcomeSummary(990, 10, 2, 4), None
 
     def _get_summary_class(self, summary, rowClass):
         if summary is None:
