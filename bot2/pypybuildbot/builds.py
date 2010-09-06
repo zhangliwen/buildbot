@@ -65,14 +65,20 @@ class TestRunnerCmd(ShellCmd):
         summary = outcome.get_summary()        
         build_status = self.build.build_status
         builder = build_status.builder
-        if not hasattr(builder, 'summary_by_revision'):
-            builder.summary_by_revision = {}
+        properties = build_status.getProperties()
+        if not hasattr(builder, 'summary_by_branch_and_revision'):
+            builder.summary_by_branch_and_revision = {}
         try:
-            rev = build_status.getProperty('got_revision')
+            rev = properties['got_revision']
+            branch = properties['branch']
+            if branch is None:
+                branch = 'trunk'
+            if branch.endswith('/'):
+                branch = branch[:-1]
         except KeyError:
             return
         else:
-            builder.summary_by_revision[rev] = summary
+            builder.summary_by_branch_and_revision[(branch, rev)] = summary
         builder.saveYourself()
 
 # ________________________________________________________________

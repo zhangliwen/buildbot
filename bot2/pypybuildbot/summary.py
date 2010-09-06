@@ -30,6 +30,9 @@ class OutcomeSummary(object):
         self.s = s # skipped
         self.x = x # xfailed
 
+    def is_ok(self):
+        return self.F == 0
+
     def __str__(self):
         return '%d, %d F, %d s, %d x' % (self.p, self.F, self.s, self.x)
 
