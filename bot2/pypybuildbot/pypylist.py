@@ -155,8 +155,8 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
     <td><a href="%(href)s">%(text)s</a></td>
     <td>%(size)s</td>
     <td>%(date)s</td>
-    <td class="%(own_summary_class)s"><a class="summary_link" href="%(own_href)s">%(own_summary)s</a></td>
-    <td class="%(app_summary_class)s"><a class="summary_link" href="%(app_href)s">%(app_summary)s</a></td>
+    <td class="%(own_summary_class)s">%(own_summary)s</td>
+    <td class="%(app_summary_class)s">%(app_summary)s</td>
 </tr>
 """
 
@@ -190,11 +190,11 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
             branch = '%3Ctrunk%3E' # <trunk>
         if category:
             href = '/summary?category=%s&branch=%s&recentrev=%s' % (category, branch, rev)
+            str_summary = '<a class="summary_link" href="%s">%s</a>' % (href, summary)
         else:
-            href = '#'
-        element[prefix + 'summary'] = summary
+            str_summary = str(summary)
+        element[prefix + 'summary'] = str_summary
         element[prefix + 'summary_class'] = self._get_summary_class(summary, rowClass)
-        element[prefix + 'href'] = href
 
     def _get_branch(self):
         parts = self.path.split(os.path.sep)
