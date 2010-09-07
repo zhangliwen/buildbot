@@ -55,10 +55,12 @@ class Translate(ShellCmd):
         #self.command = ['cp', '/tmp/pypy-c', '.']
 
 
-class TestRunnerCmd(ShellCmd):
+class PytestCmd(ShellCmd):
 
     def commandComplete(self, cmd):
         from pypybuildbot.summary import RevisionOutcomeSet
+        if 'pytestLog' not in cmd.logs:
+            return
         pytestLog = cmd.logs['pytestLog']
         outcome = RevisionOutcomeSet(None)
         outcome.populate(pytestLog)
@@ -78,7 +80,11 @@ class TestRunnerCmd(ShellCmd):
         except KeyError:
             return
         else:
-            builder.summary_by_branch_and_revision[(branch, rev)] = summary
+            d = builder.summary_by_branch_and_revision
+            key = (branch, rev)
+            if key in d:
+                summary += d[key]
+            d[key] = summary
         builder.saveYourself()
 
 # ________________________________________________________________
@@ -107,7 +113,7 @@ class Own(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(TestRunnerCmd(
+        self.addStep(PytestCmd(
             description="pytest",
             command=["python", "testrunner/runner.py",
                      "--logfile=testrun.log",
@@ -137,7 +143,7 @@ class Translated(factory.BuildFactory):
         if app_tests:
             if app_tests == True:
                 app_tests = []
-            self.addStep(TestRunnerCmd(
+            self.addStep(PytestCmd(
                 description="app-level (-A) test",
                 command=["python", "testrunner/runner.py",
                          "--logfile=pytest-A.log",
@@ -149,7 +155,7 @@ class Translated(factory.BuildFactory):
                 env={"PYTHONPATH": ['.']}))
 
         if lib_python:
-            self.addStep(ShellCmd(
+            self.addStep(PytestCmd(
                 description="lib-python test",
                 command=["python", "pypy/test_all.py",
                          "--pypy=pypy/translator/goal/pypy-c",
@@ -158,7 +164,7 @@ class Translated(factory.BuildFactory):
 
         if pypyjit:
             # upload nightly build, if we're running jit tests
-            self.addStep(ShellCmd(
+            self.addStep(PytestCmd(
                 description="pypyjit tests",
                 command=["python", "pypy/test_all.py",
                          "--pypy=pypy/translator/goal/pypy-c",

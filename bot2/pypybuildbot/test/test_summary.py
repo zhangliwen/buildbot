@@ -9,6 +9,13 @@ import re, time
 
 class TestOutcomes(object):
 
+    def test_OutcomeSummary(self):
+        s = summary.OutcomeSummary(1, 2, 3, 4)
+        assert s.to_tuple() == (1, 2, 3, 4)
+        assert str(s) == '1, 2 F, 3 s, 4 x'
+        s2 = s+s
+        assert s2.to_tuple() == (2, 4, 6, 8)
+
     def test_populate(self):
         rev_outcome_set = summary.RevisionOutcomeSet(50000, ('foo', 40))
 

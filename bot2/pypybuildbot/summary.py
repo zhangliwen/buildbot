@@ -33,8 +33,17 @@ class OutcomeSummary(object):
     def is_ok(self):
         return self.F == 0
 
+    def to_tuple(self):
+        return self.p, self.F, self.s, self.x
+
     def __str__(self):
         return '%d, %d F, %d s, %d x' % (self.p, self.F, self.s, self.x)
+
+    def __add__(self, other):
+        return self.__class__(self.p + other.p,
+                              self.F + other.F,
+                              self.s + other.s,
+                              self.x + other.x)
 
 class RevisionOutcomeSet(object):
 
