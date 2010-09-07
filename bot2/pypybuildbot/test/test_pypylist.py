@@ -91,3 +91,6 @@ def test_builder_names():
 
     t = PyPyTarball('pypy-c-jit-76867-win32.tar.bz2')
     check_builder_names(t, 'own-win-x86-32', 'pypy-c-jit-win-x86-32')
+
+    t = PyPyTarball('pypy-c-nojit-76867-linux64.tar.bz2')
+    check_builder_names(t, 'own-linux-x86-64', 'pypy-c-app-level-linux-x86-64')

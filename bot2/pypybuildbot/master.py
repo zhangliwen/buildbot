@@ -161,7 +161,7 @@ LINUX64 = "own-linux-x86-64"
 MACOSX32 =  "own-macosx-x86-32"
 #WIN32 = "own-win-x86-32"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
-APPLVLLINUX64 = "pypy-c-app-level-linux-64"
+APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
 STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
