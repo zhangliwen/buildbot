@@ -159,11 +159,12 @@ pypyJITBenchmarkFactory = pypybuilds.JITBenchmark()
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 MACOSX32 =  "own-macosx-x86-32"
+#WIN32 = "own-win-x86-32"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-64"
 STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 
-APPLVLWIN32 = "pypy-c-app-level-win-32"
+APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
 STACKLESSAPPLVLFREEBSD64 = 'pypy-c-stackless-app-level-freebsd-7-x86-64'
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
