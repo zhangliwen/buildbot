@@ -189,6 +189,7 @@ BuildmasterConfig = {
             # and be hopefully finished after 2 hours
             LINUX32,                   # on tannit32, uses 4 cores
             JITLINUX32,                # on tannit32, uses 1 core
+            JITLINUX64,                # on tannit64, uses 1 core
             OJITLINUX32,               # on tannit32, uses 1 core
             MACOSX32,                  # on minime
             APPLVLWIN32,               # on bigboard
