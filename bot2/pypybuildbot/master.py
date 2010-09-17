@@ -183,6 +183,7 @@ BuildmasterConfig = {
     'schedulers': [
         Nightly("nightly-0-45", [
             JITBENCH,  # on tannit -- nothing else there during first round!
+            MACOSX32,                  # on minime
             ], hour=0, minute=45),
         Nightly("nightly-4-00", [
             # rule: what we pick here on tannit should take at most 8 cores
@@ -191,7 +192,6 @@ BuildmasterConfig = {
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on tannit64, uses 1 core
             OJITLINUX32,               # on tannit32, uses 1 core
-            MACOSX32,                  # on minime
             APPLVLWIN32,               # on bigboard
             STACKLESSAPPLVLFREEBSD64,  # on headless
             ], hour=4, minute=0),
