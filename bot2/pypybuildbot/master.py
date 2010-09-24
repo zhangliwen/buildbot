@@ -128,6 +128,14 @@ pypyJITTranslatedTestFactory = pypybuilds.Translated(
     pypyjit=True,
     app_tests=True,
     )
+pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
+    translationArgs=jit_translation_args,
+    targetArgs=[],
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    platform='linux64',
+    )
 
 pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
     platform='osx',
@@ -277,7 +285,7 @@ BuildmasterConfig = {
                   {'name': JITLINUX64,
                    'slavenames': ['tannit64'],
                    'builddir': JITLINUX64,
-                   'factory': pypyJITTranslatedTestFactory,
+                   'factory': pypyJITTranslatedTestFactory64,
                    'category': 'jit',
                   },
                   {"name" : JITMACOSX32,
