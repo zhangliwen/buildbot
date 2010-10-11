@@ -286,7 +286,7 @@ BuildmasterConfig = {
                    'slavenames': ['tannit64'],
                    'builddir': JITLINUX64,
                    'factory': pypyJITTranslatedTestFactory64,
-                   'category': 'jit',
+                   'category': 'jit64',
                   },
                   {"name" : JITMACOSX32,
                    "slavenames": ["minime"],
