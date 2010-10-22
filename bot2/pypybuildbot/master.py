@@ -317,14 +317,3 @@ BuildmasterConfig = {
     'buildbotURL': 'http://codespeak.net:%d/'%(httpPortNumber),
     'projectURL': 'http://codespeak.net/pypy/',
     'projectName': 'PyPy'}
-
-CACHESIZE = 80 # cache size for build outcomes
-
-estimated = (sum([len(_sched.listBuilderNames())
-             for _sched in BuildmasterConfig['schedulers']]) * 6)
-
-if estimated > CACHESIZE:
-    raise ValueError("master.py CACHESIZE (%d) is too small considered"
-                     " a builder*scheduler combinations based estimate (%d)"
-                     % (CACHESIZE, estimated))
-summary.outcome_set_cache.cachesize = CACHESIZE

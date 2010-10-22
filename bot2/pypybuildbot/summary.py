@@ -295,7 +295,7 @@ class GatherOutcomeSet(object):
 
 N = 5
 
-outcome_set_cache = RevisionOutcomeSetCache(25*(N+1))
+outcome_set_cache = RevisionOutcomeSetCache(32*(N+1))
 
 
 def colsizes(namekeys):
