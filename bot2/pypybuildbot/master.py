@@ -138,7 +138,7 @@ pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
     )
 
 pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
-    platform='osx',
+    platform='osx',    # works also for "OS/X 64"
     translationArgs=jit_translation_args,
     targetArgs=[],
     lib_python=True,
@@ -178,7 +178,7 @@ STACKLESSAPPLVLFREEBSD64 = 'pypy-c-stackless-app-level-freebsd-7-x86-64'
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
 OJITLINUX32 = "pypy-c-Ojit-no-jit-linux-x86-32"
-JITMACOSX32 = "pypy-c-jit-macosx-x86-32"
+JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
@@ -288,9 +288,9 @@ BuildmasterConfig = {
                    'factory': pypyJITTranslatedTestFactory64,
                    'category': 'jit64',
                   },
-                  {"name" : JITMACOSX32,
-                   "slavenames": ["minime"],
-                   'builddir' : JITMACOSX32,
+                  {"name" : JITMACOSX64,
+                   "slavenames": ["macmini-mvt"],
+                   'builddir' : JITMACOSX64,
                    'factory' : pypyJITTranslatedTestFactoryOSX,
                    'category' : 'jit',
                    },
