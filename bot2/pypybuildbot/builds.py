@@ -89,21 +89,29 @@ class PytestCmd(ShellCmd):
 
 # ________________________________________________________________
 
-def setup_steps(platform, factory, workdir=None):
-    if platform == "win32":
-        command = "if exist pypy %s"
-    else:
-        command = "if [ -d pypy ]; then %s; fi"
-    command = command % "python py/bin/py.svnwcrevert -p.buildbot-sourcedata ."
-    factory.addStep(ShellCmd(
-        description="wcrevert",
-        command = command,
-        workdir = workdir,
-        ))
-    factory.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
-                               defaultBranch="trunk",
-                               workdir=workdir))
 
+def setup_steps(platform, factory, workdir=None):
+    # XXX: add the equivalent of svn.wcrevert (hg purge?)
+    #
+    ## if platform == "win32":
+    ##     command = "if exist pypy %s"
+    ## else:
+    ##     command = "if [ -d pypy ]; then %s; fi"
+    ## command = command % "python py/bin/py.svnwcrevert -p.buildbot-sourcedata ."
+    ## factory.addStep(ShellCmd(
+    ##     description="wcrevert",
+    ##     command = command,
+    ##     workdir = workdir,
+    ##     ))
+    ## factory.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
+    ##                            defaultBranch="trunk",
+    ##                            workdir=workdir))
+    import getpass
+    repourl = 'https://bitbucket.org/pypy/pypy-tentative/'
+    if getpass.getuser() == 'antocuni':
+        # for debugging
+        repourl = '/home/antocuni/pypy/pypy-hg'
+    factory.addStep(source.Mercurial(repourl=repourl, branchType='inrepo'))
 
 
 class Own(factory.BuildFactory):

@@ -156,7 +156,7 @@ class RevisionOutcomeSetCache(object):
         build = builderStatus.getBuild(buildNumber)
         run_url = status.getURLForThing(build)
 
-        rev = int(build.getProperty("got_revision"))
+        rev = build.getProperty("got_revision")
         pytest_logs = []
         pytest_elapsed = 0
         with_logs = set()
@@ -724,7 +724,7 @@ class Summary(HtmlResource):
                     if self._age(build) <= 7:
                         no_revision_builds.append(build)
                 else:
-                    rev = int(got_rev)
+                    rev = got_rev
                     buildNumber = build.getNumber()
                     if fixed_builder:
                         builds = runs.setdefault((rev, buildNumber), {})
