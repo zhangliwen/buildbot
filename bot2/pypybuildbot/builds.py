@@ -89,6 +89,16 @@ class PytestCmd(ShellCmd):
 
 # ________________________________________________________________
 
+class FixGotRevision(ShellCmd):
+    description = 'fix got_revision'
+    # XXX: this assumes that 'hg' in in PATH
+    command = ['hg', 'parents', '--template', '{rev}:{node|short}']
+
+    def commandComplete(self, cmd):
+        if cmd.rc == 0:
+            got_revision = cmd.logs['stdio'].getText()
+            self.build.setProperty('got_revision', got_revision, 'fix got_revision')
+
 
 def setup_steps(platform, factory, workdir=None):
     # XXX: add the equivalent of svn.wcrevert (hg purge?)
@@ -112,6 +122,7 @@ def setup_steps(platform, factory, workdir=None):
         # for debugging
         repourl = '/home/antocuni/pypy/pypy-hg'
     factory.addStep(source.Mercurial(repourl=repourl, branchType='inrepo'))
+    factory.addStep(FixGotRevision(workdir=workdir))
 
 
 class Own(factory.BuildFactory):
