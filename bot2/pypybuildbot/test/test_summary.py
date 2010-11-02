@@ -284,7 +284,22 @@ def test_colsizes():
     assert res == [2,3,2]
 
 def test__prune_runs():
-    runs = dict(zip(range(100), range(100, 200)))
+    # keys are in the form (svn_revision, build_number)
+    # note that the last build got an earlier revision
+    runs = {
+        (100, 1): 10,
+        (200, 2): 20,
+        (300, 3): 30,
+        (400, 4): 40,
+        ( 20, 5): 50
+        }
+    summary.Summary._prune_runs(runs, 3)
+    assert len(runs) == 3
+    assert runs == {
+        (300, 3): 30,
+        (400, 4): 40,
+        ( 20, 5): 50
+        }
 
     summary.Summary._prune_runs(runs, 4)
 

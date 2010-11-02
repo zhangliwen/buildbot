@@ -644,8 +644,11 @@ class Summary(HtmlResource):
 
     @staticmethod
     def _prune_runs(runs, cutnum):
+        import operator
+        keys = runs.keys() # [(revision, build_number)]
+        keys.sort(key=operator.itemgetter(1)) # sort by build number
         if len(runs) > cutnum:
-            for rev in sorted(runs.keys())[:-cutnum]:
+            for rev in keys[:-cutnum]:
                 del runs[rev]
 
     def _fish_defaultBranch(self, status, builderName):
