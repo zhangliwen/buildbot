@@ -1,4 +1,5 @@
 import time, datetime, urlparse, urllib
+import operator
 
 import py
 html = py.xml.html
@@ -412,28 +413,28 @@ class SummaryPage(object):
         if self.fixed_builder:
             pick = "builder=%s&builds=%d" % self._builder_num(outcome_set)
         else:
-            pick = "recentrev=%d" % rev
+            pick = "recentrev=%s" % rev
         category, branch = self.cur_cat_branch
         revtxt = str(rev)
         rev_anchor = html.a(revtxt, href="/summary?category=%s&branch=%s&%s" %
                             (category, branch, pick))
         rightalign = ' '*(revsize-len(revtxt))
         return [rev_anchor, rightalign]
-                            
+
     def add_section(self, cat_branch, outcome_sets):
         if not outcome_sets:
             return
-        labels = sorted(self._label(outcome_set)
-                        for outcome_set in outcome_sets)
-        by_label = sorted((self._label(outcome_set), outcome_set)
-                          for outcome_set in outcome_sets)
+        outcome_sets.sort(key=self._builder_num)
+        labels = [self._label(outcome_set) for outcome_set in outcome_sets]
+        by_label = [(self._label(outcome_set), outcome_set)
+                    for outcome_set in outcome_sets]
         revs = [outcome_set.revision for outcome_set in outcome_sets]
 
         _, last = by_label[-1]
         self._start_cat_branch(cat_branch, fine = not last.failed)
-        
+
         lines = []
-        revsize = len(str(max(revs)))
+        revsize = max(map(len, revs))
         align = 2*len(labels)-1+revsize
         def bars():
             return ' |'*len(lines)
@@ -644,9 +645,8 @@ class Summary(HtmlResource):
 
     @staticmethod
     def _prune_runs(runs, cutnum):
-        import operator
-        keys = runs.keys() # [(revision, build_number)]
-        keys.sort(key=operator.itemgetter(1)) # sort by build number
+        keys = runs.keys()
+        keys.sort()
         if len(runs) > cutnum:
             for rev in keys[:-cutnum]:
                 del runs[rev]
@@ -730,7 +730,7 @@ class Summary(HtmlResource):
                     rev = got_rev
                     buildNumber = build.getNumber()
                     if fixed_builder:
-                        builds = runs.setdefault((rev, buildNumber), {})
+                        builds = runs.setdefault((buildNumber, rev), {})
                     else:
                         builds = runs.setdefault(rev, {})
                         # pick the most recent or ?
@@ -814,7 +814,6 @@ class Summary(HtmlResource):
                                    only_builds = only_builds,
                                    only_categories = only_categories
                                    )
-
 
         sorting = sorted(cat_branches.iterkeys(), key=self._cat_branch_key)
         for cat_branch in sorting:

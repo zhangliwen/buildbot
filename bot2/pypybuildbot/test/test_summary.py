@@ -17,9 +17,9 @@ class TestOutcomes(object):
         assert s2.to_tuple() == (2, 4, 6, 8)
 
     def test_populate(self):
-        rev_outcome_set = summary.RevisionOutcomeSet(50000, ('foo', 40))
+        rev_outcome_set = summary.RevisionOutcomeSet('50000', ('foo', 40))
 
-        assert rev_outcome_set.revision == 50000
+        assert rev_outcome_set.revision == '50000'
         assert rev_outcome_set.key == ('foo', 40)
 
         log = StringIO("""F a/b.py:test_one
@@ -77,12 +77,12 @@ x a/c.py:test_ten
         assert str(sum) == '1, 2 F, 3 s, 4 x'
 
     def test_populate_from_empty(self):
-        rev_outcome_set = summary.RevisionOutcomeSet(0)
+        rev_outcome_set = summary.RevisionOutcomeSet('0')
         log = StringIO("")
         rev_outcome_set.populate(log)
         
     def test_populate_longrepr(self):
-        rev_outcome_set = summary.RevisionOutcomeSet(50000)
+        rev_outcome_set = summary.RevisionOutcomeSet('50000')
         log = StringIO("""F a/b.py:test_one
  some
  traceback
@@ -109,7 +109,7 @@ s a/b.py:test_three
         assert res == "some\ntraceback\n"
 
     def test_populate_encodings(self):
-        rev_outcome_set = summary.RevisionOutcomeSet(50000)
+        rev_outcome_set = summary.RevisionOutcomeSet('50000')
         log = StringIO("""F a/b.py:test_one
  \xe5 foo
 F a/b.py:test_two
@@ -127,7 +127,7 @@ F a/b.py:test_two
             }
 
     def test_populate_special(self):
-        rev_outcome_set = summary.RevisionOutcomeSet(50000)
+        rev_outcome_set = summary.RevisionOutcomeSet('50000')
         log = StringIO("""F a/b.py
 s a/c.py
 ! <run>
@@ -147,7 +147,7 @@ s a/c.py
         assert rev_outcome_set.numpassed == 0
 
     def test_populate_xfailed(self):
-        rev_outcome_set = summary.RevisionOutcomeSet(50000)
+        rev_outcome_set = summary.RevisionOutcomeSet('50000')
         log = StringIO("""x a/b.py
  EXC
 """)
@@ -158,7 +158,7 @@ s a/c.py
   
         
     def test_absent_outcome(self):
-        rev_outcome_set = summary.RevisionOutcomeSet(50000)
+        rev_outcome_set = summary.RevisionOutcomeSet('50000')
 
         res = rev_outcome_set.get_outcome(('a', 'b'))
         assert res == ' '
@@ -200,7 +200,7 @@ s a/c.py
 
     def test_GatherOutcomeSet(self):
         key_foo = ('foo', 3)
-        rev_outcome_set_foo = summary.RevisionOutcomeSet(50000, key_foo)
+        rev_outcome_set_foo = summary.RevisionOutcomeSet('50000', key_foo)
         log = StringIO("""F a/b.py:test_one
  some
  traceback
@@ -213,7 +213,7 @@ x a/b.py:test_four
 
 
         key_bar = ('bar', 7)        
-        rev_outcome_set_bar = summary.RevisionOutcomeSet(50000,
+        rev_outcome_set_bar = summary.RevisionOutcomeSet('50000',
                                                          key_bar)
         log = StringIO(""". a/b.py:test_one
 . a/b.py:test_two
@@ -227,7 +227,7 @@ s a/b.py:test_three
 
         goutcome = summary.GatherOutcomeSet(d)
 
-        assert goutcome.revision == 50000
+        assert goutcome.revision == '50000'
         
         assert goutcome.failed == set([('foo', 'a.b', 'test_one')])
 
@@ -284,28 +284,23 @@ def test_colsizes():
     assert res == [2,3,2]
 
 def test__prune_runs():
-    # keys are in the form (svn_revision, build_number)
+    # keys are in the form (build_number, revision)
     # note that the last build got an earlier revision
     runs = {
-        (100, 1): 10,
-        (200, 2): 20,
-        (300, 3): 30,
-        (400, 4): 40,
-        ( 20, 5): 50
+        (1, 100): 10,
+        (2, 200): 20,
+        (3, 300): 30,
+        (4, 400): 40,
+        (5,  20): 50
         }
     summary.Summary._prune_runs(runs, 3)
     assert len(runs) == 3
     assert runs == {
-        (300, 3): 30,
-        (400, 4): 40,
-        ( 20, 5): 50
+        (3, 300): 30,
+        (4, 400): 40,
+        (5,  20): 50
         }
 
-    summary.Summary._prune_runs(runs, 4)
-
-    assert len(runs) == 4
-
-    assert runs == {99: 199, 98: 198, 97: 197, 96: 196}
 
 def test_show_elapsed():
     res = summary.show_elapsed(0.25)
@@ -460,7 +455,7 @@ class TestSummary(object):
         cat_branch = res()
         
         revs = cat_branch[(None, None)][0]
-        assert revs.keys() == [50000]
+        assert revs.keys() == ['50000']
 
         assert '&lt;run&gt;' in out
 
@@ -486,7 +481,7 @@ class TestSummary(object):
         cat_branch = res()
         
         revs = cat_branch[(None, None)][0]
-        assert revs.keys() == [50000]
+        assert revs.keys() == ['50000']
 
         assert 'step borken' in out
         assert 'other borken' not in out        
@@ -502,17 +497,17 @@ class TestSummary(object):
         cat_branch = res()
 
         revs = cat_branch[(None, None)][0]
-        assert revs.keys() == [60000]
-        outcome = revs[60000]['builder0']
-        assert outcome.revision == 60000
+        assert revs.keys() == ['60000']
+        outcome = revs['60000']['builder0']
+        assert outcome.revision == '60000'
         assert outcome.key == ('builder0', 0)
 
         assert 'TEST1' in out
 
     def test_two_builds(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, "F TEST1\n. b"),
-                             (60001, ". TEST1\n. b")])
+        add_builds(builder, [('60000', "F TEST1\n. b"),
+                             ('60001', ". TEST1\n. b")])
 
         s = summary.Summary()
         res = witness_cat_branch(s)        
@@ -521,19 +516,19 @@ class TestSummary(object):
         cat_branch = res()
 
         revs = cat_branch[(None, None)][0]
-        assert sorted(revs.keys()) == [60000, 60001]        
-        outcome = revs[60000]['builder0']
-        assert outcome.revision == 60000
+        assert sorted(revs.keys()) == ['60000', '60001']
+        outcome = revs['60000']['builder0']
+        assert outcome.revision == '60000'
         assert outcome.key == ('builder0', 0)
-        outcome = revs[60001]['builder0']
-        assert outcome.revision == 60001
+        outcome = revs['60001']['builder0']
+        assert outcome.revision == '60001'
         assert outcome.key == ('builder0', 1)
 
         revs = []
         for m in re.finditer(r'recentrev=(\d+)', out):
-            revs.append(int(m.group(1)))
+            revs.append(m.group(1))
 
-        assert revs == [60000, 60001]
+        assert revs == ['60000', '60001']
 
         assert 'TEST1' in out
         assert ':-)' in out
@@ -541,8 +536,8 @@ class TestSummary(object):
 
     def test_two_builds_samerev(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, "F TEST1\n. b"),
-                             (60000, "F TEST1\n. b")])        
+        add_builds(builder, [('60000', "F TEST1\n. b"),
+                             ('60000', "F TEST1\n. b")])        
 
         s = summary.Summary()
         res = witness_cat_branch(s)        
@@ -551,17 +546,17 @@ class TestSummary(object):
         cat_branch = res()
 
         revs = cat_branch[(None, None)][0]
-        assert sorted(revs.keys()) == [60000]
-        outcome = revs[60000]['builder0']
-        assert outcome.revision == 60000
+        assert sorted(revs.keys()) == ['60000']
+        outcome = revs['60000']['builder0']
+        assert outcome.revision == '60000'
         assert outcome.key == ('builder0', 1)
 
         assert 'TEST1' in out
 
     def test_two_builds_recentrev(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, "F TEST1\n. b"),
-                             (60001, "F TEST1\n. b")])
+        add_builds(builder, [('60000', "F TEST1\n. b"),
+                             ('60001', "F TEST1\n. b")])
 
         s = summary.Summary()
         res = witness_cat_branch(s)        
@@ -571,18 +566,18 @@ class TestSummary(object):
         cat_branch = res()
 
         revs = cat_branch[(None, None)][0]
-        assert sorted(revs.keys()) == [60000]
-        outcome = revs[60000]['builder0']
-        assert outcome.revision == 60000
+        assert sorted(revs.keys()) == ['60000']
+        outcome = revs['60000']['builder0']
+        assert outcome.revision == '60000'
         assert outcome.key == ('builder0', 0)
 
         assert 'TEST1' in out
 
     def test_many_builds_query_builder(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, "F TEST1\n. b"),
-                             (60000, ". a\n. b"),
-                             (60001, "F TEST1\n. b")])        
+        add_builds(builder, [('60000', "F TEST1\n. b"),
+                             ('60000', ". a\n. b"),
+                             ('60001', "F TEST1\n. b")])        
 
         s = summary.Summary()
         res = witness_cat_branch(s)        
@@ -592,15 +587,15 @@ class TestSummary(object):
         cat_branch = res()
 
         runs = cat_branch[(None, None)][0]
-        assert sorted(runs.keys()) == [(60000,0), (60000,1), (60001,2)]
-        outcome = runs[(60000,0)]['builder0']
-        assert outcome.revision == 60000
+        assert sorted(runs.keys()) == [(0, '60000'), (1, '60000'), (2, '60001')]
+        outcome = runs[(0, '60000')]['builder0']
+        assert outcome.revision == '60000'
         assert outcome.key == ('builder0', 0)
-        outcome = runs[(60000,1)]['builder0']
-        assert outcome.revision == 60000
+        outcome = runs[(1, '60000')]['builder0']
+        assert outcome.revision == '60000'
         assert outcome.key == ('builder0', 1)
-        outcome = runs[(60001,2)]['builder0']
-        assert outcome.revision == 60001
+        outcome = runs[(2, '60001')]['builder0']
+        assert outcome.revision == '60001'
         assert outcome.key == ('builder0', 2)
 
         runs = []
@@ -616,9 +611,9 @@ class TestSummary(object):
 
     def test_many_builds_query_builder_builds(self):
         builder = status_builder.BuilderStatus('builder0')
-        add_builds(builder, [(60000, "F TEST1\n. b"),
-                             (60000, ". a\n. b"),
-                             (60001, "F TEST1\n. b")])        
+        add_builds(builder, [('60000', "F TEST1\n. b"),
+                             ('60000', ". a\n. b"),
+                             ('60001', "F TEST1\n. b")])        
 
         s = summary.Summary()
         res = witness_cat_branch(s)        
@@ -629,12 +624,12 @@ class TestSummary(object):
         cat_branch = res()
 
         runs = cat_branch[(None, None)][0]
-        assert sorted(runs.keys()) == [(60000,0), (60001,2)]
-        outcome = runs[(60000,0)]['builder0']
-        assert outcome.revision == 60000
+        assert sorted(runs.keys()) == [(0, '60000'), (2, '60001')]
+        outcome = runs[(0, '60000')]['builder0']
+        assert outcome.revision == '60000'
         assert outcome.key == ('builder0', 0)
-        outcome = runs[(60001,2)]['builder0']
-        assert outcome.revision == 60001
+        outcome = runs[(2, '60001')]['builder0']
+        assert outcome.revision == '60001'
         assert outcome.key == ('builder0', 2)
 
         runs = []
@@ -729,9 +724,9 @@ class TestSummary(object):
         builder3 = status_builder.BuilderStatus('builder_')
         builder3.category = None            
 
-        add_builds(builder1, [(60000, "F TEST1\n")])
-        add_builds(builder2, [(60000, "F TEST2\n")])
-        add_builds(builder3, [(60000, "F TEST3\n")])            
+        add_builds(builder1, [('60000', "F TEST1\n")])
+        add_builds(builder2, [('60000', "F TEST2\n")])
+        add_builds(builder3, [('60000', "F TEST3\n")])            
 
         s = summary.Summary(['foo', 'bar'])
         req = FakeRequest([builder1, builder2, builder3])
@@ -764,9 +759,9 @@ class TestSummary(object):
         builder1 = status_builder.BuilderStatus('builder1')
         builder2 = status_builder.BuilderStatus('builder2')
  
-        add_builds(builder1, [(60000, "F TEST1\n")])
-        add_builds(builder2, [(50000, ". TEST2\n")])        
-        add_builds(builder2, [(60000, "F TEST2\n")])
+        add_builds(builder1, [('60000', "F TEST1\n")])
+        add_builds(builder2, [('50000', ". TEST2\n")])        
+        add_builds(builder2, [('60000', "F TEST2\n")])
 
         builder1.getBuild(0).started  = 1228258800 # 3 Dec 2008
         builder1.getBuild(0).finished = 1228258800 # 3 Dec 2008
@@ -784,6 +779,3 @@ class TestSummary(object):
         assert '(03 Dec..05 Dec)' in out
         # pruning of builds older than 7 days
         assert '(29 Nov)' not in out
-         
-
-         
