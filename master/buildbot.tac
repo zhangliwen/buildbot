@@ -1,8 +1,16 @@
-
+# -*- mode: python -*-
 from twisted.application import service
 from buildbot.master import BuildMaster
 
-basedir = r'/home/antocuni/pypy/build/master'
+# ---------------------------------------------------------------
+# manual editing of the automatically generated buildbot.tac
+#
+import os.path
+thisfile = os.path.join(os.getcwd(), __file__)
+basedir = os.path.abspath(os.path.dirname(thisfile))
+#
+# ---------------------------------------------------------------
+
 configfile = r'master.cfg'
 rotateLength = 1000000
 maxRotatedFiles = None
