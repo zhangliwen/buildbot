@@ -1,5 +1,8 @@
 .. -*- mode: rst -*-
 
+Everything has been tested with builbot 0.7.12.  Not sure what happens with
+other versions :-)
+
 How to hack the PyPy buildbot
 ==============================
 
