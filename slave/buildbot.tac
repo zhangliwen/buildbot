@@ -11,10 +11,23 @@ basedir = os.path.abspath(os.path.dirname(thisfile))
 #
 # ---------------------------------------------------------------
 
+def find_passwd(slavename):
+  masterdir = os.path.join(basedir, '..', 'master')
+  slaveinfo = os.path.join(masterdir, 'slaveinfo.py')
+  d = {}
+  try:
+    execfile(slaveinfo, d)
+    return d['passwords'][slavename]
+  except Exception, e:
+    print 'error when executing ../master/slaveinfo.py: %s' % repr(e)
+    print 'using default password for the slave'
+    return 'default_password'
+  
+
 buildmaster_host = 'localhost'
 port = 10407
 slavename = 'localhost'
-passwd = 'please_change_me'
+passwd = find_passwd(slavename)
 keepalive = 600
 usepty = 0
 umask = None
