@@ -167,7 +167,7 @@ pypyJITBenchmarkFactory = pypybuilds.JITBenchmark()
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 MACOSX32 =  "own-macosx-x86-32"
-#WIN32 = "own-win-x86-32"
+WIN32 = "own-win-x86-32"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
 STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
@@ -239,7 +239,13 @@ BuildmasterConfig = {
                    "builddir": MACOSX32,
                    "factory": pypyOwnTestFactory,
                    "category": 'mac'
-                  },                  
+                  },
+                  {"name": WIN32,
+                   "slavenames": ["bigboard"],
+                   "builddir": WIN32,
+                   "factory": pypyOwnTestFactoryWin,
+                   "category": 'own'
+                  },
                   {"name": APPLVLLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": APPLVLLINUX32,
