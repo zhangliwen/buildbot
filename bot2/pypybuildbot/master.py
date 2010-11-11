@@ -226,91 +226,91 @@ BuildmasterConfig = {
                    "slavenames": ["cobra", "bigdogvm1", "tannit32"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory,
-                   "category": 'own'
+                   "category": 'linux32'
                   },
 		  {"name": LINUX64,
 		   "slavenames": ["tannit64"],
 		   "builddir": LINUX64,
 		   "factory": pypyOwnTestFactory,
-		   "category": 'own64'
+		   "category": 'linux64'
 		  },
                   {"name": MACOSX32,
                    "slavenames": ["minime"],
                    "builddir": MACOSX32,
                    "factory": pypyOwnTestFactory,
-                   "category": 'mac'
+                   "category": 'mac32'
                   },
                   {"name": WIN32,
                    "slavenames": ["bigboard"],
                    "builddir": WIN32,
                    "factory": pypyOwnTestFactoryWin,
-                   "category": 'own'
+                   "category": 'win32'
                   },
                   {"name": APPLVLLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
-                   'category': 'applevel'
+                   'category': 'linux32'
                   },
                   {"name": APPLVLLINUX64,
                    "slavenames": ["tannit64"],
                    "builddir": APPLVLLINUX64,
                    "factory": pypyTranslatedAppLevelTestFactory64,
-                   "category": "applevel64"
+                   "category": "linux64"
                   },
                   {"name": STACKLESSAPPLVLLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": STACKLESSAPPLVLLINUX32,
                    "factory": pypyStacklessTranslatedAppLevelTestFactory,
-                   "category": 'stackless'
+                   "category": 'linux32-stackless'
                   },
                   {"name": OJITLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": OJITLINUX32,
                    "factory": pypy_OjitTranslatedTestFactory,
-                   "category": 'applevel'
+                   "category": 'linux32'
                   },                   
                   {"name": APPLVLWIN32,
                    "slavenames": ["bigboard"],
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
-                   "category": "windows"
+                   "category": "win32"
                   },
                   {"name" : STACKLESSAPPLVLFREEBSD64,
                    "slavenames": ['headless'],
                    'builddir' : STACKLESSAPPLVLFREEBSD64,
                    'factory' : pypyStacklessTranslatedAppLevelTestFactory,
-                   "category": 'other'
+                   "category": 'freebsd64-stackless'
                    },
                   {"name" : JITLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
-                   'category' : 'jit',
+                   'category' : 'linux32',
                    },
                   {'name': JITLINUX64,
                    'slavenames': ['tannit64'],
                    'builddir': JITLINUX64,
                    'factory': pypyJITTranslatedTestFactory64,
-                   'category': 'jit64',
+                   'category': 'linux64',
                   },
                   {"name" : JITMACOSX64,
                    "slavenames": ["macmini-mvt"],
                    'builddir' : JITMACOSX64,
                    'factory' : pypyJITTranslatedTestFactoryOSX,
-                   'category' : 'jit',
+                   'category' : 'mac64',
                    },
                   {"name" : JITWIN32,
                    "slavenames": ["bigboard"],
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
-                   'category' : 'jit',
+                   'category' : 'win32',
                    },
                   {"name": JITONLYLINUX32,
                    "slavenames": ["tannit32", "bigdogvm1"],
                    "builddir": JITONLYLINUX32,
                    "factory": pypyJitOnlyOwnTestFactory,
-                   "category": 'own'
+                   "category": 'linux32'
                   },
                   {"name": JITBENCH,
                    "slavenames": ["tannit32"],
