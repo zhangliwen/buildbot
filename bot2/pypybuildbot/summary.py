@@ -774,12 +774,12 @@ class Summary(HtmlResource):
                     break
             else:
                 branch_key = (len(self.branch_order_prefixes)+1, branch)
-        try:
-            i = self.categories.index(category)
-            cat_key =  (0, i)
-        except ValueError:
-            cat_key = (1, category)
-
+        for i, catprefix in enumerate(self.categories):
+            if category.startswith(catprefix):
+                break
+        else:
+            i = len(self.categories)
+        cat_key = (i, category)
         return cat_key + branch_key
                             
     def body(self, request):
