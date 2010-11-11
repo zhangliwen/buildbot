@@ -86,12 +86,7 @@ status = WebStatus(httpPortNumber, allowForce=True)
 
 # pypy test summary page
 summary = load('pypybuildbot.summary')
-status.putChild('summary', summary.Summary(['own', 'applevel',
-                                            'lib-python', 'jit',
-                                            'stackless',
-                                            'windows', 'mac',
-                                            'benchmark-run',
-                                            'other']))
+status.putChild('summary', summary.Summary(['linux', 'mac', 'win', 'freebsd']))
 status.putChild('nightly', PyPyList(os.path.expanduser('~/nightly'),
                                     defaultType='application/octet-stream'))
 
