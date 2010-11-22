@@ -3,6 +3,7 @@ import datetime
 import itertools
 import re
 import py
+import cgi
 from twisted.web import resource
 from twisted.web.static import File, DirectoryLister
 
@@ -189,7 +190,7 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
         if branch == 'trunk':
             branch = '%3Ctrunk%3E' # <trunk>
         if category:
-            href = '/summary?category=%s&branch=%s&recentrev=%s' % (category, branch, rev)
+            href = cgi.escape('/summary?category=%s&branch=%s&recentrev=%s' % (category, branch, rev))
             str_summary = '<a class="summary_link" href="%s">%s</a>' % (href, summary)
         else:
             str_summary = str(summary)
