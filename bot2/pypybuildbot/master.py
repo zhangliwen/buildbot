@@ -136,7 +136,16 @@ pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
     )
 
 pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
-    platform='osx',    # works also for "OS/X 64"
+    platform='osx',
+    translationArgs=jit_translation_args,
+    targetArgs=[],
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    )
+
+pypyJITTranslatedTestFactoryOSX64 = pypybuilds.Translated(
+    platform='osx64',
     translationArgs=jit_translation_args,
     targetArgs=[],
     lib_python=True,
@@ -295,7 +304,7 @@ BuildmasterConfig = {
                   {"name" : JITMACOSX64,
                    "slavenames": ["macmini-mvt"],
                    'builddir' : JITMACOSX64,
-                   'factory' : pypyJITTranslatedTestFactoryOSX,
+                   'factory' : pypyJITTranslatedTestFactoryOSX64,
                    'category' : 'mac64',
                    },
                   {"name" : JITWIN32,
