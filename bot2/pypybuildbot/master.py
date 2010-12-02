@@ -199,6 +199,7 @@ BuildmasterConfig = {
         Nightly("nightly-0-45", [
             JITBENCH,  # on tannit -- nothing else there during first round!
             MACOSX32,                  # on minime
+            JITMACOSX64,               # on mvt's machine
             ], hour=0, minute=45),
         Nightly("nightly-4-00", [
             # rule: what we pick here on tannit should take at most 8 cores
