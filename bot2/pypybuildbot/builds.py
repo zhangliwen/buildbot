@@ -117,7 +117,7 @@ def setup_steps(platform, factory, workdir=None):
     ##                            defaultBranch="trunk",
     ##                            workdir=workdir))
     import getpass
-    repourl = 'https://bitbucket.org/pypy/pypy-tentative/'
+    repourl = 'https://bitbucket.org/pypy/pypy/'
     if getpass.getuser() == 'antocuni':
         # for debugging
         repourl = '/home/antocuni/pypy/pypy-hg'
