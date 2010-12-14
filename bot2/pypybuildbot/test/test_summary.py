@@ -693,28 +693,28 @@ class TestSummary(object):
                             ['trunk', 'release/', 'branch/'])
 
         res = s._cat_branch_key(('foo', None))
-        assert res == (0, 0, 0)
+        assert res == (0, 'foo', 0)
 
         res = s._cat_branch_key(('foo', 'trunk'))
-        assert res == (0, 0, 1, 'trunk')
+        assert res == (0, 'foo', 1, 'trunk')
 
         res = s._cat_branch_key(('bar', 'trunk'))
-        assert res == (0, 1, 1, 'trunk')
+        assert res == (1, 'bar', 1, 'trunk')
 
-        res = s._cat_branch_key((None, 'trunk'))
-        assert res == (1, None, 1, 'trunk')
+        res = s._cat_branch_key(('', 'trunk'))
+        assert res == (2, '', 1, 'trunk')
 
         res = s._cat_branch_key(('dontknow', 'trunk'))
-        assert res == (1, 'dontknow', 1, 'trunk')
+        assert res == (2, 'dontknow', 1, 'trunk')
 
-        res = s._cat_branch_key((None, 'branch/foo'))
-        assert res == (1, None, 3, 'branch/foo')
+        res = s._cat_branch_key(('', 'branch/foo'))
+        assert res == (2, '', 3, 'branch/foo')
 
-        res = s._cat_branch_key((None, 'release/1'))
-        assert res == (1, None, 2, 'release/1')
+        res = s._cat_branch_key(('', 'release/1'))
+        assert res == (2, '', 2, 'release/1')
 
-        res = s._cat_branch_key((None, 'what'))
-        assert res == (1, None, 4, 'what')                
+        res = s._cat_branch_key(('', 'what'))
+        assert res == (2, '', 4, 'what')                
 
     def test_builders_with_categories(self):
         builder1 = status_builder.BuilderStatus('builder_foo')
@@ -722,7 +722,7 @@ class TestSummary(object):
         builder2 = status_builder.BuilderStatus('builder_bar')
         builder2.category = 'bar'
         builder3 = status_builder.BuilderStatus('builder_')
-        builder3.category = None            
+        builder3.category = ''
 
         add_builds(builder1, [('60000', "F TEST1\n")])
         add_builds(builder2, [('60000', "F TEST2\n")])
