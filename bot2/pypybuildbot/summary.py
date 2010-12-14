@@ -645,8 +645,24 @@ class Summary(HtmlResource):
 
     @staticmethod
     def _prune_runs(runs, cutnum):
+        #
+        def revkey(rev):
+            if isinstance(rev, tuple):
+                extra, rev = rev
+            else:
+                extra = None
+            # subversion: just an integer
+            if isinstance(rev, int) or rev.isdigit():
+                return (extra, 1, int(rev))
+            # mercurial: "integer:globalid"
+            if ':' in rev and rev[:rev.index(':')].isdigit():
+                i = rev.index(':')
+                return (extra, 2, int(rev[:i]), rev)
+            # unknown
+            return (extra, 3, rev)
+        #
         keys = runs.keys()
-        keys.sort()
+        keys.sort(key=revkey)
         if len(runs) > cutnum:
             for rev in keys[:-cutnum]:
                 del runs[rev]

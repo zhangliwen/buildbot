@@ -300,6 +300,30 @@ def test__prune_runs():
         (4, 400): 40,
         (5,  20): 50
         }
+    # with Mercurial, we get revision numbers of the form "localid:universalid"
+    # these ones should sort after the subversion numbers
+    runs = {
+        (1, "100"): 10,
+        (2, "200"): 20,
+        (3, "300"): 30,
+        (3, "2:b57f9a090b62"): 40,
+        (3, "10:34197134282a"): 45,
+        (5, "20"): 50
+        }
+    summary.Summary._prune_runs(runs, 4)
+    assert len(runs) == 4
+    assert runs == {
+        (3, "300"): 30,
+        (3, "2:b57f9a090b62"): 40,
+        (3, "10:34197134282a"): 45,
+        (5, "20"): 50
+        }
+    summary.Summary._prune_runs(runs, 2)
+    assert len(runs) == 2
+    assert runs == {
+        (3, "10:34197134282a"): 45,
+        (5, "20"): 50
+        }
 
 
 def test_show_elapsed():
