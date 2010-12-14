@@ -25,6 +25,7 @@ def test_pypytarball_hg():
 
 def test_invalid_filename():
     t = PyPyTarball('foo')
+    assert t.vcs == None
     assert t.filename == 'foo'
     assert t.exe == None
     assert t.backend == None
@@ -32,7 +33,7 @@ def test_invalid_filename():
     assert t.rev == -1
     assert t.platform == None
     t2 = PyPyTarball('pypy-c-jit-75654-linux.tar.bz2')
-    assert t < t2
+    assert t.key() < t2.key()
 
 def test_sort():
     files = map(PyPyTarball, [
@@ -81,7 +82,7 @@ def load_BuildmasterConfig():
 def test_builder_names():
     BuildmasterConfig = load_BuildmasterConfig()
     builders = [b['name'] for b in BuildmasterConfig['builders']]
-    known_exceptions = set(['own-win-x86-32'])
+    known_exceptions = set(['pypy-c-jit-macosx-x86-32'])
     def check_builder_names(t, expected_own, expected_app):
         own, app = t.get_builder_names()
         assert own == expected_own
