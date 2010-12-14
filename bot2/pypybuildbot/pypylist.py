@@ -4,6 +4,7 @@ import itertools
 import re
 import py
 import cgi
+import urllib
 from twisted.web import resource
 from twisted.web.static import File, DirectoryLister
 
@@ -11,6 +12,11 @@ class PyPyTarball(object):
 
     # to get the desired order keep in mind that they are reversed at the end,
     # so the highest the value, the bigger the priority
+    VCS_PRIORITY = {
+        'hg': 100,
+        'svn': 50,
+        }
+    
     FEATURES_PRIORITY = {
         'jit':      100,
         'nojit':     50,
@@ -42,10 +48,12 @@ class PyPyTarball(object):
         try:
             self.parse_filename()
         except ValueError:
+            self.vcs = None
             self.exe = None
             self.backend = None
             self.features = None
             self.rev = -1
+            self.numrev = -1
             self.platform = None
 
     def parse_filename(self):
@@ -53,9 +61,18 @@ class PyPyTarball(object):
             raise ValueError
         name = self.filename.replace('.tar.bz2', '')
         self.exe, self.backend, self.features, self.rev, self.platform = name.split('-')
+        if ':' in self.rev:
+            # mercurial based
+            num, _ = self.rev.split(':')
+            self.numrev = int(num)
+            self.vcs = 'hg'
+        else:
+            self.numrev = int(self.rev)
+            self.vcs = 'svn'
 
     def key(self):
-        return (self.rev,
+        return (self.VCS_PRIORITY.get(self.vcs, -1),
+                self.numrev,
                 self.FEATURES_PRIORITY.get(self.features, -1),
                 self.PLATFORM_PRIORITY.get(self.platform, -1))
 
@@ -175,7 +192,7 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
         return tableContent
 
     def _add_test_results(self, element, rowClass):
-        filename = element['href']
+        filename = urllib.unquote(element['href'])
         f = py.path.local(self.path).join(filename)
         date = datetime.date.fromtimestamp(f.mtime())
         element['date'] = date.isoformat()

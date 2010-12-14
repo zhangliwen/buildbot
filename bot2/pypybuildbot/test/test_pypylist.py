@@ -1,14 +1,27 @@
 import py
 from pypybuildbot.pypylist import PyPyTarball
 
-def test_pypytarball():
+def test_pypytarball_svn():
     t = PyPyTarball('pypy-c-jit-75654-linux.tar.bz2')
     assert t.filename == 'pypy-c-jit-75654-linux.tar.bz2'
     assert t.exe == 'pypy'
     assert t.backend == 'c'
     assert t.features == 'jit'
     assert t.rev == '75654'
+    assert t.numrev == 75654
     assert t.platform == 'linux'
+    assert t.vcs == 'svn'
+
+def test_pypytarball_hg():
+    t = PyPyTarball('pypy-c-jit-75654:foo-linux.tar.bz2')
+    assert t.filename == 'pypy-c-jit-75654:foo-linux.tar.bz2'
+    assert t.exe == 'pypy'
+    assert t.backend == 'c'
+    assert t.features == 'jit'
+    assert t.rev == '75654:foo'
+    assert t.numrev == 75654
+    assert t.platform == 'linux'
+    assert t.vcs == 'hg'
 
 def test_invalid_filename():
     t = PyPyTarball('foo')
@@ -29,11 +42,13 @@ def test_sort():
             'pypy-c-jit-10000-linux64.tar.bz2',
             'pypy-c-jit-10000-win32.tar.bz2',
             'pypy-c-stackless-10000-linux.tar.bz2',
+            'pypy-c-jit-1000:e5b73981fc8d-linux.tar.bz2', # this is mercurial based
             ])
 
     files.sort(key=PyPyTarball.key, reverse=True)
     files = [f.filename for f in files]
     assert files == [
+        'pypy-c-jit-1000:e5b73981fc8d-linux.tar.bz2', # mercurial first
         'pypy-c-jit-20000-linux.tar.bz2',
         'pypy-c-jit-10000-linux.tar.bz2',
         'pypy-c-jit-10000-linux64.tar.bz2',
