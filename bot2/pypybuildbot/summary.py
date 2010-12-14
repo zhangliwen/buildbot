@@ -421,10 +421,53 @@ class SummaryPage(object):
         rightalign = ' '*(revsize-len(revtxt))
         return [rev_anchor, rightalign]
 
+    def is_older_than(self, outcome_set_1, outcome_set_2):
+        # entries1 is a list [(category, buildbum)]
+        entries1 = [x.key for x in outcome_set_1.map.values()]
+        # entries2 is a dict {category: buildnum}
+        entries2 = dict([x.key for x in outcome_set_2.map.values()])
+        for cat1, buildnum1 in entries1:
+            if cat1 in entries2:
+                return buildnum1 < entries2[cat1]
+        else:
+            return False     # unknown
+
+    def sort_outcome_sets(self, outcome_sets):
+        # Sorting is a bit messy to get right: for example,
+        # outcome_sets[0] might contain two outcomes whose keys are
+        # ('pypy-c-jit-linux-x86-32', 541) and
+        # ('pypy-c-app-level-linux-x86-32', 956),
+        # while outcome_sets[1] might contain three outcomes including
+        # one whose key is ('pypy-c-app-level-linux-x86-32', 957);
+        # then it goes afterwards.  The mess starts if one outcome set
+        # doesn't have any common category with another.
+        #
+        remaining = list(outcome_sets)
+        del outcome_sets[:]
+        # repeatedly pick one of the remaining outcome sets as "the
+        # oldest one", for some definition of "oldest".
+        while remaining:
+            # we start with a random outcome set, and for each outcome set
+            # that seems to be older, we choose that one instead.  We
+            # ignore cycles by explicitly not comparing again.
+            s = remaining.pop()
+            maybe_older = remaining[:]
+            while maybe_older:
+                for outcome_set in maybe_older:
+                    if self.is_older_than(outcome_set, s):
+		        remaining.remove(outcome_set)
+			remaining.append(s)
+                        s = outcome_set
+                        maybe_older.remove(s)
+                        break   # try again, if maybe_older is not empty
+                else:
+                    break    # no older found, keep 's'
+            outcome_sets.append(s)
+
     def add_section(self, cat_branch, outcome_sets):
         if not outcome_sets:
             return
-        outcome_sets.sort(key=self._builder_num)
+        self.sort_outcome_sets(outcome_sets)
         labels = [self._label(outcome_set) for outcome_set in outcome_sets]
         by_label = [(self._label(outcome_set), outcome_set)
                     for outcome_set in outcome_sets]
