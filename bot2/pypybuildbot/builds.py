@@ -89,6 +89,17 @@ class PytestCmd(ShellCmd):
 
 # ________________________________________________________________
 
+class UpdateCheckout(ShellCmd):
+    description = 'hg update'
+    command = 'UNKNOWN'
+
+    def start(self):
+        properties = self.build.getProperties()
+        branch = properties['branch']
+        command = ["hg", "update", "-r", branch or 'default']
+        self.setCommand(command)
+        ShellCmd.start(self)
+
 class CheckGotRevision(ShellCmd):
     description = 'got_revision'
     command = ['hg', 'parents', '--template', '{rev}:{node|short}']
@@ -112,25 +123,24 @@ def setup_steps(platform, factory, workdir=None):
     if platform == "win32":
         command = "if not exist .hg %s"
     else:
-        command = "if [[ ! -d .hg ]]; then %s; fi"
+        command = "if [ ! -d .hg ]; then %s; fi"
     command = command % ("hg clone -U " + repourl)
     factory.addStep(ShellCmd(description="hg clone",
                              command = command,
-                             workdir = workdir))
+                             workdir = workdir,
+			     haltOnFailure=True))
     #
     factory.addStep(ShellCmd(description="hg purge",
                              command = "hg --config extensions.purge= purge --all",
-                             workdir = workdir))
+                             workdir = workdir,
+                             haltOnFailure=True))
     #
-    command = ["hg", "pull", "--branch", WithProperties('branch')]
     factory.addStep(ShellCmd(description="hg pull",
-                             command = command,
+                             command = "hg pull",
                              workdir = workdir))
     #
-    command = ["hg", "update", "-r", WithProperties('branch')]
-    factory.addStep(ShellCmd(description="hg update",
-                             command = command,
-                             workdir = workdir))
+    factory.addStep(UpdateCheckout(workdir = workdir,
+                                   haltOnFailure=True))
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
 
