@@ -197,16 +197,20 @@ class Translated(factory.BuildFactory):
                 kind = 'stackless'
             else:
                 kind = 'nojit'
-        name = 'pypy-c-' + kind + '-%(got_revision)s-' + platform
+        #
+        properties = self.build.getProperties()
+        rev = properties.get('got_revision', 'unknownrev')
+        rev = rev.replace(':', '-')    # don't use ':' in file names
+        name = 'pypy-c-%s-%s-%s' % (kind, rev, platform)
         self.addStep(ShellCmd(
             description="compress pypy-c",
             command=["python", "pypy/tool/release/package.py",
-                     ".", WithProperties(name), 'pypy',
+                     ".", name, 'pypy',
                      '.'],
             workdir='build'))
         nightly = '~/nightly/'
         pypy_c_rel = "build/" + name + ".tar.bz2"
-        self.addStep(PyPyUpload(slavesrc=WithProperties(pypy_c_rel),
+        self.addStep(PyPyUpload(slavesrc=pypy_c_rel,
                                 masterdest=WithProperties(nightly),
                                 basename=name + ".tar.bz2",
                                 workdir='.',
