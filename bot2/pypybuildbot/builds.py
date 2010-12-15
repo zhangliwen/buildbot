@@ -89,43 +89,50 @@ class PytestCmd(ShellCmd):
 
 # ________________________________________________________________
 
-class FixGotRevision(ShellCmd):
-    description = 'fix got_revision'
-    # XXX: this assumes that 'hg' in in PATH
+class CheckGotRevision(ShellCmd):
+    description = 'got_revision'
     command = ['hg', 'parents', '--template', '{rev}:{node|short}']
 
     def commandComplete(self, cmd):
         if cmd.rc == 0:
             got_revision = cmd.logs['stdio'].getText()
-	    final_file_name = got_revision.replace(':', '-')
-	    # ':' should not be part of filenames --- too many issues
-            self.build.setProperty('got_revision', got_revision, 'fix got_revision')
-            self.build.setProperty('final_file_name', final_file_name, 'fix got_revision')
-
+            final_file_name = got_revision.replace(':', '-')
+            # ':' should not be part of filenames --- too many issues
+            self.build.setProperty('got_revision', got_revision, 'got_revision')
+            self.build.setProperty('final_file_name', final_file_name, 'got_revision')
 
 def setup_steps(platform, factory, workdir=None):
-    # XXX: add the equivalent of svn.wcrevert (hg purge?)
-    #
-    ## if platform == "win32":
-    ##     command = "if exist pypy %s"
-    ## else:
-    ##     command = "if [ -d pypy ]; then %s; fi"
-    ## command = command % "python py/bin/py.svnwcrevert -p.buildbot-sourcedata ."
-    ## factory.addStep(ShellCmd(
-    ##     description="wcrevert",
-    ##     command = command,
-    ##     workdir = workdir,
-    ##     ))
-    ## factory.addStep(source.SVN(baseURL="http://codespeak.net/svn/pypy/",
-    ##                            defaultBranch="trunk",
-    ##                            workdir=workdir))
+    # XXX: this assumes that 'hg' is in the path
     import getpass
     repourl = 'https://bitbucket.org/pypy/pypy/'
     if getpass.getuser() == 'antocuni':
         # for debugging
         repourl = '/home/antocuni/pypy/pypy-hg'
-    factory.addStep(source.Mercurial(repourl=repourl, branchType='inrepo'))
-    factory.addStep(FixGotRevision(workdir=workdir))
+    #
+    if platform == "win32":
+        command = "if not exist .hg %s"
+    else:
+        command = "if [[ ! -d .hg ]]; then %s; fi"
+    command = command % ("hg clone -U " + repourl)
+    factory.addStep(ShellCmd(description="hg clone",
+                             command = command,
+                             workdir = workdir))
+    #
+    factory.addStep(ShellCmd(description="hg purge",
+                             command = "hg --config extensions.purge= purge --all",
+                             workdir = workdir))
+    #
+    command = ["hg", "pull", "--branch", WithProperties('branch')]
+    factory.addStep(ShellCmd(description="hg pull",
+                             command = command,
+                             workdir = workdir))
+    #
+    command = ["hg", "update", "-r", WithProperties('branch')]
+    factory.addStep(ShellCmd(description="hg update",
+                             command = command,
+                             workdir = workdir))
+    #
+    factory.addStep(CheckGotRevision(workdir=workdir))
 
 
 class Own(factory.BuildFactory):
