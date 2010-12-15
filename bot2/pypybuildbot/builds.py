@@ -97,7 +97,10 @@ class FixGotRevision(ShellCmd):
     def commandComplete(self, cmd):
         if cmd.rc == 0:
             got_revision = cmd.logs['stdio'].getText()
+	    final_file_name = got_revision.replace(':', '-')
+	    # ':' should not be part of filenames --- too many issues
             self.build.setProperty('got_revision', got_revision, 'fix got_revision')
+            self.build.setProperty('final_file_name', final_file_name, 'fix got_revision')
 
 
 def setup_steps(platform, factory, workdir=None):
@@ -197,20 +200,16 @@ class Translated(factory.BuildFactory):
                 kind = 'stackless'
             else:
                 kind = 'nojit'
-        #
-        properties = self.build.getProperties()
-        rev = properties.get('got_revision', 'unknownrev')
-        rev = rev.replace(':', '-')    # don't use ':' in file names
-        name = 'pypy-c-%s-%s-%s' % (kind, rev, platform)
+        name = 'pypy-c-' + kind + '-%(final_file_name)s-' + platform
         self.addStep(ShellCmd(
             description="compress pypy-c",
             command=["python", "pypy/tool/release/package.py",
-                     ".", name, 'pypy',
+                     ".", WithProperties(name), 'pypy',
                      '.'],
             workdir='build'))
         nightly = '~/nightly/'
         pypy_c_rel = "build/" + name + ".tar.bz2"
-        self.addStep(PyPyUpload(slavesrc=pypy_c_rel,
+        self.addStep(PyPyUpload(slavesrc=WithProperties(pypy_c_rel),
                                 masterdest=WithProperties(nightly),
                                 basename=name + ".tar.bz2",
                                 workdir='.',
