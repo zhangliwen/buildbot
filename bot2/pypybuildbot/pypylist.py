@@ -60,15 +60,20 @@ class PyPyTarball(object):
         if not self.filename.endswith('.tar.bz2'):
             raise ValueError
         name = self.filename.replace('.tar.bz2', '')
-        self.exe, self.backend, self.features, self.rev, self.platform = name.split('-')
-        if ':' in self.rev:
-            # mercurial based
-            num, _ = self.rev.split(':')
-            self.numrev = int(num)
-            self.vcs = 'hg'
-        else:
+        dashes = name.count('-')
+        if dashes == 4:
+            # svn based
+            self.exe, self.backend, self.features, self.rev, self.platform = name.split('-')
             self.numrev = int(self.rev)
             self.vcs = 'svn'
+        elif dashes == 5:
+            # mercurial based
+            self.exe, self.backend, self.features, num, hgid, self.platform = name.split('-')
+            self.numrev = int(num)
+            self.rev = '%s:%s' % (num, hgid)
+            self.vcs = 'hg'
+        else:
+            raise ValueError
 
     def key(self):
         return (self.VCS_PRIORITY.get(self.vcs, -1),
