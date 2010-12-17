@@ -3,7 +3,8 @@
 """
 POST hook for bitbucket. So far, it just sends the email diff.
 
-The idea is that the buildmaster user runs inside a screen session on codespeak.
+The idea is that the buildmaster user runs it inside a screen session on
+codespeak.
 """
 
 import time
