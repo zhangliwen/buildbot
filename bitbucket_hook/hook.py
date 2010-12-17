@@ -35,6 +35,7 @@ Branch: {branches}
 Changeset: {node|short}
 Date: {date|isodate}
 %(url)s
+
 Log:\t{desc|tabindent}
 
 """
@@ -63,8 +64,8 @@ class BitbucketHookHandler(object):
         line0 = lines and lines[0] or ''
         reponame = self.payload['repository']['name']
         # TODO: maybe include the modified paths in the subject line?
-        url = self.remote_repo + '/changeset/' + commit['node'] + '/'
-        template = TEMPLATE % url
+        url = self.remote_repo + 'changeset/' + commit['node'] + '/'
+        template = TEMPLATE % {'url': url}
         subject = '%s %s: %s' % (reponame, commit['branch'], line0)
         body = hg('-R', self.local_repo, 'log', '-r', hgid,
                  '--template', template)
