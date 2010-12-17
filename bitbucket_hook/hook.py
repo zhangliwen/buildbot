@@ -54,7 +54,7 @@ class BitbucketHookHandler(object):
         self.handle_diff_email()
 
     def handle_diff_email(self):
-        for commit in payload['commits']:
+        for commit in self.payload['commits']:
             self.send_diff_for_commit(commit)
 
     def send_diff_for_commit(self, commit):
@@ -91,7 +91,7 @@ class BitbucketHookHandler(object):
 
 
 if __name__ == '__main__':
-    payload = {u'commits': [{u'author': u'antocuni',
+    test_payload = {u'commits': [{u'author': u'antocuni',
                              u'branch': u'default',
                              u'files': [{u'file': u'pdbdemo2.py', u'type': u'modified'},
                                         {u'file': u'README2', u'type': u'added'},
@@ -123,4 +123,4 @@ if __name__ == '__main__':
                u'user': u'antocuni'}
 
     hook = BitbucketHookHandler()
-    hook.handle(payload)
+    hook.handle(test_payload)
