@@ -11,7 +11,7 @@ import BaseHTTPServer
 import json
 import cgi
 
-from hook import BitbucketHook
+from hook import BitbucketHookHandler
 
 HOST_NAME = 'codespeak.net'
 PORT_NUMBER = 9237

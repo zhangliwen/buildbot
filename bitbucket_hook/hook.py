@@ -73,11 +73,9 @@ class BitbucketHookHandler(object):
     def get_diff(self, hgid, files):
         import re
         binary = re.compile('^GIT binary patch$', re.MULTILINE)
-        files = [item['file'], item['type'] for item in files]
+        files = [item['file'] for item in files]
         lines = []
-        status_lines = []
-        for filename, status in files:
-            status = status[0].upper()
+        for filename in files:
             out = hg('-R', self.local_repo, 'diff', '--git', '-c', hgid,
                      self.local_repo.join(filename))
             match = binary.search(out)
