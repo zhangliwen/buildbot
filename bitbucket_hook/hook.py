@@ -32,7 +32,7 @@ def send(from_, to, subject, body):
 TEMPLATE = """\
 Author: {author}
 Branch: {branches}
-Changeset: {node|short}
+Changeset: r{rev}:{node|short}
 Date: {date|isodate}
 %(url)s
 
