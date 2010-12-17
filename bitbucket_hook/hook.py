@@ -16,20 +16,31 @@ else:
     SMTP_PORT = 25
     ADDRESS = 'pypy-svn@codespeak.net'
 
-hg = py.path.local.sysfind('hg').sysexec
+hgexe = str(py.path.local.sysfind('hg'))
+def hg(*argv):
+    from subprocess import Popen, PIPE
+    argv = map(str, argv)
+    proc = Popen([hgexe] + list(argv), stdout=PIPE, stderr=PIPE)
+    stdout, stderr = proc.communicate()
+    ret = proc.wait()
+    if ret != 0:
+        print >> sys.stderr, 'error: hg', ' '.join(argv)
+        print >> sys.stderr, stderr
+        raise Exception('error when executing hg')
+    return stdout.decode('utf-8')
 
 def send(from_, to, subject, body):
     import smtplib
     from email.mime.text import MIMEText
 
     smtp = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-    msg = MIMEText(body)
+    msg = MIMEText(body, _charset='utf-8')
     msg['From'] = from_
     msg['To'] = to
     msg['Subject'] = subject
     smtp.sendmail(from_, [to], msg.as_string())
 
-TEMPLATE = """\
+TEMPLATE = u"""\
 Author: {author}
 Branch: {branches}
 Changeset: r{rev}:{node|short}
