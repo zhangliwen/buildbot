@@ -17,28 +17,6 @@ else:
     ADDRESS = 'pypy-svn@codespeak.net'
 
 hgexe = str(py.path.local.sysfind('hg'))
-def hg(*argv):
-    from subprocess import Popen, PIPE
-    argv = map(str, argv)
-    proc = Popen([hgexe] + list(argv), stdout=PIPE, stderr=PIPE)
-    stdout, stderr = proc.communicate()
-    ret = proc.wait()
-    if ret != 0:
-        print >> sys.stderr, 'error: hg', ' '.join(argv)
-        print >> sys.stderr, stderr
-        raise Exception('error when executing hg')
-    return stdout.decode('utf-8')
-
-def send(from_, to, subject, body):
-    import smtplib
-    from email.mime.text import MIMEText
-
-    smtp = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-    msg = MIMEText(body, _charset='utf-8')
-    msg['From'] = from_
-    msg['To'] = to
-    msg['Subject'] = subject
-    smtp.sendmail(from_, [to], msg.as_string())
 
 TEMPLATE = u"""\
 Author: {author}
@@ -53,6 +31,33 @@ Log:\t{desc|tabindent}
 
 class BitbucketHookHandler(object):
 
+    def _hgexe(self, argv):
+        from subprocess import Popen, PIPE
+        proc = Popen([hgexe] + list(argv), stdout=PIPE, stderr=PIPE)
+        stdout, stderr = proc.communicate()
+        ret = proc.wait()
+        return stdout, stderr, ret
+
+    def hg(self, *argv):
+        argv = map(str, argv)
+        stdout, stderr, ret = self._hgexe(argv)
+        if ret != 0:
+            print >> sys.stderr, 'error: hg', ' '.join(argv)
+            print >> sys.stderr, stderr
+            raise Exception('error when executing hg')
+        return stdout.decode('utf-8')
+
+    def send(self, from_, to, subject, body):
+        import smtplib
+        from email.mime.text import MIMEText
+
+        smtp = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        msg = MIMEText(body, _charset='utf-8')
+        msg['From'] = from_
+        msg['To'] = to
+        msg['Subject'] = subject
+        smtp.sendmail(from_, [to], msg.as_string())
+
     def handle(self, payload):
         path = payload['repository']['absolute_url']
         self.payload = payload
@@ -61,7 +66,7 @@ class BitbucketHookHandler(object):
         if not self.local_repo.check(dir=True):
             print >> sys.stderr, 'Ignoring unknown repo', path
             return
-        hg('pull', '-R', self.local_repo)
+        self.hg('pull', '-R', self.local_repo)
         self.handle_diff_email()
 
     def handle_diff_email(self):
@@ -78,11 +83,11 @@ class BitbucketHookHandler(object):
         url = self.remote_repo + 'changeset/' + commit['node'] + '/'
         template = TEMPLATE % {'url': url}
         subject = '%s %s: %s' % (reponame, commit['branch'], line0)
-        body = hg('-R', self.local_repo, 'log', '-r', hgid,
+        body = self.hg('-R', self.local_repo, 'log', '-r', hgid,
                  '--template', template)
         diff = self.get_diff(hgid, commit['files'])
         body = body+diff
-        send(sender, ADDRESS, subject, body)
+        self.send(sender, ADDRESS, subject, body)
 
     def get_diff(self, hgid, files):
         import re
@@ -90,8 +95,8 @@ class BitbucketHookHandler(object):
         files = [item['file'] for item in files]
         lines = []
         for filename in files:
-            out = hg('-R', self.local_repo, 'diff', '--git', '-c', hgid,
-                     self.local_repo.join(filename))
+            out = self.hg('-R', self.local_repo, 'diff', '--git', '-c', hgid,
+                          self.local_repo.join(filename))
             match = binary.search(out)
             if match:
                 # it's a binary patch, omit the content
