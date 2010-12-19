@@ -45,7 +45,10 @@ class BitbucketHookHandler(object):
             print >> sys.stderr, 'error: hg', ' '.join(argv)
             print >> sys.stderr, stderr
             raise Exception('error when executing hg')
-        return stdout.decode('utf-8')
+        try:
+            return stdout.decode('utf-8')
+        except UnicodeDecodeError:
+            return stdout
 
     def send(self, from_, to, subject, body):
         import smtplib
