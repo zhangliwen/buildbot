@@ -1,4 +1,7 @@
 syntax: glob
+*.pyc
+*~
+
 # master/slaveinfo.py contains the passwords, so it should never be tracked
 master/slaveinfo.py
 
