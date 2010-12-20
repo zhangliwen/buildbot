@@ -25,7 +25,7 @@ Changeset: r{rev}:{node|short}
 Date: {date|isodate}
 %(url)s
 
-Log:\t{desc|tabindent}
+Log:\t{desc|fill68|tabindent}
 
 """
 
