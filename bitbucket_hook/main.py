@@ -11,6 +11,9 @@ import time
 import BaseHTTPServer
 import json
 import cgi
+import traceback
+import pprint
+import sys
 
 from hook import BitbucketHookHandler
 
@@ -22,9 +25,17 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
         """Respond to a GET request."""
         self.send_response(200)
-        self.send_header("Content-type", "text/plain")
+        self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write("This is the pypy bitbucket hook.")
+        self.wfile.write("""
+            <html>
+                <p>This is the pypy bitbucket hook. Use the following form only for testing</p>
+                <form method=post>
+                    payload: <input name=payload> <br>
+                    submit: <input type=submit>
+                </form>
+            </html>
+        """)
 
     def do_POST(self):
         length = int(self.headers['Content-Length'])
@@ -32,8 +43,13 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         data = dict(cgi.parse_qsl(query_string))
         payload = json.loads(data['payload'])
         handler = BitbucketHookHandler()
-        handler.handle(payload)
-
+        try:
+            handler.handle(payload)
+        except:
+            traceback.print_exc()
+            print >> sys.stderr, 'payload:'
+            pprint.pprint(payload, sys.stderr)
+            print >> sys.stderr
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
