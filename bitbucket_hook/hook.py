@@ -45,10 +45,7 @@ class BitbucketHookHandler(object):
             print >> sys.stderr, 'error: hg', ' '.join(argv)
             print >> sys.stderr, stderr
             raise Exception('error when executing hg')
-        try:
-            return stdout.decode('utf-8')
-        except UnicodeDecodeError:
-            return stdout
+        return unicode(stdout, encoding='utf-8', errors='replace')
 
     def send(self, from_, to, subject, body):
         import smtplib
@@ -104,9 +101,9 @@ class BitbucketHookHandler(object):
             if match:
                 # it's a binary patch, omit the content
                 out = out[:match.end()]
-                out += '\n[cut]'
+                out += u'\n[cut]'
             lines.append(out)
-        return '\n'.join(lines)
+        return u'\n'.join(lines)
 
 
 if __name__ == '__main__':

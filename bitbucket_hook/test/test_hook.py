@@ -28,5 +28,5 @@ def test_non_ascii_encoding_invalid_utf8():
     #
     handler = MyHandler()
     stdout = handler.hg('foobar')
-    assert type(stdout) is str # if utf-8 does not work, give up
-    assert stdout == '\xe4aa'
+    assert type(stdout) is unicode
+    assert stdout == u'\ufffdaa'
