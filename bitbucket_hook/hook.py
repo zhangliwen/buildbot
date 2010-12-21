@@ -70,7 +70,10 @@ class BitbucketHookHandler(object):
         self.handle_diff_email()
 
     def handle_diff_email(self):
-        for commit in self.payload['commits']:
+        import operator
+        commits = sorted(self.payload['commits'],
+                         key=operator.itemgetter('revision'))
+        for commit in commits:
             self.send_diff_for_commit(commit)
 
     def send_diff_for_commit(self, commit):
