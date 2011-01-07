@@ -10,11 +10,17 @@ if socket.gethostname() == 'viper':
     SMTP_SERVER = "out.alice.it"
     SMTP_PORT = 25
     ADDRESS = 'anto.cuni@gmail.com'
+    #
+    CHANNEL = '#test'
+    BOT = '/tmp/commit-bot/message'
 else:
     # real settings, (they works on codespeak at least)
     SMTP_SERVER = 'localhost'
     SMTP_PORT = 25
     ADDRESS = 'pypy-svn@codespeak.net'
+    #
+    CHANNEL = '#pypy'
+    BOT = '/svn/hooks/commit-bot/message'
 
 hgexe = str(py.path.local.sysfind('hg'))
 
@@ -58,6 +64,10 @@ class BitbucketHookHandler(object):
         msg['Subject'] = subject
         smtp.sendmail(from_, [to], msg.as_string())
 
+    def send_irc_message(self, message):
+        import subprocess
+        return subprocess.call([BOT, CHANNEL, message])
+
     def handle(self, payload):
         path = payload['repository']['absolute_url']
         self.payload = payload
@@ -67,7 +77,17 @@ class BitbucketHookHandler(object):
             print >> sys.stderr, 'Ignoring unknown repo', path
             return
         self.hg('pull', '-R', self.local_repo)
+        self.handle_irc_message()
         self.handle_diff_email()
+
+    def handle_irc_message(self):
+        import operator
+        commits = sorted(self.payload['commits'],
+                         key=operator.itemgetter('revision'))
+        for commit in commits:
+            message = commit['message']
+            irc_msg = '%s %s: %s' % (commit['author'], commit['node'], message)
+            self.send_irc_message(irc_msg)
 
     def handle_diff_email(self):
         import operator

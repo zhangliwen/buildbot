@@ -37,7 +37,6 @@ def test_sort_commits():
             self.sent_commits = []
         def send_diff_for_commit(self, commit):
             self.sent_commits.append(commit['node'])
-
     #
     handler = MyHandler()
     handler.payload = {
@@ -46,3 +45,20 @@ def test_sort_commits():
         }
     handler.handle_diff_email()
     assert handler.sent_commits == ['first', 'second']
+
+class test_irc_message():
+    class MyHandler(BaseHandler):
+        def __init__(self):
+            self.messages = []
+        def send_irc_message(self, message):
+            self.messages.append(message)
+    handler = MyHandler()
+    handler.payload = {
+        'commits': [{'revision': 42,
+                     'author': u'antocuni',
+                     'message': u'this is a test',
+                     'node': 'abcdef'
+                     }]
+        }
+    handler.handle_irc_message()
+    assert handler.messages == ['antocuni abcdef: this is a test']
