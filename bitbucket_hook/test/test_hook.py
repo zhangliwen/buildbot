@@ -49,6 +49,7 @@ def test_sort_commits():
 def test_irc_message():
     LONG_MESSAGE = u'This is a test with a long message: ' + 'x'*1000
     class MyHandler(BaseHandler):
+        USE_COLOR_CODES = False
         def __init__(self):
             self.messages = []
         def send_irc_message(self, message):
