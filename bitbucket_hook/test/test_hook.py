@@ -46,7 +46,8 @@ def test_sort_commits():
     handler.handle_diff_email()
     assert handler.sent_commits == ['first', 'second']
 
-class test_irc_message():
+def test_irc_message():
+    LONG_MESSAGE = u'This is a test with a long message: ' + 'x'*1000
     class MyHandler(BaseHandler):
         def __init__(self):
             self.messages = []
@@ -58,7 +59,16 @@ class test_irc_message():
                      'author': u'antocuni',
                      'message': u'this is a test',
                      'node': 'abcdef'
-                     }]
+                     },
+                    {'revision': 43,
+                     'author': u'antocuni',
+                     'message': LONG_MESSAGE,
+                     'node': 'xxxyyy'
+                     }
+                    ]
         }
     handler.handle_irc_message()
-    assert handler.messages == ['antocuni abcdef: this is a test']
+    msg1, msg2 = handler.messages
+    assert msg1 == 'antocuni abcdef: this is a test'
+    x = 'antocuni xxxyyy: %s...' % LONG_MESSAGE[:160-20]
+    assert msg2 == x

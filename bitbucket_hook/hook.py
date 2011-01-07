@@ -86,7 +86,12 @@ class BitbucketHookHandler(object):
                          key=operator.itemgetter('revision'))
         for commit in commits:
             message = commit['message']
-            irc_msg = '%s %s: %s' % (commit['author'], commit['node'], message)
+            part1 = '%s %s: ' % (commit['author'], commit['node'])
+            if len(message) + len(part1) <= 160:
+                irc_msg = part1 + message
+            else:
+                maxlen = 160 - (len(part1) + 3)
+                irc_msg = part1 + message[:maxlen] + '...'
             self.send_irc_message(irc_msg)
 
     def handle_diff_email(self):
