@@ -56,12 +56,14 @@ def test_irc_message():
     handler = MyHandler()
     handler.payload = {
         'commits': [{'revision': 42,
+                     'branch': u'default',
                      'author': u'antocuni',
                      'message': u'this is a test',
                      'node': 'abcdef'
                      },
                     {'revision': 43,
                      'author': u'antocuni',
+                     'branch': u'mybranch',
                      'message': LONG_MESSAGE,
                      'node': 'xxxyyy'
                      }
@@ -69,6 +71,6 @@ def test_irc_message():
         }
     handler.handle_irc_message()
     msg1, msg2 = handler.messages
-    assert msg1 == 'antocuni abcdef: this is a test'
-    x = 'antocuni xxxyyy: %s...' % LONG_MESSAGE[:160-20]
+    assert msg1 == 'antocuni default abcdef: this is a test'
+    x = 'antocuni mybranch xxxyyy: %s...' % LONG_MESSAGE[:160-29]
     assert msg2 == x

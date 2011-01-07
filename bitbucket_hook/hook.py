@@ -86,7 +86,7 @@ class BitbucketHookHandler(object):
                          key=operator.itemgetter('revision'))
         for commit in commits:
             message = commit['message'].replace('\n', ' ')
-            part1 = '%s %s: ' % (commit['author'], commit['node'])
+            part1 = '%s %s %s: ' % (commit['author'], commit['branch'], commit['node'])
             if len(message) + len(part1) <= 160:
                 irc_msg = part1 + message
             else:
