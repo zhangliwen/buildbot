@@ -124,7 +124,7 @@ def setup_steps(platform, factory, workdir=None):
         command = "if not exist .hg %s"
     else:
         command = "if [ ! -d .hg ]; then %s; fi"
-    command = command % ("hg clone -U " + repourl)
+    command = command % ("hg clone -U " + repourl + " .")
     factory.addStep(ShellCmd(description="hg clone",
                              command = command,
                              workdir = workdir,
