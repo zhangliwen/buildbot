@@ -96,7 +96,7 @@ class UpdateCheckout(ShellCmd):
     def start(self):
         properties = self.build.getProperties()
         branch = properties['branch']
-        command = ["hg", "update", "-r", branch or 'default']
+        command = ["hg", "update", "--clean", "-r", branch or 'default']
         self.setCommand(command)
         ShellCmd.start(self)
 
