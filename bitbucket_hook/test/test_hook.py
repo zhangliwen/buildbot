@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from bitbucket_hook.hook import BitbucketHookHandler
+from bitbucket_hook.hook import BitbucketHookHandler, getpaths
 
 class BaseHandler(BitbucketHookHandler):
 
@@ -46,6 +46,18 @@ def test_sort_commits():
     handler.handle_diff_email()
     assert handler.sent_commits == ['first', 'second']
 
+def test_getpaths():
+    d = dict
+    empty = d(file='')
+    nothing = ('', '')
+    files_expected = [([], nothing),
+                      ([empty], nothing),
+                      ([empty, empty], nothing),
+                      ]
+
+    for f, wanted in files_expected:
+        assert getpaths(f) == wanted
+
 
 LONG_MESSAGE = u'This is a test with a long message: ' + 'x'*1000
 LONG_CUT = LONG_MESSAGE[:160-29]
@@ -90,7 +102,6 @@ def irc_cases(payload=None):
                          branch=branch, message=LONG_MESSAGE, node=node))
 
     return payload, expected
-
 
 
 def test_irc_message():
