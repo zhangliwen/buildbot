@@ -37,17 +37,20 @@ Log:\t{desc|fill68|tabindent}
 """
 
 def getpaths(files):
-    # XXX Maybe should return file paths relative to prefix? Or TMI?
+    if not files:
+        return '', ''
+
     files = [f['file'] for f in files]
+
     if len(files) == 1:
         common_prefix = os.path.dirname(files[0])
     else:
         common_prefix = os.path.commonprefix(files)
 
+    # XXX Maybe should return file paths relative to prefix? Or TMI?
     filenames = [os.path.basename(f) for f in files]
     filenames = ' M(%s)' % ', '.join(filenames)
     return common_prefix, filenames
-
 
 
 class BitbucketHookHandler(object):
@@ -277,4 +280,5 @@ if __name__ == '__main__':
     LOCAL_REPOS = py.path.local(repopath)
 
     hook = BitbucketHookHandler()
+    hook.USE_COLOR_CODES = False
     hook.handle(test_payload, test=True)
