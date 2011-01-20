@@ -69,12 +69,17 @@ def test_getpaths():
 
     empty = d(file='')
 
-    nocommonplusempty = [d(file='path1/file'), d(file='path2/file'),
+    nocommonplusempty = [d(file='path1/file1'), d(file='path2/file2'),
                          d(file='path3/file'), empty]
 
     commonplusempty = [d(file='path/file1'), d(file='path/file2'),
                        d(file='path/file'), empty]
 
+    nocommonplusslash = [d(file='path1/file1'), d(file='path2/file2'),
+                         d(file='path3/file'), d(file='path4/dir/')]
+
+    commonplusslash = [d(file='path/file1'), d(file='path/file2'),
+                       d(file='path/file'), d(file='path/dir/')]
     nothing = ('', '')
     files_expected = [([], nothing),
                       ([empty], nothing),
@@ -90,6 +95,8 @@ def test_getpaths():
                       (common, ('some/path/to/', '')),
                       (commonplusroot, nothing),
                       (commonplusempty, nothing),
+                      (nocommonplusslash, nothing),
+                      (commonplusslash, ('path/', '')),
                       ]
 
     for f, wanted in files_expected:
@@ -110,6 +117,8 @@ def test_getpaths():
                                 ' M(file, file, anotherfile, afile)')),
                       (commonplusroot, ('', ' M(file1, file2, file, file)')),
                       (commonplusempty, ('',' M(file1, file2, file)')),
+                      (nocommonplusslash, ('',' M(file1, file2, file)')),
+                      (commonplusslash, ('path/',' M(file1, file2, file)')),
                       ]
 
     for f, wanted in files_expected:
