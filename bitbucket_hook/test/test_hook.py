@@ -55,16 +55,16 @@ def test_getpaths():
     slashleft = [d(file='/slashleft')]
     slashright = [d(file='slashright/')]
 
-    nocommon = [d(file='path1/file'), d(file='path2/file'),
+    nocommon = [d(file='path1/file1'), d(file='path2/file2'),
                 d(file='path3/file'), d(file='path4/file')]
 
-    nocommonplusroot = [d(file='path1/file'), d(file='path2/file'),
+    nocommonplusroot = [d(file='path1/file1'), d(file='path2/file2'),
                         d(file='path3/file'), d(file='file')]
 
     common = [d(file='some/path/to/file'), d(file='some/path/to/deeper/file'),
               d(file='some/path/to/anotherfile'), d(file='some/path/to/afile')]
 
-    commonplusroot = [d(file='path/file'), d(file='path/file'),
+    commonplusroot = [d(file='path/file1'), d(file='path/file2'),
                       d(file='path/file'), d(file='file')]
 
     empty = d(file='')
@@ -72,7 +72,7 @@ def test_getpaths():
     nocommonplusempty = [d(file='path1/file'), d(file='path2/file'),
                          d(file='path3/file'), empty]
 
-    commonplusempty = [d(file='path/file'), d(file='path/file'),
+    commonplusempty = [d(file='path/file1'), d(file='path/file2'),
                        d(file='path/file'), empty]
 
     nothing = ('', '')
@@ -86,6 +86,7 @@ def test_getpaths():
                       (slashright, ('slashright/', '')),
                       (nocommon, nothing),
                       (nocommonplusroot, nothing),
+                      (nocommonplusempty, nothing),
                       (common, ('some/path/to/', '')),
                       (commonplusroot, nothing),
                       (commonplusempty, nothing),
@@ -93,6 +94,27 @@ def test_getpaths():
 
     for f, wanted in files_expected:
         assert getpaths(f) == wanted
+
+    files_expected = [([], nothing),
+                      ([empty], nothing),
+                      #([empty, empty], nothing),
+                      (barefile, ('barefile', '')),
+                      (deepfile, ('a/long/path/to/deepfile.py', '')),
+                      (slashesfile, ('/slashesfile/', '')),
+                      (slashleft, ('/slashleft', '')),
+                      (slashright, ('slashright/', '')),
+                      (nocommon, ('', ' M(file1, file2, file, file)')),
+                      (nocommonplusroot, ('', ' M(file1, file2, file, file)')),
+                      (nocommonplusempty, ('',' M(file1, file2, file)')),
+                      (common, ('some/path/to/',
+                                ' M(file, file, anotherfile, afile)')),
+                      (commonplusroot, ('', ' M(file1, file2, file, file)')),
+                      (commonplusempty, ('',' M(file1, file2, file)')),
+                      ]
+
+    for f, wanted in files_expected:
+        assert getpaths(f, listfiles=True) == wanted
+
 
 
 LONG_MESSAGE = u'This is a test with a long message: ' + 'x'*1000
