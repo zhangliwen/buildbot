@@ -138,28 +138,26 @@ def irc_cases(payload=None):
                                   d(file='my/file3')]
     single_file_deep = [d(file='path/to/single')]
 
-    cases = (no_file, single_file, multiple_files,
-             multiple_files_subdir, multiple_files_subdir_root,
-             single_file_deep
-            )
-
-    expected = ['antocuni mybranch axxyyy /: %s...', # No diff
-                'antocuni mybranch bxxyyy /single: %s...', # Single file
-                'antocuni mybranch cxxyyy /: %s...',
-                'antocuni mybranch dxxyyy /path/: %s...',
-                'antocuni mybranch exxyyy /: %s...',
-                'antocuni mybranch fxxyyy /path/to/single: %s...'
-                ]
-
-    commits = payload['commits']
+    cases = [(no_file,  ''), # No diff
+             (single_file,'single'), # Single file
+             (multiple_files,   ''),  # No common prefix
+             (multiple_files_subdir, 'path/'), # Common prefix
+             (multiple_files_subdir_root, ''), # No common subdir, file in root
+             (single_file_deep,'path/to/single') # Single file in deep path
+            ]
 
     author = u'antocuni'
     branch = u'mybranch'
 
-    for i, case in enumerate(cases):
+    expected_template = '%s %s %%s /%%s: %%s...' % (author, branch)
+    expected = []
+    commits = payload['commits']
+
+    for i, (case, snippet) in enumerate(cases):
         rev = 44 + i
         node = chr(97+i) + 'xxyyy'
         raw_node = node * 2
+        expected.append(expected_template % (node, snippet, LONG_CUT))
         commits.append(d(revision=rev, files=case, author=author,
                          branch=branch, message=LONG_MESSAGE, node=node,
                          raw_node=raw_node))
@@ -201,7 +199,6 @@ def test_irc_message():
     assert msg2 == x
 
     for got, wanted in zip(handler.messages[2:], expected):
-        wanted = wanted % LONG_CUT
         assert got == wanted
 
 def noop(*args, **kwargs): pass
