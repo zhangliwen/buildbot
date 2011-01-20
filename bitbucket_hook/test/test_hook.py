@@ -203,3 +203,8 @@ def test_handle():
 
     handler.handle(test_payload)
     handler.handle(test_payload, test=True)
+
+    handler.LISTFILES = True
+    handler.handle(test_payload)
+    handler.handle(test_payload, test=True)
+
