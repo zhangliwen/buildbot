@@ -44,7 +44,13 @@ def getpaths(files, listfiles=False):
     files = [f['file'] for f in files]
 
     common_prefix = [dirname(f) for f in files if dirname(f)]
-    if len(common_prefix) == 1:
+
+    # Single file, show its full path
+    if len(files) == 1:
+        common_prefix = files[0]
+        listfiles = False
+
+    elif len(common_prefix) == 1:
         common_prefix = common_prefix[0] + '/'
 
     elif not common_prefix:

@@ -121,10 +121,15 @@ def test_irc_message():
     assert msg1 == 'antocuni default abcdef /: this is a test'
     x = 'antocuni mybranch xxxyyy /: %s...' % LONG_MESSAGE[:160-29]
     assert msg2 == x
+
+    # No diff
     x = 'antocuni mybranch axxyyy /: %s...' % LONG_MESSAGE[:160-29]
     assert msg3 == x
-    x = 'antocuni mybranch bxxyyy /: %s...' % LONG_MESSAGE[:160-29]
+
+    # Single file
+    x = 'antocuni mybranch bxxyyy /single: %s...' % LONG_MESSAGE[:160-29]
     assert msg4 == x
+
     x = 'antocuni mybranch cxxyyy /: %s...' % LONG_MESSAGE[:160-29]
     assert msg5 == x
     x = 'antocuni mybranch dxxyyy /path/: %s...' % LONG_MESSAGE[:160-29]
