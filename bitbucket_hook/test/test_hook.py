@@ -49,42 +49,36 @@ def test_sort_commits():
 def test_getpaths():
     d = dict
 
-    barefile = [d(file='barefile')]
+    barefile = [d(file='file')]
+    distinct = [d(file='path1/file1'), d(file='path2/file2'),
+                d(file='path3/file')]
+    shared = [d(file='path/file1'), d(file='path/file2'),
+              d(file='path/file')]
+
     deepfile = [d(file='a/long/path/to/deepfile.py')]
     slashesfile = [d(file='/slashesfile/')]
     slashleft = [d(file='/slashleft')]
     slashright = [d(file='slashright/')]
 
-    nocommon = [d(file='path1/file1'), d(file='path2/file2'),
-                d(file='path3/file'), d(file='path4/file')]
 
-    nocommonplusroot = [d(file='path1/file1'), d(file='path2/file2'),
-                        d(file='path3/file'), d(file='file')]
+    nocommon = distinct + [d(file='path4/file')]
+    nocommonplusroot = distinct + barefile
 
     common = [d(file='some/path/to/file'), d(file='some/path/to/deeper/file'),
               d(file='some/path/to/anotherfile'), d(file='some/path/to/afile')]
-
-    commonplusroot = [d(file='path/file1'), d(file='path/file2'),
-                      d(file='path/file'), d(file='file')]
+    commonplusroot = shared + barefile
 
     empty = d(file='')
+    nocommonplusempty = distinct + [empty]
+    commonplusempty = shared + [empty]
+    nocommonplusslash = distinct + [d(file='path4/dir/')]
+    commonplusslash = shared + [d(file='path/dir/')]
 
-    nocommonplusempty = [d(file='path1/file1'), d(file='path2/file2'),
-                         d(file='path3/file'), empty]
-
-    commonplusempty = [d(file='path/file1'), d(file='path/file2'),
-                       d(file='path/file'), empty]
-
-    nocommonplusslash = [d(file='path1/file1'), d(file='path2/file2'),
-                         d(file='path3/file'), d(file='path4/dir/')]
-
-    commonplusslash = [d(file='path/file1'), d(file='path/file2'),
-                       d(file='path/file'), d(file='path/dir/')]
     nothing = ('', '')
     files_expected = [([], nothing),
                       ([empty], nothing),
                       ([empty, empty], nothing),
-                      (barefile, ('barefile', '')),
+                      (barefile, ('file', '')),
                       (deepfile, ('a/long/path/to/deepfile.py', '')),
                       (slashesfile, ('/slashesfile/', '')),
                       (slashleft, ('/slashleft', '')),
@@ -105,7 +99,7 @@ def test_getpaths():
     files_expected = [([], nothing),
                       ([empty], nothing),
                       ([empty, empty], nothing),
-                      (barefile, ('barefile', '')),
+                      (barefile, ('file', '')),
                       (deepfile, ('a/long/path/to/deepfile.py', '')),
                       (slashesfile, ('/slashesfile/', '')),
                       (slashleft, ('/slashleft', '')),
