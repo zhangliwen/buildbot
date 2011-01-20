@@ -36,6 +36,20 @@ Log:\t{desc|fill68|tabindent}
 
 """
 
+def getpaths(files):
+    # XXX Maybe should return file paths relative to prefix? Or TMI?
+    files = [f['file'] for f in files]
+    if len(files) == 1:
+        common_prefix = os.path.dirname(files[0])
+    else:
+        common_prefix = os.path.commonprefix(files)
+
+    filenames = [os.path.basename(f) for f in files]
+    filenames = ' M(%s)' % ', '.join(filenames)
+    return common_prefix, filenames
+
+
+
 class BitbucketHookHandler(object):
 
     def _hgexe(self, argv):
@@ -106,15 +120,18 @@ class BitbucketHookHandler(object):
             author = commit['author']
             branch = commit['branch']
             node = commit['node']
-            files = [f['file'] for f in commit['files']]
-            common_prefix = os.path.commonprefix(files)
+
+            common_prefix, filenames = getpaths(commit['files'])
             pathlen = len(common_prefix) + 2
+
             if self.USE_COLOR_CODES:
                 author = '\x0312%s\x0F' % author   # in blue
                 branch = '\x02%s\x0F'   % branch   # in bold
                 node = '\x0311%s\x0F'   % node     # in azure
+
             message = commit['message'].replace('\n', ' ')
-            part1 = '%s %s %s /%s: ' % (author, branch, node, common_prefix)
+            fields = (author, branch, node, common_prefix, filenames)
+            part1 = '%s %s %s /%s%s: ' % fields
             totallen = 160 + pathlen
             if len(message) + len(part1) <= totallen:
                 irc_msg = part1 + message
