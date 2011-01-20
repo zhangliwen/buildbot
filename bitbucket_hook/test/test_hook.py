@@ -101,25 +101,21 @@ def test_irc_message():
                          branch=branch, message=LONG_MESSAGE, node=node))
 
     handler.handle_irc_message()
-    msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8 = handler.messages
+
+    msg1, msg2 = handler.messages[:2]
+
     assert msg1 == 'antocuni default abcdef /: this is a test'
     x = 'antocuni mybranch xxxyyy /: %s...' % LONG_CUT
     assert msg2 == x
 
-    # No diff
-    x = 'antocuni mybranch axxyyy /: %s...' % LONG_CUT
-    assert msg3 == x
+    expected = ['antocuni mybranch axxyyy /: %s...', # No diff
+                'antocuni mybranch bxxyyy /single: %s...', # Single file
+                'antocuni mybranch cxxyyy /: %s...',
+                'antocuni mybranch dxxyyy /path/: %s...',
+                'antocuni mybranch exxyyy /my/: %s...',
+                'antocuni mybranch fxxyyy /path/to/single: %s...'
+                ]
 
-    # Single file
-    x = 'antocuni mybranch bxxyyy /single: %s...' % LONG_CUT
-    assert msg4 == x
-
-    x = 'antocuni mybranch cxxyyy /: %s...' % LONG_CUT
-    assert msg5 == x
-    x = 'antocuni mybranch dxxyyy /path/: %s...' % LONG_CUT
-    assert msg6 == x
-    x = 'antocuni mybranch exxyyy /my/: %s...' % LONG_CUT
-    assert msg7 == x
-    x = 'antocuni mybranch fxxyyy /path/to/single: %s...' % LONG_CUT
-    assert msg8 == x
-
+    for got, wanted in zip(handler.messages[2:], expected):
+        wanted = wanted % LONG_CUT
+        assert got == wanted
