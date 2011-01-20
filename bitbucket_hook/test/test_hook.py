@@ -63,7 +63,6 @@ def test_irc_message():
     no_file = []
     single_file = [d(file='single')]
     multiple_files = [d(file='file1'), d(file='file2'), d(file='file3')]
-    single_file_subdir = [d(file='my/path/to/single')]
     multiple_files_subdir = [d(file='path/file1'), d(file='path/file2'),
                              d(file='path/file3')]
     multiple_files_subdir_root = [d(file='file1'), d(file='my/path/file2'),
