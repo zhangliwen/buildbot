@@ -46,18 +46,14 @@ def test_sort_commits():
     handler.handle_diff_email()
     assert handler.sent_commits == ['first', 'second']
 
-def test_irc_message():
-    LONG_MESSAGE = u'This is a test with a long message: ' + 'x'*1000
-    LONG_CUT = LONG_MESSAGE[:160-29]
 
-    class MyHandler(BaseHandler):
-        USE_COLOR_CODES = False
-        def __init__(self):
-            self.messages = []
-        def send_irc_message(self, message, test=False):
-            self.messages.append(message)
+LONG_MESSAGE = u'This is a test with a long message: ' + 'x'*1000
+LONG_CUT = LONG_MESSAGE[:160-29]
 
-    handler = MyHandler()
+def irc_cases(payload=None):
+
+    if payload is None:
+        payload = {'commits': []}
 
     d = dict
     no_file = []
@@ -73,6 +69,39 @@ def test_irc_message():
              multiple_files_subdir, multiple_files_subdir_root,
              single_file_deep
             )
+
+    expected = ['antocuni mybranch axxyyy /: %s...', # No diff
+                'antocuni mybranch bxxyyy /single: %s...', # Single file
+                'antocuni mybranch cxxyyy /: %s...',
+                'antocuni mybranch dxxyyy /path/: %s...',
+                'antocuni mybranch exxyyy /my/: %s...',
+                'antocuni mybranch fxxyyy /path/to/single: %s...'
+                ]
+
+    commits = payload['commits']
+
+    author = u'antocuni'
+    branch = u'mybranch'
+
+    for i, case in enumerate(cases):
+        rev = 44 + i
+        node = chr(97+i) + 'xxyyy'
+        commits.append(d(revision=rev, files=case, author=author,
+                         branch=branch, message=LONG_MESSAGE, node=node))
+
+    return payload, expected
+
+
+
+def test_irc_message():
+    class MyHandler(BaseHandler):
+        USE_COLOR_CODES = False
+        def __init__(self):
+            self.messages = []
+        def send_irc_message(self, message, test=False):
+            self.messages.append(message)
+
+    handler = MyHandler()
     handler.payload = {
         'commits': [{'revision': 42,
                      'branch': u'default',
@@ -88,17 +117,7 @@ def test_irc_message():
                      }
                     ]}
 
-    commits = handler.payload['commits']
-
-    author = u'antocuni'
-    branch = u'mybranch'
-
-    for i, case in enumerate(cases):
-        rev = 44 + i
-        node = chr(97+i) + 'xxyyy'
-        commits.append(d(revision=rev, files=case, author=author,
-                         branch=branch, message=LONG_MESSAGE, node=node))
-
+    handler.payload, expected = irc_cases(handler.payload)
     handler.handle_irc_message()
 
     msg1, msg2 = handler.messages[:2]
@@ -106,14 +125,6 @@ def test_irc_message():
     assert msg1 == 'antocuni default abcdef /: this is a test'
     x = 'antocuni mybranch xxxyyy /: %s...' % LONG_CUT
     assert msg2 == x
-
-    expected = ['antocuni mybranch axxyyy /: %s...', # No diff
-                'antocuni mybranch bxxyyy /single: %s...', # Single file
-                'antocuni mybranch cxxyyy /: %s...',
-                'antocuni mybranch dxxyyy /path/: %s...',
-                'antocuni mybranch exxyyy /my/: %s...',
-                'antocuni mybranch fxxyyy /path/to/single: %s...'
-                ]
 
     for got, wanted in zip(handler.messages[2:], expected):
         wanted = wanted % LONG_CUT
