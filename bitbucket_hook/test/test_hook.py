@@ -7,9 +7,9 @@ class BaseHandler(BitbucketHookHandler):
     def __init__(self):
         self.mails = []
 
-    def send(self, from_, to, subject, body):
+    def send(self, from_, to, subject, body, test=False):
         self.mails.append((from_, to, subject, body))
-    
+
 
 def test_non_ascii_encoding_guess_utf8():
     class MyHandler(BaseHandler):
@@ -35,7 +35,7 @@ def test_sort_commits():
     class MyHandler(BaseHandler):
         def __init__(self):
             self.sent_commits = []
-        def send_diff_for_commit(self, commit):
+        def send_diff_for_commit(self, commit, test=False):
             self.sent_commits.append(commit['node'])
     #
     handler = MyHandler()
@@ -52,7 +52,7 @@ def test_irc_message():
         USE_COLOR_CODES = False
         def __init__(self):
             self.messages = []
-        def send_irc_message(self, message):
+        def send_irc_message(self, message, test=False):
             self.messages.append(message)
     handler = MyHandler()
     handler.payload = {
