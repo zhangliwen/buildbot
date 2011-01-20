@@ -1,6 +1,7 @@
 import socket
 import sys
 import py
+import os.path
 
 LOCAL_REPOS = py.path.local(__file__).dirpath('repos')
 REMOTE_BASE = 'http://bitbucket.org'
@@ -83,7 +84,6 @@ class BitbucketHookHandler(object):
     USE_COLOR_CODES = True
     def handle_irc_message(self):
         import operator
-        import os.path
         commits = sorted(self.payload['commits'],
                          key=operator.itemgetter('revision'))
         for commit in commits:
@@ -148,6 +148,7 @@ class BitbucketHookHandler(object):
 
 
 if __name__ == '__main__':
+    reponame = os.path.dirname(os.path.dirname(__file__))
     test_payload = {u'commits': [{u'author': u'antocuni',
                              u'branch': u'default',
                              u'files': [{u'file': u'pdbdemo2.py', u'type': u'modified'},
@@ -172,12 +173,23 @@ if __name__ == '__main__':
                              u'revision': 24,
                              u'size': 1141,
                              u'timestamp': u'2010-12-17 14:28:12'}],
-               u'repository': {u'absolute_url': u'/antocuni/test/',
+               u'repository': {u'absolute_url': reponame,
                                u'name': u'test',
                                u'owner': u'antocuni',
                                u'slug': u'test',
                                u'website': u''},
                u'user': u'antocuni'}
+##    # To regenerate:
+##    from urllib2 import urlopen
+##    url = ("https://api.bitbucket.org/1.0/repositories/pypy/buildbot/"
+##           "changesets/?start=3d60a8c359a3&limit=4")
+##    req = urlopen(url)
+##    test_payload = req.read()
+##    req.close()
+##    test_nodes = (u'81d52c8e34ba', u'47b731b0f331')
+##    commits = test_payload['commits']
+##    commits = [commit for commit in commits if commit['node'] in test_nodes]
+##    test_payload['commits'] = commits
 
     hook = BitbucketHookHandler()
     hook.handle(test_payload)
