@@ -48,12 +48,15 @@ def test_sort_commits():
 
 def test_irc_message():
     LONG_MESSAGE = u'This is a test with a long message: ' + 'x'*1000
+    LONG_CUT = LONG_MESSAGE[:160-29]
+
     class MyHandler(BaseHandler):
         USE_COLOR_CODES = False
         def __init__(self):
             self.messages = []
         def send_irc_message(self, message, test=False):
             self.messages.append(message)
+
     handler = MyHandler()
 
     d = dict
@@ -127,23 +130,23 @@ def test_irc_message():
     handler.handle_irc_message()
     msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8 = handler.messages
     assert msg1 == 'antocuni default abcdef /: this is a test'
-    x = 'antocuni mybranch xxxyyy /: %s...' % LONG_MESSAGE[:160-29]
+    x = 'antocuni mybranch xxxyyy /: %s...' % LONG_CUT
     assert msg2 == x
 
     # No diff
-    x = 'antocuni mybranch axxyyy /: %s...' % LONG_MESSAGE[:160-29]
+    x = 'antocuni mybranch axxyyy /: %s...' % LONG_CUT
     assert msg3 == x
 
     # Single file
-    x = 'antocuni mybranch bxxyyy /single: %s...' % LONG_MESSAGE[:160-29]
+    x = 'antocuni mybranch bxxyyy /single: %s...' % LONG_CUT
     assert msg4 == x
 
-    x = 'antocuni mybranch cxxyyy /: %s...' % LONG_MESSAGE[:160-29]
+    x = 'antocuni mybranch cxxyyy /: %s...' % LONG_CUT
     assert msg5 == x
-    x = 'antocuni mybranch dxxyyy /path/: %s...' % LONG_MESSAGE[:160-29]
+    x = 'antocuni mybranch dxxyyy /path/: %s...' % LONG_CUT
     assert msg6 == x
-    x = 'antocuni mybranch exxyyy /my/: %s...' % LONG_MESSAGE[:160-29]
+    x = 'antocuni mybranch exxyyy /my/: %s...' % LONG_CUT
     assert msg7 == x
-    x = 'antocuni mybranch fxxyyy /path/to/single: %s...' % LONG_MESSAGE[:160-29]
+    x = 'antocuni mybranch fxxyyy /path/to/single: %s...' % LONG_CUT
     assert msg8 == x
 
