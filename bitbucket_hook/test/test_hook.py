@@ -50,9 +50,22 @@ def test_getpaths():
     d = dict
     empty = d(file='')
     nothing = ('', '')
+
+    barefile = [d(file='barefile')]
+    slashesfile = [d(file='/slashesfile/')]
+    slashleft = [d(file='/slashleft')]
+    slashright = [d(file='/slashright')]
+    nocommon = [d(file='path1/file'), d(file='path2/file'),
+                d(file='path3/file'), d(file='path4/file')]
+
     files_expected = [([], nothing),
                       ([empty], nothing),
                       ([empty, empty], nothing),
+                      (barefile, ('barefile', '')),
+                      (slashesfile, ('/slashesfile/', '')),
+                      (slashleft, ('/slashleft', '')),
+                      (slashright, ('/slashright', '')),
+                      (nocommon, nothing),
                       ]
 
     for f, wanted in files_expected:
