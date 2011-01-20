@@ -83,22 +83,27 @@ class BitbucketHookHandler(object):
     USE_COLOR_CODES = True
     def handle_irc_message(self):
         import operator
+        import os.path
         commits = sorted(self.payload['commits'],
                          key=operator.itemgetter('revision'))
         for commit in commits:
             author = commit['author']
             branch = commit['branch']
             node = commit['node']
+            files = [f['file'] for f in commit['files']]
+            common_prefix = os.path.commonprefix(files)
+            pathlen = len(common_prefix + 2)
             if self.USE_COLOR_CODES:
                 author = '\x0312%s\x0F' % author   # in blue
                 branch = '\x02%s\x0F'   % branch   # in bold
                 node = '\x0311%s\x0F'   % node     # in azure
             message = commit['message'].replace('\n', ' ')
-            part1 = '%s %s %s: ' % (author, branch, node)
-            if len(message) + len(part1) <= 160:
+            part1 = '%s %s %s %s: ' % (author, branch, node, common_prefix)
+            totallen = 160 + pathlen
+            if len(message) + len(part1) <= totallen:
                 irc_msg = part1 + message
             else:
-                maxlen = 160 - (len(part1) + 3)
+                maxlen = totallen - (len(part1) + 3)
                 irc_msg = part1 + message[:maxlen] + '...'
             self.send_irc_message(irc_msg)
 
