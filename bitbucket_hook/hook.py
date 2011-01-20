@@ -59,8 +59,6 @@ def getpaths(files, listfiles=False):
     else:
         common_prefix = os.path.commonprefix(common_prefix) + '/'
 
-    print common_prefix
-
     if listfiles:
         # XXX Maybe should return file paths relative to prefix? Or TMI?
         filenames = [os.path.basename(f) for f in files]
