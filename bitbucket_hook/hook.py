@@ -126,7 +126,8 @@ class BitbucketHookHandler(object):
             branch = commit['branch']
             node = commit['node']
 
-            common_prefix, filenames = getpaths(commit['files'])
+            files = commit.get('files', [])
+            common_prefix, filenames = getpaths(files)
             pathlen = len(common_prefix) + 2
 
             if self.USE_COLOR_CODES:
