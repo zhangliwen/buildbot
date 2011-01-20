@@ -72,6 +72,6 @@ def test_irc_message():
         }
     handler.handle_irc_message()
     msg1, msg2 = handler.messages
-    assert msg1 == 'antocuni default abcdef: this is a test'
-    x = 'antocuni mybranch xxxyyy: %s...' % LONG_MESSAGE[:160-29]
+    assert msg1 == 'antocuni default abcdef /: this is a test'
+    x = 'antocuni mybranch xxxyyy /: %s...' % LONG_MESSAGE[:160-29]
     assert msg2 == x
