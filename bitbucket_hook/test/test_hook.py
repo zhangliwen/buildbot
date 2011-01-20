@@ -48,28 +48,47 @@ def test_sort_commits():
 
 def test_getpaths():
     d = dict
-    empty = d(file='')
-    nothing = ('', '')
 
     barefile = [d(file='barefile')]
+    deepfile = [d(file='a/long/path/to/deepfile.py')]
     slashesfile = [d(file='/slashesfile/')]
     slashleft = [d(file='/slashleft')]
-    slashright = [d(file='/slashright')]
+    slashright = [d(file='slashright/')]
+
     nocommon = [d(file='path1/file'), d(file='path2/file'),
                 d(file='path3/file'), d(file='path4/file')]
+
+    nocommonplusroot = [d(file='path1/file'), d(file='path2/file'),
+                        d(file='path3/file'), d(file='file')]
+
+    common = [d(file='some/path/to/file'), d(file='some/path/to/deeper/file'),
+              d(file='some/path/to/anotherfile'), d(file='some/path/to/afile')]
+
     commonplusroot = [d(file='path/file'), d(file='path/file'),
-                d(file='path/file'), d(file='file')]
+                      d(file='path/file'), d(file='file')]
 
+    empty = d(file='')
 
+    nocommonplusempty = [d(file='path1/file'), d(file='path2/file'),
+                         d(file='path3/file'), empty]
+
+    commonplusempty = [d(file='path/file'), d(file='path/file'),
+                       d(file='path/file'), empty]
+
+    nothing = ('', '')
     files_expected = [([], nothing),
                       ([empty], nothing),
                       ([empty, empty], nothing),
                       (barefile, ('barefile', '')),
+                      (deepfile, ('a/long/path/to/deepfile.py', '')),
                       (slashesfile, ('/slashesfile/', '')),
                       (slashleft, ('/slashleft', '')),
-                      (slashright, ('/slashright', '')),
+                      (slashright, ('slashright/', '')),
                       (nocommon, nothing),
+                      (nocommonplusroot, nothing),
+                      (common, ('some/path/to/', '')),
                       (commonplusroot, nothing),
+                      (commonplusempty, nothing),
                       ]
 
     for f, wanted in files_expected:
