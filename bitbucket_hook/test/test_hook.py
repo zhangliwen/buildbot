@@ -99,7 +99,7 @@ def irc_cases(payload=None):
                 'antocuni mybranch bxxyyy /single: %s...', # Single file
                 'antocuni mybranch cxxyyy /: %s...',
                 'antocuni mybranch dxxyyy /path/: %s...',
-                'antocuni mybranch exxyyy /my/: %s...',
+                'antocuni mybranch exxyyy /: %s...',
                 'antocuni mybranch fxxyyy /path/to/single: %s...'
                 ]
 

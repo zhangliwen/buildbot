@@ -53,7 +53,7 @@ def getpaths(files, listfiles=False):
     elif len(common_prefix) == 1:
         common_prefix = common_prefix[0] + '/'
 
-    elif not common_prefix:
+    elif not common_prefix or len(common_prefix) == len(set(common_prefix)):
         common_prefix = ''
 
     else:
