@@ -57,6 +57,9 @@ def test_getpaths():
     slashright = [d(file='/slashright')]
     nocommon = [d(file='path1/file'), d(file='path2/file'),
                 d(file='path3/file'), d(file='path4/file')]
+    commonplusroot = [d(file='path/file'), d(file='path/file'),
+                d(file='path/file'), d(file='file')]
+
 
     files_expected = [([], nothing),
                       ([empty], nothing),
@@ -66,6 +69,7 @@ def test_getpaths():
                       (slashleft, ('/slashleft', '')),
                       (slashright, ('/slashright', '')),
                       (nocommon, nothing),
+                      (commonplusroot, nothing),
                       ]
 
     for f, wanted in files_expected:

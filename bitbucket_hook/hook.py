@@ -43,21 +43,20 @@ def getpaths(files, listfiles=False):
     dirname = os.path.dirname
     files = [f['file'] for f in files]
 
-    common_prefix = [dirname(f) for f in files if dirname(f)]
+    common_prefix = [dirname(f) for f in files]
 
     # Single file, show its full path
     if len(files) == 1:
         common_prefix = files[0]
         listfiles = False
 
-    elif len(common_prefix) == 1:
-        common_prefix = common_prefix[0] + '/'
-
     elif not common_prefix or len(common_prefix) == len(set(common_prefix)):
         common_prefix = ''
 
     else:
-        common_prefix = os.path.commonprefix(common_prefix) + '/'
+        common_prefix = os.path.commonprefix(common_prefix)
+        if common_prefix:
+            common_prefix += '/'
 
     if listfiles:
         # XXX Maybe should return file paths relative to prefix? Or TMI?
