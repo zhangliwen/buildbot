@@ -36,22 +36,31 @@ Log:\t{desc|fill68|tabindent}
 
 """
 
-def getpaths(files):
+def getpaths(files, listfiles=False):
     if not files:
         return '', ''
 
+    dirname = os.path.dirname
     files = [f['file'] for f in files]
 
-    if len(files) == 1:
-        common_prefix = os.path.dirname(files[0])
-        if common_prefix:
-            common_prefix += '/'
-    else:
-        common_prefix = os.path.commonprefix(files)
+    common_prefix = [dirname(f) for f in files if dirname(f)]
+    if len(common_prefix) == 1:
+        common_prefix = common_prefix[0] + '/'
 
-    # XXX Maybe should return file paths relative to prefix? Or TMI?
-    filenames = [os.path.basename(f) for f in files]
-    filenames = ' M(%s)' % ', '.join(filenames)
+    elif not common_prefix:
+        common_prefix = ''
+
+    else:
+        common_prefix = os.path.commonprefix(common_prefix) + '/'
+
+    print common_prefix
+
+    if listfiles:
+        # XXX Maybe should return file paths relative to prefix? Or TMI?
+        filenames = [os.path.basename(f) for f in files]
+        filenames = ' M(%s)' % ', '.join(filenames)
+    else:
+        filenames = ''
     return common_prefix, filenames
 
 
@@ -113,6 +122,7 @@ class BitbucketHookHandler(object):
         self.handle_diff_email(test)
 
     USE_COLOR_CODES = True
+    LISTFILES = False
     def handle_irc_message(self, test=False):
         import operator
         commits = sorted(self.payload['commits'],
@@ -127,8 +137,8 @@ class BitbucketHookHandler(object):
             node = commit['node']
 
             files = commit.get('files', [])
-            common_prefix, filenames = getpaths(files)
-            pathlen = len(common_prefix) + 2
+            common_prefix, filenames = getpaths(files, self.LISTFILES)
+            pathlen = len(common_prefix) + len(filenames) + 2
 
             if self.USE_COLOR_CODES:
                 author = '\x0312%s\x0F' % author   # in blue
