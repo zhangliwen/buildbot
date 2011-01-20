@@ -1,7 +1,10 @@
-import socket
-import sys
-import py
 import os.path
+import py
+import smtplib
+import socket
+import subprocess
+import sys
+from subprocess import Popen, PIPE
 
 LOCAL_REPOS = py.path.local(__file__).dirpath('repos')
 REMOTE_BASE = 'http://bitbucket.org'
@@ -68,10 +71,10 @@ def getpaths(files, listfiles=False):
 
 
 class BitbucketHookHandler(object):
-
+    Popen, PIPE = Popen, PIPE
     def _hgexe(self, argv):
-        from subprocess import Popen, PIPE
-        proc = Popen([hgexe] + list(argv), stdout=PIPE, stderr=PIPE)
+        proc = self.Popen([hgexe] + list(argv), stdout=self.PIPE,
+                          stderr=self.PIPE)
         stdout, stderr = proc.communicate()
         ret = proc.wait()
         return stdout, stderr, ret
@@ -85,11 +88,9 @@ class BitbucketHookHandler(object):
             raise Exception('error when executing hg')
         return unicode(stdout, encoding='utf-8', errors='replace')
 
+    SMTP = smtplib.SMTP
     def send(self, from_, to, subject, body, test=False):
-        import smtplib
         from email.mime.text import MIMEText
-        if not test:
-            smtp = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         # Is this a valid workaround for unicode errors?
         body = body.encode('ascii', 'xmlcharrefreplace')
         msg = MIMEText(body, _charset='utf-8')
@@ -103,14 +104,16 @@ class BitbucketHookHandler(object):
             print to
             print msg.get_payload(decode=True)
         else:
+            smtp = self.SMTP(SMTP_SERVER, SMTP_PORT)
             smtp.sendmail(from_, [to], msg.as_string())
 
+    CALL = subprocess.call
     def send_irc_message(self, message, test=False):
-        import subprocess
+
         if test:
             print message + '\n'
         else:
-            return subprocess.call([BOT, CHANNEL, message])
+            return self.CALL([BOT, CHANNEL, message])
 
     def handle(self, payload, test=False):
         path = payload['repository']['absolute_url']
