@@ -65,6 +65,7 @@ def test_irc_message():
                              d(file='path/file3')]
     multiple_files_subdir_root = [d(file='file1'), d(file='my/path/file2'),
                                   d(file='my/file3')]
+    single_file_deep = [d(file='path/to/single')]
 
     handler.payload = {
         'commits': [{'revision': 42,
@@ -113,11 +114,18 @@ def test_irc_message():
                      'branch': u'mybranch',
                      'message': LONG_MESSAGE,
                      'node': 'exxyyy'
+                     },
+                    {'revision': 49,
+                     'author': u'antocuni',
+                     'files': single_file_deep,
+                     'branch': u'mybranch',
+                     'message': LONG_MESSAGE,
+                     'node': 'fxxyyy'
                      }
                     ]
         }
     handler.handle_irc_message()
-    msg1, msg2, msg3, msg4, msg5, msg6, msg7 = handler.messages
+    msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8 = handler.messages
     assert msg1 == 'antocuni default abcdef /: this is a test'
     x = 'antocuni mybranch xxxyyy /: %s...' % LONG_MESSAGE[:160-29]
     assert msg2 == x
@@ -136,3 +144,6 @@ def test_irc_message():
     assert msg6 == x
     x = 'antocuni mybranch exxyyy /my/: %s...' % LONG_MESSAGE[:160-29]
     assert msg7 == x
+    x = 'antocuni mybranch fxxyyy /path/to/single: %s...' % LONG_MESSAGE[:160-29]
+    assert msg8 == x
+
