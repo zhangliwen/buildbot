@@ -98,6 +98,10 @@ class BitbucketHookHandler(object):
         import operator
         commits = sorted(self.payload['commits'],
                          key=operator.itemgetter('revision'))
+        if test:
+            print "#" * 20
+            print "IRC messages:"
+
         for commit in commits:
             author = commit['author']
             branch = commit['branch']
@@ -117,12 +121,8 @@ class BitbucketHookHandler(object):
             else:
                 maxlen = totallen - (len(part1) + 3)
                 irc_msg = part1 + message[:maxlen] + '...'
-            if test:
-                print "#" * 20
-                print "IRC messages:"
             self.send_irc_message(irc_msg, test)
-            if test:
-                print
+        print
 
     def handle_diff_email(self, test=False):
         import operator
