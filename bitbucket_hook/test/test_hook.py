@@ -134,8 +134,10 @@ def irc_cases(payload=None):
     for i, case in enumerate(cases):
         rev = 44 + i
         node = chr(97+i) + 'xxyyy'
+        raw_node = node * 2
         commits.append(d(revision=rev, files=case, author=author,
-                         branch=branch, message=LONG_MESSAGE, node=node))
+                         branch=branch, message=LONG_MESSAGE, node=node,
+                         raw_node=raw_node))
 
     return payload, expected
 
@@ -176,3 +178,28 @@ def test_irc_message():
     for got, wanted in zip(handler.messages[2:], expected):
         wanted = wanted % LONG_CUT
         assert got == wanted
+
+def noop(*args, **kwargs): pass
+class mock:
+    __init__ = noop
+    def communicate(*args, **kwargs): return '1', 2
+    def wait(*args, **kwargs): return 0
+    sendmail = noop
+
+def test_handle():
+    handler = BitbucketHookHandler()
+    commits, _ = irc_cases()
+    test_payload = {u'repository': {u'absolute_url': '',
+                                    u'name': u'test',
+                                    u'owner': u'antocuni',
+                                    u'slug': u'test',
+                                    u'website': u''},
+                    u'user': u'antocuni',
+                    'commits': commits['commits']}
+
+    handler.CALL = noop
+    handler.Popen = mock
+    handler.SMTP = mock
+
+    handler.handle(test_payload)
+    handler.handle(test_payload, test=True)
