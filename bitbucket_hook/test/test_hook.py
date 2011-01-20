@@ -104,7 +104,7 @@ def test_getpaths():
 
     files_expected = [([], nothing),
                       ([empty], nothing),
-                      #([empty, empty], nothing),
+                      ([empty, empty], nothing),
                       (barefile, ('barefile', '')),
                       (deepfile, ('a/long/path/to/deepfile.py', '')),
                       (slashesfile, ('/slashesfile/', '')),

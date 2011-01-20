@@ -47,6 +47,9 @@ def getpaths(files, listfiles=False):
     basename = os.path.basename
     files = [f['file'] for f in files]
 
+    if not any(files):
+        return '', ''
+
     common_prefix = [dirname(f) for f in files]
 
     # Single file, show its full path
