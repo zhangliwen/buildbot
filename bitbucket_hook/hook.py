@@ -44,6 +44,8 @@ def getpaths(files):
 
     if len(files) == 1:
         common_prefix = os.path.dirname(files[0])
+        if common_prefix:
+            common_prefix += '/'
     else:
         common_prefix = os.path.commonprefix(files)
 
