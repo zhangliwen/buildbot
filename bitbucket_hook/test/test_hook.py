@@ -55,6 +55,17 @@ def test_irc_message():
         def send_irc_message(self, message, test=False):
             self.messages.append(message)
     handler = MyHandler()
+
+    d = dict
+    no_file = []
+    single_file = [d(file='single')]
+    multiple_files = [d(file='file1'), d(file='file2'), d(file='file3')]
+    single_file_subdir = [d(file='my/path/to/single')]
+    multiple_files_subdir = [d(file='path/file1'), d(file='path/file2'),
+                             d(file='path/file3')]
+    multiple_files_subdir_root = [d(file='file1'), d(file='my/path/file2'),
+                                  d(file='my/file3')]
+
     handler.payload = {
         'commits': [{'revision': 42,
                      'branch': u'default',
@@ -67,11 +78,56 @@ def test_irc_message():
                      'branch': u'mybranch',
                      'message': LONG_MESSAGE,
                      'node': 'xxxyyy'
+                     },
+                    {'revision': 44,
+                     'files': no_file,
+                     'author': u'antocuni',
+                     'branch': u'mybranch',
+                     'message': LONG_MESSAGE,
+                     'node': 'axxyyy'
+                     },
+                    {'revision': 45,
+                     'author': u'antocuni',
+                     'files': single_file,
+                     'branch': u'mybranch',
+                     'message': LONG_MESSAGE,
+                     'node': 'bxxyyy'
+                     },
+                    {'revision': 46,
+                     'author': u'antocuni',
+                     'files': multiple_files,
+                     'branch': u'mybranch',
+                     'message': LONG_MESSAGE,
+                     'node': 'cxxyyy'
+                     },
+                    {'revision': 47,
+                     'author': u'antocuni',
+                     'files': multiple_files_subdir,
+                     'branch': u'mybranch',
+                     'message': LONG_MESSAGE,
+                     'node': 'dxxyyy'
+                     },
+                    {'revision': 48,
+                     'author': u'antocuni',
+                     'files': multiple_files_subdir_root,
+                     'branch': u'mybranch',
+                     'message': LONG_MESSAGE,
+                     'node': 'exxyyy'
                      }
                     ]
         }
     handler.handle_irc_message()
-    msg1, msg2 = handler.messages
+    msg1, msg2, msg3, msg4, msg5, msg6, msg7 = handler.messages
     assert msg1 == 'antocuni default abcdef /: this is a test'
     x = 'antocuni mybranch xxxyyy /: %s...' % LONG_MESSAGE[:160-29]
     assert msg2 == x
+    x = 'antocuni mybranch axxyyy /: %s...' % LONG_MESSAGE[:160-29]
+    assert msg3 == x
+    x = 'antocuni mybranch bxxyyy /: %s...' % LONG_MESSAGE[:160-29]
+    assert msg4 == x
+    x = 'antocuni mybranch cxxyyy /: %s...' % LONG_MESSAGE[:160-29]
+    assert msg5 == x
+    x = 'antocuni mybranch dxxyyy /path/: %s...' % LONG_MESSAGE[:160-29]
+    assert msg6 == x
+    x = 'antocuni mybranch exxyyy /my/: %s...' % LONG_MESSAGE[:160-29]
+    assert msg7 == x
