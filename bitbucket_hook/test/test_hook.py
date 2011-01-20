@@ -70,6 +70,10 @@ def test_irc_message():
                                   d(file='my/file3')]
     single_file_deep = [d(file='path/to/single')]
 
+    cases = (no_file, single_file, multiple_files,
+             multiple_files_subdir, multiple_files_subdir_root,
+             single_file_deep
+            )
     handler.payload = {
         'commits': [{'revision': 42,
                      'branch': u'default',
@@ -82,51 +86,20 @@ def test_irc_message():
                      'branch': u'mybranch',
                      'message': LONG_MESSAGE,
                      'node': 'xxxyyy'
-                     },
-                    {'revision': 44,
-                     'files': no_file,
-                     'author': u'antocuni',
-                     'branch': u'mybranch',
-                     'message': LONG_MESSAGE,
-                     'node': 'axxyyy'
-                     },
-                    {'revision': 45,
-                     'author': u'antocuni',
-                     'files': single_file,
-                     'branch': u'mybranch',
-                     'message': LONG_MESSAGE,
-                     'node': 'bxxyyy'
-                     },
-                    {'revision': 46,
-                     'author': u'antocuni',
-                     'files': multiple_files,
-                     'branch': u'mybranch',
-                     'message': LONG_MESSAGE,
-                     'node': 'cxxyyy'
-                     },
-                    {'revision': 47,
-                     'author': u'antocuni',
-                     'files': multiple_files_subdir,
-                     'branch': u'mybranch',
-                     'message': LONG_MESSAGE,
-                     'node': 'dxxyyy'
-                     },
-                    {'revision': 48,
-                     'author': u'antocuni',
-                     'files': multiple_files_subdir_root,
-                     'branch': u'mybranch',
-                     'message': LONG_MESSAGE,
-                     'node': 'exxyyy'
-                     },
-                    {'revision': 49,
-                     'author': u'antocuni',
-                     'files': single_file_deep,
-                     'branch': u'mybranch',
-                     'message': LONG_MESSAGE,
-                     'node': 'fxxyyy'
                      }
-                    ]
-        }
+                    ]}
+
+    commits = handler.payload['commits']
+
+    author = u'antocuni'
+    branch = u'mybranch'
+
+    for i, case in enumerate(cases):
+        rev = 44 + i
+        node = chr(97+i) + 'xxyyy'
+        commits.append(d(revision=rev, files=case, author=author,
+                         branch=branch, message=LONG_MESSAGE, node=node))
+
     handler.handle_irc_message()
     msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8 = handler.messages
     assert msg1 == 'antocuni default abcdef /: this is a test'
