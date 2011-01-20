@@ -44,6 +44,7 @@ def getpaths(files, listfiles=False):
         return '', ''
 
     dirname = os.path.dirname
+    basename = os.path.basename
     files = [f['file'] for f in files]
 
     common_prefix = [dirname(f) for f in files]
@@ -63,7 +64,7 @@ def getpaths(files, listfiles=False):
 
     if listfiles:
         # XXX Maybe should return file paths relative to prefix? Or TMI?
-        filenames = [os.path.basename(f) for f in files]
+        filenames = [basename(f) for f in files if f and basename(f)]
         filenames = ' M(%s)' % ', '.join(filenames)
     else:
         filenames = ''
