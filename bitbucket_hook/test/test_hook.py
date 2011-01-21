@@ -219,7 +219,7 @@ def test_handle():
                     u'user': u'antocuni',
                     'commits': commits['commits']}
 
-    handler.CALL = noop
+    handler.call_subprocess = noop
     handler.Popen = mock
     handler.SMTP = mock
 
