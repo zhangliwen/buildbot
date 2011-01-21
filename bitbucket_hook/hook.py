@@ -154,7 +154,7 @@ class BitbucketHookHandler(object):
                 author = '\x0312%s\x0F' % author   # in blue
                 branch = '\x02%s\x0F'   % branch   # in bold
                 node = '\x0311%s\x0F'   % node     # in azure
-                common_prefix = '\x315%s\x0F' % common_prefix # in gray
+                common_prefix = '\x0315%s\x0F' % common_prefix # in gray
 
             message = commit['message'].replace('\n', ' ')
             fields = (author, branch, node, common_prefix, filenames)
