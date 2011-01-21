@@ -74,6 +74,9 @@ def test_getpaths():
     nocommonplusslash = distinct + [d(file='path4/dir/')]
     commonplusslash = shared + [d(file='path/dir/')]
 
+    pypydoubleslash = [d(file='pypy/jit/metainterp/opt/u.py'),
+                       d(file='pypy/jit/metainterp/test/test_c.py'),
+                       d(file='pypy/jit/metainterp/test/test_o.py')]
     nothing = ('', '')
     files_expected = [([], nothing),
                       ([empty], nothing),
@@ -91,6 +94,7 @@ def test_getpaths():
                       (commonplusempty, nothing),
                       (nocommonplusslash, nothing),
                       (commonplusslash, ('path/', '')),
+                      (pypydoubleslash, ('pypy/jit/metainterp/', '')),
                       ]
 
     for f, wanted in files_expected:
@@ -113,6 +117,8 @@ def test_getpaths():
                       (commonplusempty, ('',' M(file1, file2, file)')),
                       (nocommonplusslash, ('',' M(file1, file2, file)')),
                       (commonplusslash, ('path/',' M(file1, file2, file)')),
+                      (pypydoubleslash, ('pypy/jit/metainterp/',
+                                         ' M(u.py, test_c.py, test_o.py)')),
                       ]
 
     for f, wanted in files_expected:
