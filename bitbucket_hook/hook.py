@@ -149,6 +149,7 @@ class BitbucketHookHandler(object):
             files = commit.get('files', [])
             common_prefix, filenames = getpaths(files, self.LISTFILES)
             pathlen = len(common_prefix) + len(filenames) + 2
+            common_prefix = '/' + common_prefix
 
             if self.USE_COLOR_CODES:
                 author = '\x0312%s\x0F' % author   # in blue
@@ -158,7 +159,7 @@ class BitbucketHookHandler(object):
 
             message = commit['message'].replace('\n', ' ')
             fields = (author, branch, node, common_prefix, filenames)
-            part1 = '%s %s %s /%s%s: ' % fields
+            part1 = '%s %s %s %s%s: ' % fields
             totallen = 160 + pathlen
             if len(message) + len(part1) <= totallen:
                 irc_msg = part1 + message
