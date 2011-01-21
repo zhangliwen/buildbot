@@ -62,7 +62,7 @@ def getpaths(files, listfiles=False):
 
     else:
         common_prefix = os.path.commonprefix(common_prefix)
-        if common_prefix:
+        if common_prefix and not common_prefix.endswith('/'):
             common_prefix += '/'
 
     if listfiles:
