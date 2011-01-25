@@ -40,15 +40,16 @@ Log:\t{desc|fill68|tabindent}
 """
 
 def getpaths(files, listfiles=False):
+
+    # Handle empty input
     if not files:
+        return '', ''
+    files = [f['file'] for f in files]
+    if not any(files):
         return '', ''
 
     dirname = os.path.dirname
     basename = os.path.basename
-    files = [f['file'] for f in files]
-
-    if not any(files):
-        return '', ''
 
     common_prefix = [dirname(f) for f in files]
 
@@ -57,11 +58,9 @@ def getpaths(files, listfiles=False):
         common_prefix = files[0]
         listfiles = False
 
-    elif not common_prefix or len(common_prefix) == len(set(common_prefix)):
-        common_prefix = ''
-
     else:
-        common_prefix = os.path.commonprefix(common_prefix)
+        common_prefix = [path.split(os.sep) for path in common_prefix]
+        common_prefix = os.sep.join(os.path.commonprefix(common_prefix))
         if common_prefix and not common_prefix.endswith('/'):
             common_prefix += '/'
 

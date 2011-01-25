@@ -77,7 +77,13 @@ def test_getpaths():
     pypydoubleslash = [d(file='pypy/jit/metainterp/opt/u.py'),
                        d(file='pypy/jit/metainterp/test/test_c.py'),
                        d(file='pypy/jit/metainterp/test/test_o.py')]
+
+    pypyempty = [d(file='pypy/rlib/rdtoa.py'),
+                 d(file='pypy/rlib/test/test_rdtoa.py')]
+
     nothing = ('', '')
+
+    # (input, expected output) for listfiles=False
     files_expected = [([], nothing),
                       ([empty], nothing),
                       ([empty, empty], nothing),
@@ -95,11 +101,13 @@ def test_getpaths():
                       (nocommonplusslash, nothing),
                       (commonplusslash, ('path/', '')),
                       (pypydoubleslash, ('pypy/jit/metainterp/', '')),
+                      (pypyempty, ('pypy/rlib/', '')),
                       ]
 
     for f, wanted in files_expected:
         assert getpaths(f) == wanted
 
+    # (input, expected output) for listfiles=True
     files_expected = [([], nothing),
                       ([empty], nothing),
                       ([empty, empty], nothing),
@@ -119,6 +127,8 @@ def test_getpaths():
                       (commonplusslash, ('path/',' M(file1, file2, file)')),
                       (pypydoubleslash, ('pypy/jit/metainterp/',
                                          ' M(u.py, test_c.py, test_o.py)')),
+                      (pypyempty, ('pypy/rlib/',
+                                   ' M(rdtoa.py, test_rdtoa.py)')),
                       ]
 
     for f, wanted in files_expected:
