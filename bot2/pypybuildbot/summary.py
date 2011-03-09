@@ -67,12 +67,18 @@ class RevisionOutcomeSet(object):
     def populate_one(self, name, shortrepr, longrepr=None):
         if shortrepr == '!':
             namekey = [name, '']
-        else:        
-            namekey = name.split(':', 1)
+        else:
+            # pytest2 and pytest1 use different separators/test id
+            # syntax support both here for now
+            if '.py::' in name:
+                namekey = name.split('::', 1)
+            else:
+                namekey = name.split(':', 1)
             if namekey[0].endswith('.py'):
                 namekey[0] = namekey[0][:-3].replace('/', '.')
             if len(namekey) == 1:
                 namekey.append('')
+            namekey[1] = namekey[1].replace("::", ".")
 
         namekey = tuple(namekey)
         self._outcomes[namekey] = shortrepr
@@ -106,7 +112,7 @@ class RevisionOutcomeSet(object):
         kind = None
         def add_one():
             if kind is not None:
-                self.populate_one(name, kind, ''.join(longrepr))        
+                self.populate_one(name, kind, ''.join(longrepr))
         for line in log.readlines():
             first = line[0]
             if first == ' ':
@@ -570,7 +576,7 @@ class LongRepr(HtmlResource):
         mod, testname = self.get_namekey(request)
         if mod is None:
             return "no such test"
-        return "%s %s" % (mod, testname)        
+        return "%s %s" % (mod, testname)
 
     def body(self, request):
         t0 = time.time()
@@ -660,7 +666,7 @@ class Summary(HtmlResource):
             request.site.buildbot_service.head_elements = old_head_elements
 
     def getTitle(self, request):
-        status = self.getStatus(request)        
+        status = self.getStatus(request)
         return "%s: summaries of last %d revisions" % (status.getProjectName(),
                                                        N)
 
