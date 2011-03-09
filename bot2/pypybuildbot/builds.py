@@ -202,7 +202,9 @@ class Translated(factory.BuildFactory):
                 logfiles={'pytestLog': 'cpython.log'}))
 
         if pypyjit:
-            # upload nightly build, if we're running jit tests
+            # kill this step when the transition to test_pypy_c_new has been
+            # completed
+            # "old" test_pypy_c
             self.addStep(PytestCmd(
                 description="pypyjit tests",
                 command=["python", "pypy/test_all.py",
@@ -210,6 +212,15 @@ class Translated(factory.BuildFactory):
                          "--resultlog=pypyjit.log",
                          "pypy/module/pypyjit/test"],
                 logfiles={'pytestLog': 'pypyjit.log'}))
+            #
+            # "new" test_pypy_c
+            self.addStep(PytestCmd(
+                description="pypyjit tests",
+                command=["pypy/translator/goal/pypy-c", "pypy/test_all.py",
+                         "--resultlog=pypyjit_new.log",
+                         "pypy/module/pypyjit/test_pypy_c"],
+                logfiles={'pytestLog': 'pypyjit_new.log'}))
+
         if pypyjit:
             kind = 'jit'
         else:
