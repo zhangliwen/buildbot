@@ -641,7 +641,7 @@ def encode_rev_for_ordering(rev):
         i = rev.index(':')
         return (2, int(rev[:i]), rev)
     # unknown
-    return (3, rev)
+    return (0, rev)
 
 HEAD_ELEMENTS = [
     '<title>%(title)s</title>',
