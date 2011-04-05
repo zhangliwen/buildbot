@@ -4,6 +4,7 @@ import smtplib
 import socket
 import subprocess
 import sys
+import time
 from subprocess import Popen, PIPE
 
 LOCAL_REPOS = py.path.local(__file__).dirpath('repos')
@@ -144,6 +145,8 @@ class BitbucketHookHandler(object):
             author = commit['author']
             branch = commit['branch']
             node = commit['node']
+            timestamp = commit.get('timestamp')
+            print '[%s] %s %s %s' % (time.strftime('%Y-%m-%d %H:%M'), node, timestamp, author)
 
             files = commit.get('files', [])
             common_prefix, filenames = getpaths(files, self.LISTFILES)
