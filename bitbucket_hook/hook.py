@@ -77,8 +77,7 @@ def getpaths(files, listfiles=False):
 class BitbucketHookHandler(object):
     Popen, PIPE = Popen, PIPE
 
-    def __init__(self):
-        self.seen_nodes = set()
+    seen_nodes = set()
 
     def get_commits(self, service, payload):
         import operator
