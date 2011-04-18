@@ -252,11 +252,9 @@ def test_ignore_duplicate_commits(monkeypatch):
         return '<hg %s>' % ' '.join(map(str, args))
     monkeypatch.setattr(hook, 'hg', hg)
     monkeypatch.setattr(hook, 'seen_nodes', set())
-    class MyHandler(BaseHandler):
-        def check_for_local_repo(self, local_repo):
-            return True
+    monkeypatch.setattr(hook, 'check_for_local_repo', lambda _:True)
 
-    handler = MyHandler()
+    handler = BaseHandler()
     commits, _ = irc_cases()
     payload = {u'repository': {u'absolute_url': '',
                                u'name': u'test',
