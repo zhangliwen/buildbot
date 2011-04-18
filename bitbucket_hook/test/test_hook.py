@@ -4,11 +4,18 @@ from bitbucket_hook.hook import BitbucketHookHandler, getpaths
 
 class BaseHandler(BitbucketHookHandler):
 
+    USE_COLOR_CODES = False
+
     def __init__(self):
+        BitbucketHookHandler.__init__(self)
         self.mails = []
+        self.messages = []
 
     def send(self, from_, to, subject, body, test=False):
         self.mails.append((from_, to, subject, body))
+
+    def send_irc_message(self, message, test=False):
+        self.messages.append(message)
 
 
 def test_non_ascii_encoding_guess_utf8():
@@ -34,14 +41,15 @@ def test_non_ascii_encoding_invalid_utf8():
 def test_sort_commits():
     class MyHandler(BaseHandler):
         def __init__(self):
+            BaseHandler.__init__(self)
             self.sent_commits = []
         def send_diff_for_commit(self, commit, test=False):
             self.sent_commits.append(commit['node'])
     #
     handler = MyHandler()
     handler.payload = {
-        'commits': [{'revision': 43, 'node': 'second'},
-                    {'revision': 42, 'node': 'first'}]
+        'commits': [{'revision': 43, 'node': 'second', 'raw_node': 'first'},
+                    {'revision': 42, 'node': 'first', 'raw_node': 'second'}]
         }
     handler.handle_diff_email()
     assert handler.sent_commits == ['first', 'second']
@@ -182,26 +190,21 @@ def irc_cases(payload=None):
 
 
 def test_irc_message():
-    class MyHandler(BaseHandler):
-        USE_COLOR_CODES = False
-        def __init__(self):
-            self.messages = []
-        def send_irc_message(self, message, test=False):
-            self.messages.append(message)
-
-    handler = MyHandler()
+    handler = BaseHandler()
     handler.payload = {
         'commits': [{'revision': 42,
                      'branch': u'default',
                      'author': u'antocuni',
                      'message': u'this is a test',
-                     'node': 'abcdef'
+                     'node': 'abcdef',
+                     'raw_node': 'abcdef',
                      },
                     {'revision': 43,
                      'author': u'antocuni',
                      'branch': u'mybranch',
                      'message': LONG_MESSAGE,
-                     'node': 'xxxyyy'
+                     'node': 'xxxyyy',
+                     'raw_node': 'xxxyyy',
                      }
                     ]}
 
@@ -246,3 +249,26 @@ def test_handle():
     handler.handle(test_payload)
     handler.handle(test_payload, test=True)
 
+
+def test_ignore_duplicate_commits():
+    class MyHandler(BaseHandler):
+        def hg(self, *args):
+            return '<hg %s>' % ' '.join(map(str, args))
+        def check_for_local_repo(self, local_repo):
+            return True
+
+    handler = MyHandler()
+    commits, _ = irc_cases()
+    payload = {u'repository': {u'absolute_url': '',
+                               u'name': u'test',
+                               u'owner': u'antocuni',
+                               u'slug': u'test',
+                               u'website': u''},
+               u'user': u'antocuni',
+               'commits': commits['commits']}
+    handler.handle(payload)
+    handler.handle(payload)
+    #
+    num_commits = len(commits['commits'])
+    assert len(handler.mails) == num_commits
+    assert len(handler.messages) == num_commits
