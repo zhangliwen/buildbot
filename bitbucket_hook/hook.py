@@ -95,23 +95,21 @@ def check_for_local_repo(local_repo):
     return local_repo.check(dir=True)
 
 
+def get_commits(service, payload):
+    #XXX: service is evil, get rid
+    import operator
+    commits = sorted(payload['commits'],
+                     key=operator.itemgetter('revision'))
+    for commit in commits:
+        node = commit['raw_node']
+        key = service, node
+        if key in seen_nodes:
+            continue
+        seen_nodes.add(key)
+        yield commit
+
+
 class BitbucketHookHandler(object):
-    Popen, PIPE = Popen, PIPE
-
-
-    def get_commits(self, service, payload):
-        import operator
-        commits = sorted(self.payload['commits'],
-                         key=operator.itemgetter('revision'))
-        for commit in commits:
-            node = commit['raw_node']
-            key = service, node
-            if key in seen_nodes:
-                continue
-            seen_nodes.add(key)
-            yield commit
-
-
 
     SMTP = smtplib.SMTP
     def send(self, from_, to, subject, body, test=False):
@@ -154,7 +152,7 @@ class BitbucketHookHandler(object):
     USE_COLOR_CODES = True
     LISTFILES = False
     def handle_irc_message(self, test=False):
-        commits = self.get_commits('irc', self.payload)
+        commits = get_commits('irc', self.payload)
         if test:
             print "#" * 20
             print "IRC messages:"
@@ -189,7 +187,7 @@ class BitbucketHookHandler(object):
             self.send_irc_message(irc_msg, test)
 
     def handle_diff_email(self, test=False):
-        commits = self.get_commits('email', self.payload)
+        commits = get_commits('email', self.payload)
         for commit in commits:
             self.send_diff_for_commit(commit, test)
 
