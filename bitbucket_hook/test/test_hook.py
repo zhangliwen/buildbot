@@ -251,10 +251,8 @@ def test_ignore_duplicate_commits(monkeypatch):
     def hg(self, *args):
         return '<hg %s>' % ' '.join(map(str, args))
     monkeypatch.setattr(hook, 'hg', hg)
+    monkeypatch.setattr(hook, 'seen_nodes', set())
     class MyHandler(BaseHandler):
-        seen_nodes = set() # make sure we do not depend on what the other
-                           # tests did
-        
         def check_for_local_repo(self, local_repo):
             return True
 

@@ -88,11 +88,11 @@ def getpaths(files, listfiles=False):
         filenames = ''
     return common_prefix, filenames
 
+seen_nodes = set()
 
 class BitbucketHookHandler(object):
     Popen, PIPE = Popen, PIPE
 
-    seen_nodes = set()
 
     def get_commits(self, service, payload):
         import operator
@@ -101,9 +101,9 @@ class BitbucketHookHandler(object):
         for commit in commits:
             node = commit['raw_node']
             key = service, node
-            if key in self.seen_nodes:
+            if key in seen_nodes:
                 continue
-            self.seen_nodes.add(key)
+            seen_nodes.add(key)
             yield commit
 
 
