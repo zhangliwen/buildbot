@@ -29,6 +29,21 @@ else:
 
 hgexe = str(py.path.local.sysfind('hg'))
 
+def _hgexe(argv):
+    proc = Popen([hgexe] + list(argv), stdout=PIPE, stderr=PIPE)
+    stdout, stderr = proc.communicate()
+    ret = proc.wait()
+    return stdout, stderr, ret
+
+def hg(self, *argv):
+    argv = map(str, argv)
+    stdout, stderr, ret = _hgexe(argv)
+    if ret != 0:
+        print >> sys.stderr, 'error: hg', ' '.join(argv)
+        print >> sys.stderr, stderr
+        raise Exception('error when executing hg')
+    return unicode(stdout, encoding='utf-8', errors='replace')
+
 TEMPLATE = u"""\
 Author: {author}
 Branch: {branches}
@@ -91,21 +106,7 @@ class BitbucketHookHandler(object):
             self.seen_nodes.add(key)
             yield commit
 
-    def _hgexe(self, argv):
-        proc = self.Popen([hgexe] + list(argv), stdout=self.PIPE,
-                          stderr=self.PIPE)
-        stdout, stderr = proc.communicate()
-        ret = proc.wait()
-        return stdout, stderr, ret
 
-    def hg(self, *argv):
-        argv = map(str, argv)
-        stdout, stderr, ret = self._hgexe(argv)
-        if ret != 0:
-            print >> sys.stderr, 'error: hg', ' '.join(argv)
-            print >> sys.stderr, stderr
-            raise Exception('error when executing hg')
-        return unicode(stdout, encoding='utf-8', errors='replace')
 
     SMTP = smtplib.SMTP
     def send(self, from_, to, subject, body, test=False):
@@ -145,7 +146,7 @@ class BitbucketHookHandler(object):
         if not self.check_for_local_repo(self.local_repo):
             print >> sys.stderr, 'Ignoring unknown repo', path
             return
-        self.hg('pull', '-R', self.local_repo)
+        hg('pull', '-R', self.local_repo)
         self.handle_irc_message(test)
         self.handle_diff_email(test)
 
@@ -201,7 +202,7 @@ class BitbucketHookHandler(object):
         url = self.remote_repo + 'changeset/' + commit['node'] + '/'
         template = TEMPLATE % {'url': url}
         subject = '%s %s: %s' % (reponame, commit['branch'], line0)
-        body = self.hg('-R', self.local_repo, 'log', '-r', hgid,
+        body = hg('-R', self.local_repo, 'log', '-r', hgid,
                  '--template', template)
         diff = self.get_diff(hgid, commit['files'])
         body = body+diff
@@ -213,7 +214,7 @@ class BitbucketHookHandler(object):
         files = [item['file'] for item in files]
         lines = []
         for filename in files:
-            out = self.hg('-R', self.local_repo, 'diff', '--git', '-c', hgid,
+            out = hg('-R', self.local_repo, 'diff', '--git', '-c', hgid,
                           self.local_repo.join(filename))
             match = binary.search(out)
             if match:

@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 
-from bitbucket_hook.hook import BitbucketHookHandler, getpaths
+from bitbucket_hook import hook
 
-class BaseHandler(BitbucketHookHandler):
+class BaseHandler(hook.BitbucketHookHandler):
 
     USE_COLOR_CODES = False
 
     def __init__(self):
-        BitbucketHookHandler.__init__(self)
+        hook.BitbucketHookHandler.__init__(self)
         self.mails = []
         self.messages = []
 
@@ -18,23 +18,20 @@ class BaseHandler(BitbucketHookHandler):
         self.messages.append(message)
 
 
-def test_non_ascii_encoding_guess_utf8():
-    class MyHandler(BaseHandler):
-        def _hgexe(self, argv):
-            return u'späm'.encode('utf-8'), '', 0
-    #
-    handler = MyHandler()
-    stdout = handler.hg('foobar')
+def test_non_ascii_encoding_guess_utf8(monkeypatch):
+    def _hgexe(argv):
+        return u'späm'.encode('utf-8'), '', 0
+    monkeypatch.setattr(hook, '_hgexe', _hgexe)
+    stdout = hook.hg('foobar')
     assert type(stdout) is unicode
     assert stdout == u'späm'
 
-def test_non_ascii_encoding_invalid_utf8():
-    class MyHandler(BaseHandler):
-        def _hgexe(self, argv):
-            return '\xe4aa', '', 0 # invalid utf-8 string
+def test_non_ascii_encoding_invalid_utf8(monkeypatch):
+    def _hgexe(argv):
+        return '\xe4aa', '', 0 # invalid utf-8 string
     #
-    handler = MyHandler()
-    stdout = handler.hg('foobar')
+    monkeypatch.setattr(hook, '_hgexe', _hgexe)
+    stdout = hook.hg('foobar')
     assert type(stdout) is unicode
     assert stdout == u'\ufffdaa'
 
@@ -113,7 +110,7 @@ def test_getpaths():
                       ]
 
     for f, wanted in files_expected:
-        assert getpaths(f) == wanted
+        assert hook.getpaths(f) == wanted
 
     # (input, expected output) for listfiles=True
     files_expected = [([], nothing),
@@ -140,7 +137,7 @@ def test_getpaths():
                       ]
 
     for f, wanted in files_expected:
-        assert getpaths(f, listfiles=True) == wanted
+        assert hook.getpaths(f, listfiles=True) == wanted
 
 
 
@@ -227,8 +224,8 @@ class mock:
     def wait(*args, **kwargs): return 0
     sendmail = noop
 
-def test_handle():
-    handler = BitbucketHookHandler()
+def test_handle(monkeypatch):
+    handler = hook.BitbucketHookHandler()
     commits, _ = irc_cases()
     test_payload = {u'repository': {u'absolute_url': '',
                                     u'name': u'test',
@@ -239,7 +236,7 @@ def test_handle():
                     'commits': commits['commits']}
 
     handler.call_subprocess = noop
-    handler.Popen = mock
+    monkeypatch.setattr(hook, 'Popen', mock)
     handler.SMTP = mock
 
     handler.handle(test_payload)
@@ -250,13 +247,14 @@ def test_handle():
     handler.handle(test_payload, test=True)
 
 
-def test_ignore_duplicate_commits():
+def test_ignore_duplicate_commits(monkeypatch):
+    def hg(self, *args):
+        return '<hg %s>' % ' '.join(map(str, args))
+    monkeypatch.setattr(hook, 'hg', hg)
     class MyHandler(BaseHandler):
         seen_nodes = set() # make sure we do not depend on what the other
                            # tests did
         
-        def hg(self, *args):
-            return '<hg %s>' % ' '.join(map(str, args))
         def check_for_local_repo(self, local_repo):
             return True
 
