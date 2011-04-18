@@ -1,10 +1,10 @@
 import os.path
 import py
-import smtplib
 import socket
 import subprocess
 import sys
 import time
+from smtplib import SMTP
 from subprocess import Popen, PIPE
 
 LOCAL_REPOS = py.path.local(__file__).dirpath('repos')
@@ -111,7 +111,6 @@ def get_commits(service, payload):
 
 class BitbucketHookHandler(object):
 
-    SMTP = smtplib.SMTP
     def send(self, from_, to, subject, body, test=False):
         from email.mime.text import MIMEText
         # Is this a valid workaround for unicode errors?
@@ -127,7 +126,7 @@ class BitbucketHookHandler(object):
             print to
             print msg.get_payload(decode=True)
         else:
-            smtp = self.SMTP(SMTP_SERVER, SMTP_PORT)
+            smtp = SMTP(SMTP_SERVER, SMTP_PORT)
             smtp.sendmail(from_, [to], msg.as_string())
 
 
