@@ -8,56 +8,47 @@ codespeak.
 """
 
 import time
-import BaseHTTPServer
 import json
-import cgi
 import traceback
 import pprint
 import sys
+import flask
+
+app = flask.Flask('bb-hook')
+
 
 from hook import BitbucketHookHandler
 
 HOST_NAME = 'codespeak.net'
 PORT_NUMBER = 9237
 
-class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+@app.route('/', methods=['GET'])
+def test_form():
+    """Respond to a GET request."""
+    return """
+        <html>
+            <p>This is the pypy bitbucket hook. Use the following form only for testing</p>
+            <form method=post>
+                payload: <input name=payload> <br>
+                submit: <input type=submit>
+            </form>
+        </html>
+    """
 
-    def do_GET(self):
-        """Respond to a GET request."""
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write("""
-            <html>
-                <p>This is the pypy bitbucket hook. Use the following form only for testing</p>
-                <form method=post>
-                    payload: <input name=payload> <br>
-                    submit: <input type=submit>
-                </form>
-            </html>
-        """)
 
-    def do_POST(self):
-        length = int(self.headers['Content-Length'])
-        query_string = self.rfile.read(length)
-        data = dict(cgi.parse_qsl(query_string))
-        payload = json.loads(data['payload'])
+
+@app.route('/', methods=['POST'])
+def handle_payload():
+    payload = json.loads(flask.request.form['payload'])
+    try:
         handler = BitbucketHookHandler()
-        try:
-            handler.handle(payload)
-        except:
-            traceback.print_exc()
-            print >> sys.stderr, 'payload:'
-            pprint.pprint(payload, sys.stderr)
-            print >> sys.stderr
+        handler.handle(payload)
+    except:
+        traceback.print_exc()
+        print >> sys.stderr, 'payload:'
+        pprint.pprint(payload, sys.stderr)
+        print >> sys.stderr
+        raise
 
 if __name__ == '__main__':
-    server_class = BaseHTTPServer.HTTPServer
-    httpd = server_class((HOST_NAME, PORT_NUMBER), MyHandler)
-    print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER)
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
-    print time.asctime(), "Server Stops - %s:%s" % (HOST_NAME, PORT_NUMBER)
+    app.run(debug=True)
