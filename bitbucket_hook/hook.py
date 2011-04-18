@@ -90,6 +90,11 @@ def getpaths(files, listfiles=False):
 
 seen_nodes = set()
 
+
+def check_for_local_repo(local_repo):
+    return local_repo.check(dir=True)
+
+
 class BitbucketHookHandler(object):
     Popen, PIPE = Popen, PIPE
 
@@ -135,15 +140,12 @@ class BitbucketHookHandler(object):
         else:
             return self.call_subprocess([BOT, CHANNEL, message])
 
-    def check_for_local_repo(self, local_repo):
-        return local_repo.check(dir=True)
-
     def handle(self, payload, test=False):
         path = payload['repository']['absolute_url']
         self.payload = payload
         self.local_repo = LOCAL_REPOS.join(path)
         self.remote_repo = REMOTE_BASE + path
-        if not self.check_for_local_repo(self.local_repo):
+        if not check_for_local_repo(self.local_repo):
             print >> sys.stderr, 'Ignoring unknown repo', path
             return
         hg('pull', '-R', self.local_repo)
