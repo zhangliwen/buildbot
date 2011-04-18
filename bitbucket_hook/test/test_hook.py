@@ -252,6 +252,9 @@ def test_handle():
 
 def test_ignore_duplicate_commits():
     class MyHandler(BaseHandler):
+        seen_nodes = set() # make sure we do not depend on what the other
+                           # tests did
+        
         def hg(self, *args):
             return '<hg %s>' % ' '.join(map(str, args))
         def check_for_local_repo(self, local_repo):
