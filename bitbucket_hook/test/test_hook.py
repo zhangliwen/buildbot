@@ -235,8 +235,8 @@ def test_handle(monkeypatch):
                     u'user': u'antocuni',
                     'commits': commits['commits']}
 
-    handler.call_subprocess = noop
     monkeypatch.setattr(hook, 'Popen', mock)
+    monkeypatch.setattr(hook.subprocess, 'call', noop)
     handler.SMTP = mock
 
     handler.handle(test_payload)

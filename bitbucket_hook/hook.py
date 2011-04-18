@@ -132,13 +132,12 @@ class BitbucketHookHandler(object):
             smtp = self.SMTP(SMTP_SERVER, SMTP_PORT)
             smtp.sendmail(from_, [to], msg.as_string())
 
-    call_subprocess = staticmethod(subprocess.call)
 
     def send_irc_message(self, message, test=False):
         if test:
             print message + '\n'
         else:
-            return self.call_subprocess([BOT, CHANNEL, message])
+            return subprocess.call([BOT, CHANNEL, message])
 
     def handle(self, payload, test=False):
         path = payload['repository']['absolute_url']
