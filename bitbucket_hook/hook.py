@@ -1,6 +1,5 @@
 import os.path
 import py
-import socket
 import subprocess
 import sys
 import time
