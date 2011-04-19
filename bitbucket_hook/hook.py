@@ -75,7 +75,7 @@ def send(from_, to, subject, body, test=False):
         print to
         print msg.get_payload(decode=True)
     else:
-        smtp = SMTP(SMTP_SERVER, SMTP_PORT)
+        smtp = SMTP(app.config['SMTP_SERVER'], app.config['SMTP_PORT'])
         smtp.sendmail(from_, [to], msg.as_string())
 
 
