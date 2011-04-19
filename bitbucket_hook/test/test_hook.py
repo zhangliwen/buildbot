@@ -9,11 +9,7 @@ class BaseHandler(hook.BitbucketHookHandler):
 
     def __init__(self):
         hook.BitbucketHookHandler.__init__(self)
-        self.mails = []
         self.messages = []
-
-    def send(self, from_, to, subject, body, test=False):
-        self.mails.append((from_, to, subject, body))
 
     def send_irc_message(self, message, test=False):
         self.messages.append(message)
@@ -159,7 +155,7 @@ def test_handle(monkeypatch):
     handler.handle(test_payload, test=True)
 
 
-def test_ignore_duplicate_commits(monkeypatch):
+def test_ignore_duplicate_commits(monkeypatch, mails):
     def hg( *args):
         return '<hg %s>' % ' '.join(map(str, args))
     monkeypatch.setattr(hook, 'hg', hg)
@@ -179,7 +175,7 @@ def test_ignore_duplicate_commits(monkeypatch):
     handler.handle(payload)
     #
     num_commits = len(commits['commits'])
-    assert len(handler.mails) == num_commits
+    assert len(mails) == num_commits
     assert len(handler.messages) == num_commits
 
 
