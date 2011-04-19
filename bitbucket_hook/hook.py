@@ -27,15 +27,14 @@ else:
     CHANNEL = '#pypy'
     BOT = '/svn/hooks/commit-bot/message'
 
-hgexe = str(py.path.local.sysfind('hg'))
 
 def _hgexe(argv):
-    proc = Popen([hgexe] + list(argv), stdout=PIPE, stderr=PIPE)
+    proc = Popen(['hg'] + list(argv), stdout=PIPE, stderr=PIPE)
     stdout, stderr = proc.communicate()
     ret = proc.wait()
     return stdout, stderr, ret
 
-def hg(self, *argv):
+def hg(*argv):
     argv = map(str, argv)
     stdout, stderr, ret = _hgexe(argv)
     if ret != 0:
