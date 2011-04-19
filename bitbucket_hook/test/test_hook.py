@@ -11,10 +11,6 @@ class BaseHandler(hook.BitbucketHookHandler):
 
     def __init__(self):
         hook.BitbucketHookHandler.__init__(self)
-        self.messages = []
-
-    def send_irc_message(self, message, test=False):
-        self.messages.append(message)
 
 
 def test_non_ascii_encoding_guess_utf8(monkeypatch):
@@ -96,9 +92,8 @@ def irc_cases(payload=None):
     return payload, expected
 
 
-def test_irc_message():
-    handler = BaseHandler()
-    handler.payload = {
+def test_irc_message(monkeypatch, messages):
+    payload = {
         'commits': [{'revision': 42,
                      'branch': u'default',
                      'author': u'antocuni',
@@ -115,16 +110,16 @@ def test_irc_message():
                      }
                     ]}
 
-    handler.payload, expected = irc_cases(handler.payload)
-    handler.handle_irc_message()
+    payload, expected = irc_cases(payload)
+    hook.handle_irc_message(payload)
 
-    msg1, msg2 = handler.messages[:2]
+    msg1, msg2 = messages[:2]
 
     assert msg1 == 'antocuni default abcdef /: this is a test'
     x = 'antocuni mybranch xxxyyy /: %s...' % LONG_CUT
     assert msg2 == x
 
-    for got, wanted in zip(handler.messages[2:], expected):
+    for got, wanted in zip(messages[2:], expected):
         assert got == wanted
 
 def noop(*args, **kwargs): pass
@@ -157,7 +152,7 @@ def test_handle(monkeypatch):
     handler.handle(test_payload, test=True)
 
 
-def test_ignore_duplicate_commits(monkeypatch, mails):
+def test_ignore_duplicate_commits(monkeypatch, mails, messages):
     def hg( *args):
         return '<hg %s>' % ' '.join(map(str, args))
     monkeypatch.setattr(hook, 'hg', hg)
@@ -178,7 +173,7 @@ def test_ignore_duplicate_commits(monkeypatch, mails):
     #
     num_commits = len(commits['commits'])
     assert len(mails) == num_commits
-    assert len(handler.messages) == num_commits
+    assert len(messages) == num_commits
 
 
 def test_hg():
