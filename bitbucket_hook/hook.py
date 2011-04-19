@@ -5,8 +5,8 @@ import sys
 import time
 from smtplib import SMTP
 
-from irc import getpaths
-from main import app
+from .irc import getpaths
+from .main import app
 
 from .scm import hg
 
