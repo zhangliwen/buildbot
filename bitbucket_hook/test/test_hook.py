@@ -138,7 +138,7 @@ def test_handle(monkeypatch):
 def test_ignore_duplicate_commits(monkeypatch, mails, messages):
     def hg( *args):
         return '<hg %s>' % ' '.join(map(str, args))
-    monkeypatch.setattr(hook, 'hg', hg)
+    monkeypatch.setattr(scm, 'hg', hg)
     monkeypatch.setattr(hook, 'seen_nodes', set())
     monkeypatch.setattr(hook, 'check_for_local_repo', lambda _:True)
 
@@ -158,13 +158,4 @@ def test_ignore_duplicate_commits(monkeypatch, mails, messages):
     assert len(mails) == num_commits
     assert len(messages) == num_commits
 
-
-def test_hg():
-    if not py.path.local.sysfind('hg'):
-        pytest.skip('hg binary missing')
-
-    #hook.hg('help')
-    with pytest.raises(Exception):
-        print hook.hg
-        hook.hg('uhmwrong')
 

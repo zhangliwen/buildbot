@@ -8,7 +8,7 @@ from smtplib import SMTP
 from .irc import getpaths
 from .main import app
 
-from .scm import hg
+from . import scm
 
 
 
@@ -116,7 +116,7 @@ class BitbucketHookHandler(object):
         if not check_for_local_repo(self.local_repo):
             print >> sys.stderr, 'Ignoring unknown repo', path
             return
-        hg('pull', '-R', self.local_repo)
+        scm.hg('pull', '-R', self.local_repo)
         handle_irc_message(payload, test)
         self.handle_diff_email(test)
 
@@ -136,27 +136,12 @@ class BitbucketHookHandler(object):
         url = self.remote_repo + 'changeset/' + commit['node'] + '/'
         template = TEMPLATE % {'url': url}
         subject = '%s %s: %s' % (reponame, commit['branch'], line0)
-        body = hg('-R', self.local_repo, 'log', '-r', hgid,
+        body = scm.hg('-R', self.local_repo, 'log', '-r', hgid,
                  '--template', template)
-        diff = self.get_diff(hgid, commit['files'])
+        diff = scm.get_diff(self.local_repo, hgid, commit['files'])
         body = body+diff
         send(sender, app.config['ADDRESS'], subject, body, test)
 
-    def get_diff(self, hgid, files):
-        import re
-        binary = re.compile('^GIT binary patch$', re.MULTILINE)
-        files = [item['file'] for item in files]
-        lines = []
-        for filename in files:
-            out = hg('-R', self.local_repo, 'diff', '--git', '-c', hgid,
-                          self.local_repo.join(filename))
-            match = binary.search(out)
-            if match:
-                # it's a binary patch, omit the content
-                out = out[:match.end()]
-                out += u'\n[cut]'
-            lines.append(out)
-        return u'\n'.join(lines)
 
 
 if __name__ == '__main__':

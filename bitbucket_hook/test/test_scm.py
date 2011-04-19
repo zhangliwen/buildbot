@@ -1,4 +1,7 @@
 # -*- encoding: utf-8 -*-
+import py
+import pytest
+
 from bitbucket_hook import scm
 
 
@@ -18,4 +21,14 @@ def test_non_ascii_encoding_invalid_utf8(monkeypatch):
     stdout = scm.hg('foobar')
     assert type(stdout) is unicode
     assert stdout == u'\ufffdaa'
+
+
+def test_hg():
+    if not py.path.local.sysfind('hg'):
+        pytest.skip('hg binary missing')
+
+    scm.hg('help')
+    with pytest.raises(Exception):
+        print scm.hg
+        scm.hg('uhmwrong')
 
