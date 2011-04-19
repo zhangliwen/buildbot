@@ -77,26 +77,26 @@ def get_commits(service, payload):
         seen_nodes.add(key)
         yield commit
 
+def send(from_, to, subject, body, test=False):
+    from email.mime.text import MIMEText
+    # Is this a valid workaround for unicode errors?
+    body = body.encode('ascii', 'xmlcharrefreplace')
+    msg = MIMEText(body, _charset='utf-8')
+    msg['From'] = from_
+    msg['To'] = to
+    msg['Subject'] = subject
+    if test:
+        print '#' * 20
+        print "Email contents:\n"
+        print from_
+        print to
+        print msg.get_payload(decode=True)
+    else:
+        smtp = SMTP(SMTP_SERVER, SMTP_PORT)
+        smtp.sendmail(from_, [to], msg.as_string())
 
 class BitbucketHookHandler(object):
 
-    def send(self, from_, to, subject, body, test=False):
-        from email.mime.text import MIMEText
-        # Is this a valid workaround for unicode errors?
-        body = body.encode('ascii', 'xmlcharrefreplace')
-        msg = MIMEText(body, _charset='utf-8')
-        msg['From'] = from_
-        msg['To'] = to
-        msg['Subject'] = subject
-        if test:
-            print '#' * 20
-            print "Email contents:\n"
-            print from_
-            print to
-            print msg.get_payload(decode=True)
-        else:
-            smtp = SMTP(SMTP_SERVER, SMTP_PORT)
-            smtp.sendmail(from_, [to], msg.as_string())
 
 
     def send_irc_message(self, message, test=False):
@@ -173,7 +173,7 @@ class BitbucketHookHandler(object):
                  '--template', template)
         diff = self.get_diff(hgid, commit['files'])
         body = body+diff
-        self.send(sender, ADDRESS, subject, body, test)
+        send(sender, ADDRESS, subject, body, test)
 
     def get_diff(self, hgid, files):
         import re
