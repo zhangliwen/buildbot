@@ -13,6 +13,8 @@ import traceback
 import pprint
 import sys
 import flask
+import py
+
 
 app = flask.Flask('bb-hook')
 
@@ -48,6 +50,37 @@ def handle_payload():
         pprint.pprint(payload, sys.stderr)
         print >> sys.stderr
         raise
+
+
+class DefaultConfig(object):
+    LOCAL_REPOS = py.path.local(__file__).dirpath('repos')
+    REMOTE_BASE = 'http://bitbucket.org'
+    USE_COLOR_CODES = True
+    LISTFILES = False
+
+class CodeSpeakConfig(DefaultConfig):
+    SMTP_SERVER = 'localhost'
+    SMTP_PORT = 25
+    ADDRESS = 'pypy-svn@codespeak.net'
+    #
+    CHANNEL = '#pypy'
+    BOT = '/svn/hooks/commit-bot/message'
+
+class ViperConfig(DefaultConfig):
+    SMTP_SERVER = "out.alice.it"
+    SMTP_PORT = 25
+    ADDRESS = 'anto.cuni@gmail.com'
+    #
+    CHANNEL = '#test'
+    BOT = '/tmp/commit-bot/message'
+
+
+if py.std.socket.gethostname() == 'viper':
+    # for debugging, antocuni's settings
+    app.config.from_object(ViperConfig)
+else:
+    # real settings, (they works on codespeak at least)
+    app.config.from_object(CodeSpeakConfig)
 
 if __name__ == '__main__':
     app.run(debug=True)

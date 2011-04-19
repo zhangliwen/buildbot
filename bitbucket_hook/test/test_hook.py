@@ -3,9 +3,11 @@ import py
 import pytest
 from bitbucket_hook import hook
 
-class BaseHandler(hook.BitbucketHookHandler):
+#XXX
+hook.app.config['USE_COLOR_CODES'] = False
 
-    USE_COLOR_CODES = False
+
+class BaseHandler(hook.BitbucketHookHandler):
 
     def __init__(self):
         hook.BitbucketHookHandler.__init__(self)
