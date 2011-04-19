@@ -142,7 +142,7 @@ def test_handle(monkeypatch):
 
     monkeypatch.setattr(hook, 'Popen', mock)
     monkeypatch.setattr(hook.subprocess, 'call', noop)
-    handler.SMTP = mock
+    monkeypatch.setattr(hook, 'SMTP', mock)
 
     handler.handle(test_payload)
     handler.handle(test_payload, test=True)
