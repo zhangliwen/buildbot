@@ -4,28 +4,13 @@ import subprocess
 import sys
 import time
 from smtplib import SMTP
-from subprocess import Popen, PIPE
 
 from irc import getpaths
 from main import app
 
+from .scm import hg
 
 
-
-def _hgexe(argv):
-    proc = Popen(['hg'] + list(argv), stdout=PIPE, stderr=PIPE)
-    stdout, stderr = proc.communicate()
-    ret = proc.wait()
-    return stdout, stderr, ret
-
-def hg(*argv):
-    argv = map(str, argv)
-    stdout, stderr, ret = _hgexe(argv)
-    if ret != 0:
-        print >> sys.stderr, 'error: hg', ' '.join(argv)
-        print >> sys.stderr, stderr
-        raise Exception('error when executing hg')
-    return unicode(stdout, encoding='utf-8', errors='replace')
 
 TEMPLATE = u"""\
 Author: {author}

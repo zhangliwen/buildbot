@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 import py
 import pytest
-from bitbucket_hook import hook
+from bitbucket_hook import hook, scm
 
 #XXX
 hook.app.config['USE_COLOR_CODES'] = False
@@ -12,23 +12,6 @@ class BaseHandler(hook.BitbucketHookHandler):
     def __init__(self):
         hook.BitbucketHookHandler.__init__(self)
 
-
-def test_non_ascii_encoding_guess_utf8(monkeypatch):
-    def _hgexe(argv):
-        return u'späm'.encode('utf-8'), '', 0
-    monkeypatch.setattr(hook, '_hgexe', _hgexe)
-    stdout = hook.hg('foobar')
-    assert type(stdout) is unicode
-    assert stdout == u'späm'
-
-def test_non_ascii_encoding_invalid_utf8(monkeypatch):
-    def _hgexe(argv):
-        return '\xe4aa', '', 0 # invalid utf-8 string
-    #
-    monkeypatch.setattr(hook, '_hgexe', _hgexe)
-    stdout = hook.hg('foobar')
-    assert type(stdout) is unicode
-    assert stdout == u'\ufffdaa'
 
 def test_sort_commits():
     class MyHandler(BaseHandler):
@@ -140,7 +123,7 @@ def test_handle(monkeypatch):
                     u'user': u'antocuni',
                     'commits': commits['commits']}
 
-    monkeypatch.setattr(hook, 'Popen', mock)
+    monkeypatch.setattr(scm, 'Popen', mock)
     monkeypatch.setattr(hook.subprocess, 'call', noop)
     monkeypatch.setattr(hook, 'SMTP', mock)
 
