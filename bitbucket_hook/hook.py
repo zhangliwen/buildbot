@@ -8,26 +8,9 @@ from smtplib import SMTP
 from subprocess import Popen, PIPE
 
 from irc import getpaths
+from main import app
 
-LOCAL_REPOS = py.path.local(__file__).dirpath('repos')
-REMOTE_BASE = 'http://bitbucket.org'
 
-if socket.gethostname() == 'viper':
-    # for debugging, antocuni's settings
-    SMTP_SERVER = "out.alice.it"
-    SMTP_PORT = 25
-    ADDRESS = 'anto.cuni@gmail.com'
-    #
-    CHANNEL = '#test'
-    BOT = '/tmp/commit-bot/message'
-else:
-    # real settings, (they works on codespeak at least)
-    SMTP_SERVER = 'localhost'
-    SMTP_PORT = 25
-    ADDRESS = 'pypy-svn@codespeak.net'
-    #
-    CHANNEL = '#pypy'
-    BOT = '/svn/hooks/commit-bot/message'
 
 
 def _hgexe(argv):
@@ -103,13 +86,15 @@ class BitbucketHookHandler(object):
         if test:
             print message + '\n'
         else:
-            return subprocess.call([BOT, CHANNEL, message])
+            return subprocess.call([
+                app.config['BOT'], app.config['CHANNEL'], message
+            ])
 
     def handle(self, payload, test=False):
         path = payload['repository']['absolute_url']
         self.payload = payload
-        self.local_repo = LOCAL_REPOS.join(path)
-        self.remote_repo = REMOTE_BASE + path
+        self.local_repo = app.config['LOCAL_REPOS'].join(path)
+        self.remote_repo = app.config['REMOTE_BASE'] + path
         if not check_for_local_repo(self.local_repo):
             print >> sys.stderr, 'Ignoring unknown repo', path
             return
@@ -117,8 +102,6 @@ class BitbucketHookHandler(object):
         self.handle_irc_message(test)
         self.handle_diff_email(test)
 
-    USE_COLOR_CODES = True
-    LISTFILES = False
     def handle_irc_message(self, test=False):
         commits = get_commits('irc', self.payload)
         if test:
@@ -133,11 +116,11 @@ class BitbucketHookHandler(object):
             print '[%s] %s %s %s' % (time.strftime('%Y-%m-%d %H:%M'), node, timestamp, author)
 
             files = commit.get('files', [])
-            common_prefix, filenames = getpaths(files, self.LISTFILES)
+            common_prefix, filenames = getpaths(files, app.config['LISTFILES'])
             pathlen = len(common_prefix) + len(filenames) + 2
             common_prefix = '/' + common_prefix
 
-            if self.USE_COLOR_CODES:
+            if app.config['USE_COLOR_CODES']:
                 author = '\x0312%s\x0F' % author   # in blue
                 branch = '\x02%s\x0F'   % branch   # in bold
                 node = '\x0311%s\x0F'   % node     # in azure
@@ -173,7 +156,7 @@ class BitbucketHookHandler(object):
                  '--template', template)
         diff = self.get_diff(hgid, commit['files'])
         body = body+diff
-        send(sender, ADDRESS, subject, body, test)
+        send(sender, app.config['ADDRESS'], subject, body, test)
 
     def get_diff(self, hgid, files):
         import re
@@ -288,5 +271,5 @@ if __name__ == '__main__':
     LOCAL_REPOS = py.path.local(repopath)
 
     hook = BitbucketHookHandler()
-    hook.USE_COLOR_CODES = False
+    app.config['USE_COLOR_CODES'] = False
     hook.handle(test_payload, test=True)
