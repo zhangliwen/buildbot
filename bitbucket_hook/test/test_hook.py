@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
-
+import py
+import pytest
 from bitbucket_hook import hook
 
 class BaseHandler(hook.BitbucketHookHandler):
@@ -248,7 +249,7 @@ def test_handle(monkeypatch):
 
 
 def test_ignore_duplicate_commits(monkeypatch):
-    def hg(self, *args):
+    def hg( *args):
         return '<hg %s>' % ' '.join(map(str, args))
     monkeypatch.setattr(hook, 'hg', hg)
     monkeypatch.setattr(hook, 'seen_nodes', set())
@@ -269,3 +270,14 @@ def test_ignore_duplicate_commits(monkeypatch):
     num_commits = len(commits['commits'])
     assert len(handler.mails) == num_commits
     assert len(handler.messages) == num_commits
+
+
+def test_hg():
+    if not py.path.local.sysfind('hg'):
+        pytest.skip('hg binary missing')
+
+    #hook.hg('help')
+    with pytest.raises(Exception):
+        print hook.hg
+        hook.hg('uhmwrong')
+
