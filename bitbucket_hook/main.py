@@ -16,8 +16,7 @@ import flask
 
 app = flask.Flask('bb-hook')
 
-
-from hook import BitbucketHookHandler
+import hook
 
 HOST_NAME = 'codespeak.net'
 PORT_NUMBER = 9237
@@ -41,7 +40,7 @@ def test_form():
 def handle_payload():
     payload = json.loads(flask.request.form['payload'])
     try:
-        handler = BitbucketHookHandler()
+        handler = hook.BitbucketHookHandler()
         handler.handle(payload)
     except:
         traceback.print_exc()
