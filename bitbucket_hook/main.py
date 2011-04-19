@@ -7,7 +7,6 @@ The idea is that the buildmaster user runs it inside a screen session on
 codespeak.
 """
 
-import time
 import json
 import traceback
 import pprint
