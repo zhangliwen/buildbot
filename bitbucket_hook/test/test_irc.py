@@ -61,17 +61,18 @@ def pytest_generate_tests(metafunc):
                    ' M(rdtoa.py, test_rdtoa.py)')),
         ]
 
-    for name, files, (common, listfiles) in expectations:
-        metafunc.addcall(id='list/'+name, funcargs={
-            'files': files,
-            'expected_common': common,
-            'expected_listfiles': listfiles,
-        })
-        metafunc.addcall(id='nolist/'+name, funcargs={
-            'files': files,
-            'expected_common': common,
-            'expected_listfiles': listfiles,
-        })
+    if metafunc.function.__name__=='test_getpaths':
+        for name, files, (common, listfiles) in expectations:
+            metafunc.addcall(id='list/'+name, funcargs={
+                'files': files,
+                'expected_common': common,
+                'expected_listfiles': listfiles,
+            })
+            metafunc.addcall(id='nolist/'+name, funcargs={
+                'files': files,
+                'expected_common': common,
+                'expected_listfiles': listfiles,
+            })
 
 
 def test_getpaths(files, expected_common, expected_listfiles):
