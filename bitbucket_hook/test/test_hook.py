@@ -1,33 +1,22 @@
 # -*- encoding: utf-8 -*-
 import py
 import pytest
-from bitbucket_hook import hook, scm
+from bitbucket_hook import hook, scm, mail, irc
 
 #XXX
 hook.app.config['USE_COLOR_CODES'] = False
 
 
-class BaseHandler(hook.BitbucketHookHandler):
-
-    def __init__(self):
-        hook.BitbucketHookHandler.__init__(self)
-
 
 def test_sort_commits():
-    class MyHandler(BaseHandler):
-        def __init__(self):
-            BaseHandler.__init__(self)
-            self.sent_commits = []
-        def send_diff_for_commit(self, commit, test=False):
-            self.sent_commits.append(commit['node'])
     #
-    handler = MyHandler()
-    handler.payload = {
+    commits = hook.get_commits('test_sort', {
         'commits': [{'revision': 43, 'node': 'second', 'raw_node': 'first'},
                     {'revision': 42, 'node': 'first', 'raw_node': 'second'}]
-        }
-    handler.handle_diff_email()
-    assert handler.sent_commits == ['first', 'second']
+        })
+    commits = [x['node'] for x in commits]
+
+    assert commits == ['first', 'second']
 
 
 LONG_MESSAGE = u'This is a test with a long message: ' + 'x'*1000
@@ -94,7 +83,7 @@ def test_irc_message(monkeypatch, messages):
                     ]}
 
     payload, expected = irc_cases(payload)
-    hook.handle_irc_message(payload)
+    irc.handle_message(payload)
 
     msg1, msg2 = messages[:2]
 
@@ -113,7 +102,6 @@ class mock:
     sendmail = noop
 
 def test_handle(monkeypatch):
-    handler = hook.BitbucketHookHandler()
     commits, _ = irc_cases()
     test_payload = {u'repository': {u'absolute_url': '',
                                     u'name': u'test',
@@ -124,15 +112,15 @@ def test_handle(monkeypatch):
                     'commits': commits['commits']}
 
     monkeypatch.setattr(scm, 'Popen', mock)
-    monkeypatch.setattr(hook.subprocess, 'call', noop)
-    monkeypatch.setattr(hook, 'SMTP', mock)
+    monkeypatch.setattr(irc.subprocess, 'call', noop)
+    monkeypatch.setattr(mail, 'SMTP', mock)
 
-    handler.handle(test_payload)
-    handler.handle(test_payload, test=True)
+    hook.handle(test_payload)
+    hook.handle(test_payload, test=True)
 
-    handler.LISTFILES = True
-    handler.handle(test_payload)
-    handler.handle(test_payload, test=True)
+    hook.app.config['LISTFILES'] = True
+    hook.handle(test_payload)
+    hook.handle(test_payload, test=True)
 
 
 def test_ignore_duplicate_commits(monkeypatch, mails, messages):
@@ -142,7 +130,6 @@ def test_ignore_duplicate_commits(monkeypatch, mails, messages):
     monkeypatch.setattr(hook, 'seen_nodes', set())
     monkeypatch.setattr(hook, 'check_for_local_repo', lambda _:True)
 
-    handler = BaseHandler()
     commits, _ = irc_cases()
     payload = {u'repository': {u'absolute_url': '',
                                u'name': u'test',
@@ -151,8 +138,8 @@ def test_ignore_duplicate_commits(monkeypatch, mails, messages):
                                u'website': u''},
                u'user': u'antocuni',
                'commits': commits['commits']}
-    handler.handle(payload)
-    handler.handle(payload)
+    hook.handle(payload)
+    hook.handle(payload)
     #
     num_commits = len(commits['commits'])
     assert len(mails) == num_commits

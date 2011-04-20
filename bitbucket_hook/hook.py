@@ -3,25 +3,15 @@ import py
 import subprocess
 import sys
 import time
-from smtplib import SMTP
 
-from .irc import getpaths
+from . import irc
 from .main import app
 
 from . import scm
+from . import mail
 
 
 
-TEMPLATE = u"""\
-Author: {author}
-Branch: {branches}
-Changeset: r{rev}:{node|short}
-Date: {date|isodate}
-%(url)s
-
-Log:\t{desc|fill68|tabindent}
-
-"""
 
 
 seen_nodes = set()
@@ -44,103 +34,19 @@ def get_commits(service, payload):
         seen_nodes.add(key)
         yield commit
 
-def send(from_, to, subject, body, test=False):
-    from email.mime.text import MIMEText
-    # Is this a valid workaround for unicode errors?
-    body = body.encode('ascii', 'xmlcharrefreplace')
-    msg = MIMEText(body, _charset='utf-8')
-    msg['From'] = from_
-    msg['To'] = to
-    msg['Subject'] = subject
-    if test:
-        print '#' * 20
-        print "Email contents:\n"
-        print from_
-        print to
-        print msg.get_payload(decode=True)
-    else:
-        smtp = SMTP(app.config['SMTP_SERVER'], app.config['SMTP_PORT'])
-        smtp.sendmail(from_, [to], msg.as_string())
 
 
-def send_irc_message(message, test=False):
-    if test:
-        print message + '\n'
-    else:
-        return subprocess.call([
-            app.config['BOT'], app.config['CHANNEL'], message
-        ])
 
-def handle_irc_message(payload, test=False):
-    commits = get_commits('irc', payload)
-    if test:
-        print "#" * 20
-        print "IRC messages:"
-
-    for commit in commits:
-        author = commit['author']
-        branch = commit['branch']
-        node = commit['node']
-        timestamp = commit.get('timestamp')
-        print '[%s] %s %s %s' % (time.strftime('%Y-%m-%d %H:%M'), node, timestamp, author)
-
-        files = commit.get('files', [])
-        common_prefix, filenames = getpaths(files, app.config['LISTFILES'])
-        pathlen = len(common_prefix) + len(filenames) + 2
-        common_prefix = '/' + common_prefix
-
-        if app.config['USE_COLOR_CODES']:
-            author = '\x0312%s\x0F' % author   # in blue
-            branch = '\x02%s\x0F'   % branch   # in bold
-            node = '\x0311%s\x0F'   % node     # in azure
-            common_prefix = '\x0315%s\x0F' % common_prefix # in gray
-
-        message = commit['message'].replace('\n', ' ')
-        fields = (author, branch, node, common_prefix, filenames)
-        part1 = '%s %s %s %s%s: ' % fields
-        totallen = 160 + pathlen
-        if len(message) + len(part1) <= totallen:
-            irc_msg = part1 + message
-        else:
-            maxlen = totallen - (len(part1) + 3)
-            irc_msg = part1 + message[:maxlen] + '...'
-        send_irc_message(irc_msg, test)
-
-class BitbucketHookHandler(object):
-
-    def handle(self, payload, test=False):
-        path = payload['repository']['absolute_url']
-        self.payload = payload
-        self.local_repo = app.config['LOCAL_REPOS'].join(path)
-        self.remote_repo = app.config['REMOTE_BASE'] + path
-        if not check_for_local_repo(self.local_repo):
-            print >> sys.stderr, 'Ignoring unknown repo', path
-            return
-        scm.hg('pull', '-R', self.local_repo)
-        handle_irc_message(payload, test)
-        self.handle_diff_email(test)
-
-
-    def handle_diff_email(self, test=False):
-        commits = get_commits('email', self.payload)
-        for commit in commits:
-            self.send_diff_for_commit(commit, test)
-
-    def send_diff_for_commit(self, commit, test=False):
-        hgid = commit['raw_node']
-        sender = commit['author'] + ' <commits-noreply@bitbucket.org>'
-        lines = commit['message'].splitlines()
-        line0 = lines and lines[0] or ''
-        reponame = self.payload['repository']['name']
-        # TODO: maybe include the modified paths in the subject line?
-        url = self.remote_repo + 'changeset/' + commit['node'] + '/'
-        template = TEMPLATE % {'url': url}
-        subject = '%s %s: %s' % (reponame, commit['branch'], line0)
-        body = scm.hg('-R', self.local_repo, 'log', '-r', hgid,
-                 '--template', template)
-        diff = scm.get_diff(self.local_repo, hgid, commit['files'])
-        body = body+diff
-        send(sender, app.config['ADDRESS'], subject, body, test)
+def handle(payload, test=False):
+    path = payload['repository']['absolute_url']
+    local_repo = app.config['LOCAL_REPOS'].join(path)
+    remote_repo = app.config['REMOTE_BASE'] + path
+    if not check_for_local_repo(local_repo):
+        print >> sys.stderr, 'Ignoring unknown repo', path
+        return
+    scm.hg('pull', '-R', local_repo)
+    irc.handle_message(payload, test)
+    mail.handle_diff_email(payload, test)
 
 
 
