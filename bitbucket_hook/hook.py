@@ -143,8 +143,7 @@ if __name__ == '__main__':
 ##
 ##    test_payload['commits'] = commits
 
-    LOCAL_REPOS = py.path.local(repopath)
-
-    hook = BitbucketHookHandler()
+    app.config['LOCAL_REPOS'] = py.path.local(repopath)
     app.config['USE_COLOR_CODES'] = False
+
     hook.handle(test_payload, test=True)
