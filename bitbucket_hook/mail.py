@@ -33,7 +33,7 @@ def send_diff_for_commit(payload, commit, test=False):
     body = scm.hg('-R', local_repo, 'log', '-r', hgid,
              '--template', template)
     diff = scm.get_diff(local_repo, hgid, commit['files'])
-    body = body+diff
+    body = body + diff
     send(sender, app.config['ADDRESS'], subject, body, test)
 
 
@@ -62,6 +62,3 @@ def handle_diff_email(payload, test=False):
     commits = hook.get_commits('email', payload)
     for commit in commits:
         send_diff_for_commit(payload, commit, test)
-
-
-

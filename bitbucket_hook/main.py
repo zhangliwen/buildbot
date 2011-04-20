@@ -22,19 +22,22 @@ import hook
 HOST_NAME = 'codespeak.net'
 PORT_NUMBER = 9237
 
+
 @app.route('/', methods=['GET'])
 def test_form():
     """Respond to a GET request."""
     return """
         <html>
-            <p>This is the pypy bitbucket hook. Use the following form only for testing</p>
+            <p>
+                This is the pypy bitbucket hook.
+                Use the following form only for testing
+            </p>
             <form method=post>
                 payload: <input name=payload> <br>
                 submit: <input type=submit>
             </form>
         </html>
     """
-
 
 
 @app.route('/', methods=['POST'])
@@ -56,6 +59,7 @@ class DefaultConfig(object):
     USE_COLOR_CODES = True
     LISTFILES = False
 
+
 class CodeSpeakConfig(DefaultConfig):
     SMTP_SERVER = 'localhost'
     SMTP_PORT = 25
@@ -63,6 +67,7 @@ class CodeSpeakConfig(DefaultConfig):
     #
     CHANNEL = '#pypy'
     BOT = '/svn/hooks/commit-bot/message'
+
 
 class ViperConfig(DefaultConfig):
     SMTP_SERVER = "out.alice.it"

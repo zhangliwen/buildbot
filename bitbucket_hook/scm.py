@@ -1,11 +1,13 @@
 import sys
 from subprocess import Popen, PIPE
 
+
 def _hgexe(argv):
     proc = Popen(['hg'] + list(argv), stdout=PIPE, stderr=PIPE)
     stdout, stderr = proc.communicate()
     ret = proc.wait()
     return stdout, stderr, ret
+
 
 def hg(*argv):
     argv = map(str, argv)

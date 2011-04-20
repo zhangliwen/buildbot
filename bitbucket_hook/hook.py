@@ -11,9 +11,6 @@ from . import scm
 from . import mail
 
 
-
-
-
 seen_nodes = set()
 
 
@@ -35,8 +32,6 @@ def get_commits(service, payload):
         yield commit
 
 
-
-
 def handle(payload, test=False):
     path = payload['repository']['absolute_url']
     local_repo = app.config['LOCAL_REPOS'].join(path)
@@ -47,7 +42,6 @@ def handle(payload, test=False):
     scm.hg('pull', '-R', local_repo)
     irc.handle_message(payload, test)
     mail.handle_diff_email(payload, test)
-
 
 
 if __name__ == '__main__':
@@ -75,7 +69,8 @@ if __name__ == '__main__':
 
                {u'author': u'antocuni',
                 u'branch': u'default',
-                u'files': [{u'file': u'bitbucket_hook/hook.py', u'type': u'modified'}],
+                u'files': [{u'file': u'bitbucket_hook/hook.py',
+                            u'type': u'modified'}],
                 u'message': u"don't send newlines to irc",
                 u'node': u'e17583fbfa5c',
                 u'parents': [u'69e9eac01cf6'],
@@ -99,13 +94,16 @@ if __name__ == '__main__':
 
                {u'author': u'antocuni',
                 u'branch': u'default',
-                u'files': [{u'file': u'bitbucket_hook/hook.py', u'type': u'modified'},
-                           {u'file': u'bitbucket_hook/__init__.py', u'type': u'added'},
+                u'files': [{u'file': u'bitbucket_hook/hook.py',
+                            u'type': u'modified'},
+                           {u'file': u'bitbucket_hook/__init__.py',
+                            u'type': u'added'},
                            {u'file': u'bitbucket_hook/test/__init__.py',
                             u'type': u'added'},
                            {u'file': u'bitbucket_hook/test/test_hook.py',
                             u'type': u'added'}],
-                u'message': u'partially refactor the hook to be more testable, and write a test for the fix in 12cc0caf054d',
+                u'message': u'partially refactor the hook to be more testable,'
+                            u' and write a test for the fix in 12cc0caf054d',
                 u'node': u'9c7bc068df88',
                 u'parents': [u'12cc0caf054d'],
                 u'raw_author': u'Antonio Cuni <anto.cuni@gmail.com>',
@@ -114,8 +112,7 @@ if __name__ == '__main__':
                 u'size': 753,
                 u'timestamp': u'2010-12-19 14:45:44'}]
 
-
-    test_payload[u'commits']  = commits
+    test_payload[u'commits'] = commits
 
 ##    # To regenerate:
 ##    try:
