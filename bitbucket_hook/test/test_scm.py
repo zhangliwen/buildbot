@@ -25,10 +25,9 @@ def test_non_ascii_encoding_invalid_utf8(monkeypatch):
     assert stdout == u'\ufffdaa'
 
 
+@pytest.mark.skip_if("not py.path.local.sysfind('hg')",
+                     reason='hg binary missing')
 def test_hg():
-    if not py.path.local.sysfind('hg'):
-        pytest.skip('hg binary missing')
-
     scm.hg('help')
     with pytest.raises(Exception):
         print scm.hg

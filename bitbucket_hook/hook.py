@@ -45,8 +45,7 @@ def handle(payload, test=False):
 
 
 if __name__ == '__main__':
-    import hook as hookfile
-    repopath = os.path.dirname(os.path.dirname(hookfile.__file__))
+    repopath = os.path.dirname(os.path.dirname(__file__))
     print 'Repository path:', repopath
     test_payload = {u'repository': {u'absolute_url': '',
                                     u'name': u'test',
