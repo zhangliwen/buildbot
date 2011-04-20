@@ -6,6 +6,7 @@ import os
 import time
 import subprocess
 
+
 def getpaths(files, listfiles=False):
 
     # Handle empty input
@@ -40,14 +41,15 @@ def getpaths(files, listfiles=False):
     return common_prefix, filenames
 
 
-
 def send_message(message, test=False):
     if test:
         print message + '\n'
     else:
         from .main import app
         return subprocess.call([
-            app.config['BOT'], app.config['CHANNEL'], message
+            app.config['BOT'],
+            app.config['CHANNEL'],
+            message,
         ])
 
 
@@ -65,7 +67,7 @@ def handle_message(payload, test=False):
         branch = commit['branch']
         node = commit['node']
         timestamp = commit.get('timestamp')
-        print '[%s] %s %s %s' % (time.strftime('%Y-%m-%d %H:%M'), node, timestamp, author)
+        print time.strftime('[%Y-%m-%d %H:%M]'), node, timestamp, author
 
         files = commit.get('files', [])
         common_prefix, filenames = getpaths(files, app.config['LISTFILES'])
@@ -74,9 +76,9 @@ def handle_message(payload, test=False):
 
         if app.config['USE_COLOR_CODES']:
             author = '\x0312%s\x0F' % author   # in blue
-            branch = '\x02%s\x0F'   % branch   # in bold
-            node = '\x0311%s\x0F'   % node     # in azure
-            common_prefix = '\x0315%s\x0F' % common_prefix # in gray
+            branch = '\x02%s\x0F' % branch   # in bold
+            node = '\x0311%s\x0F' % node     # in azure
+            common_prefix = '\x0315%s\x0F' % common_prefix  # in gray
 
         message = commit['message'].replace('\n', ' ')
         fields = (author, branch, node, common_prefix, filenames)
@@ -88,5 +90,3 @@ def handle_message(payload, test=False):
             maxlen = totallen - (len(part1) + 3)
             irc_msg = part1 + message[:maxlen] + '...'
         send_message(irc_msg, test)
-
-
