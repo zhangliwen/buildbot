@@ -154,11 +154,7 @@ def test_handle_unknown(monkeypatch):
 
 
 def test_ignore_duplicate_commits(monkeypatch, mails, messages):
-    def hg(*args):
-        return '<hg %s>' % ' '.join(map(str, args))
-    monkeypatch.setattr(scm, 'hg', hg)
     monkeypatch.setattr(hook, 'seen_nodes', set())
-    monkeypatch.setattr(hook, 'check_for_local_repo', lambda _: True)
 
     commits, _ = irc_cases()
     payload = {u'repository': {u'absolute_url': '',
@@ -168,9 +164,9 @@ def test_ignore_duplicate_commits(monkeypatch, mails, messages):
                                u'website': u''},
                u'user': u'antocuni',
                'commits': commits['commits']}
-    hook.handle(payload)
-    hook.handle(payload)
-    #
+    commits_listed = list(hook.get_commits('test', payload))
+    commits_again = list(hook.get_commits('test', payload))
     num_commits = len(commits['commits'])
-    assert len(mails) == num_commits
-    assert len(messages) == num_commits
+    assert len(commits_listed) == num_commits
+    assert not commits_again
+
