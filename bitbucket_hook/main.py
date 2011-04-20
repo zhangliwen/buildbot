@@ -17,10 +17,8 @@ import py
 
 app = flask.Flask('bb-hook')
 
-import hook
+from . import hook
 
-HOST_NAME = 'codespeak.net'
-PORT_NUMBER = 9237
 
 
 @app.route('/', methods=['GET'])
@@ -86,5 +84,3 @@ else:
     # real settings, (they works on codespeak at least)
     app.config.from_object(CodeSpeakConfig)
 
-if __name__ == '__main__':
-    app.run(debug=True)
