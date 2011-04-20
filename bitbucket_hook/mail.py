@@ -38,6 +38,7 @@ def send_diff_for_commit(payload, commit, test=False):
 
 
 def send(from_, to, subject, body, test=False):
+    from .main import app
     from email.mime.text import MIMEText
     # Is this a valid workaround for unicode errors?
     body = body.encode('ascii', 'xmlcharrefreplace')
