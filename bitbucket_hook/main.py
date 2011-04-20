@@ -44,13 +44,14 @@ def test_form():
 def handle_payload():
     payload = json.loads(flask.request.form['payload'])
     try:
-        hook.handle(payload)
+        hook.handle(payload, test=app.testing)
     except:
         traceback.print_exc()
         print >> sys.stderr, 'payload:'
         pprint.pprint(payload, sys.stderr)
         print >> sys.stderr
         raise
+    return 'ok'
 
 
 class DefaultConfig(object):
