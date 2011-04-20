@@ -139,6 +139,20 @@ def test_handle(monkeypatch):
     hook.handle(test_payload, test=True)
 
 
+def test_handle_unknown(monkeypatch):
+    def hgraise(*k):
+        raise Exception('this should never be called')
+
+    py.test.raises(Exception, hgraise)
+
+    monkeypatch.setattr(scm, 'hg', hgraise)
+    hook.handle({
+        u'repository': {
+            u'absolute_url': 'uhm/missing/yeah',
+        },
+    })
+
+
 def test_ignore_duplicate_commits(monkeypatch, mails, messages):
     def hg(*args):
         return '<hg %s>' % ' '.join(map(str, args))

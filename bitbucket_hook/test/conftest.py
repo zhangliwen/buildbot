@@ -1,4 +1,4 @@
-from bitbucket_hook import irc, mail, hook
+#XXX imports in conftest globals dont sow in coverage reports
 
 
 def pytest_funcarg__mails(request):
@@ -10,10 +10,12 @@ def pytest_funcarg__messages(request):
 
 
 def pytest_runtest_setup(item):
+    from bitbucket_hook import hook
     hook.seen_nodes.clear()
 
 
 def pytest_funcarg__monkeypatch(request):
+    from bitbucket_hook import irc, mail
     mp = request.getfuncargvalue('monkeypatch')
     mails = request.getfuncargvalue('mails')
 
