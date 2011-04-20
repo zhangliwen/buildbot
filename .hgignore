@@ -2,6 +2,9 @@ syntax: glob
 *.pyc
 *~
 
+# test coverage files
+.coverage
+
 # master/slaveinfo.py contains the passwords, so it should never be tracked
 master/slaveinfo.py
 
