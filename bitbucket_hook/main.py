@@ -41,8 +41,7 @@ def test_form():
 def handle_payload():
     payload = json.loads(flask.request.form['payload'])
     try:
-        handler = hook.BitbucketHookHandler()
-        handler.handle(payload)
+        hook.handle(payload)
     except:
         traceback.print_exc()
         print >> sys.stderr, 'payload:'
