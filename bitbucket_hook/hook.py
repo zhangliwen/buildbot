@@ -146,4 +146,4 @@ if __name__ == '__main__':
     app.config['LOCAL_REPOS'] = py.path.local(repopath)
     app.config['USE_COLOR_CODES'] = False
 
-    hook.handle(test_payload, test=True)
+    handle(test_payload, test=True)
