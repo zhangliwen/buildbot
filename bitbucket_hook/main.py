@@ -20,7 +20,6 @@ app = flask.Flask('bb-hook')
 from . import hook
 
 
-
 @app.route('/', methods=['GET'])
 def test_form():
     """Respond to a GET request."""
@@ -83,4 +82,3 @@ if py.std.socket.gethostname() == 'viper':
 else:
     # real settings, (they works on codespeak at least)
     app.config.from_object(CodeSpeakConfig)
-
