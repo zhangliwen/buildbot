@@ -1,5 +1,5 @@
-from bitbucket_hook.irc import getpaths
-
+from bitbucket_hook import irc
+import subprocess
 
 def fl(*paths):
     return [{'file': x} for x in paths]
@@ -77,6 +77,19 @@ def pytest_generate_tests(metafunc):
 
 
 def test_getpaths(files, expected_common, expected_listfiles):
-    common, files = getpaths(files, listfiles=bool(expected_listfiles))
+    common, files = irc.getpaths(files, listfiles=bool(expected_listfiles))
     assert common == expected_common
     assert files == expected_listfiles
+
+def test_send_message(monkeypatch):
+    monkeypatch.undo()  # hack to get at the functions
+
+    # gets called in normal mode
+    monkeypatch.setattr(subprocess, 'call', lambda *k, **kw: None)
+    irc.send_message('test')
+
+    # doesnt get called in test mode
+    monkeypatch.setattr(subprocess, 'call', lambda: None)
+    irc.send_message('test', test=True)
+
+
