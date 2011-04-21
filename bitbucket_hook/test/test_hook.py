@@ -89,7 +89,9 @@ def test_irc_message(monkeypatch, messages):
     }
 
     payload, expected = irc_cases(payload)
-    irc.handle_message(payload)
+    commits = payload['commits']
+    irc.handle_commit(payload, commits[0])
+    irc.handle_commit(payload, commits[1])
 
     msg1, msg2 = messages[:2]
 

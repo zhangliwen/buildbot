@@ -6,7 +6,6 @@ import os
 import time
 import subprocess
 
-
 def getpaths(files, listfiles=False):
 
     # Handle empty input
@@ -53,40 +52,33 @@ def send_message(message, test=False):
         ])
 
 
-def handle_message(payload, test=False):
-    #XXX
-    from .hook import get_commits
+def handle_commit(payload, commit):
     from .main import app
-    commits = get_commits('irc', payload)
-    if test:
-        print "#" * 20
-        print "IRC messages:"
 
-    for commit in commits:
-        author = commit['author']
-        branch = commit['branch']
-        node = commit['node']
-        timestamp = commit.get('timestamp')
-        print time.strftime('[%Y-%m-%d %H:%M]'), node, timestamp, author
+    author = commit['author']
+    branch = commit['branch']
+    node = commit['node']
+    timestamp = commit.get('timestamp')
+    print time.strftime('[%Y-%m-%d %H:%M]'), node, timestamp, author
 
-        files = commit.get('files', [])
-        common_prefix, filenames = getpaths(files, app.config['LISTFILES'])
-        pathlen = len(common_prefix) + len(filenames) + 2
-        common_prefix = '/' + common_prefix
+    files = commit.get('files', [])
+    common_prefix, filenames = getpaths(files, app.config['LISTFILES'])
+    pathlen = len(common_prefix) + len(filenames) + 2
+    common_prefix = '/' + common_prefix
 
-        if app.config['USE_COLOR_CODES']:
-            author = '\x0312%s\x0F' % author   # in blue
-            branch = '\x02%s\x0F' % branch   # in bold
-            node = '\x0311%s\x0F' % node     # in azure
-            common_prefix = '\x0315%s\x0F' % common_prefix  # in gray
+    if app.config['USE_COLOR_CODES']:
+        author = '\x0312%s\x0F' % author   # in blue
+        branch = '\x02%s\x0F' % branch   # in bold
+        node = '\x0311%s\x0F' % node     # in azure
+        common_prefix = '\x0315%s\x0F' % common_prefix  # in gray
 
-        message = commit['message'].replace('\n', ' ')
-        fields = (author, branch, node, common_prefix, filenames)
-        part1 = '%s %s %s %s%s: ' % fields
-        totallen = 160 + pathlen
-        if len(message) + len(part1) <= totallen:
-            irc_msg = part1 + message
-        else:
-            maxlen = totallen - (len(part1) + 3)
-            irc_msg = part1 + message[:maxlen] + '...'
-        send_message(irc_msg, test)
+    message = commit['message'].replace('\n', ' ')
+    fields = (author, branch, node, common_prefix, filenames)
+    part1 = '%s %s %s %s%s: ' % fields
+    totallen = 160 + pathlen
+    if len(message) + len(part1) <= totallen:
+        irc_msg = part1 + message
+    else:
+        maxlen = totallen - (len(part1) + 3)
+        irc_msg = part1 + message[:maxlen] + '...'
+    send_message(irc_msg)

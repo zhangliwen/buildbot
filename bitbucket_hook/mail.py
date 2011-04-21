@@ -13,6 +13,9 @@ Log:\t{desc|fill68|tabindent}
 
 """
 
+def handle_commit(payload, commit):
+    return send_diff_for_commit(payload, commit)
+
 
 def send_diff_for_commit(payload, commit, test=False):
     from .main import app
@@ -56,9 +59,3 @@ def send(from_, to, subject, body, test=False):
         smtp = SMTP(app.config['SMTP_SERVER'], app.config['SMTP_PORT'])
         smtp.sendmail(from_, [to], msg.as_string())
 
-
-def handle_diff_email(payload, test=False):
-    from . import hook
-    commits = hook.get_commits('email', payload)
-    for commit in commits:
-        send_diff_for_commit(payload, commit, test)
