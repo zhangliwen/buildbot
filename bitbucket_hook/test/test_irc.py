@@ -91,3 +91,13 @@ def test_send_message(monkeypatch):
     # doesnt get called in test mode
     monkeypatch.setattr(subprocess, 'call', lambda: None)
     irc.send_message('test', test=True)
+
+def test_get_short_id():
+    assert irc.get_short_id('pypy', 'pypy', 'default') == 'default'
+    assert irc.get_short_id('pypy', 'pypy', 'mybranch') == 'mybranch'
+    assert irc.get_short_id('pypy', 'buildbot', 'default') == 'buildbot'
+    assert irc.get_short_id('pypy', 'buildbot', 'mybranch') == 'buildbot[mybranch]'
+    assert irc.get_short_id('pypy', 'extradoc', 'extradoc') == 'extradoc'
+    #
+    assert irc.get_short_id('anto', 'pypy', 'default') == 'anto/pypy'
+    assert irc.get_short_id('anto', 'pypy', 'mybranch') == 'anto/pypy[mybranch]'
