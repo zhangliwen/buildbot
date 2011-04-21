@@ -91,5 +91,3 @@ def test_send_message(monkeypatch):
     # doesnt get called in test mode
     monkeypatch.setattr(subprocess, 'call', lambda: None)
     irc.send_message('test', test=True)
-
-

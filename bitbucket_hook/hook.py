@@ -17,7 +17,6 @@ seen_nodes = set()
 def check_for_local_repo(local_repo):
     return local_repo.check(dir=True)
 
-
 def get_commits(service, payload):
     #XXX: service is evil, get rid
     import operator
@@ -40,5 +39,6 @@ def handle(payload, test=False):
         print >> sys.stderr, 'Ignoring unknown repo', path
         return
     scm.hg('pull', '-R', local_repo)
-    irc.handle_message(payload, test)
-    mail.handle_diff_email(payload, test)
+    for commit in get_commits('hook', payload):
+        irc.handle_commit(payload, commit)
+        mail.handle_commit(payload, commit)
