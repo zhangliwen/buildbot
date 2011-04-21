@@ -18,8 +18,14 @@ HANDLERS = [
     mail.handle_commit
     ]
 
-def check_for_local_repo(local_repo):
-    return local_repo.check(dir=True)
+def check_for_local_repo(local_repo, remote_repo, owner):
+    if local_repo.check(dir=True):
+        return True
+    if owner == app.config['DEFAULT_USER']:
+        print >> sys.stderr, 'Automatic initial clone of %s' % remote_repo
+        scm.hg('clone', str(remote_repo), str(local_repo))
+        return True
+    return False
 
 def get_commits(payload, seen_nodes=set()):
     import operator
@@ -35,9 +41,10 @@ def get_commits(payload, seen_nodes=set()):
 
 def handle(payload, test=False):
     path = payload['repository']['absolute_url']
+    owner = payload['repository']['owner']
     local_repo = app.config['LOCAL_REPOS'].join(path)
     remote_repo = app.config['REMOTE_BASE'] + path
-    if not check_for_local_repo(local_repo):
+    if not check_for_local_repo(local_repo, remote_repo, owner):
         print >> sys.stderr, 'Ignoring unknown repo', path
         return
     scm.hg('pull', '-R', local_repo)
