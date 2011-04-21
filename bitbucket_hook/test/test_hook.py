@@ -70,6 +70,10 @@ def irc_cases(payload=None):
 
 def test_irc_message(monkeypatch, messages):
     payload = {
+        'repository': {
+            'owner': 'pypy',
+            'name': 'pypy',
+            },
         'commits': [
             {
                 'revision': 42,
@@ -144,17 +148,29 @@ def test_handle(monkeypatch):
 
 
 def test_handle_unknown(monkeypatch):
-    def hgraise(*k):
-        raise Exception('this should never be called')
-
-    py.test.raises(Exception, hgraise)
+    hgcalls = []
+    def hgraise(*args):
+        hgcalls.append(args)
 
     monkeypatch.setattr(scm, 'hg', hgraise)
     hook.handle({
         u'repository': {
-            u'absolute_url': 'uhm/missing/yeah',
+            u'absolute_url': '/foobar/myrepo',
+            u'owner': 'foobar',
         },
     })
+    assert hgcalls == []
+
+    hook.handle({
+        u'repository': {
+            u'absolute_url': '/pypy/myrepo',
+            u'owner': 'pypy'
+        },
+        u'commits': [],
+    })
+    assert hgcalls[0][:2] == ('clone', 'http://bitbucket.org/pypy/myrepo',)
+    local_repo = hgcalls[0][-1]
+    assert hgcalls[1] == ('pull', '-R', local_repo)
 
 
 def test_ignore_duplicate_commits(monkeypatch, mails, messages):
