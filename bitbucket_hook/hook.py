@@ -10,6 +10,10 @@ from .main import app
 from . import scm
 from . import mail
 
+HANDLERS = [
+    irc.handle_commit,
+    mail.handle_commit
+    ]
 
 def check_for_local_repo(local_repo):
     return local_repo.check(dir=True)
@@ -35,5 +39,5 @@ def handle(payload, test=False):
         return
     scm.hg('pull', '-R', local_repo)
     for commit in get_commits(payload):
-        irc.handle_commit(payload, commit, test)
-        mail.handle_commit(payload, commit, test)
+        for handler in HANDLERS:
+            handler(payload, commit, test)
