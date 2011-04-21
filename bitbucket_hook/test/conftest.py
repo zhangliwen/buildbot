@@ -9,11 +9,6 @@ def pytest_funcarg__messages(request):
     return []
 
 
-def pytest_runtest_setup(item):
-    from bitbucket_hook import hook
-    hook.seen_nodes.clear()
-
-
 def pytest_funcarg__monkeypatch(request):
     from bitbucket_hook import irc, mail
     mp = request.getfuncargvalue('monkeypatch')

@@ -11,23 +11,18 @@ from . import scm
 from . import mail
 
 
-seen_nodes = set()
-
-
 def check_for_local_repo(local_repo):
     return local_repo.check(dir=True)
 
-def get_commits(service, payload):
-    #XXX: service is evil, get rid
+def get_commits(payload, seen_nodes=set()):
     import operator
     commits = sorted(payload['commits'],
                      key=operator.itemgetter('revision'))
     for commit in commits:
         node = commit['raw_node']
-        key = service, node
-        if key in seen_nodes:
+        if node in seen_nodes:
             continue
-        seen_nodes.add(key)
+        seen_nodes.add(node)
         yield commit
 
 
@@ -39,6 +34,6 @@ def handle(payload, test=False):
         print >> sys.stderr, 'Ignoring unknown repo', path
         return
     scm.hg('pull', '-R', local_repo)
-    for commit in get_commits('hook', payload):
+    for commit in get_commits(payload):
         irc.handle_commit(payload, commit)
         mail.handle_commit(payload, commit)

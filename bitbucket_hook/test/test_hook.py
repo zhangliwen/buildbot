@@ -9,12 +9,14 @@ hook.app.config['USE_COLOR_CODES'] = False
 
 def test_sort_commits():
     #
-    commits = hook.get_commits('test_sort', {
+    seen_nodes = set()
+    payload = {
         'commits': [
             {'revision': 43, 'node': 'second', 'raw_node': 'first'},
             {'revision': 42, 'node': 'first', 'raw_node': 'second'},
         ],
-    })
+    }
+    commits = hook.get_commits(payload, seen_nodes)
     commits = [x['node'] for x in commits]
 
     assert commits == ['first', 'second']
@@ -156,8 +158,6 @@ def test_handle_unknown(monkeypatch):
 
 
 def test_ignore_duplicate_commits(monkeypatch, mails, messages):
-    monkeypatch.setattr(hook, 'seen_nodes', set())
-
     commits, _ = irc_cases()
     payload = {u'repository': {u'absolute_url': '',
                                u'name': u'test',
@@ -166,8 +166,9 @@ def test_ignore_duplicate_commits(monkeypatch, mails, messages):
                                u'website': u''},
                u'user': u'antocuni',
                'commits': commits['commits']}
-    commits_listed = list(hook.get_commits('test', payload))
-    commits_again = list(hook.get_commits('test', payload))
+    seen_nodes = set()
+    commits_listed = list(hook.get_commits(payload, seen_nodes))
+    commits_again = list(hook.get_commits(payload, seen_nodes))
     num_commits = len(commits['commits'])
     assert len(commits_listed) == num_commits
     assert not commits_again
