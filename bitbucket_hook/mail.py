@@ -13,11 +13,7 @@ Log:\t{desc|fill68|tabindent}
 
 """
 
-def handle_commit(payload, commit):
-    return send_diff_for_commit(payload, commit)
-
-
-def send_diff_for_commit(payload, commit, test=False):
+def handle_commit(payload, commit, test=False):
     from .main import app
 
     path = payload['repository']['absolute_url']

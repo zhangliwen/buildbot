@@ -52,7 +52,7 @@ def send_message(message, test=False):
         ])
 
 
-def handle_commit(payload, commit):
+def handle_commit(payload, commit, test=False):
     from .main import app
 
     author = commit['author']
@@ -81,4 +81,4 @@ def handle_commit(payload, commit):
     else:
         maxlen = totallen - (len(part1) + 3)
         irc_msg = part1 + message[:maxlen] + '...'
-    send_message(irc_msg)
+    send_message(irc_msg, test)
