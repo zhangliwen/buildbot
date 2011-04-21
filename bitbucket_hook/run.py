@@ -1,4 +1,11 @@
 #!/usr/bin/python
+
+"""
+To start the server in production mode, run this command::
+
+    ./run.py deploy
+"""
+
 import py
 import sys
 import argparse
