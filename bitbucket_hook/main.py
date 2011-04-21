@@ -15,9 +15,8 @@ import flask
 import py
 
 
-app = flask.Flask('bb-hook')
+app = flask.Flask(__name__)
 
-from . import hook
 
 
 @app.route('/', methods=['GET'])
@@ -41,6 +40,7 @@ def test_form():
 def handle_payload():
     payload = json.loads(flask.request.form['payload'])
     try:
+        from . import hook
         hook.handle(payload, test=app.testing)
     except:
         traceback.print_exc()
