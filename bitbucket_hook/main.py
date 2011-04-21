@@ -56,6 +56,9 @@ class DefaultConfig(object):
     REMOTE_BASE = 'http://bitbucket.org'
     USE_COLOR_CODES = True
     LISTFILES = False
+    #
+    DEFAULT_USER = 'pypy'
+    DEFAULT_REPO = 'pypy'
 
 
 class CodeSpeakConfig(DefaultConfig):

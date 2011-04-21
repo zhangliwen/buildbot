@@ -50,13 +50,40 @@ def send_message(message, test=False):
             message,
         ])
 
+def get_short_id(owner, repo, branch):
+    """
+    Custom rules to get a short string that identifies a repo/branch in a
+    useful way, for IRC messages.  Look at test_irc.test_get_short_id for what
+    we expect.
+    """
+    from .main import app
+    repo_parts = []
+    if owner != app.config['DEFAULT_USER']:
+        repo_parts.append('%s' % owner)
+    if repo_parts or repo != app.config['DEFAULT_REPO']:
+        repo_parts.append(repo)
+    repo_id = '/'.join(repo_parts)
+    #
+    if repo_id == '':
+        return branch
+    elif branch == 'default':
+        return repo_id
+    elif repo_id == branch:
+        return repo_id # e.g., pypy/extradoc has a branch extradoc, just return 'extradoc'
+    else:
+        return '%s[%s]' % (repo_id, branch)
+    return branch
+
 
 def handle_commit(payload, commit, test=False):
     from .main import app
 
+    repo_owner = payload['repository']['owner']
+    repo_name = payload['repository']['name']
     author = commit['author']
     branch = commit['branch']
     node = commit['node']
+    short_id = get_short_id(repo_owner, repo_name, branch)
 
     files = commit.get('files', [])
     common_prefix, filenames = getpaths(files, app.config['LISTFILES'])
@@ -65,12 +92,12 @@ def handle_commit(payload, commit, test=False):
 
     if app.config['USE_COLOR_CODES']:
         author = '\x0312%s\x0F' % author   # in blue
-        branch = '\x02%s\x0F' % branch   # in bold
+        short_id = '\x02%s\x0F' % short_id   # in bold
         node = '\x0311%s\x0F' % node     # in azure
         common_prefix = '\x0315%s\x0F' % common_prefix  # in gray
 
     message = commit['message'].replace('\n', ' ')
-    fields = (author, branch, node, common_prefix, filenames)
+    fields = (author, short_id, node, common_prefix, filenames)
     part1 = '%s %s %s %s%s: ' % fields
     totallen = 160 + pathlen
     if len(message) + len(part1) <= totallen:
