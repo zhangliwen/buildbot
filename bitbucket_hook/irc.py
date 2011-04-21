@@ -3,7 +3,6 @@ utilities for interacting with the irc bot (via cli)
 '''
 
 import os
-import time
 import subprocess
 
 def getpaths(files, listfiles=False):
@@ -58,8 +57,6 @@ def handle_commit(payload, commit, test=False):
     author = commit['author']
     branch = commit['branch']
     node = commit['node']
-    timestamp = commit.get('timestamp')
-    print time.strftime('[%Y-%m-%d %H:%M]'), node, timestamp, author
 
     files = commit.get('files', [])
     common_prefix, filenames = getpaths(files, app.config['LISTFILES'])

@@ -4,13 +4,16 @@ import subprocess
 import sys
 import time
 
-from . import irc
 from .main import app
-
 from . import scm
+#
+from . import stdoutlog
+from . import irc
 from . import mail
 
+
 HANDLERS = [
+    stdoutlog.handle_commit,
     irc.handle_commit,
     mail.handle_commit
     ]
