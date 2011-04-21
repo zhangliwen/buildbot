@@ -1,10 +1,10 @@
 import os
-from bitbucket_hook.hook import handle
-from bitbucket_hook.main import app
 import py
 
 
 def test_handlecall():
+    from bitbucket_hook.hook import handle
+    from bitbucket_hook.main import app
     repopath = os.path.dirname(os.path.dirname(__file__))
     print 'Repository path:', repopath
     test_payload = {u'repository': {u'absolute_url': '',
