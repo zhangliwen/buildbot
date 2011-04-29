@@ -207,7 +207,7 @@ BuildmasterConfig = {
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on tannit64, uses 1 core
             OJITLINUX32,               # on tannit32, uses 1 core
-            APPLVLWIN32,               # on bigboard
+            JITWIN32,                  # on bigboard
             STACKLESSAPPLVLFREEBSD64,  # on headless
             JITMACOSX64,               # on mvt's machine
             ], hour=4, minute=0),
