@@ -303,7 +303,7 @@ BuildmasterConfig = {
                    'category': 'linux64',
                   },
                   {"name" : JITMACOSX64,
-                   "slavenames": ["macmini-mvt"],
+                   "slavenames": ["macmini-mvt", "xerxes"],
                    'builddir' : JITMACOSX64,
                    'factory' : pypyJITTranslatedTestFactoryOSX64,
                    'category' : 'mac64',
@@ -328,6 +328,6 @@ BuildmasterConfig = {
                   },
                 ],
 
-    'buildbotURL': 'http://codespeak.net:%d/'%(httpPortNumber),
-    'projectURL': 'http://codespeak.net/pypy/',
+    'buildbotURL': 'http://wyvern.cs.uni-duesseldorf.de:%d/'%(httpPortNumber),
+    'projectURL': 'http://pypy.org/',
     'projectName': 'PyPy'}
