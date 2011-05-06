@@ -61,14 +61,14 @@ class DefaultConfig(object):
     DEFAULT_REPO = 'pypy'
 
 
-class CodeSpeakConfig(DefaultConfig):
+class WyvernConfig(DefaultConfig):
     SMTP_SERVER = 'localhost'
     SMTP_PORT = 25
     ADDRESS = 'pypy-svn@codespeak.net'
     #
     CHANNEL = '#pypy'
-    BOT = '/svn/hooks/commit-bot/message'
-
+    #BOT = '/svn/hooks/commit-bot/message'
+    BOT = '/home/buildmaster/commit-bot/message'
 
 class ViperConfig(DefaultConfig):
     SMTP_SERVER = "out.alice.it"
@@ -84,4 +84,4 @@ if py.std.socket.gethostname() == 'viper':
     app.config.from_object(ViperConfig)
 else:
     # real settings, (they works on codespeak at least)
-    app.config.from_object(CodeSpeakConfig)
+    app.config.from_object(WyvernConfig)
