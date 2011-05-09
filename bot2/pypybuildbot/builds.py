@@ -102,11 +102,17 @@ class UpdateCheckout(ShellCmd):
 
 class CheckGotRevision(ShellCmd):
     description = 'got_revision'
-    command = ['hg', 'parents', '--template', '{rev}:{node|short}']
+    command = ['hg', 'parents', '--template', '{rev}:{node}']
 
     def commandComplete(self, cmd):
         if cmd.rc == 0:
             got_revision = cmd.logs['stdio'].getText()
+            # manually get the effect of {node|short} without using a
+            # '|' in the command-line, because it doesn't work on Windows
+            num = got_revision.find(':')
+            if num > 0:
+                got_revision = got_revision[:num+13]
+            #
             final_file_name = got_revision.replace(':', '-')
             # ':' should not be part of filenames --- too many issues
             self.build.setProperty('got_revision', got_revision, 'got_revision')

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 To start the server in production mode, run this command::
@@ -13,7 +13,7 @@ main = py.path.local(__file__).dirpath().join('main.py').pyimport()
 
 
 if __name__ == '__main__':
-    HOST_NAME = 'codespeak.net'
+    HOST_NAME = 'wyvern.cs.uni-duesseldorf.de'
     PORT_NUMBER = 9237
     main.app.run(
         host = HOST_NAME if 'deploy' in sys.argv else 'localhost',

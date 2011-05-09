@@ -19,18 +19,25 @@ def hg(*argv):
     return unicode(stdout, encoding='utf-8', errors='replace')
 
 
-def get_diff(local_repo, hgid, files):
-    import re
-    binary = re.compile('^GIT binary patch$', re.MULTILINE)
-    files = [item['file'] for item in files]
+def get_diff(local_repo, hgid):
+    out = hg('-R', local_repo, 'diff', '--git', '-c', hgid)
+    out = out.splitlines(True)
+    out_iter = iter(out)
     lines = []
-    for filename in files:
-        out = hg('-R', local_repo, 'diff', '--git', '-c', hgid,
-                      local_repo.join(filename))
-        match = binary.search(out)
-        if match:
-            # it's a binary patch, omit the content
-            out = out[:match.end()]
-            out += u'\n[cut]'
-        lines.append(out)
-    return u'\n'.join(lines)
+    for line in out_iter:
+        lines.append(line)
+        if line == 'GIT binary patch\n':
+            out_iter.next()  # discard literal line
+            lines.append('\n[cut]\n')
+
+            for item in out_iter:
+                if item[0]!='z':
+                    break  # binary patches end with a empty line
+
+
+    return u''.join(lines)
+
+
+if __name__=='__main__':
+    # needs the pypy repo
+    print get_diff(sys.argv[1], '426be91e82b0f91b09a028993d2364f1d62f1615').encode('utf-8')

@@ -207,7 +207,7 @@ BuildmasterConfig = {
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on tannit64, uses 1 core
             OJITLINUX32,               # on tannit32, uses 1 core
-            APPLVLWIN32,               # on bigboard
+            JITWIN32,                  # on bigboard
             STACKLESSAPPLVLFREEBSD64,  # on headless
             JITMACOSX64,               # on mvt's machine
             ], hour=4, minute=0),
@@ -303,7 +303,7 @@ BuildmasterConfig = {
                    'category': 'linux64',
                   },
                   {"name" : JITMACOSX64,
-                   "slavenames": ["macmini-mvt"],
+                   "slavenames": ["macmini-mvt", "xerxes"],
                    'builddir' : JITMACOSX64,
                    'factory' : pypyJITTranslatedTestFactoryOSX64,
                    'category' : 'mac64',
@@ -328,6 +328,6 @@ BuildmasterConfig = {
                   },
                 ],
 
-    'buildbotURL': 'http://codespeak.net:%d/'%(httpPortNumber),
-    'projectURL': 'http://codespeak.net/pypy/',
+    'buildbotURL': 'http://wyvern.cs.uni-duesseldorf.de:%d/'%(httpPortNumber),
+    'projectURL': 'http://pypy.org/',
     'projectName': 'PyPy'}

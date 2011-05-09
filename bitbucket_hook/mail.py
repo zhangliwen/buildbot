@@ -31,7 +31,7 @@ def handle_commit(payload, commit, test=False):
     subject = '%s %s: %s' % (reponame, commit['branch'], line0)
     body = scm.hg('-R', local_repo, 'log', '-r', hgid,
              '--template', template)
-    diff = scm.get_diff(local_repo, hgid, commit['files'])
+    diff = scm.get_diff(local_repo, hgid)
     body = body + diff
     send(sender, app.config['ADDRESS'], subject, body, test)
 
