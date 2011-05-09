@@ -64,7 +64,7 @@ class DefaultConfig(object):
 class WyvernConfig(DefaultConfig):
     SMTP_SERVER = 'localhost'
     SMTP_PORT = 25
-    ADDRESS = 'pypy-svn@codespeak.net'
+    ADDRESS = 'pypy-commit@python.org'
     #
     CHANNEL = '#pypy'
     #BOT = '/svn/hooks/commit-bot/message'
