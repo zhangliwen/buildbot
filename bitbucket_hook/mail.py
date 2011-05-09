@@ -21,7 +21,7 @@ def handle_commit(payload, commit, test=False):
     remote_repo = app.config['REMOTE_BASE'] + path
 
     hgid = commit['raw_node']
-    sender = commit['author'] + ' <commits-noreply@bitbucket.org>'
+    sender = commit['author'] + ' <noreply@buildbot.pypy.org>'
     lines = commit['message'].splitlines()
     line0 = lines and lines[0] or ''
     reponame = payload['repository']['name']
