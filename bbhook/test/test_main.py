@@ -1,5 +1,5 @@
-from bitbucket_hook.main import app
-from bitbucket_hook import hook
+from bbhook.main import app
+from bbhook import hook
 
 def test_get():
     client = app.test_client()
