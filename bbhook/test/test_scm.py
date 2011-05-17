@@ -2,7 +2,7 @@
 import py
 import pytest
 
-from bitbucket_hook import scm
+from bbhook import scm
 
 
 def test_non_ascii_encoding_guess_utf8(monkeypatch):

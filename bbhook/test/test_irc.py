@@ -1,4 +1,4 @@
-from bitbucket_hook import irc
+from bbhook import irc
 import subprocess
 
 def fl(*paths):
