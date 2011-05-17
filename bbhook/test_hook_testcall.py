@@ -3,8 +3,8 @@ import py
 
 
 def test_handlecall():
-    from bitbucket_hook.hook import handle
-    from bitbucket_hook.main import app
+    from bbhook.hook import handle
+    from bbhook.main import app
     repopath = os.path.dirname(os.path.dirname(__file__))
     print 'Repository path:', repopath
     test_payload = {u'repository': {u'absolute_url': '',
@@ -28,7 +28,7 @@ def test_handlecall():
 
                {u'author': u'antocuni',
                 u'branch': u'default',
-                u'files': [{u'file': u'bitbucket_hook/hook.py',
+                u'files': [{u'file': u'bbhook/hook.py',
                             u'type': u'modified'}],
                 u'message': u"don't send newlines to irc",
                 u'node': u'e17583fbfa5c',
@@ -53,13 +53,13 @@ def test_handlecall():
 
                {u'author': u'antocuni',
                 u'branch': u'default',
-                u'files': [{u'file': u'bitbucket_hook/hook.py',
+                u'files': [{u'file': u'bbhook/hook.py',
                             u'type': u'modified'},
-                           {u'file': u'bitbucket_hook/__init__.py',
+                           {u'file': u'bbhook/__init__.py',
                             u'type': u'added'},
-                           {u'file': u'bitbucket_hook/test/__init__.py',
+                           {u'file': u'bbhook/test/__init__.py',
                             u'type': u'added'},
-                           {u'file': u'bitbucket_hook/test/test_hook.py',
+                           {u'file': u'bbhook/test/test_hook.py',
                             u'type': u'added'}],
                 u'message': u'partially refactor the hook to be more testable,'
                             u' and write a test for the fix in 12cc0caf054d',

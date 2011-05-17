@@ -10,7 +10,7 @@ def pytest_funcarg__messages(request):
 
 
 def pytest_funcarg__monkeypatch(request):
-    from bitbucket_hook import irc, mail
+    from bbhook import irc, mail
     mp = request.getfuncargvalue('monkeypatch')
     mails = request.getfuncargvalue('mails')
 
