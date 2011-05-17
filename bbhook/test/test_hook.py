@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 import py
 import pytest
-from bitbucket_hook import hook, scm, mail, irc
+from bbhook import hook, scm, mail, irc
 
 #XXX
 hook.app.config['USE_COLOR_CODES'] = False
