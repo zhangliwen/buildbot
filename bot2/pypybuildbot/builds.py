@@ -14,7 +14,7 @@ class ShellCmd(shell.ShellCommand):
 
 class PyPyUpload(transfer.FileUpload):
     parms = transfer.FileUpload.parms + ['basename']
-    
+
     def start(self):
         properties = self.build.getProperties()
         branch = properties['branch']
