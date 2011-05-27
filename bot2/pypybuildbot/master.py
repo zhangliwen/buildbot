@@ -65,13 +65,13 @@ def my_body_2(self, req):
         ss = b.getSourceStamp()
         branch = ss.branch or '<trunk>'
         builder_name = b.getBuilder().getName()
-	url = (self.path_to_root(req) + 
-	       "summary?builder=" + html.escape(builder_name) +
-	       "&branch=" + html.escape(branch))
-	data = '%s&nbsp;&nbsp;&nbsp;(<a href="%s">view in summary</a>)\n\n%s'% (
-	    data[:i2],
-	    url,
-	    data[i2:])
+    url = (self.path_to_root(req) +
+           "summary?builder=" + html.escape(builder_name) +
+           "&branch=" + html.escape(branch))
+    data = '%s&nbsp;&nbsp;&nbsp;(<a href="%s">view in summary</a>)\n\n%s'% (
+        data[:i2],
+        url,
+        data[i2:])
     return data
 _previous_body_2 = StatusResourceBuild.body
 if _previous_body_2.__name__ == 'body':
@@ -236,12 +236,12 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactory,
                    "category": 'linux32'
                   },
-		  {"name": LINUX64,
-		   "slavenames": ["tannit64"],
-		   "builddir": LINUX64,
-		   "factory": pypyOwnTestFactory,
-		   "category": 'linux64'
-		  },
+                  {"name": LINUX64,
+                   "slavenames": ["tannit64"],
+                   "builddir": LINUX64,
+                   "factory": pypyOwnTestFactory,
+                   "category": 'linux64'
+                  },
                   {"name": MACOSX32,
                    "slavenames": ["minime"],
                    "builddir": MACOSX32,
@@ -277,7 +277,7 @@ BuildmasterConfig = {
                    "builddir": OJITLINUX32,
                    "factory": pypy_OjitTranslatedTestFactory,
                    "category": 'linux32'
-                  },                   
+                  },
                   {"name": APPLVLWIN32,
                    "slavenames": ["bigboard"],
                    "builddir": APPLVLWIN32,

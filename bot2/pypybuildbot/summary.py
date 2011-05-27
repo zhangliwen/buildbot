@@ -96,7 +96,7 @@ class RevisionOutcomeSet(object):
                 longrepr = longrepr.decode("utf-8")
             except UnicodeDecodeError:
                 longrepr = longrepr.decode("latin-1")
-            
+
             self.longreprs[namekey] = longrepr
 
     @property
@@ -209,7 +209,7 @@ class RevisionOutcomeSetCache(object):
             outcome_set.populate_one(name, '!')
 
         return outcome_set
-        
+
     def get(self, status, key):
         try:
             self._lru.remove(key)
@@ -239,7 +239,7 @@ class GatherOutcomeSet(object):
         self._numpassed = None
         self._numxfailed = None
         self.revision = map.values()[0].revision
-                
+
     @property
     def failed(self):
         if self._failed is None:
@@ -275,7 +275,6 @@ class GatherOutcomeSet(object):
                 numxfailed += outcome.numxfailed
             self._numxfailed = numxfailed
         return self._numxfailed
-    
 
     def get_outcome(self, namekey):
         which = namekey[0]
@@ -297,7 +296,7 @@ class GatherOutcomeSet(object):
         for outcome_set in self.map.itervalues():
             all.update(outcome_set.get_run_infos())
         return all
-         
+
 # ________________________________________________________________
 
 N = 5
@@ -313,7 +312,7 @@ def colsizes(namekeys):
         colsizes = map(max, zip(map(len, keys), colsizes))
 
     return colsizes
-    
+
 
 class SummaryPage(object):
     SUCCESS_LINE = True
@@ -401,7 +400,7 @@ class SummaryPage(object):
             cls = "builderquery"
         return html.a(builder, href=host_agnostic(url),
                       class_=' '.join(["failSummary", cls]))
-        
+
     def _builder_num(self, outcome_set):
         return outcome_set.map.values()[0].key
 
@@ -477,7 +476,7 @@ class SummaryPage(object):
                 success.append([" ", symbol])
             success.append("  success\n")
             lines.append(success)
-            
+
         failed = set()
         exploded = set()
         for label, outcome_set in by_label:
@@ -523,13 +522,13 @@ class SummaryPage(object):
             spaceright = spacing[-1]
             builder_anchor = self._builder_anchor(builder)
             line.append([spaceleft, builder_anchor, spaceright])
-            
+
             for width, key in zip(colwidths[1:], failure[1:]):
                 line.append("  %-*s" % (width, key))
             line.append('\n')
             lines.append(html.span(line,
                                    class_="a%dc%d" % (a_num, combination)))
-        
+
         section = html.pre(lines)
         self.sections.append(section)
 
@@ -563,7 +562,7 @@ class LongRepr(HtmlResource):
             mod = None
         else:
             mod = mod[0]
-        
+
         testname = request.args.get('testname', [])
         if testname:
             testname = testname[0]
@@ -571,7 +570,7 @@ class LongRepr(HtmlResource):
             testname = ''
 
         return (mod, testname)
-        
+
     def getTitle(self, request):
         mod, testname = self.get_namekey(request)
         if mod is None:
@@ -581,7 +580,7 @@ class LongRepr(HtmlResource):
     def body(self, request):
         t0 = time.time()
         outcome_set_cache.reset_counters()
-        
+
         builder = request.args.get('builder', [])
         build = request.args.get('build', [])
         if not builder or not build:
@@ -726,7 +725,7 @@ class Summary(HtmlResource):
         fixed_builder = bool(only_builder)
         prune_old = not (only_builds or only_recentrevs or
                          only_builder or only_branches)
-        
+
         cat_branches = {}
 
         for builderName in status.getBuilderNames(only_categories):
@@ -742,7 +741,7 @@ class Summary(HtmlResource):
                 builditer = builditer()
             else:
                 builditer = builderStatus.generateFinishedBuilds(num_builds=5*N)
-            
+
             for build in builditer:
                 if prune_old and self._age(build) > 7:
                     continue
@@ -780,7 +779,7 @@ class Summary(HtmlResource):
                     key = (builderName, buildNumber)
                     outcome_set = outcome_set_cache.get(status, key)
                     runBuilds[builderName] = outcome_set
-                            
+
         return cat_branches
 
     @staticmethod
@@ -816,16 +815,16 @@ class Summary(HtmlResource):
             i = len(self.categories)
         cat_key = (i, category)
         return cat_key + branch_key
-                            
+
     def body(self, request):
         t0 = time.time()
         outcome_set_cache.reset_counters()
-        
+
         status = self.getStatus(request)
 
         page = SummaryPage(status)
         #page.sections.append(repr(request.args))
-        
+
         only_branches = request.args.get('branch', None)
         only_recentrevs = request.args.get('recentrev', None)
         if only_branches is not None:
@@ -870,7 +869,7 @@ class Summary(HtmlResource):
         else:
             trunk_vs_any_text = "all <trunk>"
             trunk_vs_any_query = "?branch=<trunk>"
-        
+
         trunk_vs_any_anchor = html.a(trunk_vs_any_text,
                                      href="/summary%s" %
                                      trunk_vs_any_query,

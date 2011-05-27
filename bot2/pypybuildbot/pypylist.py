@@ -16,7 +16,7 @@ class PyPyTarball(object):
         'hg': 100,
         'svn': 50,
         }
-    
+
     FEATURES_PRIORITY = {
         'jit':      100,
         'nojit':     50,
@@ -34,7 +34,7 @@ class PyPyTarball(object):
         'linux':   'linux-x86-32',
         'linux64': 'linux-x86-64',
         'osx':     'macosx-x86-32',
-        'win32':   'win-x86-32',        
+        'win32':   'win-x86-32',
         }
 
     DESCRIPTIONS = {

@@ -64,7 +64,7 @@ class PytestCmd(ShellCmd):
         pytestLog = cmd.logs['pytestLog']
         outcome = RevisionOutcomeSet(None)
         outcome.populate(pytestLog)
-        summary = outcome.get_summary()        
+        summary = outcome.get_summary()
         build_status = self.build.build_status
         builder = build_status.builder
         properties = build_status.getProperties()
@@ -134,7 +134,7 @@ def setup_steps(platform, factory, workdir=None):
     factory.addStep(ShellCmd(description="hg clone",
                              command = command,
                              workdir = workdir,
-			     haltOnFailure=True))
+                             haltOnFailure=True))
     #
     factory.addStep(ShellCmd(description="hg purge",
                              command = "hg --config extensions.purge= purge --all",
@@ -177,7 +177,7 @@ class Translated(factory.BuildFactory):
                  translationArgs=['-O2'], targetArgs=[],
                  app_tests=False,
                  lib_python=False,
-                 pypyjit=False                 
+                 pypyjit=False
                  ):
         factory.BuildFactory.__init__(self)
 
@@ -204,7 +204,7 @@ class Translated(factory.BuildFactory):
                 description="lib-python test",
                 command=["python", "pypy/test_all.py",
                          "--pypy=pypy/translator/goal/pypy-c",
-                         "--resultlog=cpython.log", "lib-python"],           
+                         "--resultlog=cpython.log", "lib-python"],
                 logfiles={'pytestLog': 'cpython.log'}))
 
         if pypyjit:
