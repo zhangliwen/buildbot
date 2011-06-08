@@ -126,6 +126,15 @@ def setup_steps(platform, factory, workdir=None):
         # for debugging
         repourl = '/home/antocuni/pypy/pypy-hg'
     #
+    if platform == 'win32':
+        command = "if not exist .hg rmdir /q /s ."
+    else:
+        command = "if [ ! -d .hg ]; then rm -fr * .[a-z]*; fi"
+    factory.addStep(ShellCmd(description="rmdir?",
+                             command = command,
+                             workdir = workdir,
+                             haltOnFailure=False))
+    #
     if platform == "win32":
         command = "if not exist .hg %s"
     else:
