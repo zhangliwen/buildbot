@@ -32,6 +32,16 @@ if StatusResourceBuilder.ping.__name__ == 'ping':
     StatusResourceBuilder.ping = my_ping
 # Disabled.
 
+# Forbid "force build" with empty user name
+def my_force(self, req):
+    name = req.args.get("username", [""])[0]
+    assert name, "Please write your name in the corresponding field."
+    return _previous_force(self, req)
+_previous_force = StatusResourceBuilder.force
+if _previous_force.__name__ == 'force':
+    StatusResourceBuilder.force = my_force
+# Done
+
 # Add a link from the builder page to the summary page
 def my_body(self, req):
     data = _previous_body(self, req)
