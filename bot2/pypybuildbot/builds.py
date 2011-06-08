@@ -33,6 +33,13 @@ class PyPyUpload(transfer.FileUpload):
         self.masterdest = masterdest
         transfer.FileUpload.start(self)
 
+    def finished(self, *args, **kwds):
+        transfer.FileUpload.finished(self, *args, **kwds)
+        try:
+            os.chmod(self.masterdest, 0644)
+        except OSError:
+            pass
+
 class Translate(ShellCmd):
     name = "translate"
     description = ["translating"]
