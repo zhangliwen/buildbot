@@ -297,7 +297,7 @@ class JITBenchmark(factory.BuildFactory):
                      '--revision', WithProperties('%(got_revision)s'),
                      '--upload', #'--force-host', 'bigdog',
                      '--branch', WithProperties('%(branch)s'),
-                     '--args', ',--jit threshold=-1'],
+                     '--args', ',--jit threshold=0,function_threshold=0'],
             workdir='./benchmarks',
             haltOnFailure=True))
         resfile = os.path.expanduser("~/bench_results_nojit/%(got_revision)s.json")
