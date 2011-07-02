@@ -28,15 +28,25 @@ class PyPyUpload(transfer.FileUpload):
         masterdest = os.path.join(masterdest, branch)
         if not os.path.exists(masterdest):
             os.makedirs(masterdest)
+        #
+        assert '%(final_file_name)s' in self.basename
+        symname = self.basename.replace('%(final_file_name)s', 'latest')
+        assert '%' not in symname
+        self.symlinkname = os.path.join(masterdest, symname)
+        #
         basename = WithProperties(self.basename).render(properties)
-        masterdest = os.path.join(masterdest, basename)
-        self.masterdest = masterdest
+        self.masterdest = os.path.join(masterdest, basename)
+        #
         transfer.FileUpload.start(self)
 
     def finished(self, *args, **kwds):
         transfer.FileUpload.finished(self, *args, **kwds)
         try:
             os.chmod(self.masterdest, 0644)
+        except OSError:
+            pass
+        try:
+            os.symlink(os.path.basename(self.masterdest), self.symlinkname)
         except OSError:
             pass
 

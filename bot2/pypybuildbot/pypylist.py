@@ -13,6 +13,7 @@ class PyPyTarball(object):
     # to get the desired order keep in mind that they are reversed at the end,
     # so the highest the value, the bigger the priority
     VCS_PRIORITY = {
+        'latest': 150,
         'hg': 100,
         'svn': 50,
         }
@@ -64,8 +65,13 @@ class PyPyTarball(object):
         if dashes == 4:
             # svn based
             self.exe, self.backend, self.features, self.rev, self.platform = name.split('-')
-            self.numrev = int(self.rev)
-            self.vcs = 'svn'
+            if self.rev == 'latest':
+                self.rev = -1
+                self.numrev = -1
+                self.vcs = 'latest'
+            else:
+                self.numrev = int(self.rev)
+                self.vcs = 'svn'
         elif dashes == 5:
             # mercurial based
             self.exe, self.backend, self.features, num, hgid, self.platform = name.split('-')
