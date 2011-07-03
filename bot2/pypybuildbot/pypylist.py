@@ -94,6 +94,9 @@ class PyPyTarball(object):
         app_builder = '%s-%s-%s-%s' % (self.exe, self.backend, description, platform)
         return own_builder, app_builder
 
+    def display_in_italic(self):
+        return self.vcs == 'latest'
+
 
 class PyPyList(File):
 
@@ -198,7 +201,7 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
         rowClasses = itertools.cycle(['odd', 'even'])
         for element, rowClass in zip(elements, rowClasses):
             element["class"] = rowClass
-            result = self._add_test_results(element, rowClass)
+            self._add_test_results(element, rowClass)
             tableContent.append(self.linePattern % element)
         return tableContent
 
@@ -208,6 +211,8 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
         date = datetime.date.fromtimestamp(f.mtime())
         element['date'] = date.isoformat()
         t = PyPyTarball(filename)
+        if t.display_in_italic():
+            element['text'] = '<i>%s</i>' % (element['text'],)
         own_builder, app_builder = t.get_builder_names()
         self._add_result_for_builder(element, own_builder, 'own_', t.rev, rowClass)
         self._add_result_for_builder(element, app_builder, 'app_', t.rev, rowClass)
