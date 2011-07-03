@@ -213,15 +213,19 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
         self._add_result_for_builder(element, app_builder, 'app_', t.rev, rowClass)
 
     def _add_result_for_builder(self, element, builder_name, prefix, rev, rowClass):
-        branch = self._get_branch()
-        summary, category = self._get_summary_and_category(builder_name, branch, rev)
-        if branch == 'trunk':
-            branch = '%3Ctrunk%3E' # <trunk>
-        if category:
-            href = cgi.escape('/summary?category=%s&branch=%s&recentrev=%s' % (category, branch, rev))
-            str_summary = '<a class="summary_link" href="%s">%s</a>' % (href, summary)
+        if rev == -1:
+            summary = None
+            str_summary = ''
         else:
-            str_summary = str(summary)
+            branch = self._get_branch()
+            summary, category = self._get_summary_and_category(builder_name, branch, rev)
+            if branch == 'trunk':
+                branch = '%3Ctrunk%3E' # <trunk>
+            if category:
+                href = cgi.escape('/summary?category=%s&branch=%s&recentrev=%s' % (category, branch, rev))
+                str_summary = '<a class="summary_link" href="%s">%s</a>' % (href, summary)
+            else:
+                str_summary = str(summary)
         element[prefix + 'summary'] = str_summary
         element[prefix + 'summary_class'] = self._get_summary_class(summary, rowClass)
 
