@@ -2,6 +2,7 @@ from buildbot.process import factory
 from buildbot.steps import source, shell, transfer, master
 from buildbot.status.builder import SUCCESS
 from buildbot.process.properties import WithProperties
+from pypybuildbot.util import symlink_force
 import os
 
 class ShellCmd(shell.ShellCommand):
@@ -46,7 +47,7 @@ class PyPyUpload(transfer.FileUpload):
         except OSError:
             pass
         try:
-            os.symlink(os.path.basename(self.masterdest), self.symlinkname)
+            symlink_force(os.path.basename(self.masterdest), self.symlinkname)
         except OSError:
             pass
 
