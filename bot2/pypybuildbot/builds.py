@@ -56,7 +56,7 @@ class Translate(ShellCmd):
     description = ["translating"]
     descriptionDone = ["translation"]
 
-    command = ["python", "translate.py", "--batch"]
+    command = ["pypy", "translate.py", "--batch"]
     translationTarget = "targetpypystandalone"
     haltOnFailure = True
 
