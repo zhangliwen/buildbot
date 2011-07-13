@@ -24,7 +24,7 @@ How to run the PyPy buildbot
 If you want to run buildbot in production, you need to make sure that the
 function ``pypybuildbot.util.we_are_debugging`` returns ``False`` in your
 environment.  At the moment of writing, debugging is enabled everywhere but on
-codespeak.net.
+wyvern.
 
 You still need to fill ``master/slaveinfo.py`` with the passwords of the
 various slaves you want to use.
