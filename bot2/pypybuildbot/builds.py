@@ -282,7 +282,7 @@ class JITBenchmark(factory.BuildFactory):
 
         setup_steps(platform, self)
         self.addStep(ShellCmd(description="checkout benchmarks",
-            command=['svn', 'co', 'http://codespeak.net/svn/pypy/benchmarks',
+            command=['svn', 'co', 'https://bitbucket.org/pypy/benchmarks/trunk',
                      'benchmarks'],
             workdir='.'))
         self.addStep(Translate(['-Ojit'], []))
