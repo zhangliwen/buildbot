@@ -292,7 +292,7 @@ class JITBenchmark(factory.BuildFactory):
             command=["python", "runner.py", '--output-filename', 'result.json',
                     '--pypy-c', pypy_c_rel,
                      '--baseline', pypy_c_rel,
-                     '--args', ',--jit off'
+                     '--args', ',--jit off',
                      '--upload', #'--force-host', 'bigdog',
                      '--revision', WithProperties('%(got_revision)s'),
                      '--branch', WithProperties('%(branch)s')],
