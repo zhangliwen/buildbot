@@ -288,9 +288,11 @@ class JITBenchmark(factory.BuildFactory):
         self.addStep(Translate(['-Ojit'], []))
         pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
         self.addStep(ShellCmd(
-            description="run benchmarks on top of pypy-c-jit",
+            description="run benchmarks on top of pypy-c",
             command=["python", "runner.py", '--output-filename', 'result.json',
                     '--pypy-c', pypy_c_rel,
+                     '--baseline', pypy_c_rel,
+                     '--args', ',--jit off'
                      '--upload', #'--force-host', 'bigdog',
                      '--revision', WithProperties('%(got_revision)s'),
                      '--branch', WithProperties('%(branch)s')],
@@ -298,20 +300,6 @@ class JITBenchmark(factory.BuildFactory):
             haltOnFailure=True))
         # a bit obscure hack to get both os.path.expand and a property
         resfile = os.path.expanduser("~/bench_results/%(got_revision)s.json")
-        self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
-                                         masterdest=WithProperties(resfile),
-                                         workdir="."))
-        self.addStep(ShellCmd(
-            description="run benchmarks on top of pypy-c no jit",
-            command=["python", "runner.py", '--output-filename', 'result.json',
-                    '--pypy-c', '../build/pypy/translator/goal/pypy-c',
-                     '--revision', WithProperties('%(got_revision)s'),
-                     '--upload', #'--force-host', 'bigdog',
-                     '--branch', WithProperties('%(branch)s'),
-                     '--args', ',--jit off'],
-            workdir='./benchmarks',
-            haltOnFailure=True))
-        resfile = os.path.expanduser("~/bench_results_nojit/%(got_revision)s.json")
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                                          masterdest=WithProperties(resfile),
                                          workdir="."))
