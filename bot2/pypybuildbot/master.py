@@ -338,6 +338,6 @@ BuildmasterConfig = {
                   },
                 ],
 
-    'buildbotURL': 'http://wyvern.cs.uni-duesseldorf.de:%d/'%(httpPortNumber),
+    'buildbotURL': 'http://buildbot.pypy.org),
     'projectURL': 'http://pypy.org/',
     'projectName': 'PyPy'}
