@@ -290,7 +290,7 @@ class JITBenchmark(factory.BuildFactory):
         if postfix:
             addopts = ['--postfix', postfix]
         else:
-            addopts = None
+            addopts = []
         self.addStep(ShellCmd(
             description="run benchmarks on top of pypy-c",
             command=["python", "runner.py", '--output-filename', 'result.json',
