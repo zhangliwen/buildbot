@@ -350,6 +350,6 @@ BuildmasterConfig = {
                    },
                 ],
 
-    'buildbotURL': 'http://buildbot.pypy.org),
+    'buildbotURL': 'http://buildbot.pypy.org',
     'projectURL': 'http://pypy.org/',
     'projectName': 'PyPy'}
