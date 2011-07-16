@@ -277,7 +277,7 @@ class Translated(factory.BuildFactory):
                                 blocksize=100*1024))
 
 class JITBenchmark(factory.BuildFactory):
-    def __init__(self, platform='linux'):
+    def __init__(self, platform='linux', host='tannit', postfix=None):
         factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
@@ -287,15 +287,20 @@ class JITBenchmark(factory.BuildFactory):
             workdir='.'))
         self.addStep(Translate(['-Ojit'], []))
         pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
+        if postfix:
+            addopts = ['--postfix', postfix]
+        else:
+            addopts = None
         self.addStep(ShellCmd(
             description="run benchmarks on top of pypy-c",
             command=["python", "runner.py", '--output-filename', 'result.json',
                     '--pypy-c', pypy_c_rel,
                      '--baseline', pypy_c_rel,
                      '--args', ',--jit off',
-                     '--upload', #'--force-host', 'bigdog',
+                     '--upload',
                      '--revision', WithProperties('%(got_revision)s'),
-                     '--branch', WithProperties('%(branch)s')],
+                     '--branch', WithProperties('%(branch)s'),
+                     ] + addopts,
             workdir='./benchmarks',
             haltOnFailure=True))
         # a bit obscure hack to get both os.path.expand and a property
@@ -303,14 +308,3 @@ class JITBenchmark(factory.BuildFactory):
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                                          masterdest=WithProperties(resfile),
                                          workdir="."))
-
-##        self.addStep(ShellCmd(
-##            description="run on top of python with psyco",
-##            command=["python", "runner.py", '--output-filename', 'result.json',
-##                    '--pypy-c', 'psyco/python_with_psyco.sh',
-##                     '--revision', WithProperties('%(got_revision)s'),
-##                     '--upload', #'--force-host', 'bigdog',
-##                     '--branch', WithProperties('%(branch)s'),
-##                     ],
-##            workdir='./benchmarks',
-##            haltOnFailure=True))

@@ -180,6 +180,8 @@ pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
     )
 
 pypyJITBenchmarkFactory = pypybuilds.JITBenchmark()
+pypyJITBenchmarkFactory64 = pypybuilds.JITBenchmark(platform='linux64',
+                                                    postfix='-64')
 
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
@@ -200,16 +202,20 @@ JITWIN32 = "pypy-c-jit-win-x86-32"
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
+JITBENCH64 = "jit-benchmark-linux-x86-64"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
     'change_source': [],
     'schedulers': [
-        Nightly("nightly-0-45", [
+        Nightly("nightly-0-00", [
             JITBENCH,  # on tannit -- nothing else there during first round!
             MACOSX32,                  # on minime
-            ], hour=0, minute=45),
+            ], hour=0, minute=0),
+        Nightly("nighly-2-00", [
+            JITBENCH64, # on tannit -- nothing else there during first round!
+            ], hour=2, minute=0),
         Nightly("nightly-4-00", [
             # rule: what we pick here on tannit should take at most 8 cores
             # and be hopefully finished after 2 hours
@@ -336,6 +342,12 @@ BuildmasterConfig = {
                    "factory": pypyJITBenchmarkFactory,
                    "category": 'benchmark-run',
                   },
+                  {"name": JITBENCH64,
+                   "slavenames": ["tannit64"],
+                   "builddir": JITBENCH64,
+                   "factory": pypyJITBenchmarkFactory64,
+                   "category": "benchmark-run",
+                   },
                 ],
 
     'buildbotURL': 'http://buildbot.pypy.org),
