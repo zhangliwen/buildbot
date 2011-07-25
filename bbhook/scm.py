@@ -21,7 +21,7 @@ def hg(*argv):
 
 
 def get_diff(local_repo, hgid):
-    out = hg('-R', local_repo, 'diff', '-b', '--git', '-c', hgid)
+    out = hg('-R', local_repo, 'diff', '--git', '-c', hgid)
     lines = out.splitlines(True)
     return filter_diff(lines)
 
