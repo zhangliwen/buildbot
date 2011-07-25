@@ -1,6 +1,7 @@
 import sys
 from subprocess import Popen, PIPE
 
+MAX_DIFF_LINES = 10000
 
 def _hgexe(argv):
     proc = Popen(['hg'] + list(argv), stdout=PIPE, stderr=PIPE)
@@ -22,7 +23,10 @@ def hg(*argv):
 def get_diff(local_repo, hgid):
     out = hg('-R', local_repo, 'diff', '-b', '--git', '-c', hgid)
     out = out.splitlines(True)
-    out_iter = iter(out)
+    return filter_diff(lines)
+
+def filter_diff(lines):
+    out_iter = iter(lines)
     lines = []
     for line in out_iter:
         lines.append(line)
@@ -34,6 +38,9 @@ def get_diff(local_repo, hgid):
                 if item[0]!='z':
                     break  # binary patches end with a empty line
 
+    if len(lines) > MAX_DIFF_LINES:
+        msg = 'diff too long, truncating to %d out of %d lines\n\n' % (MAX_DIFF_LINES, len(lines))
+        lines = [msg] + lines[:MAX_DIFF_LINES]
 
     return u''.join(lines)
 
