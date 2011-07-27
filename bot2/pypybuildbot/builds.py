@@ -302,7 +302,8 @@ class JITBenchmark(factory.BuildFactory):
                      '--branch', WithProperties('%(branch)s'),
                      ] + addopts,
             workdir='./benchmarks',
-            haltOnFailure=True))
+            haltOnFailure=True,
+            timeout=3600))
         # a bit obscure hack to get both os.path.expand and a property
         filename = '%(got_revision)s' + (postfix or '')
         resfile = os.path.expanduser("~/bench_results/%s.json" % filename)
