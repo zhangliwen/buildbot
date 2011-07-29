@@ -209,37 +209,67 @@ BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
     'change_source': [],
+    ## 'schedulers': [
+    ##     Nightly("nightly-0-00", [
+    ##         JITBENCH,  # on tannit -- nothing else there during first round!
+    ##         MACOSX32,                  # on minime
+    ##         ], hour=0, minute=0),
+    ##     Nightly("nighly-2-00", [
+    ##         JITBENCH64, # on tannit -- nothing else there during first round!
+    ##         ], hour=2, minute=0),
+    ##     Nightly("nightly-4-00", [
+    ##         # rule: what we pick here on tannit should take at most 8 cores
+    ##         # and be hopefully finished after 2 hours
+    ##         LINUX32,                   # on tannit32, uses 4 cores
+    ##         JITLINUX32,                # on tannit32, uses 1 core
+    ##         JITLINUX64,                # on tannit64, uses 1 core
+    ##         OJITLINUX32,               # on tannit32, uses 1 core
+    ##         JITWIN32,                  # on bigboard
+    ##         STACKLESSAPPLVLFREEBSD64,  # on headless
+    ##         JITMACOSX64,               # on mvt's machine
+    ##         ], hour=4, minute=0),
+    ##     Nightly("nightly-6-00", [
+    ##         # there should be only JITLINUX32 that takes a bit longer than
+    ##         # that.  We can use a few more cores now.
+    ##         APPLVLLINUX32,           # on tannit32, uses 1 core
+    ##         APPLVLLINUX64,           # on tannit64, uses 1 core
+    ##         STACKLESSAPPLVLLINUX32,  # on tannit32, uses 1 core
+    ##         ], hour=6, minute=0),
+    ##     Nightly("nightly-7-00", [
+    ##         # the remaining quickly-run stuff on tannit
+    ##         LINUX64,                 # on tannit64, uses 4 cores
+    ##         ], hour=7, minute=0),
+    ## ],
+
     'schedulers': [
+        # first of all, we run the benchmarks: the two translations take ~2800
+        # seconds and are executed in parallel. Running benchmarks takes ~3400
+        # seconds and is executed sequentially. In total, 2800 + (3300*2) ~=
+        # 160 minutes
         Nightly("nightly-0-00", [
-            JITBENCH,  # on tannit -- nothing else there during first round!
+            JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
+            JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             MACOSX32,                  # on minime
             ], hour=0, minute=0),
-        Nightly("nighly-2-00", [
-            JITBENCH64, # on tannit -- nothing else there during first round!
-            ], hour=2, minute=0),
-        Nightly("nightly-4-00", [
-            # rule: what we pick here on tannit should take at most 8 cores
-            # and be hopefully finished after 2 hours
+        #
+        # then, we schedule all the rest. The locks will take care not to run
+        # all of them in parallel
+        Nightly("nighly-3-00", [
             LINUX32,                   # on tannit32, uses 4 cores
+            LINUX64,                   # on tannit64, uses 4 cores
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on tannit64, uses 1 core
             OJITLINUX32,               # on tannit32, uses 1 core
+            APPLVLLINUX32,             # on tannit32, uses 1 core
+            APPLVLLINUX64,             # on tannit64, uses 1 core
+            STACKLESSAPPLVLLINUX32,    # on tannit32, uses 1 core
+            #
             JITWIN32,                  # on bigboard
             STACKLESSAPPLVLFREEBSD64,  # on headless
             JITMACOSX64,               # on mvt's machine
-            ], hour=4, minute=0),
-        Nightly("nightly-6-00", [
-            # there should be only JITLINUX32 that takes a bit longer than
-            # that.  We can use a few more cores now.
-            APPLVLLINUX32,           # on tannit32, uses 1 core
-            APPLVLLINUX64,           # on tannit64, uses 1 core
-            STACKLESSAPPLVLLINUX32,  # on tannit32, uses 1 core
-            ], hour=6, minute=0),
-        Nightly("nightly-7-00", [
-            # the remaining quickly-run stuff on tannit
-            LINUX64,                 # on tannit64, uses 4 cores
-            ], hour=7, minute=0),
+            ], hour=3, minute=0)
     ],
+
     'status': [status],
 
     'slaves': [BuildSlave(name, password)
