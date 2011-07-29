@@ -2,8 +2,25 @@ from buildbot.process import factory
 from buildbot.steps import source, shell, transfer, master
 from buildbot.status.builder import SUCCESS
 from buildbot.process.properties import WithProperties
+from buildbot import locks
 from pypybuildbot.util import symlink_force
 import os
+
+# buildbot supports SlaveLocks, which can be used to limit the amout of builds
+# to be run on each slave in parallel.  However, they assume that each
+# buildslave is on a differen physical machine, which is not the case for
+# tannit32 and tannit64.  As a result, we have to use a global lock, and
+# manually tell each builder that uses tannit to acquire it.
+#
+# Look at the various "locks" session in master.py/BuildmasterConfig.  For
+# benchmarks, the locks is aquired for the single steps: this way we can run
+# translations in parallel, but then the actual benchmarks are run in
+# sequence.
+
+# there are 8 logical CPUs, but only 4 physical ones. We use a maxCount of 6
+# to allow a bit more parallelism, but not too much
+TannitCPU = locks.MasterLock('tannit_cpu', maxCount=6)
+
 
 class ShellCmd(shell.ShellCommand):
     # our own version that can distinguish abort cases (rc == -1)
@@ -142,7 +159,7 @@ def setup_steps(platform, factory, workdir=None):
     repourl = 'https://bitbucket.org/pypy/pypy/'
     if getpass.getuser() == 'antocuni':
         # for debugging
-        repourl = '/home/antocuni/pypy/pypy-hg'
+        repourl = '/home/antocuni/pypy/default'
     #
     if platform == 'win32':
         command = "if not exist .hg rmdir /q /s ."
@@ -285,13 +302,23 @@ class JITBenchmark(factory.BuildFactory):
             command=['svn', 'co', 'https://bitbucket.org/pypy/benchmarks/trunk',
                      'benchmarks'],
             workdir='.'))
-        self.addStep(Translate(['-Ojit'], []))
+        self.addStep(
+            Translate(
+                translationArgs=['-Ojit'],
+                targetArgs=[],
+                haltOnFailure=False,
+                # this step can be executed in parallel with other builds
+                locks=[TannitCPU.access('counting')],
+                )
+            )
         pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
         if postfix:
             addopts = ['--postfix', postfix]
         else:
             addopts = []
         self.addStep(ShellCmd(
+            # this step needs exclusive access to the CPU
+            locks=[TannitCPU.access('exclusive')],
             description="run benchmarks on top of pypy-c",
             command=["python", "runner.py", '--output-filename', 'result.json',
                     '--pypy-c', pypy_c_rel,
