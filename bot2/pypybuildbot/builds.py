@@ -17,9 +17,8 @@ import os
 # translations in parallel, but then the actual benchmarks are run in
 # sequence.
 
-# there are 8 logical CPUs, but only 4 physical ones. We use a maxCount of 6
-# to allow a bit more parallelism, but not too much
-TannitCPU = locks.MasterLock('tannit_cpu', maxCount=6)
+# there are 8 logical CPUs, but only 4 physical ones
+TannitCPU = locks.MasterLock('tannit_cpu', maxCount=4)
 
 
 class ShellCmd(shell.ShellCommand):
