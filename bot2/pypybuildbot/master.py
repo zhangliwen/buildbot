@@ -105,6 +105,7 @@ status.putChild('nightly', PyPyList(os.path.expanduser('~/nightly'),
 
 
 pypybuilds = load('pypybuildbot.builds')
+TannitCPU = pypybuilds.TannitCPU
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
@@ -250,13 +251,25 @@ BuildmasterConfig = {
                    "slavenames": ["cobra", "bigdogvm1", "tannit32"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory,
-                   "category": 'linux32'
+                   "category": 'linux32',
+                   # this build needs 4 CPUs
+                   "locks": [TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             ],
                   },
                   {"name": LINUX64,
                    "slavenames": ["tannit64"],
                    "builddir": LINUX64,
                    "factory": pypyOwnTestFactory,
-                   "category": 'linux64'
+                   "category": 'linux64',
+                   # this build needs 4 CPUs
+                   "locks": [TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             ],
                   },
                   {"name": MACOSX32,
                    "slavenames": ["minime"],
@@ -274,25 +287,29 @@ BuildmasterConfig = {
                    "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
-                   'category': 'linux32'
+                   'category': 'linux32',
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": APPLVLLINUX64,
                    "slavenames": ["tannit64"],
                    "builddir": APPLVLLINUX64,
                    "factory": pypyTranslatedAppLevelTestFactory64,
-                   "category": "linux64"
+                   "category": "linux64",
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": STACKLESSAPPLVLLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": STACKLESSAPPLVLLINUX32,
                    "factory": pypyStacklessTranslatedAppLevelTestFactory,
-                   "category": 'linux32-stackless'
+                   "category": 'linux32-stackless',
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": OJITLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": OJITLINUX32,
                    "factory": pypy_OjitTranslatedTestFactory,
-                   "category": 'linux32'
+                   "category": 'linux32',
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": APPLVLWIN32,
                    "slavenames": ["bigboard"],
@@ -311,12 +328,14 @@ BuildmasterConfig = {
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'linux32',
+                   "locks": [TannitCPU.access('counting')],
                    },
                   {'name': JITLINUX64,
                    'slavenames': ['tannit64'],
                    'builddir': JITLINUX64,
                    'factory': pypyJITTranslatedTestFactory64,
                    'category': 'linux64',
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name" : JITMACOSX64,
                    "slavenames": ["macmini-mvt", "xerxes"],
@@ -334,19 +353,22 @@ BuildmasterConfig = {
                    "slavenames": ["tannit32", "bigdogvm1"],
                    "builddir": JITONLYLINUX32,
                    "factory": pypyJitOnlyOwnTestFactory,
-                   "category": 'linux32'
+                   "category": 'linux32',
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": JITBENCH,
                    "slavenames": ["tannit32"],
                    "builddir": JITBENCH,
                    "factory": pypyJITBenchmarkFactory,
                    "category": 'benchmark-run',
+                   # the locks are acquired with fine grain inside the build
                   },
                   {"name": JITBENCH64,
                    "slavenames": ["tannit64"],
                    "builddir": JITBENCH64,
                    "factory": pypyJITBenchmarkFactory64,
                    "category": "benchmark-run",
+                   # the locks are acquired with fine grain inside the build
                    },
                 ],
 
