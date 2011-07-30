@@ -18,7 +18,7 @@ import os
 # sequence.
 
 # there are 8 logical CPUs, but only 4 physical ones
-TannitCPU = locks.MasterLock('tannit_cpu', maxCount=4)
+TannitCPU = locks.MasterLock('tannit_cpu', maxCount=6)
 
 
 class ShellCmd(shell.ShellCommand):
@@ -305,7 +305,7 @@ class JITBenchmark(factory.BuildFactory):
             Translate(
                 translationArgs=['-Ojit'],
                 targetArgs=[],
-                haltOnFailure=False,
+                haltOnFailure=True,
                 # this step can be executed in parallel with other builds
                 locks=[TannitCPU.access('counting')],
                 )
