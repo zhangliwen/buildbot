@@ -16,8 +16,11 @@ if __name__ == '__main__':
     #HOST_NAME = 'wyvern.cs.uni-duesseldorf.de'
     HOST_NAME = ''
     PORT_NUMBER = 9237
+    # WARNING:
+    # deply is meant as a argument for running public facing,
+    # its not supposed to be used when running a proxy setup
     main.app.run(
-        host = HOST_NAME if 'deploy' in sys.argv else 'localhost',
+        host = HOST_NAME if 'deploy' in sys.argv else '127.0.0.1',
         debug = 'debug' in sys.argv,
         port=PORT_NUMBER)
 
