@@ -14,18 +14,13 @@ twistd.log*
 httpd.log*
 
 # ignore all the builders dir (which can be both in master/ and in slave/)
-jit-benchmark-linux-x86-32
-jitonly-own-linux-x86-32
-own-linux-x86-32
-own-linux-x86-64
-own-macosx-x86-32
-pypy-c-Ojit-no-jit-linux-x86-32
-pypy-c-app-level-linux-x86-32
-pypy-c-app-level-linux-x86-64
-pypy-c-app-level-win-x86-32
-pypy-c-jit-linux-x86-32
-pypy-c-jit-linux-x86-64
-pypy-c-jit-macosx-x86-64
-pypy-c-jit-win-x86-32
-pypy-c-stackless-app-level-freebsd-7-x86-64
-pypy-c-stackless-app-level-linux-x86-32
+*-linux-x86-32
+*-linux-x86-32vm
+*-linux-x86-64
+*-macosx-x86-32
+*-macosx-x86-64
+*-win-x86-32
+*-win-32
+*-freebsd-7-x86-64
+*-maemo
+*-maemo-build
