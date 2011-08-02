@@ -275,8 +275,12 @@ class Translated(factory.BuildFactory):
         else:
             if '--stackless' in translationArgs:
                 kind = 'stackless'
-            else:
+            elif '-Ojit' in translationArgs:
+                kind = 'jitnojit'
+            elif '-O2' in translationArgs:
                 kind = 'nojit'
+            else:
+                kind = 'unknown'
         name = 'pypy-c-' + kind + '-%(final_file_name)s-' + platform
         self.addStep(ShellCmd(
             description="compress pypy-c",
