@@ -220,6 +220,7 @@ class Translated(factory.BuildFactory):
     def __init__(self, platform='linux',
                  translationArgs=['-O2'], targetArgs=[],
                  app_tests=False,
+                 interpreter='pypy',
                  lib_python=False,
                  pypyjit=False
                  ):
@@ -227,7 +228,8 @@ class Translated(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.addStep(Translate(translationArgs, targetArgs))
+        self.addStep(Translate(translationArgs, targetArgs,
+                               interpreter=interpreter))
 
         if app_tests:
             if app_tests == True:
