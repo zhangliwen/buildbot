@@ -169,7 +169,7 @@ pypyJITTranslatedTestFactoryOSX64 = pypybuilds.Translated(
 
 pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
     platform="win32",
-    translationArgs=['-Ojit', '--gcrootfinder=shadowstack'],
+    translationArgs=jit_translation_args,
     targetArgs=[],
     lib_python=True,
     pypyjit=True,
