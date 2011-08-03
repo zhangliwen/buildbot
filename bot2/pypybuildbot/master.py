@@ -125,7 +125,8 @@ pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.Translated(
 pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
     platform="win32",
     lib_python=True,
-    app_tests=True)
+    app_tests=True,
+    interpreter='python')
 
 jit_translation_args = ['-Ojit']
 
@@ -152,6 +153,7 @@ pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
+    interpreter='python',
     )
 
 pypyJITTranslatedTestFactoryOSX64 = pypybuilds.Translated(
@@ -161,6 +163,7 @@ pypyJITTranslatedTestFactoryOSX64 = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
+    interpreter='python',
     )
 
 pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
@@ -170,6 +173,7 @@ pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
+    interpreter='python',
     )
 
 pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
