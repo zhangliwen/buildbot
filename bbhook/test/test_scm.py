@@ -32,3 +32,24 @@ def test_hg():
     with pytest.raises(Exception):
         print scm.hg
         scm.hg('uhmwrong')
+
+
+def test_huge_diff(monkeypatch):
+    monkeypatch.setattr(scm, 'MAX_DIFF_LINES', 4)
+    lines = """\
+one
+two
+three
+for
+five
+six
+""".splitlines(True)
+    diff = scm.filter_diff(lines)
+    assert diff == """\
+diff too long, truncating to 4 out of 6 lines
+
+one
+two
+three
+for
+"""
