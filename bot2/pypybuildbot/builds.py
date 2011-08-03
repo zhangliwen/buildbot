@@ -56,19 +56,20 @@ class Translate(ShellCmd):
     description = ["translating"]
     descriptionDone = ["translation"]
 
-    command = ["pypy", "translate.py", "--batch"]
+    command = ["translate.py", "--batch"]
     translationTarget = "targetpypystandalone"
     haltOnFailure = True
 
     def __init__(self, translationArgs, targetArgs,
                  workdir="build/pypy/translator/goal",
+                 interpreter='pypy',
                  *a, **kw):
         add_args = {'translationArgs': translationArgs,
                     'targetArgs': targetArgs}
         kw['timeout'] = 3600
         ShellCmd.__init__(self, workdir, *a, **kw)
         self.addFactoryArguments(**add_args)
-        self.command = (self.command + translationArgs +
+        self.command = ([interpreter] + self.command + translationArgs +
                         [self.translationTarget] + targetArgs)
         #self.command = ['cp', '/tmp/pypy-c', '.']
 
