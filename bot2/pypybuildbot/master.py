@@ -130,6 +130,7 @@ pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
     interpreter='python')
 
 jit_translation_args = ['-Ojit']
+jit_translation_args_shadowstack = ['-Ojit', '--gcrootfinder=shadowstack']
 
 pypyJITTranslatedTestFactory = pypybuilds.Translated(
     translationArgs=jit_translation_args,
@@ -149,7 +150,7 @@ pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
 
 pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
     platform='osx',
-    translationArgs=jit_translation_args,
+    translationArgs=jit_translation_args_shadowstack,
     targetArgs=[],
     lib_python=True,
     pypyjit=True,
@@ -159,7 +160,7 @@ pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
 
 pypyJITTranslatedTestFactoryOSX64 = pypybuilds.Translated(
     platform='osx64',
-    translationArgs=jit_translation_args,
+    translationArgs=jit_translation_args_shadowstack,
     targetArgs=[],
     lib_python=True,
     pypyjit=True,
@@ -169,7 +170,7 @@ pypyJITTranslatedTestFactoryOSX64 = pypybuilds.Translated(
 
 pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
     platform="win32",
-    translationArgs=['-Ojit', '--gcrootfinder=shadowstack'],
+    translationArgs=jit_translation_args_shadowstack,
     targetArgs=[],
     lib_python=True,
     pypyjit=True,
