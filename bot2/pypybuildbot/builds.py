@@ -81,7 +81,8 @@ class Translate(ShellCmd):
                  interpreter='pypy',
                  *a, **kw):
         add_args = {'translationArgs': translationArgs,
-                    'targetArgs': targetArgs}
+                    'targetArgs': targetArgs,
+                    'interpreter': interpreter}
         kw['timeout'] = 3600
         ShellCmd.__init__(self, workdir, *a, **kw)
         self.addFactoryArguments(**add_args)
