@@ -31,3 +31,16 @@ various slaves you want to use.
 
 Then, to start the buildbot master: ``cd master; make start``
 
+
+To restart the buildmaster
+===========================
+
+$ cd pypy-buildbot
+$ hg pull -u
+$ cd master
+$ buildbot checkconfig
+$ make reconfig
+
+OR
+$ make stop
+$ make start
