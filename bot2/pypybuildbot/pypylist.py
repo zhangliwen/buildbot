@@ -13,10 +13,11 @@ class PyPyTarball(object):
     # to get the desired order keep in mind that they are reversed at the end,
     # so the highest the value, the bigger the priority
     VCS_PRIORITY = {
+        'latest': 150,
         'hg': 100,
         'svn': 50,
         }
-    
+
     FEATURES_PRIORITY = {
         'jit':      100,
         'nojit':     50,
@@ -34,7 +35,7 @@ class PyPyTarball(object):
         'linux':   'linux-x86-32',
         'linux64': 'linux-x86-64',
         'osx':     'macosx-x86-32',
-        'win32':   'win-x86-32',        
+        'win32':   'win-x86-32',
         }
 
     DESCRIPTIONS = {
@@ -64,8 +65,13 @@ class PyPyTarball(object):
         if dashes == 4:
             # svn based
             self.exe, self.backend, self.features, self.rev, self.platform = name.split('-')
-            self.numrev = int(self.rev)
-            self.vcs = 'svn'
+            if self.rev == 'latest':
+                self.rev = -1
+                self.numrev = -1
+                self.vcs = 'latest'
+            else:
+                self.numrev = int(self.rev)
+                self.vcs = 'svn'
         elif dashes == 5:
             # mercurial based
             self.exe, self.backend, self.features, num, hgid, self.platform = name.split('-')
@@ -87,6 +93,9 @@ class PyPyTarball(object):
         own_builder = 'own-%s' % platform
         app_builder = '%s-%s-%s-%s' % (self.exe, self.backend, description, platform)
         return own_builder, app_builder
+
+    def display_in_italic(self):
+        return self.vcs == 'latest'
 
 
 class PyPyList(File):
@@ -192,7 +201,7 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
         rowClasses = itertools.cycle(['odd', 'even'])
         for element, rowClass in zip(elements, rowClasses):
             element["class"] = rowClass
-            result = self._add_test_results(element, rowClass)
+            self._add_test_results(element, rowClass)
             tableContent.append(self.linePattern % element)
         return tableContent
 
@@ -202,20 +211,26 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
         date = datetime.date.fromtimestamp(f.mtime())
         element['date'] = date.isoformat()
         t = PyPyTarball(filename)
+        if t.display_in_italic():
+            element['text'] = '<i>%s</i>' % (element['text'],)
         own_builder, app_builder = t.get_builder_names()
         self._add_result_for_builder(element, own_builder, 'own_', t.rev, rowClass)
         self._add_result_for_builder(element, app_builder, 'app_', t.rev, rowClass)
 
     def _add_result_for_builder(self, element, builder_name, prefix, rev, rowClass):
-        branch = self._get_branch()
-        summary, category = self._get_summary_and_category(builder_name, branch, rev)
-        if branch == 'trunk':
-            branch = '%3Ctrunk%3E' # <trunk>
-        if category:
-            href = cgi.escape('/summary?category=%s&branch=%s&recentrev=%s' % (category, branch, rev))
-            str_summary = '<a class="summary_link" href="%s">%s</a>' % (href, summary)
+        if rev == -1:
+            summary = None
+            str_summary = ''
         else:
-            str_summary = str(summary)
+            branch = self._get_branch()
+            summary, category = self._get_summary_and_category(builder_name, branch, rev)
+            if branch == 'trunk':
+                branch = '%3Ctrunk%3E' # <trunk>
+            if category:
+                href = cgi.escape('/summary?category=%s&branch=%s&recentrev=%s' % (category, branch, rev))
+                str_summary = '<a class="summary_link" href="%s">%s</a>' % (href, summary)
+            else:
+                str_summary = str(summary)
         element[prefix + 'summary'] = str_summary
         element[prefix + 'summary_class'] = self._get_summary_class(summary, rowClass)
 
