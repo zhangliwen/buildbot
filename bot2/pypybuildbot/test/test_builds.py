@@ -8,6 +8,8 @@ class FakeProperties(object):
             return None
         if item == 'got_revision':
             return 123
+        if item == 'final_file_name':
+            return '123-ea5ca8'
     
     def render(self, x):
         return x
@@ -51,7 +53,7 @@ def test_Translate():
 def test_pypy_upload():
     pth = py.test.ensuretemp('buildbot')
     inst = builds.PyPyUpload(slavesrc='slavesrc', masterdest=str(pth.join('mstr')),
-                             basename='base-%(got_revision)s', workdir='.',
+                             basename='base-%(final_file_name)s', workdir='.',
                              blocksize=100)
     factory, kw = inst.factory
     rebuilt = factory(**kw)
@@ -60,7 +62,10 @@ def test_pypy_upload():
     rebuilt.runCommand = lambda *args: FakeDeferred()
     rebuilt.start()
     assert pth.join('mstr').check(dir=True)
-    assert rebuilt.masterdest == str(pth.join('mstr', 'trunk', 'base-123'))
+    assert rebuilt.masterdest == str(pth.join('mstr', 'trunk',
+                                              'base-123-ea5ca8'))
+    assert rebuilt.symlinkname == str(pth.join('mstr', 'trunk',
+                                               'base-latest'))
 
 class TestPytestCmd(object):
     

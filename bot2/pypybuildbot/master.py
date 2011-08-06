@@ -32,6 +32,16 @@ if StatusResourceBuilder.ping.__name__ == 'ping':
     StatusResourceBuilder.ping = my_ping
 # Disabled.
 
+# Forbid "force build" with empty user name
+def my_force(self, req):
+    name = req.args.get("username", [""])[0]
+    assert name, "Please write your name in the corresponding field."
+    return _previous_force(self, req)
+_previous_force = StatusResourceBuilder.force
+if _previous_force.__name__ == 'force':
+    StatusResourceBuilder.force = my_force
+# Done
+
 # Add a link from the builder page to the summary page
 def my_body(self, req):
     data = _previous_body(self, req)
@@ -47,6 +57,7 @@ def my_body(self, req):
             url,
             data[i:])
     return data
+
 _previous_body = StatusResourceBuilder.body
 if _previous_body.__name__ == 'body':
     StatusResourceBuilder.body = my_body
@@ -65,13 +76,13 @@ def my_body_2(self, req):
         ss = b.getSourceStamp()
         branch = ss.branch or '<trunk>'
         builder_name = b.getBuilder().getName()
-	url = (self.path_to_root(req) + 
-	       "summary?builder=" + html.escape(builder_name) +
-	       "&branch=" + html.escape(branch))
-	data = '%s&nbsp;&nbsp;&nbsp;(<a href="%s">view in summary</a>)\n\n%s'% (
-	    data[:i2],
-	    url,
-	    data[i2:])
+        url = (self.path_to_root(req) +
+               "summary?builder=" + html.escape(builder_name) +
+               "&branch=" + html.escape(branch))
+        data = '%s&nbsp;&nbsp;&nbsp;(<a href="%s">view in summary</a>)\n\n%s'% (
+            data[:i2],
+            url,
+            data[i2:])
     return data
 _previous_body_2 = StatusResourceBuild.body
 if _previous_body_2.__name__ == 'body':
@@ -95,6 +106,7 @@ status.putChild('nightly', PyPyList(os.path.expanduser('~/nightly'),
 
 
 pypybuilds = load('pypybuildbot.builds')
+TannitCPU = pypybuilds.TannitCPU
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
@@ -115,7 +127,8 @@ pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.Translated(
 pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
     platform="win32",
     lib_python=True,
-    app_tests=True)
+    app_tests=True,
+    interpreter='python')
 
 jit_translation_args = ['-Ojit']
 
@@ -142,6 +155,7 @@ pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
+    interpreter='python',
     )
 
 pypyJITTranslatedTestFactoryOSX64 = pypybuilds.Translated(
@@ -151,6 +165,7 @@ pypyJITTranslatedTestFactoryOSX64 = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
+    interpreter='python',
     )
 
 pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
@@ -160,6 +175,7 @@ pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
+    interpreter='python',
     )
 
 pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
@@ -170,6 +186,8 @@ pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
     )
 
 pypyJITBenchmarkFactory = pypybuilds.JITBenchmark()
+pypyJITBenchmarkFactory64 = pypybuilds.JITBenchmark(platform='linux64',
+                                                    postfix='-64')
 
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
@@ -190,39 +208,73 @@ JITWIN32 = "pypy-c-jit-win-x86-32"
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
+JITBENCH64 = "jit-benchmark-linux-x86-64"
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
     'change_source': [],
+    ## 'schedulers': [
+    ##     Nightly("nightly-0-00", [
+    ##         JITBENCH,  # on tannit -- nothing else there during first round!
+    ##         MACOSX32,                  # on minime
+    ##         ], hour=0, minute=0),
+    ##     Nightly("nighly-2-00", [
+    ##         JITBENCH64, # on tannit -- nothing else there during first round!
+    ##         ], hour=2, minute=0),
+    ##     Nightly("nightly-4-00", [
+    ##         # rule: what we pick here on tannit should take at most 8 cores
+    ##         # and be hopefully finished after 2 hours
+    ##         LINUX32,                   # on tannit32, uses 4 cores
+    ##         JITLINUX32,                # on tannit32, uses 1 core
+    ##         JITLINUX64,                # on tannit64, uses 1 core
+    ##         OJITLINUX32,               # on tannit32, uses 1 core
+    ##         JITWIN32,                  # on bigboard
+    ##         STACKLESSAPPLVLFREEBSD64,  # on headless
+    ##         JITMACOSX64,               # on mvt's machine
+    ##         ], hour=4, minute=0),
+    ##     Nightly("nightly-6-00", [
+    ##         # there should be only JITLINUX32 that takes a bit longer than
+    ##         # that.  We can use a few more cores now.
+    ##         APPLVLLINUX32,           # on tannit32, uses 1 core
+    ##         APPLVLLINUX64,           # on tannit64, uses 1 core
+    ##         STACKLESSAPPLVLLINUX32,  # on tannit32, uses 1 core
+    ##         ], hour=6, minute=0),
+    ##     Nightly("nightly-7-00", [
+    ##         # the remaining quickly-run stuff on tannit
+    ##         LINUX64,                 # on tannit64, uses 4 cores
+    ##         ], hour=7, minute=0),
+    ## ],
+
     'schedulers': [
-        Nightly("nightly-0-45", [
-            JITBENCH,  # on tannit -- nothing else there during first round!
+        # first of all, we run the benchmarks: the two translations take ~2800
+        # seconds and are executed in parallel. Running benchmarks takes ~3400
+        # seconds and is executed sequentially. In total, 2800 + (3300*2) ~=
+        # 160 minutes
+        Nightly("nightly-0-00", [
+            JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
+            JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             MACOSX32,                  # on minime
-            ], hour=0, minute=45),
-        Nightly("nightly-4-00", [
-            # rule: what we pick here on tannit should take at most 8 cores
-            # and be hopefully finished after 2 hours
+            ], hour=0, minute=0),
+        #
+        # then, we schedule all the rest. The locks will take care not to run
+        # all of them in parallel
+        Nightly("nighly-3-00", [
             LINUX32,                   # on tannit32, uses 4 cores
+            LINUX64,                   # on tannit64, uses 4 cores
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on tannit64, uses 1 core
             OJITLINUX32,               # on tannit32, uses 1 core
-            APPLVLWIN32,               # on bigboard
+            APPLVLLINUX32,             # on tannit32, uses 1 core
+            APPLVLLINUX64,             # on tannit64, uses 1 core
+            STACKLESSAPPLVLLINUX32,    # on tannit32, uses 1 core
+            #
+            JITWIN32,                  # on bigboard
             STACKLESSAPPLVLFREEBSD64,  # on headless
             JITMACOSX64,               # on mvt's machine
-            ], hour=4, minute=0),
-        Nightly("nightly-6-00", [
-            # there should be only JITLINUX32 that takes a bit longer than
-            # that.  We can use a few more cores now.
-            APPLVLLINUX32,           # on tannit32, uses 1 core
-            APPLVLLINUX64,           # on tannit64, uses 1 core
-            STACKLESSAPPLVLLINUX32,  # on tannit32, uses 1 core
-            ], hour=6, minute=0),
-        Nightly("nightly-7-00", [
-            # the remaining quickly-run stuff on tannit
-            LINUX64,                 # on tannit64, uses 4 cores
-            ], hour=7, minute=0),
+            ], hour=3, minute=0)
     ],
+
     'status': [status],
 
     'slaves': [BuildSlave(name, password)
@@ -234,14 +286,26 @@ BuildmasterConfig = {
                    "slavenames": ["cobra", "bigdogvm1", "tannit32"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory,
-                   "category": 'linux32'
+                   "category": 'linux32',
+                   # this build needs 4 CPUs
+                   "locks": [TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             ],
                   },
-		  {"name": LINUX64,
-		   "slavenames": ["tannit64"],
-		   "builddir": LINUX64,
-		   "factory": pypyOwnTestFactory,
-		   "category": 'linux64'
-		  },
+                  {"name": LINUX64,
+                   "slavenames": ["tannit64"],
+                   "builddir": LINUX64,
+                   "factory": pypyOwnTestFactory,
+                   "category": 'linux64',
+                   # this build needs 4 CPUs
+                   "locks": [TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             TannitCPU.access('counting'),
+                             ],
+                  },
                   {"name": MACOSX32,
                    "slavenames": ["minime"],
                    "builddir": MACOSX32,
@@ -258,26 +322,30 @@ BuildmasterConfig = {
                    "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
-                   'category': 'linux32'
+                   'category': 'linux32',
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": APPLVLLINUX64,
                    "slavenames": ["tannit64"],
                    "builddir": APPLVLLINUX64,
                    "factory": pypyTranslatedAppLevelTestFactory64,
-                   "category": "linux64"
+                   "category": "linux64",
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": STACKLESSAPPLVLLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": STACKLESSAPPLVLLINUX32,
                    "factory": pypyStacklessTranslatedAppLevelTestFactory,
-                   "category": 'linux32-stackless'
+                   "category": 'linux32-stackless',
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": OJITLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": OJITLINUX32,
                    "factory": pypy_OjitTranslatedTestFactory,
-                   "category": 'linux32'
-                  },                   
+                   "category": 'linux32',
+                   "locks": [TannitCPU.access('counting')],
+                  },
                   {"name": APPLVLWIN32,
                    "slavenames": ["bigboard"],
                    "builddir": APPLVLWIN32,
@@ -295,15 +363,17 @@ BuildmasterConfig = {
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'linux32',
+                   "locks": [TannitCPU.access('counting')],
                    },
                   {'name': JITLINUX64,
                    'slavenames': ['tannit64'],
                    'builddir': JITLINUX64,
                    'factory': pypyJITTranslatedTestFactory64,
                    'category': 'linux64',
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name" : JITMACOSX64,
-                   "slavenames": ["macmini-mvt"],
+                   "slavenames": ["macmini-mvt", "xerxes"],
                    'builddir' : JITMACOSX64,
                    'factory' : pypyJITTranslatedTestFactoryOSX64,
                    'category' : 'mac64',
@@ -318,16 +388,25 @@ BuildmasterConfig = {
                    "slavenames": ["tannit32", "bigdogvm1"],
                    "builddir": JITONLYLINUX32,
                    "factory": pypyJitOnlyOwnTestFactory,
-                   "category": 'linux32'
+                   "category": 'linux32',
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": JITBENCH,
                    "slavenames": ["tannit32"],
                    "builddir": JITBENCH,
                    "factory": pypyJITBenchmarkFactory,
                    "category": 'benchmark-run',
+                   # the locks are acquired with fine grain inside the build
                   },
+                  {"name": JITBENCH64,
+                   "slavenames": ["tannit64"],
+                   "builddir": JITBENCH64,
+                   "factory": pypyJITBenchmarkFactory64,
+                   "category": "benchmark-run",
+                   # the locks are acquired with fine grain inside the build
+                   },
                 ],
 
-    'buildbotURL': 'http://codespeak.net:%d/'%(httpPortNumber),
-    'projectURL': 'http://codespeak.net/pypy/',
+    'buildbotURL': 'http://buildbot.pypy.org/',  # with a trailing '/'!
+    'projectURL': 'http://pypy.org/',
     'projectName': 'PyPy'}
