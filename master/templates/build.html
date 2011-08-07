@@ -7,6 +7,8 @@
 <h1>
 Builder <a href="{{ path_to_builder }}">{{ b.getBuilder().getName() }}</a>
 Build #{{ b.getNumber() }}
+<!-- PyPy specific change: add a "view in summary" linke -->
+&nbsp;&nbsp;&nbsp;(<a href="{{ path_to_root }}summary?builder={{ b.getBuilder().getName() }}">view in summary</a>)
 </h1>
 
 <div class="column">
@@ -35,6 +37,7 @@ Build #{{ b.getNumber() }}
     <h3><a href="{{ tests_link }}"/></h3>
   {% endif %}
 {% endif %}
+
 
 <h2>SourceStamp:</h2>
 
