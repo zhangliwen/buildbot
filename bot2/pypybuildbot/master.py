@@ -4,22 +4,8 @@ from buildbot.status.html import WebStatus
 from buildbot.process.builder import Builder
 from pypybuildbot.pypylist import PyPyList
 
-# I really wanted to pass logPath to Site
-from twisted.web.server import Site
-class LoggingSite(Site):
-    def __init__(self, *a, **kw):
-        kw['logPath'] = 'httpd.log'
-        Site.__init__(self, *a, **kw)
-from twisted.web import server
-if server.Site.__name__ == 'Site':
-    server.Site = LoggingSite
-# So I did.
-
-
-from buildbot.status.web.build import StatusResourceBuild
-from buildbot.status.web.builder import StatusResourceBuilder
-
 # Forbid "force build" with empty user name
+from buildbot.status.web.builder import StatusResourceBuilder
 def my_force(self, req):
     name = req.args.get("username", [""])[0]
     assert name, "Please write your name in the corresponding field."
