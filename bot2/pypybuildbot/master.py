@@ -17,14 +17,7 @@ if server.Site.__name__ == 'Site':
 
 
 from buildbot.status.web.build import StatusResourceBuild
-
-# Disable pinging, as it seems to deadlock the client
 from buildbot.status.web.builder import StatusResourceBuilder
-def my_ping(self, req):
-    raise Exception("pinging is disabled, as it seems to deadlock clients")
-if StatusResourceBuilder.ping.__name__ == 'ping':
-    StatusResourceBuilder.ping = my_ping
-# Disabled.
 
 # Forbid "force build" with empty user name
 def my_force(self, req):
