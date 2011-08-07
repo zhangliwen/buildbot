@@ -16,11 +16,6 @@ if _previous_force.__name__ == 'force':
 # Done
 
 
-# Picking a random slave is not really what we want;
-# let's pick the first available one instead.
-Builder.CHOOSE_SLAVES_RANDOMLY = False
-
-
 status = WebStatus(httpPortNumber, allowForce=True)
 
 # pypy test summary page
