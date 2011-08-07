@@ -29,32 +29,6 @@ if _previous_force.__name__ == 'force':
     StatusResourceBuilder.force = my_force
 # Done
 
-# Add a similar link from the build page to the summary page
-def my_content_2(self, req, ctx):
-    data = _previous_content_2(self, req, ctx)
-    MARKER1 = '<h2>Results'
-    MARKER2 = '<h2>SourceStamp'
-    i1 = data.find(MARKER1)
-    i2 = data.find(MARKER2)
-    if i1 >= 0 and i2 >= 0:
-        from twisted.web import html
-        b = self.build_status
-        ss = b.getSourceStamp()
-        branch = ss.branch or '<trunk>'
-        builder_name = b.getBuilder().getName()
-        url = (self.path_to_root(req) +
-               "summary?builder=" + html.escape(builder_name) +
-               "&branch=" + html.escape(branch))
-        data = '%s&nbsp;&nbsp;&nbsp;(<a href="%s">view in summary</a>)\n\n%s'% (
-            data[:i2],
-            url,
-            data[i2:])
-    return data
-_previous_content_2 = StatusResourceBuild.content
-## if _previous_content_2.__name__ == 'content':
-##     StatusResourceBuild.content = my_content_2
-
-
 
 # Picking a random slave is not really what we want;
 # let's pick the first available one instead.
