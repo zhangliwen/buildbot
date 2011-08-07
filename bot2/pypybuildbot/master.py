@@ -29,27 +29,6 @@ if _previous_force.__name__ == 'force':
     StatusResourceBuilder.force = my_force
 # Done
 
-# Add a link from the builder page to the summary page
-def my_content(self, req, ctx):
-    data = _previous_content(self, req, ctx)
-    MARKER = 'waterfall</a>)'
-    i = data.find(MARKER)
-    if i >= 0:
-        from twisted.web import html
-        i += len(MARKER)
-        b = self.builder_status
-        url = self.path_to_root(req)+"summary?builder="+html.escape(b.getName())
-        data = '%s&nbsp;&nbsp;&nbsp;(<a href="%s">view in summary</a>)%s' % (
-            data[:i],
-            url,
-            data[i:])
-    return data
-
-_previous_content = StatusResourceBuilder.content
-## if _previous_content.__name__ == 'content':
-##     StatusResourceBuilder.content = my_content
-# Done
-
 # Add a similar link from the build page to the summary page
 def my_content_2(self, req, ctx):
     data = _previous_content_2(self, req, ctx)
