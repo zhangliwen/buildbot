@@ -8,7 +8,8 @@ from pypybuildbot.pypylist import PyPyList
 from twisted.web.server import Site
 class LoggingSite(Site):
     def __init__(self, *a, **kw):
-        Site.__init__(self, logPath='httpd.log', *a, **kw)
+        kw['logPath'] = 'httpd.log'
+        Site.__init__(self, *a, **kw)
 from twisted.web import server
 if server.Site.__name__ == 'Site':
     server.Site = LoggingSite
@@ -43,8 +44,8 @@ if _previous_force.__name__ == 'force':
 # Done
 
 # Add a link from the builder page to the summary page
-def my_body(self, req):
-    data = _previous_body(self, req)
+def my_content(self, req, ctx):
+    data = _previous_content(self, req, ctx)
     MARKER = 'waterfall</a>)'
     i = data.find(MARKER)
     if i >= 0:
@@ -58,14 +59,14 @@ def my_body(self, req):
             data[i:])
     return data
 
-_previous_body = StatusResourceBuilder.body
-if _previous_body.__name__ == 'body':
-    StatusResourceBuilder.body = my_body
+_previous_content = StatusResourceBuilder.content
+## if _previous_content.__name__ == 'content':
+##     StatusResourceBuilder.content = my_content
 # Done
 
 # Add a similar link from the build page to the summary page
-def my_body_2(self, req):
-    data = _previous_body_2(self, req)
+def my_content_2(self, req, ctx):
+    data = _previous_content_2(self, req, ctx)
     MARKER1 = '<h2>Results'
     MARKER2 = '<h2>SourceStamp'
     i1 = data.find(MARKER1)
@@ -84,9 +85,11 @@ def my_body_2(self, req):
             url,
             data[i2:])
     return data
-_previous_body_2 = StatusResourceBuild.body
-if _previous_body_2.__name__ == 'body':
-    StatusResourceBuild.body = my_body_2
+_previous_content_2 = StatusResourceBuild.content
+## if _previous_content_2.__name__ == 'content':
+##     StatusResourceBuild.content = my_content_2
+
+
 
 # Picking a random slave is not really what we want;
 # let's pick the first available one instead.
@@ -255,7 +258,7 @@ BuildmasterConfig = {
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             MACOSX32,                  # on minime
-            ], hour=0, minute=0),
+            ], branch=None, hour=0, minute=0),
         #
         # then, we schedule all the rest. The locks will take care not to run
         # all of them in parallel
@@ -272,7 +275,7 @@ BuildmasterConfig = {
             JITWIN32,                  # on bigboard
             STACKLESSAPPLVLFREEBSD64,  # on headless
             JITMACOSX64,               # on mvt's machine
-            ], hour=3, minute=0)
+            ], branch=None, hour=3, minute=0)
     ],
 
     'status': [status],
