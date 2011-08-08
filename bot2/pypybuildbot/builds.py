@@ -37,8 +37,8 @@ class PyPyUpload(transfer.FileUpload):
         branch = properties['branch']
         if branch is None:
             branch = 'trunk'
-        masterdest = properties.render(self.masterdest)
-        masterdest = os.path.expanduser(masterdest)
+        #masterdest = properties.render(self.masterdest)
+        masterdest = os.path.expanduser(self.masterdest)
         if branch.startswith('/'):
             branch = branch[1:]
         # workaround for os.path.join
@@ -51,7 +51,7 @@ class PyPyUpload(transfer.FileUpload):
         assert '%' not in symname
         self.symlinkname = os.path.join(masterdest, symname)
         #
-        basename = WithProperties(self.basename).render(properties)
+        basename = WithProperties(self.basename).getRenderingFor(self.build)
         self.masterdest = os.path.join(masterdest, basename)
         #
         transfer.FileUpload.start(self)

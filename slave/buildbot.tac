@@ -1,6 +1,11 @@
 # -*- mode: python -*-
 from twisted.application import service
-from buildbot.slave.bot import BuildSlave
+try:
+    # 8.x
+    from buildslave.bot import BuildSlave
+except ImportError:
+    #7.x
+    from buildbot.slave.bot import BuildSlave
 
 # ---------------------------------------------------------------
 # manual editing of the automatically generated buildbot.tac
