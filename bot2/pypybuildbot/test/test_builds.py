@@ -3,6 +3,11 @@ from cStringIO import StringIO
 from pypybuildbot import builds
 
 class FakeProperties(object):
+
+    def __init__(self):
+        from buildbot.process.properties import PropertyMap
+        self.pmap = PropertyMap(self)
+    
     def __getitem__(self, item):
         if item == 'branch':
             return None
@@ -14,11 +19,14 @@ class FakeProperties(object):
     def render(self, x):
         return x
 
-class FakePropertyBuilder(object):
+class FakeBuild(object):
     slaveEnvironment = None
+
+    def __init__(self):
+        self.properties = FakeProperties()
     
     def getProperties(self):
-        return FakeProperties()
+        return self.properties
 
     def getSlaveCommandVersion(self, *args):
         return 3
@@ -46,7 +54,8 @@ def test_Translate():
                 
     assert rebuiltTranslate.command[-len(expected):] == expected
 
-    rebuiltTranslate.build = FakePropertyBuilder()
+    rebuiltTranslate.build = FakeBuild()
+    rebuiltTranslate.setBuild(rebuiltTranslate.build)
     rebuiltTranslate.startCommand = lambda *args: None
     rebuiltTranslate.start()
 
@@ -57,7 +66,7 @@ def test_pypy_upload():
                              blocksize=100)
     factory, kw = inst.factory
     rebuilt = factory(**kw)
-    rebuilt.build = FakePropertyBuilder()
+    rebuilt.build = FakeBuild()
     rebuilt.step_status = FakeStepStatus()
     rebuilt.runCommand = lambda *args: FakeDeferred()
     rebuilt.start()

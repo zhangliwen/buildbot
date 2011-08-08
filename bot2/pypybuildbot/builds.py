@@ -51,7 +51,7 @@ class PyPyUpload(transfer.FileUpload):
         assert '%' not in symname
         self.symlinkname = os.path.join(masterdest, symname)
         #
-        basename = WithProperties(self.basename).render(properties)
+        basename = WithProperties(self.basename).getRenderingFor(self.build)
         self.masterdest = os.path.join(masterdest, basename)
         #
         transfer.FileUpload.start(self)
