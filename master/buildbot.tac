@@ -12,8 +12,8 @@ basedir = os.path.abspath(os.path.dirname(thisfile))
 # ---------------------------------------------------------------
 
 configfile = r'master.cfg'
-rotateLength = 1000000
-maxRotatedFiles = None
+rotateLength = 1024*1024
+maxRotatedFiles = 100
 
 application = service.Application('buildmaster')
 try:
