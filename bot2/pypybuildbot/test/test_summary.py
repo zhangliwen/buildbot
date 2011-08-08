@@ -357,14 +357,26 @@ def _BuilderToStatus(status):
              'factory': process_factory.BuildFactory() }
     return process_builder.Builder(setup, status)
 
-class FakeRequest(object):
 
-    def __init__(self, builders, args={}):
-        status = status_builder.Status(self, '/tmp')
-        status.basedir = None
-        self.status = status
-        self.args = args
+class FakeMaster(object):
+    basedir = None
+    buildbotURL = "http://buildbot/"
 
+    def __init__(self, builders):
+        self.botmaster = FakeBotMaster(builders)
+
+    def subscribeToBuildsetCompletions(self, callback):
+        pass
+
+    def subscribeToBuildsets(self, callback):
+        pass
+
+    def subscribeToBuildRequests(self, callback):
+        pass
+
+class FakeBotMaster(object):
+
+    def __init__(self, builders):
         self.builderNames = []
         self.builders = {}
         for builder in builders:
@@ -372,13 +384,27 @@ class FakeRequest(object):
             self.builderNames.append(name)
             self.builders[name] = _BuilderToStatus(builder)
 
-        self.site = self
-        self.buildbot_service = self
-        self.parent = self
-        self.buildbotURL = "http://buildbot/"
+class FakeSite(object):
+
+    def __init__(self, status):
+        self.buildbot_service = FakeService(status)
+
+class FakeService(object):
+    
+    def __init__(self, status):
+        self.status = status
 
     def getStatus(self):
         return self.status
+
+class FakeRequest(object):
+
+    def __init__(self, builders, args={}):
+        master = FakeMaster(builders)
+        status = status_builder.Status(master)
+        self.args = args
+        self.site = FakeSite(status)
+
 
 def witness_cat_branch(summary):
     ref = [None]
