@@ -642,11 +642,6 @@ def encode_rev_for_ordering(rev):
     # unknown
     return (0, rev)
 
-HEAD_ELEMENTS = [
-    '<title>%(title)s</title>',
-    '<link href="%(root)ssummary.css" rel="stylesheet" type="text/css" />',
-    ]
-
 class Summary(HtmlResource):
 
     def __init__(self, categories=[], branch_order_prefixes=[]):
@@ -656,18 +651,12 @@ class Summary(HtmlResource):
         self.categories = categories
         self.branch_order_prefixes = branch_order_prefixes
 
-    def content(self, request, *args, **kw):
-        unset = old_head_elements = object()
-        try:
-            old_head_elements = request.site.buildbot_service.head_elements
-        except AttributeError:
-            pass
-        self.head_elements = HEAD_ELEMENTS
-        try:
-            return HtmlResource.content(self, request, *args, **kw)
-        finally:
-            if old_head_elements is not unset:
-                request.site.buildbot_service.head_elements = old_head_elements
+    def content(self, req, context):
+        body = self.body(req)
+        context['content'] = body
+        template = req.site.buildbot_service.templates.get_template(
+            "summary.html")
+        return template.render(**context)
 
     def getTitle(self, request):
         status = self.getStatus(request)
@@ -882,39 +871,3 @@ class Summary(HtmlResource):
         trunk_vs_any = html.div(trunk_vs_any_anchor,
                                 style="position: absolute; right: 5%;")
         return trunk_vs_any.unicode() + page.render()
-
-    def head(self, request):
-        return """
-        <script language=javascript type='text/javascript'>
-        hiddenstates = [ ];
-        function togglestate(a, c) {
-          var start = "a" + a + "c";
-          var link = document.getElementById(start + c);
-          var state = hiddenstates[a];
-          if (!state) state = 0;
-          if (state & c) {
-            state = state - c;
-            link.textContent = '-';
-          }
-          else {
-            state = state | c;
-            link.textContent = 'H';
-          }
-          hiddenstates[a] = state;
-          var items = document.getElementsByTagName('span');
-          var i = items.length;
-          var toggle = "";
-          while (i > 0) {
-            i--;
-            var span = items.item(i);
-            if (span.className.substr(0, start.length) == start) {
-              var k = span.className.substr(start.length);
-              if ((state & k) == k)
-                span.style.display = 'none';
-              else
-                span.style.display = 'block';
-            }
-          }
-        }
-        </script>
-        """
