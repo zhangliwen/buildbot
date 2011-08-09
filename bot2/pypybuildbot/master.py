@@ -1,6 +1,7 @@
 from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
+from buildbot.status.words import IRC
 from buildbot.process.builder import Builder
 from pypybuildbot.pypylist import PyPyList
 
@@ -17,6 +18,13 @@ if _previous_force.__name__ == 'force':
 
 
 status = WebStatus(httpPortNumber, allowForce=True)
+ircbot = IRC(host="irc.freenode.org",
+             nick="bbot2",
+             channels=["#pypy"],
+             notify_events={
+                 'started': 1,
+                 'finished': 1,
+             })
 
 # pypy test summary page
 summary = load('pypybuildbot.summary')
@@ -198,7 +206,7 @@ BuildmasterConfig = {
             ], branch=None, hour=3, minute=0)
     ],
 
-    'status': [status],
+    'status': [status, ircbot],
 
     'slaves': [BuildSlave(name, password)
                for (name, password)
