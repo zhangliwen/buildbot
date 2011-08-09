@@ -1,3 +1,4 @@
+import getpass
 from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
@@ -16,11 +17,15 @@ if _previous_force.__name__ == 'force':
     StatusResourceBuilder.force = my_force
 # Done
 
+if getpass.getuser() == 'antocuni':
+    channel = '#buildbot-test'
+else:
+    channel = '#pypy'
 
 status = WebStatus(httpPortNumber, allowForce=True)
 ircbot = IRC(host="irc.freenode.org",
              nick="bbot2",
-             channels=["#pypy"],
+             channels=[channel],
              notify_events={
                  'started': 1,
                  'finished': 1,
@@ -219,11 +224,7 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactory,
                    "category": 'linux32',
                    # this build needs 4 CPUs
-                   "locks": [TannitCPU.access('counting'),
-                             TannitCPU.access('counting'),
-                             TannitCPU.access('counting'),
-                             TannitCPU.access('counting'),
-                             ],
+                   "locks": [TannitCPU.access('exclusive')],
                   },
                   {"name": LINUX64,
                    "slavenames": ["tannit64"],
@@ -231,11 +232,7 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactory,
                    "category": 'linux64',
                    # this build needs 4 CPUs
-                   "locks": [TannitCPU.access('counting'),
-                             TannitCPU.access('counting'),
-                             TannitCPU.access('counting'),
-                             TannitCPU.access('counting'),
-                             ],
+                   "locks": [TannitCPU.access('exclusive')],
                   },
                   {"name": APPLVLLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
