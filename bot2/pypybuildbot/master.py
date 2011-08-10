@@ -2,9 +2,9 @@ import getpass
 from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
-from buildbot.status.words import IRC
 from buildbot.process.builder import Builder
 from pypybuildbot.pypylist import PyPyList
+from pypybuildbot.ircbot import IRC # side effects
 
 # Forbid "force build" with empty user name
 from buildbot.status.web.builder import StatusResourceBuilder
