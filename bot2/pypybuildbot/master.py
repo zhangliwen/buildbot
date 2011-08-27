@@ -208,7 +208,7 @@ BuildmasterConfig = {
             APPLVLLINUX64,             # on tannit64, uses 1 core
             #
             JITWIN32,                  # on bigboard
-            JITFREEBSD64,              # on headless
+            #JITFREEBSD64,              # on headless
             JITMACOSX64,               # on mvt's machine
             ], branch=None, hour=3, minute=0)
     ],
@@ -323,7 +323,7 @@ BuildmasterConfig = {
                    'category' : 'win32',
                    },
                   {"name" : JITFREEBSD64,
-                   "slavenames": [],   # 'headless'
+                   "slavenames": ['headless'],
                    'builddir' : JITFREEBSD64,
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'
