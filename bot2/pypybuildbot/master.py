@@ -54,12 +54,6 @@ pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
                                                             app_tests=True,
                                                             platform='linux64')
 
-pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.Translated(
-    translationArgs=["-O2", "--stackless"], targetArgs=[],
-    lib_python=False,
-    app_tests = ["pypy/pytest-A-stackless.cfg"]
-)
-
 pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
     platform="win32",
     lib_python=True,
@@ -114,6 +108,16 @@ pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
     interpreter='python',
     )
 
+pypyJITTranslatedTestFactoryFreeBSD = pypybuilds.Translated(
+    platform="freebsd64",
+    translationArgs=jit_translation_args,
+    targetArgs=[],
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    interpreter='python',
+    )
+
 pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
     translationArgs=['-Ojit', '--gc=hybrid', '--no-translation-jit',
                      '--gcrootfinder=asmgcc'],
@@ -131,16 +135,15 @@ MACOSX32 =  "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
-STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
-STACKLESSAPPLVLFREEBSD64 = 'pypy-c-stackless-app-level-freebsd-7-x86-64'
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
 OJITLINUX32 = "pypy-c-Ojit-no-jit-linux-x86-32"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
+JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
@@ -203,10 +206,9 @@ BuildmasterConfig = {
             OJITLINUX32,               # on tannit32, uses 1 core
             APPLVLLINUX32,             # on tannit32, uses 1 core
             APPLVLLINUX64,             # on tannit64, uses 1 core
-            STACKLESSAPPLVLLINUX32,    # on tannit32, uses 1 core
             #
             JITWIN32,                  # on bigboard
-            STACKLESSAPPLVLFREEBSD64,  # on headless
+            JITFREEBSD64,              # on headless
             JITMACOSX64,               # on mvt's machine
             ], branch=None, hour=3, minute=0)
     ],
@@ -246,13 +248,6 @@ BuildmasterConfig = {
                    "builddir": APPLVLLINUX64,
                    "factory": pypyTranslatedAppLevelTestFactory64,
                    "category": "linux64",
-                   "locks": [TannitCPU.access('counting')],
-                  },
-                  {"name": STACKLESSAPPLVLLINUX32,
-                   "slavenames": ["bigdogvm1", "tannit32"],
-                   "builddir": STACKLESSAPPLVLLINUX32,
-                   "factory": pypyStacklessTranslatedAppLevelTestFactory,
-                   "category": 'linux32-stackless',
                    "locks": [TannitCPU.access('counting')],
                   },
                   {"name": OJITLINUX32,
@@ -327,11 +322,11 @@ BuildmasterConfig = {
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
                    },
-                  {"name" : STACKLESSAPPLVLFREEBSD64,
-                   "slavenames": ['headless'],
-                   'builddir' : STACKLESSAPPLVLFREEBSD64,
-                   'factory' : pypyStacklessTranslatedAppLevelTestFactory,
-                   "category": 'freebsd64-stackless'
+                  {"name" : JITFREEBSD64,
+                   "slavenames": [],   # 'headless'
+                   'builddir' : JITFREEBSD64,
+                   'factory' : pypyJITTranslatedTestFactoryFreeBSD,
+                   "category": 'freebsd64'
                    },
                 ],
 
