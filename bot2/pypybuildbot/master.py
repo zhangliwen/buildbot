@@ -8,10 +8,10 @@ from pypybuildbot.ircbot import IRC # side effects
 
 # Forbid "force build" with empty user name
 from buildbot.status.web.builder import StatusResourceBuilder
-def my_force(self, req):
+def my_force(self, req, *args, **kwds):
     name = req.args.get("username", [""])[0]
     assert name, "Please write your name in the corresponding field."
-    return _previous_force(self, req)
+    return _previous_force(self, req, *args, **kwds)
 _previous_force = StatusResourceBuilder.force
 if _previous_force.__name__ == 'force':
     StatusResourceBuilder.force = my_force
