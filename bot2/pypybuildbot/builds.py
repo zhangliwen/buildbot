@@ -293,10 +293,14 @@ class Translated(factory.BuildFactory):
                      '.'],
             workdir='build'))
         nightly = '~/nightly/'
-        pypy_c_rel = "build/" + name + ".tar.bz2"
+        if platform == "win32":
+            extension = ".zip"
+        else:
+            extension = ".tar.bz2"
+        pypy_c_rel = "build/" + name + extension
         self.addStep(PyPyUpload(slavesrc=WithProperties(pypy_c_rel),
                                 masterdest=WithProperties(nightly),
-                                basename=name + ".tar.bz2",
+                                basename=name + extension
                                 workdir='.',
                                 blocksize=100*1024))
 
