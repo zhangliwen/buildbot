@@ -96,9 +96,6 @@ def test_builder_names():
     t = PyPyTarball('pypy-c-nojit-76867-linux.tar.bz2')
     check_builder_names(t, 'own-linux-x86-32', 'pypy-c-app-level-linux-x86-32')
     
-    t = PyPyTarball('pypy-c-stackless-76867-linux.tar.bz2')
-    check_builder_names(t, 'own-linux-x86-32', 'pypy-c-stackless-app-level-linux-x86-32')
-
     t = PyPyTarball('pypy-c-jit-76867-osx.tar.bz2')
     check_builder_names(t, 'own-macosx-x86-32', 'pypy-c-jit-macosx-x86-32')
 
