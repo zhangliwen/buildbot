@@ -300,7 +300,7 @@ class Translated(factory.BuildFactory):
         pypy_c_rel = "build/" + name + extension
         self.addStep(PyPyUpload(slavesrc=WithProperties(pypy_c_rel),
                                 masterdest=WithProperties(nightly),
-                                basename=name + extension
+                                basename=name + extension,
                                 workdir='.',
                                 blocksize=100*1024))
 
