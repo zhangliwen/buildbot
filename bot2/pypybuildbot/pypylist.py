@@ -58,9 +58,12 @@ class PyPyTarball(object):
             self.platform = None
 
     def parse_filename(self):
-        if not self.filename.endswith('.tar.bz2'):
+        for ext in ['.tar.bz2', '.zip']:
+            if self.filename.endswith(ext):
+                break
+        else:
             raise ValueError
-        name = self.filename.replace('.tar.bz2', '')
+        name = self.filename.replace(ext, '')
         dashes = name.count('-')
         if dashes == 4:
             # svn based
