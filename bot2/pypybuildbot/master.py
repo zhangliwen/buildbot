@@ -3,6 +3,7 @@ from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
 from buildbot.process.builder import Builder
+#from buildbot import manhole
 from pypybuildbot.pypylist import PyPyList
 from pypybuildbot.ircbot import IRC # side effects
 
@@ -330,6 +331,9 @@ BuildmasterConfig = {
                    },
                 ],
 
+    # http://readthedocs.org/docs/buildbot/en/latest/tour.html#debugging-with-manhole
+    #'manhole': manhole.PasswordManhole("tcp:1234:interface=127.0.0.1",
+    #                                    "buildmaster","XndZopHM"),
     'buildbotURL': 'http://buildbot.pypy.org/',  # with a trailing '/'!
     'projectURL': 'http://pypy.org/',
     'projectName': 'PyPy'}
