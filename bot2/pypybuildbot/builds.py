@@ -154,14 +154,7 @@ class CheckGotRevision(ShellCmd):
             self.build.setProperty('got_revision', got_revision, 'got_revision')
             self.build.setProperty('final_file_name', final_file_name, 'got_revision')
 
-def setup_steps(platform, factory, workdir=None):
-    # XXX: this assumes that 'hg' is in the path
-    import getpass
-    repourl = 'https://bitbucket.org/pypy/pypy/'
-    if getpass.getuser() == 'antocuni':
-        # for debugging
-        repourl = '/home/antocuni/pypy/default'
-    #
+def update_hg(platform, factory, repourl, workdir, use_branch):
     if platform == 'win32':
         command = "if not exist .hg rmdir /q /s ."
     else:
@@ -190,8 +183,23 @@ def setup_steps(platform, factory, workdir=None):
                              command = "hg pull",
                              workdir = workdir))
     #
-    factory.addStep(UpdateCheckout(workdir = workdir,
-                                   haltOnFailure=True))
+    if use_branch:
+        factory.addStep(UpdateCheckout(workdir = workdir,
+                                       haltOnFailure=True))
+    else:
+        factory.addStep(ShellCmd(description="hg update",
+                                 command = "hg update --clean",
+                                 workdir = workdir))
+
+def setup_steps(platform, factory, workdir=None):
+    # XXX: this assumes that 'hg' is in the path
+    import getpass
+    repourl = 'https://bitbucket.org/pypy/pypy/'
+    if getpass.getuser() == 'antocuni':
+        # for debugging
+        repourl = '/home/antocuni/pypy/default'
+    #
+    update_hg(platform, factory, repourl, workdir, use_branch=True)
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
 
@@ -309,10 +317,10 @@ class JITBenchmark(factory.BuildFactory):
         factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
-        self.addStep(ShellCmd(description="checkout benchmarks",
-            command=['svn', 'co', 'https://bitbucket.org/pypy/benchmarks/trunk',
-                     'benchmarks'],
-            workdir='.'))
+        #
+        repourl = 'https://bitbucket.org/pypy/benchmarks'
+        update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
+        #
         self.addStep(
             Translate(
                 translationArgs=['-Ojit'],
