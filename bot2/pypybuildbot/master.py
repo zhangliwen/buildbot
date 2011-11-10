@@ -134,6 +134,7 @@ LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 MACOSX32 =  "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
+WIN64 = "own-win-x86-64"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
 
@@ -144,6 +145,7 @@ JITLINUX64 = "pypy-c-jit-linux-x86-64"
 OJITLINUX32 = "pypy-c-Ojit-no-jit-linux-x86-32"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
+JITWIN64 = "pypy-c-jit-win-x86-64"
 JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
@@ -311,6 +313,12 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactoryWin,
                    "category": 'win32'
                   },
+                  {"name": WIN64,
+                   "slavenames": ["snakepit64"],
+                   "builddir": WIN64,
+                   "factory": pypyOwnTestFactoryWin,
+                   "category": 'win32'
+                  },
                   {"name": APPLVLWIN32,
                    "slavenames": ["bigboard"],
                    "builddir": APPLVLWIN32,
@@ -320,6 +328,12 @@ BuildmasterConfig = {
                   {"name" : JITWIN32,
                    "slavenames": ["bigboard"],
                    'builddir' : JITWIN32,
+                   'factory' : pypyJITTranslatedTestFactoryWin,
+                   'category' : 'win32',
+                   },
+                  {"name" : JITWIN64,
+                   "slavenames": ["snakepit64"],
+                   'builddir' : JITWIN64,
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
                    },
