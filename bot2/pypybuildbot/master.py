@@ -145,6 +145,8 @@ JITWIN32 = "pypy-c-jit-win-x86-32"
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
+JITBENCH64_2 = "jit-benchmark-linux-x86-64-2"
+
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
@@ -292,6 +294,13 @@ BuildmasterConfig = {
                   },
                   {"name": JITBENCH64,
                    "slavenames": ["tannit64"],
+                   "builddir": JITBENCH64,
+                   "factory": pypyJITBenchmarkFactory64,
+                   "category": "benchmark-run",
+                   # the locks are acquired with fine grain inside the build
+                   },
+                  {"name": JITBENCH64_2,
+                   "slavenames": ["speed-python-64"],
                    "builddir": JITBENCH64,
                    "factory": pypyJITBenchmarkFactory64,
                    "category": "benchmark-run",
