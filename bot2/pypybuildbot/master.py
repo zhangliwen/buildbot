@@ -204,6 +204,7 @@ BuildmasterConfig = {
         Nightly("nightly-0-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
+            JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
             MACOSX32,                  # on minime
             ], branch=None, hour=0, minute=0),
         #
@@ -329,7 +330,7 @@ BuildmasterConfig = {
                    'category' : 'mac64',
                    },
                   {"name": WIN32,
-                   "slavenames": ["bigboard"],
+                   "slavenames": ["snakepit32", "bigboard"],
                    "builddir": WIN32,
                    "factory": pypyOwnTestFactoryWin,
                    "category": 'win32'
@@ -341,13 +342,13 @@ BuildmasterConfig = {
                    "category": 'win32'
                   },
                   {"name": APPLVLWIN32,
-                   "slavenames": ["bigboard"],
+                   "slavenames": ["snakepit32", "bigboard"],
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
                    "category": "win32"
                   },
                   {"name" : JITWIN32,
-                   "slavenames": ["bigboard"],
+                   "slavenames": ["snakepit32", "bigboard"],
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
