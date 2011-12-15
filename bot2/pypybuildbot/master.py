@@ -126,9 +126,14 @@ pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
     app_tests=True
     )
 
-pypyJITBenchmarkFactory = pypybuilds.JITBenchmark()
-pypyJITBenchmarkFactory64 = pypybuilds.JITBenchmark(platform='linux64',
-                                                    postfix='-64')
+pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark()
+pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
+                                                           postfix='-64')
+
+pypyJITBenchmarkFactory64_speed = pypybuilds.JITBenchmark(platform='linux64',
+                                                          postfix='-64',
+                                                          host='speed_python')
+
 
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
@@ -287,21 +292,21 @@ BuildmasterConfig = {
                   {"name": JITBENCH,
                    "slavenames": ["tannit32"],
                    "builddir": JITBENCH,
-                   "factory": pypyJITBenchmarkFactory,
+                   "factory": pypyJITBenchmarkFactory_tannit,
                    "category": 'benchmark-run',
                    # the locks are acquired with fine grain inside the build
                   },
                   {"name": JITBENCH64,
                    "slavenames": ["tannit64"],
                    "builddir": JITBENCH64,
-                   "factory": pypyJITBenchmarkFactory64,
+                   "factory": pypyJITBenchmarkFactory64_tannit,
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },
                   {"name": JITBENCH64_2,
                    "slavenames": ["speed-python-64"],
-                   "builddir": JITBENCH64,
-                   "factory": pypyJITBenchmarkFactory64,
+                   "builddir": JITBENCH64_2,
+                   "factory": pypyJITBenchmarkFactory64_speed,
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },

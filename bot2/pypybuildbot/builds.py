@@ -19,6 +19,7 @@ import os
 
 # there are 8 logical CPUs, but only 4 physical ones
 TannitCPU = locks.MasterLock('tannit_cpu', maxCount=6)
+SpeedPythonCPU = locks.MasterLock('speed_python_cpu', maxCount=24)
 
 
 class ShellCmd(shell.ShellCommand):
@@ -321,13 +322,20 @@ class JITBenchmark(factory.BuildFactory):
         repourl = 'https://bitbucket.org/pypy/benchmarks'
         update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
         #
+        if host == 'tannit':
+            lock = TannitCPU
+        elif host == 'speed_python':
+            lock = SpeedPythonCPU
+        else:
+            assert False, 'unknown host %s' % host
+        #
         self.addStep(
             Translate(
                 translationArgs=['-Ojit'],
                 targetArgs=[],
                 haltOnFailure=True,
                 # this step can be executed in parallel with other builds
-                locks=[TannitCPU.access('counting')],
+                locks=[lock.access('counting')],
                 )
             )
         pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
