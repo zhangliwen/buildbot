@@ -3,15 +3,16 @@ from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
 from buildbot.process.builder import Builder
+#from buildbot import manhole
 from pypybuildbot.pypylist import PyPyList
 from pypybuildbot.ircbot import IRC # side effects
 
 # Forbid "force build" with empty user name
 from buildbot.status.web.builder import StatusResourceBuilder
-def my_force(self, req):
+def my_force(self, req, *args, **kwds):
     name = req.args.get("username", [""])[0]
     assert name, "Please write your name in the corresponding field."
-    return _previous_force(self, req)
+    return _previous_force(self, req, *args, **kwds)
 _previous_force = StatusResourceBuilder.force
 if _previous_force.__name__ == 'force':
     StatusResourceBuilder.force = my_force
@@ -53,12 +54,6 @@ pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
 pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
                                                             app_tests=True,
                                                             platform='linux64')
-
-pypyStacklessTranslatedAppLevelTestFactory = pypybuilds.Translated(
-    translationArgs=["-O2", "--stackless"], targetArgs=[],
-    lib_python=False,
-    app_tests = ["pypy/pytest-A-stackless.cfg"]
-)
 
 pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
     platform="win32",
@@ -114,6 +109,16 @@ pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
     interpreter='python',
     )
 
+pypyJITTranslatedTestFactoryFreeBSD = pypybuilds.Translated(
+    platform="freebsd64",
+    translationArgs=jit_translation_args,
+    targetArgs=[],
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    interpreter='python',
+    )
+
 pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
     translationArgs=['-Ojit', '--gc=hybrid', '--no-translation-jit',
                      '--gcrootfinder=asmgcc'],
@@ -128,19 +133,21 @@ pypyJITBenchmarkFactory64 = pypybuilds.JITBenchmark(platform='linux64',
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 MACOSX32 =  "own-macosx-x86-32"
+PPCLINUX32 =  "own-linux-ppc-32"
 WIN32 = "own-win-x86-32"
+WIN64 = "own-win-x86-64"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
-STACKLESSAPPLVLLINUX32 = "pypy-c-stackless-app-level-linux-x86-32"
 
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
-STACKLESSAPPLVLFREEBSD64 = 'pypy-c-stackless-app-level-freebsd-7-x86-64'
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
 OJITLINUX32 = "pypy-c-Ojit-no-jit-linux-x86-32"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
+JITWIN64 = "pypy-c-jit-win-x86-64"
+JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
@@ -205,10 +212,9 @@ BuildmasterConfig = {
             OJITLINUX32,               # on tannit32, uses 1 core
             APPLVLLINUX32,             # on tannit32, uses 1 core
             APPLVLLINUX64,             # on tannit64, uses 1 core
-            STACKLESSAPPLVLLINUX32,    # on tannit32, uses 1 core
             #
             JITWIN32,                  # on bigboard
-            STACKLESSAPPLVLFREEBSD64,  # on headless
+            #JITFREEBSD64,              # on headless
             JITMACOSX64,               # on mvt's machine
             ], branch=None, hour=3, minute=0)
     ],
@@ -248,13 +254,6 @@ BuildmasterConfig = {
                    "builddir": APPLVLLINUX64,
                    "factory": pypyTranslatedAppLevelTestFactory64,
                    "category": "linux64",
-                   "locks": [TannitCPU.access('counting')],
-                  },
-                  {"name": STACKLESSAPPLVLLINUX32,
-                   "slavenames": ["bigdogvm1", "tannit32"],
-                   "builddir": STACKLESSAPPLVLLINUX32,
-                   "factory": pypyStacklessTranslatedAppLevelTestFactory,
-                   "category": 'linux32-stackless',
                    "locks": [TannitCPU.access('counting')],
                   },
                   {"name": OJITLINUX32,
@@ -312,6 +311,12 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactory,
                    "category": 'mac32'
                   },
+                  {"name": PPCLINUX32,
+                   "slavenames": ["stups-ppc32"],
+                   "builddir": PPCLINUX32,
+                   "factory": pypyOwnTestFactory,
+                   "category": 'linuxppc32'
+                  },
                   {"name" : JITMACOSX64,
                    "slavenames": ["macmini-mvt", "xerxes"],
                    'builddir' : JITMACOSX64,
@@ -321,6 +326,12 @@ BuildmasterConfig = {
                   {"name": WIN32,
                    "slavenames": ["bigboard"],
                    "builddir": WIN32,
+                   "factory": pypyOwnTestFactoryWin,
+                   "category": 'win32'
+                  },
+                  {"name": WIN64,
+                   "slavenames": ["snakepit64"],
+                   "builddir": WIN64,
                    "factory": pypyOwnTestFactoryWin,
                    "category": 'win32'
                   },
@@ -336,14 +347,23 @@ BuildmasterConfig = {
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
                    },
-                  {"name" : STACKLESSAPPLVLFREEBSD64,
+                  {"name" : JITWIN64,
+                   "slavenames": ["snakepit64"],
+                   'builddir' : JITWIN64,
+                   'factory' : pypyJITTranslatedTestFactoryWin,
+                   'category' : 'win32',
+                   },
+                  {"name" : JITFREEBSD64,
                    "slavenames": ['headless'],
-                   'builddir' : STACKLESSAPPLVLFREEBSD64,
-                   'factory' : pypyStacklessTranslatedAppLevelTestFactory,
-                   "category": 'freebsd64-stackless'
+                   'builddir' : JITFREEBSD64,
+                   'factory' : pypyJITTranslatedTestFactoryFreeBSD,
+                   "category": 'freebsd64'
                    },
                 ],
 
+    # http://readthedocs.org/docs/buildbot/en/latest/tour.html#debugging-with-manhole
+    #'manhole': manhole.PasswordManhole("tcp:1234:interface=127.0.0.1",
+    #                                    "buildmaster","XndZopHM"),
     'buildbotURL': 'http://buildbot.pypy.org/',  # with a trailing '/'!
     'projectURL': 'http://pypy.org/',
     'projectName': 'PyPy'}

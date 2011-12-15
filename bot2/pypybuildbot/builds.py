@@ -83,7 +83,7 @@ class Translate(ShellCmd):
         add_args = {'translationArgs': translationArgs,
                     'targetArgs': targetArgs,
                     'interpreter': interpreter}
-        kw['timeout'] = 3600
+        kw['timeout'] = 7200
         ShellCmd.__init__(self, workdir, *a, **kw)
         self.addFactoryArguments(**add_args)
         self.command = ([interpreter] + self.command + translationArgs +
@@ -154,14 +154,7 @@ class CheckGotRevision(ShellCmd):
             self.build.setProperty('got_revision', got_revision, 'got_revision')
             self.build.setProperty('final_file_name', final_file_name, 'got_revision')
 
-def setup_steps(platform, factory, workdir=None):
-    # XXX: this assumes that 'hg' is in the path
-    import getpass
-    repourl = 'https://bitbucket.org/pypy/pypy/'
-    if getpass.getuser() == 'antocuni':
-        # for debugging
-        repourl = '/home/antocuni/pypy/default'
-    #
+def update_hg(platform, factory, repourl, workdir, use_branch):
     if platform == 'win32':
         command = "if not exist .hg rmdir /q /s ."
     else:
@@ -190,8 +183,23 @@ def setup_steps(platform, factory, workdir=None):
                              command = "hg pull",
                              workdir = workdir))
     #
-    factory.addStep(UpdateCheckout(workdir = workdir,
-                                   haltOnFailure=True))
+    if use_branch:
+        factory.addStep(UpdateCheckout(workdir = workdir,
+                                       haltOnFailure=True))
+    else:
+        factory.addStep(ShellCmd(description="hg update",
+                                 command = "hg update --clean",
+                                 workdir = workdir))
+
+def setup_steps(platform, factory, workdir=None):
+    # XXX: this assumes that 'hg' is in the path
+    import getpass
+    repourl = 'https://bitbucket.org/pypy/pypy/'
+    if getpass.getuser() == 'antocuni':
+        # for debugging
+        repourl = '/home/antocuni/pypy/default'
+    #
+    update_hg(platform, factory, repourl, workdir, use_branch=True)
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
 
@@ -293,10 +301,14 @@ class Translated(factory.BuildFactory):
                      '.'],
             workdir='build'))
         nightly = '~/nightly/'
-        pypy_c_rel = "build/" + name + ".tar.bz2"
+        if platform == "win32":
+            extension = ".zip"
+        else:
+            extension = ".tar.bz2"
+        pypy_c_rel = "build/" + name + extension
         self.addStep(PyPyUpload(slavesrc=WithProperties(pypy_c_rel),
                                 masterdest=WithProperties(nightly),
-                                basename=name + ".tar.bz2",
+                                basename=name + extension,
                                 workdir='.',
                                 blocksize=100*1024))
 
@@ -305,10 +317,10 @@ class JITBenchmark(factory.BuildFactory):
         factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
-        self.addStep(ShellCmd(description="checkout benchmarks",
-            command=['svn', 'co', 'https://bitbucket.org/pypy/benchmarks/trunk',
-                     'benchmarks'],
-            workdir='.'))
+        #
+        repourl = 'https://bitbucket.org/pypy/benchmarks'
+        update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
+        #
         self.addStep(
             Translate(
                 translationArgs=['-Ojit'],
@@ -336,7 +348,6 @@ class JITBenchmark(factory.BuildFactory):
                      '--branch', WithProperties('%(branch)s'),
                      ] + addopts,
             workdir='./benchmarks',
-            haltOnFailure=True,
             timeout=3600))
         # a bit obscure hack to get both os.path.expand and a property
         filename = '%(got_revision)s' + (postfix or '')
