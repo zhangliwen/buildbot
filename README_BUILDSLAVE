@@ -1,0 +1,40 @@
+How to setup a buildslave for PyPy
+==================================
+
+First you will need to install the ``buildbot_buildslave`` package.
+pip install buildbot_buildslave
+
+The next step is to create a buildslave configuration file. Based on version
+0.7.12 of buildbot you need to execute the following command.
+
+buildbot create-slave  BASEDIR MASTERHOST:PORT SLAVENAME PASSWORD
+
+For PyPy the MASTERHOST currently is ``wyvern.cs.uni-duesseldorf.de``. The
+value for PORT is ``10407``.
+SLAVENAME and PASSWORD can be freely chosen. These values need to be added to
+the slaveinfo.py configuration file on the MASTERHOST, ask in the IRC channel
+(#pypy on freenode.net) for the settings to be added. BASEDIR is a path to a
+local directory that will be created to contain all the files will be used by
+the buildslave. 
+
+Finally you will need to update the buildmaster configuration found in
+bot2/pypybuildbot/master.py to associate the buildslave with one or more
+builders. Builders define what tasks should be executed on the buildslave. 
+The changeset of revision 2f982db47d5d is a good place to start
+(https://bitbucket.org/pypy/buildbot/changeset/2f982db47d5d). Once the changes
+are commited the buildmaster on MASTERHOST needs to be updated and restared to
+reflect the changes to the configuration.
+
+To run the buildslave execute 
+=============================
+
+First you will need to copy the file Makefile.sample to Makefile and
+update it as necessary.
+
+To start the buildslave just run
+
+    make start
+
+and to stop it run
+
+    make stop

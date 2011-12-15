@@ -36,11 +36,22 @@ To restart the buildmaster
 ===========================
 
 $ cd pypy-buildbot
+
 $ hg pull -u
+
 $ cd master
+
 $ buildbot checkconfig
+
 $ make reconfig
 
 OR
+
 $ make stop
+
 $ make start
+
+To run a buildslave
+===================
+Please refer to README_BUILDSLAVE
+
