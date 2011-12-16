@@ -204,7 +204,7 @@ BuildmasterConfig = {
         Nightly("nightly-0-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-            JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
+            #JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
             MACOSX32,                  # on minime
             ], branch=None, hour=0, minute=0),
         #
