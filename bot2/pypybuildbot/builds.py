@@ -345,7 +345,7 @@ class JITBenchmark(factory.BuildFactory):
             addopts = []
         self.addStep(ShellCmd(
             # this step needs exclusive access to the CPU
-            locks=[TannitCPU.access('exclusive')],
+            locks=[lock.access('exclusive')],
             description="run benchmarks on top of pypy-c",
             command=["python", "runner.py", '--output-filename', 'result.json',
                     '--pypy-c', pypy_c_rel,
