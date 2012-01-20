@@ -130,9 +130,7 @@ pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark()
 pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
                                                            postfix='-64')
 
-pypyJITBenchmarkFactory64_speed = pypybuilds.JITBenchmark(platform='linux64',
-                                                          postfix='-64',
-                                                          host='speed_python')
+cPythonBenchmarkFactory64 = pypybuilds.CPythonBenchmark(platform='linux64')
 
 
 LINUX32 = "own-linux-x86-32"
@@ -157,7 +155,7 @@ JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
-JITBENCH64_2 = "jit-benchmark-linux-x86-64-2"
+CPYTHON2_64 = "cpython-2-benchmark-x86-64"
 
 
 BuildmasterConfig = {
@@ -204,7 +202,7 @@ BuildmasterConfig = {
         Nightly("nightly-0-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-            JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
+            CPYTHON2_64,              # on speed.python.org, uses 1 core (in part exclusively)
             MACOSX32,                  # on minime
             ], branch=None, hour=0, minute=0),
         #
@@ -304,10 +302,10 @@ BuildmasterConfig = {
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },
-                  {"name": JITBENCH64_2,
+                  {"name": CPYTHON2_64,
                    "slavenames": ["speed-python-64"],
-                   "builddir": JITBENCH64_2,
-                   "factory": pypyJITBenchmarkFactory64_speed,
+                   "builddir": CPYTHON2_64,
+                   "factory": cPythonBenchmarkFactory64,
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },

@@ -192,10 +192,10 @@ def update_hg(platform, factory, repourl, workdir, use_branch):
                                  command = "hg update --clean",
                                  workdir = workdir))
 
-def setup_steps(platform, factory, workdir=None):
+def setup_steps(platform, factory, workdir=None,
+                repourl='https://bitbucket.org/pypy/pypy/'):
     # XXX: this assumes that 'hg' is in the path
     import getpass
-    repourl = 'https://bitbucket.org/pypy/pypy/'
     if getpass.getuser() == 'antocuni':
         # for debugging
         repourl = '/home/antocuni/pypy/default'
@@ -313,21 +313,16 @@ class Translated(factory.BuildFactory):
                                 workdir='.',
                                 blocksize=100*1024))
 
+
 class JITBenchmark(factory.BuildFactory):
-    def __init__(self, platform='linux', host='tannit', postfix=None):
+    def __init__(self, platform='linux', postfix=None):
         factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
         #
         repourl = 'https://bitbucket.org/pypy/benchmarks'
         update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
-        #
-        if host == 'tannit':
-            lock = TannitCPU
-        elif host == 'speed_python':
-            lock = SpeedPythonCPU
-        else:
-            assert False, 'unknown host %s' % host
+        lock = TannitCPU
         #
         self.addStep(
             Translate(
@@ -363,3 +358,67 @@ class JITBenchmark(factory.BuildFactory):
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                                          masterdest=WithProperties(resfile),
                                          workdir="."))
+
+
+class CPythonBenchmark(factory.BuildFactory):
+    '''
+    Check out and build CPython and run the benchmarks with it.
+    '''
+    def __init__(self, platform='linux64'):
+        factory.BuildFactory.__init__(self)
+
+        # checks out and updates the repo
+        setup_steps(platform, self, repourl='http://hg.python.org/cpython')
+
+        # check out and update benchmarks
+        repourl = 'https://bitbucket.org/pypy/benchmarks'
+        update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
+
+        lock = SpeedPythonCPU
+
+        self.addStep(ShellCmd(
+            description="configure cpython",
+            command=["./configure"],
+            timeout=300))
+
+        self.addStep(ShellCmd(
+            description="cleanup cpython",
+            command=["make", "clean"],
+            timeout=300))
+
+        self.addStep(ShellCmd(
+            description="make cpython",
+            command=["make"],
+            timeout=600))
+
+        # self.addStep(ShellCmd(
+        #     description="test cpython",
+        #     command=["make", "buildbottest"],
+        #     haltOnFailure=False,
+        #     timeout=600))
+
+        cpython_interpreter = '../build/python'
+        self.addStep(ShellCmd(
+            # this step needs exclusive access to the CPU
+            locks=[lock.access('exclusive')],
+            description="run benchmarks on top of cpython",
+            command=["python", "runner.py", '--output-filename', 'result.json',
+                     '--revision', WithProperties('%(got_revision)s'),
+                     '--branch', WithProperties('%(branch)s'),
+                     '-p', cpython_interpreter,
+                     '--baseline', cpython_interpreter,
+                     ],
+            workdir='./benchmarks',
+            timeout=3600))
+
+        # a bit obscure hack to get both os.path.expand and a property
+        filename = '%(got_revision)s'
+        resultfile = os.path.expanduser("~/bench_results/%s.json" % filename)
+        self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
+                                         masterdest=WithProperties(resultfile),
+                                         workdir="."))
+
+        self.addStep(ShellCmd(
+            description="distcleanup cpython",
+            command=["make", "distclean"],
+            timeout=300))
