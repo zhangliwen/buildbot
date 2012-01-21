@@ -124,18 +124,32 @@ class PytestCmd(ShellCmd):
             d[key] = summary
         builder.saveYourself()
 
-# ________________________________________________________________
+ 
+# _______________________________________________________________
 
 class UpdateCheckout(ShellCmd):
     description = 'hg update'
     command = 'UNKNOWN'
 
+    def __init__(self, workdir=None, haltOnFailure=True, force_branch=None,
+                 **kwargs):
+        ShellCmd.__init__(self, workdir=workdir, haltOnFailure=haltOnFailure,
+                          **kwargs)
+        self.force_branch = force_branch
+        self.addFactoryArguments(force_branch=force_branch)
+
     def start(self):
-        properties = self.build.getProperties()
-        branch = properties['branch']
-        command = ["hg", "update", "--clean", "-r", branch or 'default']
+        if self.force_branch is not None:
+            branch = self.force_branch
+            # Note: We could add a warning to the output if we
+            # ignore the branch set by the user.
+        else:
+            properties = self.build.getProperties()
+            branch = properties['branch'] or 'default'
+        command = ["hg", "update", "--clean", "-r", branch]
         self.setCommand(command)
         ShellCmd.start(self)
+
 
 class CheckGotRevision(ShellCmd):
     description = 'got_revision'
@@ -155,7 +169,8 @@ class CheckGotRevision(ShellCmd):
             self.build.setProperty('got_revision', got_revision, 'got_revision')
             self.build.setProperty('final_file_name', final_file_name, 'got_revision')
 
-def update_hg(platform, factory, repourl, workdir, use_branch):
+def update_hg(platform, factory, repourl, workdir, use_branch,
+              force_branch=None):
     if platform == 'win32':
         command = "if not exist .hg rmdir /q /s ."
     else:
@@ -184,23 +199,26 @@ def update_hg(platform, factory, repourl, workdir, use_branch):
                              command = "hg pull",
                              workdir = workdir))
     #
-    if use_branch:
+    if use_branch or force_branch:
         factory.addStep(UpdateCheckout(workdir = workdir,
-                                       haltOnFailure=True))
+                                       haltOnFailure=True,
+                                       force_branch=force_branch))
     else:
         factory.addStep(ShellCmd(description="hg update",
                                  command = "hg update --clean",
                                  workdir = workdir))
 
 def setup_steps(platform, factory, workdir=None,
-                repourl='https://bitbucket.org/pypy/pypy/'):
+                repourl='https://bitbucket.org/pypy/pypy/',
+                force_branch=None):
     # XXX: this assumes that 'hg' is in the path
     import getpass
     if getpass.getuser() == 'antocuni':
         # for debugging
         repourl = '/home/antocuni/pypy/default'
     #
-    update_hg(platform, factory, repourl, workdir, use_branch=True)
+    update_hg(platform, factory, repourl, workdir, use_branch=True,
+              force_branch=force_branch)
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
 
@@ -363,12 +381,19 @@ class JITBenchmark(factory.BuildFactory):
 class CPythonBenchmark(factory.BuildFactory):
     '''
     Check out and build CPython and run the benchmarks with it.
+
+    This will overwrite the branch even if it was specified
+    in the buildbot webinterface!
     '''
-    def __init__(self, platform='linux64'):
+    def __init__(self, branch, platform='linux64'):
+        '''
+        branch: The branch of cpython that will be used.
+        '''
         factory.BuildFactory.__init__(self)
 
         # checks out and updates the repo
-        setup_steps(platform, self, repourl='http://hg.python.org/cpython')
+        setup_steps(platform, self, repourl='http://hg.python.org/cpython',
+                    force_branch=branch)
 
         # check out and update benchmarks
         repourl = 'https://bitbucket.org/pypy/benchmarks'
