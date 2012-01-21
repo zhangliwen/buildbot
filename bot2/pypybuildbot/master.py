@@ -130,7 +130,8 @@ pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark()
 pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
                                                            postfix='-64')
 
-cPythonBenchmarkFactory64 = pypybuilds.CPythonBenchmark(platform='linux64')
+cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
+                                                          platform='linux64')
 
 
 LINUX32 = "own-linux-x86-32"
@@ -305,7 +306,7 @@ BuildmasterConfig = {
                   {"name": CPYTHON2_64,
                    "slavenames": ["speed-python-64"],
                    "builddir": CPYTHON2_64,
-                   "factory": cPythonBenchmarkFactory64,
+                   "factory": cPython27BenchmarkFactory64,
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },
