@@ -404,7 +404,8 @@ class CPythonBenchmark(factory.BuildFactory):
         self.addStep(ShellCmd(
             description="configure cpython",
             command=["./configure"],
-            timeout=300))
+            timeout=300,
+            haltOnFailure=True))
 
         self.addStep(ShellCmd(
             description="cleanup cpython",
@@ -414,13 +415,15 @@ class CPythonBenchmark(factory.BuildFactory):
         self.addStep(ShellCmd(
             description="make cpython",
             command=["make"],
-            timeout=600))
+            timeout=600,
+            haltOnFailure=True))
 
-        # self.addStep(ShellCmd(
-        #     description="test cpython",
-        #     command=["make", "buildbottest"],
-        #     haltOnFailure=False,
-        #     timeout=600))
+        self.addStep(ShellCmd(
+            description="test cpython",
+            command=["make", "buildbottest"],
+            haltOnFailure=False,
+            warnOnFailure=True,
+            timeout=600))
 
         cpython_interpreter = '../build/python'
         self.addStep(ShellCmd(
@@ -434,6 +437,7 @@ class CPythonBenchmark(factory.BuildFactory):
                      '--baseline', cpython_interpreter,
                      ],
             workdir='./benchmarks',
+            haltOnFailure=True,
             timeout=3600))
 
         # a bit obscure hack to get both os.path.expand and a property
@@ -442,8 +446,3 @@ class CPythonBenchmark(factory.BuildFactory):
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                                          masterdest=WithProperties(resultfile),
                                          workdir="."))
-
-        self.addStep(ShellCmd(
-            description="distcleanup cpython",
-            command=["make", "distclean"],
-            timeout=300))
