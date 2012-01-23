@@ -197,10 +197,8 @@ def split(lst):
     return l
 
 def main(argv):
-    assert platform.python_implementation() == "PyPy"
-
     cpy_items = find_numpy_items("/usr/bin/python")
-    pypy_items = find_numpy_items(sys.executable, "numpypy")
+    pypy_items = find_numpy_items(argv[1], "numpypy")
     all_items = []
 
     msg = '%d/%d names, %d/%d ndarray attributes, %d/%d dtype attributes' % (
