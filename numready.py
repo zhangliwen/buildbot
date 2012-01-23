@@ -214,10 +214,13 @@ def main(argv):
                 )
         all_items.append(ItemStatus(item.name, pypy_exists=item in pypy_items))
     html = jinja2.Template(PAGE_TEMPLATE).render(all_items=split(sorted(all_items)), msg=msg)
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        f.write(html.encode("utf-8"))
-    webbrowser.open_new_tab(f.name)
-
+    if len(argv) > 2:
+        with open(argv[2], 'w') as f:
+            f.write(html.encode("utf-8"))
+    else:
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            f.write(html.encode("utf-8"))
+        print "Saved in: %s" % f.name
 
 if __name__ == '__main__':
     main(sys.argv)
