@@ -339,6 +339,9 @@ class JITBenchmark(factory.BuildFactory):
                 )
             )
         pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
+        self.addStep(ShellCmd(
+            description="measure numpy compatibility",
+            
         if postfix:
             addopts = ['--postfix', postfix]
         else:
