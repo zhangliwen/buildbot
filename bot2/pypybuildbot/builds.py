@@ -339,6 +339,16 @@ class JITBenchmark(factory.BuildFactory):
                 )
             )
         pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
+        if host == 'tannit':
+            self.addStep(ShellCmd(
+                description="measure numpy compatibility",
+                command=['python', 'build/pypy/module/micronumpy/tool/numready.py',
+                         pypy_c_rel, 'numpy-compat.html'],
+                workdir="."))
+            resfile = os.path.expanduser("~/numpy_compat/%(got_revision)s.html")
+            self.addStep(transfer.FileUpload(slavesrc="numpy-compat.html",
+                                             masterdest=WithProperties(resfile),
+                                             workdir="."))
         if postfix:
             addopts = ['--postfix', postfix]
         else:
