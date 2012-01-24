@@ -1,3 +1,5 @@
+
+import os
 import getpass
 from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
@@ -6,6 +8,8 @@ from buildbot.process.builder import Builder
 #from buildbot import manhole
 from pypybuildbot.pypylist import PyPyList
 from pypybuildbot.ircbot import IRC # side effects
+
+from twisted.web.static import File, DirectoryLister
 
 # Forbid "force build" with empty user name
 from buildbot.status.web.builder import StatusResourceBuilder
@@ -40,6 +44,7 @@ status.putChild('summary', summary.Summary(categories=['linux',
                                                        'freebsd']))
 status.putChild('nightly', PyPyList(os.path.expanduser('~/nightly'),
                                     defaultType='application/octet-stream'))
+status.putChild('numpy-status', DirectoryLister(os.path.expanduser('~/numpy_compat')))
 
 
 pypybuilds = load('pypybuildbot.builds')
