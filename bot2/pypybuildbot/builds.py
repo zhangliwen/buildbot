@@ -356,7 +356,7 @@ class JITBenchmark(factory.BuildFactory):
                 env={'PYTHONPATH': './benchmarks/lib/jinja2'},
                 description="measure numpy compatibility",
                 command=[pypy_c_rel,
-                         'build/pypy/module/micronumpy/tool/numready.py',
+                         'build/pypy/module/micronumpy/tool/numready/',
                          pypy_c_rel, 'numpy-compat.html'],
                 workdir="."))
             resfile = os.path.expanduser("~/numpy_compat/%(got_revision)s.html")
