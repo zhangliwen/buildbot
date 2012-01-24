@@ -68,6 +68,18 @@ class PyPyUpload(transfer.FileUpload):
         except OSError:
             pass
 
+class NumpyStatusUpload(transfer.FileUpload):
+    def finished(self, *args, **kwds):
+        transfer.FileUpload.finished(self, *args, **kwds)
+        try:
+            os.chmod(self.masterdest, 0644)
+        except OSError:
+            pass
+        try:
+            symlink_force(os.path.basename(self.masterdest), 'latest.html')
+        except OSError:
+            pass    
+
 class Translate(ShellCmd):
     name = "translate"
     description = ["translating"]
@@ -348,9 +360,10 @@ class JITBenchmark(factory.BuildFactory):
                          pypy_c_rel, 'numpy-compat.html'],
                 workdir="."))
             resfile = os.path.expanduser("~/numpy_compat/%(got_revision)s.html")
-            self.addStep(transfer.FileUpload(slavesrc="numpy-compat.html",
-                                             masterdest=WithProperties(resfile),
-                                             workdir="."))
+            self.addStep(NumpyStatusUpload(
+                slavesrc="numpy-compat.html",
+                masterdest=WithProperties(resfile),
+                workdir="."))
         pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
         if postfix:
             addopts = ['--postfix', postfix]
