@@ -341,6 +341,7 @@ class JITBenchmark(factory.BuildFactory):
         if host == 'tannit':
             pypy_c_rel = 'build/pypy/translator/goal/pypy-c'
             self.addStep(ShellCmd(
+                env={'PYTHONPATH': './benchmarks/lib/jinja2'},
                 description="measure numpy compatibility",
                 command=[pypy_c_rel,
                          'build/pypy/module/micronumpy/tool/numready.py',
