@@ -333,7 +333,7 @@ class Translated(factory.BuildFactory):
 
 
 class JITBenchmark(factory.BuildFactory):
-    def __init__(self, platform='linux', postfix=None):
+    def __init__(self, platform='linux', postfix=''):
         factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
@@ -351,27 +351,34 @@ class JITBenchmark(factory.BuildFactory):
                 locks=[lock.access('counting')],
                 )
             )
+
         pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
-        if postfix:
-            addopts = ['--postfix', postfix]
-        else:
-            addopts = []
         self.addStep(ShellCmd(
             # this step needs exclusive access to the CPU
             locks=[lock.access('exclusive')],
             description="run benchmarks on top of pypy-c",
             command=["python", "runner.py", '--output-filename', 'result.json',
-                    '--pypy-c', pypy_c_rel,
+                     '--pypy-c', pypy_c_rel,
                      '--baseline', pypy_c_rel,
                      '--args', ',--jit off',
                      '--upload',
+                     '--upload-executable', 'pypy-c' + postfix,
+                     '--upload-project', 'PyPy',
                      '--revision', WithProperties('%(got_revision)s'),
                      '--branch', WithProperties('%(branch)s'),
-                     ] + addopts,
+                     '--upload-urls', 'http://speed.pypy.org/',
+                     '--upload-baseline',
+                     '--upload-baseline-executable', 'pypy-c-jit' + postfix,
+                     '--upload-baseline-project', 'PyPy',
+                     '--upload-baseline-revision',
+                     WithProperties('%(got_revision)s'),
+                     '--upload-baseline-branch', WithProperties('%(branch)s'),
+                     '--upload-baseline-urls', 'http://localhost',
+                     ],
             workdir='./benchmarks',
             timeout=3600))
         # a bit obscure hack to get both os.path.expand and a property
-        filename = '%(got_revision)s' + (postfix or '')
+        filename = '%(got_revision)s' + postfix
         resfile = os.path.expanduser("~/bench_results/%s.json" % filename)
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                                          masterdest=WithProperties(resfile),
@@ -431,10 +438,14 @@ class CPythonBenchmark(factory.BuildFactory):
             locks=[lock.access('exclusive')],
             description="run benchmarks on top of cpython",
             command=["python", "runner.py", '--output-filename', 'result.json',
+                     '--upload',
+                     '--upload-project', 'cpython',
+                     '--upload-executable', 'cpython2',
                      '--revision', WithProperties('%(got_revision)s'),
                      '--branch', WithProperties('%(branch)s'),
+                     '--upload-urls', 'http://localhost/',
                      '-p', cpython_interpreter,
-                     '--baseline', cpython_interpreter,
+                     '--baseline', './nullpython.py',
                      ],
             workdir='./benchmarks',
             haltOnFailure=True,
