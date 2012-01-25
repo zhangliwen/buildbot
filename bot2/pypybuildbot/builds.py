@@ -1,6 +1,5 @@
 from buildbot.process import factory
-from buildbot.steps import source, shell, transfer, master
-from buildbot.status.builder import SUCCESS
+from buildbot.steps import shell, transfer
 from buildbot.process.properties import WithProperties
 from buildbot import locks
 from pypybuildbot.util import symlink_force
@@ -29,6 +28,7 @@ class ShellCmd(shell.ShellCommand):
         if cmd is not None and cmd.rc == -1:
             return self.describe(True) + ['aborted']
         return shell.ShellCommand.getText(self, cmd, results)
+
 
 class PyPyUpload(transfer.FileUpload):
     parms = transfer.FileUpload.parms + ['basename']
@@ -67,6 +67,7 @@ class PyPyUpload(transfer.FileUpload):
             symlink_force(os.path.basename(self.masterdest), self.symlinkname)
         except OSError:
             pass
+
 
 class Translate(ShellCmd):
     name = "translate"
@@ -124,7 +125,7 @@ class PytestCmd(ShellCmd):
             d[key] = summary
         builder.saveYourself()
 
- 
+
 # _______________________________________________________________
 
 class UpdateCheckout(ShellCmd):
@@ -162,12 +163,15 @@ class CheckGotRevision(ShellCmd):
             # '|' in the command-line, because it doesn't work on Windows
             num = got_revision.find(':')
             if num > 0:
-                got_revision = got_revision[:num+13]
+                got_revision = got_revision[:num + 13]
             #
             final_file_name = got_revision.replace(':', '-')
             # ':' should not be part of filenames --- too many issues
-            self.build.setProperty('got_revision', got_revision, 'got_revision')
-            self.build.setProperty('final_file_name', final_file_name, 'got_revision')
+            self.build.setProperty('got_revision', got_revision,
+                                   'got_revision')
+            self.build.setProperty('final_file_name', final_file_name,
+                                   'got_revision')
+
 
 def update_hg(platform, factory, repourl, workdir, use_branch,
               force_branch=None):
@@ -176,8 +180,8 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
     else:
         command = "if [ ! -d .hg ]; then rm -fr * .[a-z]*; fi"
     factory.addStep(ShellCmd(description="rmdir?",
-                             command = command,
-                             workdir = workdir,
+                             command=command,
+                             workdir=workdir,
                              haltOnFailure=False))
     #
     if platform == "win32":
@@ -186,27 +190,29 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
         command = "if [ ! -d .hg ]; then %s; fi"
     command = command % ("hg clone -U " + repourl + " .")
     factory.addStep(ShellCmd(description="hg clone",
-                             command = command,
-                             workdir = workdir,
+                             command=command,
+                             workdir=workdir,
                              haltOnFailure=True))
     #
-    factory.addStep(ShellCmd(description="hg purge",
-                             command = "hg --config extensions.purge= purge --all",
-                             workdir = workdir,
-                             haltOnFailure=True))
+    factory.addStep(
+        ShellCmd(description="hg purge",
+                 command="hg --config extensions.purge=purge --all",
+                 workdir=workdir,
+                 haltOnFailure=True))
     #
     factory.addStep(ShellCmd(description="hg pull",
-                             command = "hg pull",
-                             workdir = workdir))
+                             command="hg pull",
+                             workdir=workdir))
     #
     if use_branch or force_branch:
-        factory.addStep(UpdateCheckout(workdir = workdir,
+        factory.addStep(UpdateCheckout(workdir=workdir,
                                        haltOnFailure=True,
                                        force_branch=force_branch))
     else:
         factory.addStep(ShellCmd(description="hg update",
-                                 command = "hg update --clean",
-                                 workdir = workdir))
+                                 command="hg update --clean",
+                                 workdir=workdir))
+
 
 def setup_steps(platform, factory, workdir=None,
                 repourl='https://bitbucket.org/pypy/pypy/',
@@ -239,9 +245,10 @@ class Own(factory.BuildFactory):
                      "--root=pypy", "--timeout=10800"
                      ] + ["--config=%s" % cfg for cfg in extra_cfgs],
             logfiles={'pytestLog': 'testrun.log'},
-            timeout = 4000,
+            timeout=4000,
             env={"PYTHONPATH": ['.'],
                  "PYPYCHERRYPICK": cherrypick}))
+
 
 class Translated(factory.BuildFactory):
 
@@ -270,7 +277,7 @@ class Translated(factory.BuildFactory):
                          "--root=pypy", "--timeout=1800"
                          ] + ["--config=%s" % cfg for cfg in app_tests],
                 logfiles={'pytestLog': 'pytest-A.log'},
-                timeout = 4000,
+                timeout=4000,
                 env={"PYTHONPATH": ['.']}))
 
         if lib_python:
@@ -329,7 +336,7 @@ class Translated(factory.BuildFactory):
                                 masterdest=WithProperties(nightly),
                                 basename=name + extension,
                                 workdir='.',
-                                blocksize=100*1024))
+                                blocksize=100 * 1024))
 
 
 class JITBenchmark(factory.BuildFactory):
