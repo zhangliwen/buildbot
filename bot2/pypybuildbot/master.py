@@ -225,7 +225,12 @@ BuildmasterConfig = {
             JITWIN32,                  # on bigboard
             #JITFREEBSD64,              # on headless
             JITMACOSX64,               # on mvt's machine
-            ], branch=None, hour=3, minute=0)
+            ], branch=None, hour=3, minute=0),
+
+        Nightly("nighly-4-00-py3k", [
+            LINUX32,                   # on tannit32, uses 4 cores
+            ], branch='py3k', hour=4, minute=0),
+
     ],
 
     'status': [status, ircbot],
