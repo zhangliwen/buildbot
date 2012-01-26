@@ -76,7 +76,9 @@ class NumpyStatusUpload(transfer.FileUpload):
         except OSError:
             pass
         try:
-            symlink_force(os.path.basename(self.masterdest), 'latest.html')
+            symname = os.path.join(os.path.dirname(self.masterdest),
+                                   'latest.html')
+            symlink_force(self.masterdest, symname)
         except OSError:
             pass    
 
