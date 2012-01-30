@@ -68,6 +68,19 @@ class PyPyUpload(transfer.FileUpload):
         except OSError:
             pass
 
+class NumpyStatusUpload(transfer.FileUpload):
+    def finished(self, *args, **kwds):
+        transfer.FileUpload.finished(self, *args, **kwds)
+        try:
+            os.chmod(self.masterdest, 0644)
+        except OSError:
+            pass
+        try:
+            symname = os.path.join(os.path.dirname(self.masterdest),
+                                   'latest.html')
+            symlink_force(self.masterdest, symname)
+        except OSError:
+            pass    
 
 class Translate(ShellCmd):
     name = "translate"
@@ -340,14 +353,20 @@ class Translated(factory.BuildFactory):
 
 
 class JITBenchmark(factory.BuildFactory):
-    def __init__(self, platform='linux', postfix=''):
+    def __init__(self, platform='linux', host='tannit', postfix=''):
         factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
         #
         repourl = 'https://bitbucket.org/pypy/benchmarks'
         update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
-        lock = TannitCPU
+        if host == 'tannit':
+            lock = TannitCPU
+        elif host == 'speed_python':
+            lock = SpeedPythonCPU
+        else:
+            assert False, 'unknown host %s' % host
+
         #
         self.addStep(
             Translate(
@@ -358,7 +377,20 @@ class JITBenchmark(factory.BuildFactory):
                 locks=[lock.access('counting')],
                 )
             )
-
+        if host == 'tannit':
+            pypy_c_rel = 'build/pypy/translator/goal/pypy-c'
+            self.addStep(ShellCmd(
+                env={'PYTHONPATH': './benchmarks/lib/jinja2'},
+                description="measure numpy compatibility",
+                command=[pypy_c_rel,
+                         'build/pypy/module/micronumpy/tool/numready/',
+                         pypy_c_rel, 'numpy-compat.html'],
+                workdir="."))
+            resfile = os.path.expanduser("~/numpy_compat/%(got_revision)s.html")
+            self.addStep(NumpyStatusUpload(
+                slavesrc="numpy-compat.html",
+                masterdest=WithProperties(resfile),
+                workdir="."))
         pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
         self.addStep(ShellCmd(
             # this step needs exclusive access to the CPU
@@ -385,7 +417,7 @@ class JITBenchmark(factory.BuildFactory):
             workdir='./benchmarks',
             timeout=3600))
         # a bit obscure hack to get both os.path.expand and a property
-        filename = '%(got_revision)s' + postfix
+        filename = '%(got_revision)s' + (postfix or '')
         resfile = os.path.expanduser("~/bench_results/%s.json" % filename)
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                                          masterdest=WithProperties(resfile),

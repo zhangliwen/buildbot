@@ -1,10 +1,12 @@
+
+import os
 import getpass
 from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
 from buildbot.process.builder import Builder
 #from buildbot import manhole
-from pypybuildbot.pypylist import PyPyList
+from pypybuildbot.pypylist import PyPyList, NumpyStatusList
 from pypybuildbot.ircbot import IRC # side effects
 
 # Forbid "force build" with empty user name
@@ -40,6 +42,7 @@ status.putChild('summary', summary.Summary(categories=['linux',
                                                        'freebsd']))
 status.putChild('nightly', PyPyList(os.path.expanduser('~/nightly'),
                                     defaultType='application/octet-stream'))
+status.putChild('numpy-status', NumpyStatusList(os.path.expanduser('~/numpy_compat')))
 
 
 pypybuilds = load('pypybuildbot.builds')
@@ -129,6 +132,9 @@ pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
 pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark()
 pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
                                                            postfix='-64')
+pypyJITBenchmarkFactory64_speed = pypybuilds.JITBenchmark(platform='linux64',
+                                                          postfix='-64',
+                                                          host='speed_python')
 
 cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
                                                           platform='linux64')
@@ -156,7 +162,8 @@ JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
-CPYTHON2_64 = "cpython-2-benchmark-x86-64"
+JITBENCH64_2 = 'jit-benchmark-linux-x86-64-2'
+CPYTHON_64 = "cpython-2-benchmark-x86-64"
 
 
 BuildmasterConfig = {
@@ -203,7 +210,8 @@ BuildmasterConfig = {
         Nightly("nightly-0-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-            CPYTHON2_64,              # on speed.python.org, uses 1 core (in part exclusively)
+            JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
+            CPYTHON_64,                # on speed.python.org, uses 1 core (in part exclusively)
             MACOSX32,                  # on minime
             ], branch=None, hour=0, minute=0),
         #
@@ -221,7 +229,12 @@ BuildmasterConfig = {
             JITWIN32,                  # on bigboard
             #JITFREEBSD64,              # on headless
             JITMACOSX64,               # on mvt's machine
-            ], branch=None, hour=3, minute=0)
+            ], branch=None, hour=3, minute=0),
+
+        Nightly("nighly-4-00-py3k", [
+            LINUX32,                   # on tannit32, uses 4 cores
+            ], branch='py3k', hour=4, minute=0),
+
     ],
 
     'status': [status, ircbot],
@@ -303,9 +316,16 @@ BuildmasterConfig = {
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },
-                  {"name": CPYTHON2_64,
+                  {"name": JITBENCH64_2,
                    "slavenames": ["speed-python-64"],
-                   "builddir": CPYTHON2_64,
+                   "builddir": JITBENCH64_2,
+                   "factory": pypyJITBenchmarkFactory64_speed,
+                   "category": "benchmark-run",
+                   # the locks are acquired with fine grain inside the build
+                   },
+                  {"name": CPYTHON_64,
+                   "slavenames": ["speed-python-64"],
+                   "builddir": CPYTHON_64,
                    "factory": cPython27BenchmarkFactory64,
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
