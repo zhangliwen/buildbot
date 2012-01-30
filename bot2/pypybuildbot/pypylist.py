@@ -126,7 +126,8 @@ class PyPyList(File):
                         self.contentEncodings,
                         self.defaultType)
 
-
+class NumpyStatusList(File):
+    pass
 
 class PyPyDirectoryLister(DirectoryLister):
     template = """<html>
