@@ -209,7 +209,7 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
     #
     factory.addStep(
         ShellCmd(description="hg purge",
-                 command="hg --config extensions.purge=purge --all",
+                 command="hg --config extensions.purge= purge --all",
                  workdir=workdir,
                  haltOnFailure=True))
     #
