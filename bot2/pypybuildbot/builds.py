@@ -412,7 +412,7 @@ class JITBenchmark(factory.BuildFactory):
                      '--upload-baseline-revision',
                      WithProperties('%(got_revision)s'),
                      '--upload-baseline-branch', WithProperties('%(branch)s'),
-                     '--upload-baseline-urls', 'http://localhost',
+                     '--upload-baseline-urls', 'http://speed.pypy.org',
                      ],
             workdir='./benchmarks',
             timeout=3600))
