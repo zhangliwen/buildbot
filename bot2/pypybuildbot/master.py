@@ -119,7 +119,6 @@ pypyJITTranslatedTestFactoryFreeBSD = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
-    interpreter='python',
     )
 
 pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
