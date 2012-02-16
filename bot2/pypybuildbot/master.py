@@ -348,7 +348,7 @@ BuildmasterConfig = {
                    'category' : 'mac64',
                    },
                   {"name": WIN32,
-                   "slavenames": ["SalsaSalsa", "snakepit32", "bigboard"],
+                   "slavenames": ["aurora", "SalsaSalsa", "snakepit32", "bigboard"],
                    "builddir": WIN32,
                    "factory": pypyOwnTestFactoryWin,
                    "category": 'win32'
@@ -360,13 +360,13 @@ BuildmasterConfig = {
                    "category": 'win32'
                   },
                   {"name": APPLVLWIN32,
-                   "slavenames": ["SalsaSalsa", "snakepit32", "bigboard"],
+                   "slavenames": ["aurora", "SalsaSalsa", "snakepit32", "bigboard"],
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
                    "category": "win32"
                   },
                   {"name" : JITWIN32,
-                   "slavenames": ["SalsaSalsa", "snakepit32", "bigboard"],
+                   "slavenames": ["aurora", "SalsaSalsa", "snakepit32", "bigboard"],
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
