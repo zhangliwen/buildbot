@@ -314,7 +314,7 @@ class Translated(factory.BuildFactory):
                 logfiles={'pytestLog': 'pypyjit.log'}))
             #
             # "new" test_pypy_c
-            if platform == 'windows':
+            if platform == 'win32':
                 cmd = r'pypy\translator\goal\pypy-c'
             else:
                 cmd = 'pypy/translator/goal/pypy-c'
