@@ -184,7 +184,7 @@ BuildmasterConfig = {
     ##         JITLINUX32,                # on tannit32, uses 1 core
     ##         JITLINUX64,                # on tannit64, uses 1 core
     ##         OJITLINUX32,               # on tannit32, uses 1 core
-    ##         JITWIN32,                  # on bigboard
+    ##         JITWIN32,                  # on aurora
     ##         STACKLESSAPPLVLFREEBSD64,  # on headless
     ##         JITMACOSX64,               # on mvt's machine
     ##         ], hour=4, minute=0),
@@ -225,7 +225,7 @@ BuildmasterConfig = {
             APPLVLLINUX32,             # on tannit32, uses 1 core
             APPLVLLINUX64,             # on tannit64, uses 1 core
             #
-            JITWIN32,                  # on bigboard
+            JITWIN32,                  # on aurora
             #JITFREEBSD64,              # on headless
             JITMACOSX64,               # on mvt's machine
             ], branch=None, hour=3, minute=0),
@@ -348,7 +348,7 @@ BuildmasterConfig = {
                    'category' : 'mac64',
                    },
                   {"name": WIN32,
-                   "slavenames": ["aurora", "SalsaSalsa", "snakepit32", "bigboard"],
+                   "slavenames": ["aurora", "SalsaSalsa"],
                    "builddir": WIN32,
                    "factory": pypyOwnTestFactoryWin,
                    "category": 'win32'
@@ -360,13 +360,13 @@ BuildmasterConfig = {
                    "category": 'win32'
                   },
                   {"name": APPLVLWIN32,
-                   "slavenames": ["aurora", "SalsaSalsa", "snakepit32", "bigboard"],
+                   "slavenames": ["aurora", "SalsaSalsa"],
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
                    "category": "win32"
                   },
                   {"name" : JITWIN32,
-                   "slavenames": ["aurora", "SalsaSalsa", "snakepit32", "bigboard"],
+                   "slavenames": ["aurora", "SalsaSalsa"],
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
