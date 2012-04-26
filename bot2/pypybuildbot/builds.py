@@ -314,9 +314,13 @@ class Translated(factory.BuildFactory):
                 logfiles={'pytestLog': 'pypyjit.log'}))
             #
             # "new" test_pypy_c
+            if platform == 'windows':
+                cmd = r'pypy\translator\goal\pypy-c'
+            else:
+                cmd = 'pypy/translator/goal/pypy-c'
             self.addStep(PytestCmd(
                 description="pypyjit tests",
-                command=["pypy/translator/goal/pypy-c", "pypy/test_all.py",
+                command=[cmd, "pypy/test_all.py",
                          "--resultlog=pypyjit_new.log",
                          "pypy/module/pypyjit/test_pypy_c"],
                 logfiles={'pytestLog': 'pypyjit_new.log'}))
