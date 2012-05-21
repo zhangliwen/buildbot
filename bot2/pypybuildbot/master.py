@@ -259,6 +259,13 @@ BuildmasterConfig = {
                    # this build needs 4 CPUs
                    "locks": [TannitCPU.access('exclusive')],
                   },
+                  {"name": LINUX64 + "2",
+                   "slavenames": ["allegro64"],
+                   "builddir": LINUX64 + "2",
+                   "factory": pypyOwnTestFactory,
+                   "category": 'linux64',
+                   # no locks, this is not a tannit build
+                  },
                   {"name": APPLVLLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": APPLVLLINUX32,
