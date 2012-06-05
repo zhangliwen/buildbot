@@ -19,6 +19,7 @@ import os
 # there are 8 logical CPUs, but only 4 physical ones
 TannitCPU = locks.MasterLock('tannit_cpu', maxCount=6)
 SpeedPythonCPU = locks.MasterLock('speed_python_cpu', maxCount=24)
+WinLockCPU = locks.MasterLock('win_cpu', maxCount=1)
 
 
 class ShellCmd(shell.ShellCommand):

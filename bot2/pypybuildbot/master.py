@@ -47,6 +47,7 @@ status.putChild('numpy-status', NumpyStatusList(os.path.expanduser('~/numpy_comp
 
 pypybuilds = load('pypybuildbot.builds')
 TannitCPU = pypybuilds.TannitCPU
+WinLockCPU = pypybuilds.WinLockCPU
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
@@ -371,12 +372,14 @@ BuildmasterConfig = {
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
                    "category": "win32"
+                   "locks": [WinLockCPU.access('exclusive')],
                   },
                   {"name" : JITWIN32,
                    "slavenames": ["aurora", "SalsaSalsa"],
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
+                   "locks": [WinLockCPU.access('exclusive')],
                    },
                   {"name" : JITWIN64,
                    "slavenames": ["snakepit64"],
