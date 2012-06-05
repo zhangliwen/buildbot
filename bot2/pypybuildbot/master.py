@@ -371,7 +371,7 @@ BuildmasterConfig = {
                    "slavenames": ["aurora", "SalsaSalsa"],
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
-                   "category": "win32"
+                   "category": "win32",
                    "locks": [WinLockCPU.access('exclusive')],
                   },
                   {"name" : JITWIN32,
