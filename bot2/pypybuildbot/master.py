@@ -143,7 +143,6 @@ cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 MACOSX32 =  "own-macosx-x86-32"
-PPCLINUX32 =  "own-linux-ppc-32"
 WIN32 = "own-win-x86-32"
 WIN64 = "own-win-x86-64"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
@@ -342,12 +341,6 @@ BuildmasterConfig = {
                    "builddir": MACOSX32,
                    "factory": pypyOwnTestFactory,
                    "category": 'mac32'
-                  },
-                  {"name": PPCLINUX32,
-                   "slavenames": ["stups-ppc32"],
-                   "builddir": PPCLINUX32,
-                   "factory": pypyOwnTestFactory,
-                   "category": 'linuxppc32'
                   },
                   {"name" : JITMACOSX64,
                    "slavenames": ["macmini-mvt", "xerxes"],
