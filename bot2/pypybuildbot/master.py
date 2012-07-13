@@ -1,10 +1,12 @@
+
+import os
 import getpass
 from buildbot.scheduler import Nightly
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
 from buildbot.process.builder import Builder
 #from buildbot import manhole
-from pypybuildbot.pypylist import PyPyList
+from pypybuildbot.pypylist import PyPyList, NumpyStatusList
 from pypybuildbot.ircbot import IRC # side effects
 from pypybuildbot.util import we_are_debugging
 
@@ -41,10 +43,12 @@ status.putChild('summary', summary.Summary(categories=['linux',
                                                        'freebsd']))
 status.putChild('nightly', PyPyList(os.path.expanduser('~/nightly'),
                                     defaultType='application/octet-stream'))
+status.putChild('numpy-status', NumpyStatusList(os.path.expanduser('~/numpy_compat')))
 
 
 pypybuilds = load('pypybuildbot.builds')
 TannitCPU = pypybuilds.TannitCPU
+WinLockCPU = pypybuilds.WinLockCPU
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
@@ -117,7 +121,6 @@ pypyJITTranslatedTestFactoryFreeBSD = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
-    interpreter='python',
     )
 
 pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
@@ -127,14 +130,20 @@ pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
     app_tests=True
     )
 
-pypyJITBenchmarkFactory = pypybuilds.JITBenchmark()
-pypyJITBenchmarkFactory64 = pypybuilds.JITBenchmark(platform='linux64',
-                                                    postfix='-64')
+pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark()
+pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
+                                                           postfix='-64')
+pypyJITBenchmarkFactory64_speed = pypybuilds.JITBenchmark(platform='linux64',
+                                                          postfix='-64',
+                                                          host='speed_python')
+
+cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
+                                                          platform='linux64')
+
 
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 MACOSX32 =  "own-macosx-x86-32"
-PPCLINUX32 =  "own-linux-ppc-32"
 WIN32 = "own-win-x86-32"
 WIN64 = "own-win-x86-64"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
@@ -153,6 +162,9 @@ JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
+JITBENCH64_2 = 'jit-benchmark-linux-x86-64-2'
+CPYTHON_64 = "cpython-2-benchmark-x86-64"
+
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
@@ -173,7 +185,7 @@ BuildmasterConfig = {
     ##         JITLINUX32,                # on tannit32, uses 1 core
     ##         JITLINUX64,                # on tannit64, uses 1 core
     ##         OJITLINUX32,               # on tannit32, uses 1 core
-    ##         JITWIN32,                  # on bigboard
+    ##         JITWIN32,                  # on aurora
     ##         STACKLESSAPPLVLFREEBSD64,  # on headless
     ##         JITMACOSX64,               # on mvt's machine
     ##         ], hour=4, minute=0),
@@ -198,6 +210,8 @@ BuildmasterConfig = {
         Nightly("nightly-0-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
+            JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
+            CPYTHON_64,                # on speed.python.org, uses 1 core (in part exclusively)
             MACOSX32,                  # on minime
             ], branch=None, hour=0, minute=0),
         #
@@ -212,10 +226,15 @@ BuildmasterConfig = {
             APPLVLLINUX32,             # on tannit32, uses 1 core
             APPLVLLINUX64,             # on tannit64, uses 1 core
             #
-            JITWIN32,                  # on bigboard
+            JITWIN32,                  # on aurora
             #JITFREEBSD64,              # on headless
             JITMACOSX64,               # on mvt's machine
-            ], branch=None, hour=3, minute=0)
+            ], branch=None, hour=3, minute=0),
+
+        Nightly("nighly-4-00-py3k", [
+            LINUX32,                   # on tannit32, uses 4 cores
+            ], branch='py3k', hour=4, minute=0),
+
     ],
 
     'status': [status, ircbot],
@@ -226,7 +245,7 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": LINUX32,
-                   "slavenames": ["cobra", "bigdogvm1", "tannit32"],
+                   "slavenames": ["bigdogvm1", "tannit32"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux32',
@@ -240,6 +259,13 @@ BuildmasterConfig = {
                    "category": 'linux64',
                    # this build needs 4 CPUs
                    "locks": [TannitCPU.access('exclusive')],
+                  },
+                  {"name": LINUX64 + "2",
+                   "slavenames": ["allegro64"],
+                   "builddir": LINUX64 + "2",
+                   "factory": pypyOwnTestFactory,
+                   "category": 'linux64',
+                   # no locks, this is not a tannit build
                   },
                   {"name": APPLVLLINUX32,
                    "slavenames": ["bigdogvm1", "tannit32"],
@@ -286,14 +312,28 @@ BuildmasterConfig = {
                   {"name": JITBENCH,
                    "slavenames": ["tannit32"],
                    "builddir": JITBENCH,
-                   "factory": pypyJITBenchmarkFactory,
+                   "factory": pypyJITBenchmarkFactory_tannit,
                    "category": 'benchmark-run',
                    # the locks are acquired with fine grain inside the build
                   },
                   {"name": JITBENCH64,
                    "slavenames": ["tannit64"],
                    "builddir": JITBENCH64,
-                   "factory": pypyJITBenchmarkFactory64,
+                   "factory": pypyJITBenchmarkFactory64_tannit,
+                   "category": "benchmark-run",
+                   # the locks are acquired with fine grain inside the build
+                   },
+                  {"name": JITBENCH64_2,
+                   "slavenames": ["speed-python-64"],
+                   "builddir": JITBENCH64_2,
+                   "factory": pypyJITBenchmarkFactory64_speed,
+                   "category": "benchmark-run",
+                   # the locks are acquired with fine grain inside the build
+                   },
+                  {"name": CPYTHON_64,
+                   "slavenames": ["speed-python-64"],
+                   "builddir": CPYTHON_64,
+                   "factory": cPython27BenchmarkFactory64,
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },
@@ -303,12 +343,6 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactory,
                    "category": 'mac32'
                   },
-                  {"name": PPCLINUX32,
-                   "slavenames": ["stups-ppc32"],
-                   "builddir": PPCLINUX32,
-                   "factory": pypyOwnTestFactory,
-                   "category": 'linuxppc32'
-                  },
                   {"name" : JITMACOSX64,
                    "slavenames": ["macmini-mvt", "xerxes"],
                    'builddir' : JITMACOSX64,
@@ -316,7 +350,7 @@ BuildmasterConfig = {
                    'category' : 'mac64',
                    },
                   {"name": WIN32,
-                   "slavenames": ["bigboard"],
+                   "slavenames": ["aurora", "SalsaSalsa"],
                    "builddir": WIN32,
                    "factory": pypyOwnTestFactoryWin,
                    "category": 'win32'
@@ -328,16 +362,18 @@ BuildmasterConfig = {
                    "category": 'win32'
                   },
                   {"name": APPLVLWIN32,
-                   "slavenames": ["bigboard"],
+                   "slavenames": ["aurora", "SalsaSalsa"],
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
-                   "category": "win32"
+                   "category": "win32",
+                   "locks": [WinLockCPU.access('exclusive')],
                   },
                   {"name" : JITWIN32,
-                   "slavenames": ["bigboard"],
+                   "slavenames": ["aurora", "SalsaSalsa"],
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
+                   "locks": [WinLockCPU.access('exclusive')],
                    },
                   {"name" : JITWIN64,
                    "slavenames": ["snakepit64"],
