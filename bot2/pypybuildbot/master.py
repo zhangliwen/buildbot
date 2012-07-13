@@ -6,6 +6,7 @@ from buildbot.process.builder import Builder
 #from buildbot import manhole
 from pypybuildbot.pypylist import PyPyList
 from pypybuildbot.ircbot import IRC # side effects
+from pypybuildbot.util import we_are_debugging
 
 # Forbid "force build" with empty user name
 from buildbot.status.web.builder import StatusResourceBuilder
@@ -18,7 +19,7 @@ if _previous_force.__name__ == 'force':
     StatusResourceBuilder.force = my_force
 # Done
 
-if getpass.getuser() == 'antocuni':
+if we_are_debugging():
     channel = '#buildbot-test'
 else:
     channel = '#pypy'
