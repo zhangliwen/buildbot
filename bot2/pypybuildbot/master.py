@@ -60,6 +60,12 @@ pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
                                                             app_tests=True,
                                                             platform='linux64')
 
+pypyTranslatedAppLevelTestFactoryPPC64 = pypybuilds.Translated(
+        lib_python=True,
+        app_tests=True,
+        platform='linux-ppc64',
+        interpreter='python')
+
 pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
     platform="win32",
     lib_python=True,
@@ -75,6 +81,7 @@ pypyJITTranslatedTestFactory = pypybuilds.Translated(
     pypyjit=True,
     app_tests=True,
     )
+
 pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
     translationArgs=jit_translation_args,
     targetArgs=[],
@@ -82,6 +89,16 @@ pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
     pypyjit=True,
     app_tests=True,
     platform='linux64',
+    )
+
+pypyJITTranslatedTestFactoryPPC64 = pypybuilds.Translated(
+    translationArgs=jit_translation_args,
+    targetArgs=[],
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    platform='linux-ppc64',
+    interpreter='python',
     )
 
 pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
@@ -143,16 +160,20 @@ cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
 
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
+LINUXPPC64 = "own-linux-ppc-64"
+
 MACOSX32 =  "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
 WIN64 = "own-win-x86-64"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
+APPLVLLINUXPPC64 = "pypy-c-app-level-linux-ppc-64"
 
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
+JITLINUXPPC64 = "pypy-c-jit-linux-ppc-64"
 OJITLINUX32 = "pypy-c-Ojit-no-jit-linux-x86-32"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
@@ -160,6 +181,7 @@ JITWIN64 = "pypy-c-jit-win-x86-64"
 JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
+JITONLYLINUXPPC64 = "jitonly-own-linux-ppc-64"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
 JITBENCH64_2 = 'jit-benchmark-linux-x86-64-2'
@@ -387,6 +409,31 @@ BuildmasterConfig = {
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'
                    },
+                   # PPC
+                  {"name": LINUXPPC64,
+                   "slavenames": ["gcc1"],
+                   "builddir": LINUXPPC64,
+                   "factory": pypyOwnTestFactory,
+                   "category": 'linux-ppc64',
+                  },
+                  {"name": JITONLYLINUXPPC64,
+                   "slavenames": ['gcc1'],
+                   "builddir": JITONLYLINUXPPC64,
+                   "factory": pypyJitOnlyOwnTestFactory,
+                   "category": 'linux-ppc64',
+                  },
+                  {"name": APPLVLLINUXPPC64,
+                   "slavenames": ["gcc1"],
+                   "builddir": APPLVLLINUXPPC64,
+                   "factory": pypyTranslatedAppLevelTestFactoryPPC64,
+                   "category": "linux-ppc64",
+                  },
+                  {'name': JITLINUXPPC64,
+                   'slavenames': ['gcc1'],
+                   'builddir': JITLINUXPPC64,
+                   'factory': pypyJITTranslatedTestFactoryPPC64,
+                   'category': 'linux-ppc64',
+                  },
                 ],
 
     # http://readthedocs.org/docs/buildbot/en/latest/tour.html#debugging-with-manhole
