@@ -53,6 +53,7 @@ WinLockCPU = pypybuilds.WinLockCPU
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
 pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
+pypyJitBackendOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit/backend")
 
 pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
                                                           app_tests=True)
@@ -182,6 +183,7 @@ JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
 JITONLYLINUXARM32 = "jitonly-own-linux-arm-32"
+JITBACKENDONLYLINUXARM32 = "jitbackendonly-own-linux-arm-32"
 JITONLYLINUXPPC64 = "jitonly-own-linux-ppc-64"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
@@ -258,8 +260,8 @@ BuildmasterConfig = {
             LINUX32,                   # on tannit32, uses 4 cores
             ], branch='py3k', hour=4, minute=0),
         Nightly("nighly-1-00-arm", [
-            JITONLYLINUXARM32,         # on hhu-arm
-            ], branch='arm-jit-backend-2', hour=1, minute=0),
+            JITBACKENDONLYLINUXARM32,         # on hhu-arm
+            ], branch='arm-backend-2', hour=1, minute=0),
         Nightly("nighly-1-00-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
@@ -446,6 +448,12 @@ BuildmasterConfig = {
                    "slavenames": ['hhu-arm'],
                    "builddir": JITONLYLINUXARM32,
                    "factory": pypyJitOnlyOwnTestFactory,
+                   "category": 'linux-arm32',
+                  },
+                  {"name": JITBACKENDONLYLINUXARM32,
+                   "slavenames": ['hhu-arm'],
+                   "builddir": JITBACKENDONLYLINUXARM32,
+                   "factory": pypyJitBackendOnlyOwnTestFactory,
                    "category": 'linux-arm32',
                   },
                 ],
