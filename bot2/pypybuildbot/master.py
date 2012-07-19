@@ -181,6 +181,7 @@ JITWIN64 = "pypy-c-jit-win-x86-64"
 JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
+JITONLYLINUXARM32 = "jitonly-own-linux-arm-32"
 JITONLYLINUXPPC64 = "jitonly-own-linux-ppc-64"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
@@ -433,6 +434,13 @@ BuildmasterConfig = {
                    'builddir': JITLINUXPPC64,
                    'factory': pypyJITTranslatedTestFactoryPPC64,
                    'category': 'linux-ppc64',
+                  },
+                  # ARM
+                  {"name": JITONLYLINUXARM32,
+                   "slavenames": ['hhu-arm'],
+                   "builddir": JITONLYLINUXARM32,
+                   "factory": pypyJitOnlyOwnTestFactory,
+                   "category": 'linux-arm32',
                   },
                 ],
 
