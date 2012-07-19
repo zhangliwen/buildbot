@@ -252,13 +252,17 @@ BuildmasterConfig = {
             JITWIN32,                  # on aurora
             #JITFREEBSD64,              # on headless
             JITMACOSX64,               # on mvt's machine
-            JITONLYLINUXARM32,         # on hhu-arm
-            JITONLYLINUXPPC64,         # on gcc1
             ], branch=None, hour=3, minute=0),
 
         Nightly("nighly-4-00-py3k", [
             LINUX32,                   # on tannit32, uses 4 cores
             ], branch='py3k', hour=4, minute=0),
+        Nightly("nighly-1-00-arm", [
+            JITONLYLINUXARM32,         # on hhu-arm
+            ], branch='arm-jit-backend-2', hour=1, minute=0),
+        Nightly("nighly-1-00-ppc", [
+            JITONLYLINUXPPC64,         # on gcc1
+            ], branch='ppc-jit-backend', hour=1, minute=0),
 
     ],
 
