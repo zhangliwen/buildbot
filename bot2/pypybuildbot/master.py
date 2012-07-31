@@ -53,7 +53,11 @@ WinLockCPU = pypybuilds.WinLockCPU
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
 pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
-pypyJitBackendOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit/backend")
+
+# ARM own test factories, give them a 5 hour timeout
+pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=18000)
+pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit/backend",
+                                                                timeout=18000)
 
 pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
                                                           app_tests=True)
@@ -260,8 +264,8 @@ BuildmasterConfig = {
             LINUX32,                   # on tannit32, uses 4 cores
             ], branch='py3k', hour=4, minute=0),
         Nightly("nighly-1-00-arm", [
-            JITBACKENDONLYLINUXARM32,         # on hhu-arm
-            ], branch='arm-backend-2', hour=1, minute=0),
+            JITBACKENDONLYLINUXARM32,  # on hhu-arm
+            ], branch='arm-backend-2', hour=22, minute=0),
         Nightly("nighly-1-00-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
@@ -447,13 +451,13 @@ BuildmasterConfig = {
                   {"name": JITONLYLINUXARM32,
                    "slavenames": ['hhu-arm'],
                    "builddir": JITONLYLINUXARM32,
-                   "factory": pypyJitOnlyOwnTestFactory,
+                   "factory": pypyJitOnlyOwnTestFactoryARM,
                    "category": 'linux-arm32',
                   },
                   {"name": JITBACKENDONLYLINUXARM32,
                    "slavenames": ['hhu-arm'],
                    "builddir": JITBACKENDONLYLINUXARM32,
-                   "factory": pypyJitBackendOnlyOwnTestFactory,
+                   "factory": pypyJitBackendOnlyOwnTestFactoryARM,
                    "category": 'linux-arm32',
                   },
                 ],
