@@ -245,21 +245,22 @@ def setup_steps(platform, factory, workdir=None,
 
 class Own(factory.BuildFactory):
 
-    def __init__(self, platform='linux', cherrypick='', extra_cfgs=[]):
+    def __init__(self, platform='linux', cherrypick='', extra_cfgs=[], **kwargs):
         factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
 
+        timeout=kwargs.get('timeout', 4000)
         self.addStep(PytestCmd(
             description="pytest",
             command=["python", "testrunner/runner.py",
                      "--logfile=testrun.log",
                      "--config=pypy/testrunner_cfg.py",
                      "--config=~/machine_cfg.py",
-                     "--root=pypy", "--timeout=10800"
+                     "--root=pypy", "--timeout=%s" % (timeout,)
                      ] + ["--config=%s" % cfg for cfg in extra_cfgs],
             logfiles={'pytestLog': 'testrun.log'},
-            timeout=4000,
+            timeout=timeout,
             env={"PYTHONPATH": ['.'],
                  "PYPYCHERRYPICK": cherrypick}))
 
