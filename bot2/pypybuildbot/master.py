@@ -54,10 +54,10 @@ pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
 pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 
-# ARM own test factories, give them a 5 hour timeout
-pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=18000)
-pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit/backend",
-                                                                timeout=18000)
+# ARM own test factories, give them a 12 hour timeout
+pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=12*3600)
+pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit/backend/",
+                                                                timeout=12*3600)
 
 pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
                                                           app_tests=True)
