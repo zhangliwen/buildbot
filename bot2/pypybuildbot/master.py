@@ -54,6 +54,9 @@ pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
 pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 
+# OSX 32bit tests require a larger timeout to finish
+pypyOwnTestFactoryOSX32 = pypybuilds.Own(timeout=3*3600)
+
 # ARM own test factories, give them a 12 hour timeout
 pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=12*3600)
 pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit/backend/",
@@ -375,7 +378,7 @@ BuildmasterConfig = {
                   {"name": MACOSX32,
                    "slavenames": ["minime"],
                    "builddir": MACOSX32,
-                   "factory": pypyOwnTestFactory,
+                   "factory": pypyOwnTestFactoryOSX32,
                    "category": 'mac32'
                   },
                   {"name" : JITMACOSX64,
