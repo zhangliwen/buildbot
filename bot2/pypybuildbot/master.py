@@ -57,10 +57,10 @@ pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 # OSX 32bit tests require a larger timeout to finish
 pypyOwnTestFactoryOSX32 = pypybuilds.Own(timeout=3*3600)
 
-# ARM own test factories, give them a 12 hour timeout
+# ARM own test factories, larger timeouts
 pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=12*3600)
 pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit/backend/",
-                                                                timeout=12*3600)
+                                                                timeout=8*3600)
 
 pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
                                                           app_tests=True)
@@ -169,6 +169,7 @@ cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 LINUXPPC64 = "own-linux-ppc-64"
+LINUXARMHF32 = "own-linux-armhf-32"
 
 MACOSX32 =  "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
@@ -462,6 +463,12 @@ BuildmasterConfig = {
                    "builddir": JITBACKENDONLYLINUXARM32,
                    "factory": pypyJitBackendOnlyOwnTestFactoryARM,
                    "category": 'linux-arm32',
+                  },
+                  {"name": LINUXARMHF32,
+                   "slavenames": ["trystack-armhf"],
+                   "builddir": LINUXARMHF32,
+                   "factory": pypyOwnTestFactory,
+                   "category": 'linux-armhf32',
                   },
                 ],
 
