@@ -453,12 +453,6 @@ BuildmasterConfig = {
                    'category': 'linux-ppc64',
                   },
                   # ARM
-                  {"name": JITONLYLINUXARM32,
-                   "slavenames": ['hhu-arm'],
-                   "builddir": JITONLYLINUXARM32,
-                   "factory": pypyJitOnlyOwnTestFactoryARM,
-                   "category": 'linux-arm32',
-                  },
                   {"name": JITBACKENDONLYLINUXARM32,
                    "slavenames": ['hhu-arm'],
                    "builddir": JITBACKENDONLYLINUXARM32,
@@ -475,6 +469,14 @@ BuildmasterConfig = {
                    "slavenames": ["tannit-arm32"],
                    "builddir": LINUXARM32,
                    "factory": pypyOwnTestFactory,
+                   "category": 'linux-arm32',
+                   # this build uses 4 CPUs
+                   "locks": [TannitCPU.access('exclusive')],
+                  },
+                  {"name": JITONLYLINUXARM32,
+                   "slavenames": ['tannit-arm32'],
+                   "builddir": JITONLYLINUXARM32,
+                   "factory": pypyJitOnlyOwnTestFactoryARM,
                    "category": 'linux-arm32',
                    # this build uses 4 CPUs
                    "locks": [TannitCPU.access('exclusive')],
