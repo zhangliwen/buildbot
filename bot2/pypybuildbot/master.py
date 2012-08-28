@@ -170,6 +170,7 @@ LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 LINUXPPC64 = "own-linux-ppc-64"
 LINUXARMHF32 = "own-linux-armhf-32"
+LINUXARM32 = "own-linux-arm-32"
 
 MACOSX32 =  "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
@@ -469,6 +470,14 @@ BuildmasterConfig = {
                    "builddir": LINUXARMHF32,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux-armhf32',
+                  },
+                  {"name": LINUXARM32,
+                   "slavenames": ["tannit-arm32"],
+                   "builddir": LINUXARM32,
+                   "factory": pypyOwnTestFactory,
+                   "category": 'linux-arm32',
+                   # this build uses 4 CPUs
+                   "locks": [TannitCPU.access('exclusive')],
                   },
                 ],
 
