@@ -268,9 +268,12 @@ BuildmasterConfig = {
         Nightly("nighly-4-00-py3k", [
             LINUX32,                   # on tannit32, uses 4 cores
             ], branch='py3k', hour=4, minute=0),
-        Nightly("nighly-arm", [
+        Nightly("nighly-arm-0-00", [
             JITBACKENDONLYLINUXARM32,  # on hhu-arm
-            ], branch='arm-backend-2', hour=22, minute=0),
+            ], branch='arm-backend-2', hour=0, minute=0),
+        Nightly("nighly-arm-5-00", [
+            LINUXARM32,                # on tannit-arm32, uses 4 cores
+            ], branch='arm-backend-2', hour=5, minute=0),
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
