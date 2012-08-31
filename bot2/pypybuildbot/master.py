@@ -272,7 +272,7 @@ BuildmasterConfig = {
             JITBACKENDONLYLINUXARM32,  # on hhu-arm
             ], branch='arm-backend-2', hour=0, minute=0),
         Nightly("nighly-arm-5-00", [
-            LINUXARM32,                # on tannit-arm32, uses 4 cores
+            JITONLYLINUXARM32,                # on tannit-arm32, uses 4 cores ~ 2 hours
             ], branch='arm-backend-2', hour=5, minute=0),
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
