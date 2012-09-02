@@ -58,7 +58,6 @@ pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 pypyOwnTestFactoryOSX32 = pypybuilds.Own(timeout=3*3600)
 
 # ARM own test factories, larger timeouts
-pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=12*3600)
 pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit/backend/",
                                                                 timeout=8*3600)
 
@@ -169,8 +168,8 @@ cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 LINUXPPC64 = "own-linux-ppc-64"
-LINUXARMHF32 = "own-linux-armhf-32"
-LINUXARM32 = "own-linux-arm-32"
+LINUXARMHF = "own-linux-armhf"
+LINUXARMEL = "own-linux-armel"
 
 MACOSX32 =  "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
@@ -191,8 +190,8 @@ JITWIN64 = "pypy-c-jit-win-x86-64"
 JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
 
 JITONLYLINUX32 = "jitonly-own-linux-x86-32"
-JITONLYLINUXARM32 = "jitonly-own-linux-arm-32"
-JITBACKENDONLYLINUXARM32 = "jitbackendonly-own-linux-arm-32"
+JITONLYLINUXARMEL = "jitonly-own-linux-armel"
+JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
 JITONLYLINUXPPC64 = "jitonly-own-linux-ppc-64"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
@@ -269,11 +268,11 @@ BuildmasterConfig = {
             LINUX32,                   # on tannit32, uses 4 cores
             ], branch='py3k', hour=4, minute=0),
         Nightly("nighly-arm-0-00", [
-            JITBACKENDONLYLINUXARM32,  # on hhu-arm
+            JITBACKENDONLYLINUXARMEL,  # on hhu-arm
             ], branch='arm-backend-2', hour=0, minute=0),
-        Nightly("nighly-arm-5-00", [
-            JITONLYLINUXARM32,                # on tannit-arm32, uses 4 cores ~ 2 hours
-            ], branch='arm-backend-2', hour=5, minute=0),
+        Nightly("nighly-arm-0-00", [
+            JITONLYLINUXARMEL,         # on hhu-qemu-armel
+            ], branch='arm-backend-2', hour=0, minute=0),
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
@@ -456,33 +455,31 @@ BuildmasterConfig = {
                    'category': 'linux-ppc64',
                   },
                   # ARM
-                  {"name": JITBACKENDONLYLINUXARM32,
-                   "slavenames": ['hhu-arm'],
-                   "builddir": JITBACKENDONLYLINUXARM32,
+                  # armel
+                  {"name": LINUXARMEL,
+                   "slavenames": ["hhu-qemu-armel"],
+                   "builddir": LINUXARMEL,
+                   "factory": pypyOwnTestFactory,
+                   "category": 'linux-armel',
+                  },
+                  {"name": JITONLYLINUXARMEL,
+                   "slavenames": ['hhu-qemu-armel'],
+                   "builddir": JITONLYLINUXARMEL,
+                   "factory": pypyJitOnlyOwnTestFactory,
+                   "category": 'linux-armel',
+                  },
+                  {"name": JITBACKENDONLYLINUXARMEL,
+                   "slavenames": ['hhu-arm', 'hhu-qemu-armel'],
+                   "builddir": JITBACKENDONLYLINUXARMEL,
                    "factory": pypyJitBackendOnlyOwnTestFactoryARM,
-                   "category": 'linux-arm32',
+                   "category": 'linux-armel',
                   },
-                  {"name": LINUXARMHF32,
+                  # armhf
+                  {"name": LINUXARMHF,
                    "slavenames": ["trystack-armhf"],
-                   "builddir": LINUXARMHF32,
+                   "builddir": LINUXARMHF,
                    "factory": pypyOwnTestFactory,
-                   "category": 'linux-armhf32',
-                  },
-                  {"name": LINUXARM32,
-                   "slavenames": ["tannit-arm32"],
-                   "builddir": LINUXARM32,
-                   "factory": pypyOwnTestFactory,
-                   "category": 'linux-arm32',
-                   # this build uses 4 CPUs
-                   "locks": [TannitCPU.access('exclusive')],
-                  },
-                  {"name": JITONLYLINUXARM32,
-                   "slavenames": ['tannit-arm32'],
-                   "builddir": JITONLYLINUXARM32,
-                   "factory": pypyJitOnlyOwnTestFactoryARM,
-                   "category": 'linux-arm32',
-                   # this build uses 4 CPUs
-                   "locks": [TannitCPU.access('exclusive')],
+                   "category": 'linux-armhf',
                   },
                 ],
 
