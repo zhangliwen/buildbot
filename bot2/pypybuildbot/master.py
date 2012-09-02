@@ -59,7 +59,9 @@ pypyOwnTestFactoryOSX32 = pypybuilds.Own(timeout=3*3600)
 
 # ARM own test factories, larger timeouts
 pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit/backend/",
-                                                                timeout=8*3600)
+                                                                timeout=6*3600)
+pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=6*3600)
+pypyOwnTestFactoryARM = pypybuilds.Own(timeout=6*3600)
 
 pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
                                                           app_tests=True)
@@ -457,13 +459,13 @@ BuildmasterConfig = {
                   {"name": LINUXARMEL,
                    "slavenames": ["hhu-qemu-armel"],
                    "builddir": LINUXARMEL,
-                   "factory": pypyOwnTestFactory,
+                   "factory": pypyOwnTestFactoryARM,
                    "category": 'linux-armel',
                   },
                   {"name": JITONLYLINUXARMEL,
                    "slavenames": ['hhu-qemu-armel'],
                    "builddir": JITONLYLINUXARMEL,
-                   "factory": pypyJitOnlyOwnTestFactory,
+                   "factory": pypyJitOnlyOwnTestFactoryARM,
                    "category": 'linux-armel',
                   },
                   {"name": JITBACKENDONLYLINUXARMEL,
