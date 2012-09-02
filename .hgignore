@@ -16,6 +16,8 @@ http.log*
 
 # ignore all the builders dir (which can be both in master/ and in slave/)
 *-arm-32
+*-armel*
+*-armhf*
 *-benchmark-x86-64
 *-freebsd-7-x86-64
 *-linux-x86-32
@@ -28,6 +30,7 @@ http.log*
 *-maemo
 *-maemo-build
 *-ppc-32
+*-ppc-64
 *-win-32
 *-win-x86-32
 *-win-x86-64
