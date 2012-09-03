@@ -49,7 +49,7 @@ status.putChild('numpy-status', NumpyStatusList(os.path.expanduser('~/numpy_comp
 pypybuilds = load('pypybuildbot.builds')
 TannitCPU = pypybuilds.TannitCPU
 WinLockCPU = pypybuilds.WinLockCPU
-ARMLockCPU = pypybuilds.WinLockCPU
+ARMLockCPU = pypybuilds.ARMLockCPU
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
