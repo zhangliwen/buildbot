@@ -49,6 +49,7 @@ status.putChild('numpy-status', NumpyStatusList(os.path.expanduser('~/numpy_comp
 pypybuilds = load('pypybuildbot.builds')
 TannitCPU = pypybuilds.TannitCPU
 WinLockCPU = pypybuilds.WinLockCPU
+ARMLockCPU = pypybuilds.WinLockCPU
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
@@ -461,15 +462,19 @@ BuildmasterConfig = {
                    "builddir": LINUXARMEL,
                    "factory": pypyOwnTestFactoryARM,
                    "category": 'linux-armel',
+                   # this build needs 2 CPUs
+                   "locks": [ARMLockCPU.access('exclusive')],
                   },
                   {"name": JITONLYLINUXARMEL,
                    "slavenames": ['hhu-qemu-armel'],
                    "builddir": JITONLYLINUXARMEL,
                    "factory": pypyJitOnlyOwnTestFactoryARM,
                    "category": 'linux-armel',
+                   # this build needs 2 CPUs
+                   "locks": [ARMLockCPU.access('exclusive')],
                   },
                   {"name": JITBACKENDONLYLINUXARMEL,
-                   "slavenames": ['hhu-arm', 'hhu-qemu-armel'],
+                   "slavenames": ['hhu-arm'],
                    "builddir": JITBACKENDONLYLINUXARMEL,
                    "factory": pypyJitBackendOnlyOwnTestFactoryARM,
                    "category": 'linux-armel',

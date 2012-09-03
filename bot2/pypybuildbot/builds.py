@@ -20,6 +20,7 @@ import os
 TannitCPU = locks.MasterLock('tannit_cpu', maxCount=6)
 SpeedPythonCPU = locks.MasterLock('speed_python_cpu', maxCount=24)
 WinLockCPU = locks.MasterLock('win_cpu', maxCount=1)
+ARMLockCPU = locks.MasterLock('arm_cpu', maxCount=2)
 
 
 class ShellCmd(shell.ShellCommand):
