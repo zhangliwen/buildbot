@@ -58,12 +58,6 @@ pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 # OSX 32bit tests require a larger timeout to finish
 pypyOwnTestFactoryOSX32 = pypybuilds.Own(timeout=3*3600)
 
-# ARM own test factories, larger timeouts
-pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit/backend/",
-                                                                timeout=6*3600)
-pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=6*3600)
-pypyOwnTestFactoryARM = pypybuilds.Own(timeout=6*3600)
-
 pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
                                                           app_tests=True)
 pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
@@ -168,6 +162,12 @@ cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
                                                           platform='linux64')
 
 
+# ARM own test factories
+# this one needs a larger timeout due to how it is run
+pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit/backend/",
+                                                                timeout=6*3600)
+pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=2*3600)
+pypyOwnTestFactoryARM = pypybuilds.Own(timeout=2*3600)
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 LINUXPPC64 = "own-linux-ppc-64"
