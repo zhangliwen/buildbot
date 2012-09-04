@@ -163,11 +163,35 @@ cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
 
 
 # ARM own test factories
+crosstranslationargs = ['--platform=arm', '--gcrootfinder=shadowstack']
+crosstranslationjitargs = ['--jit-backend=arm']
 # this one needs a larger timeout due to how it is run
 pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit/backend/",
                                                                 timeout=6*3600)
 pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=2*3600)
 pypyOwnTestFactoryARM = pypybuilds.Own(timeout=2*3600)
+pypyCrossTranslatedAppLevelTestFactoryARM = pypybuilds.Translated(
+    translationArgs=crosstranslationargs+['-O2'],
+    lib_python=True,
+    app_tests=True,
+    platform='linux-armel',
+    interpreter='pypy',
+    prefix='schroot -c precise_arm --')
+
+pypyJITCrossTranslatedTestFactoryARM = pypybuilds.Translated(
+    translationArgs=(crosstranslationargs
+                        +jit_translation_args
+                        +crosstranslationjitargs),
+    targetArgs=[],
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    platform='linux-armel',
+    interpreter='pypy',
+    prefix='schroot -c precise_arm --'
+    )
+#
+
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 LINUXPPC64 = "own-linux-ppc-64"
@@ -179,12 +203,14 @@ WIN32 = "own-win-x86-32"
 WIN64 = "own-win-x86-64"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
+APPLVLLINUXARM = "pypy-c-app-level-linux-armel"
 APPLVLLINUXPPC64 = "pypy-c-app-level-linux-ppc-64"
 
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
+JITLINUXARM = "pypy-c-jit-linux-armel"
 JITLINUXPPC64 = "pypy-c-jit-linux-ppc-64"
 OJITLINUX32 = "pypy-c-Ojit-no-jit-linux-x86-32"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
@@ -472,6 +498,20 @@ BuildmasterConfig = {
                    "category": 'linux-armel',
                    # this build needs 2 CPUs
                    "locks": [ARMLockCPU.access('exclusive')],
+                  },
+                  {"name": APPLVLLINUXARM,
+                   "slavenames": ["hhu-cross-armel"],
+                   "builddir": APPLVLLINUXARM,
+                   "factory": pypyCrossTranslatedAppLevelTestFactoryARM,
+                   "category": "linux-armel",
+                   "locks": [ARMLockCPU.access('counting')],
+                  },
+                  {"name" : JITLINUXARM,
+                   "slavenames": ["hhu-cross-armel"],
+                   'builddir' : JITLINUXARM,
+                   'factory' : pypyJITCrossTranslatedTestFactoryARM,
+                   'category' : 'linux-armel',
+                   "locks": [ARMLockCPU.access('counting')],
                   },
                   {"name": JITBACKENDONLYLINUXARMEL,
                    "slavenames": ['hhu-arm'],
