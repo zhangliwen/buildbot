@@ -267,15 +267,19 @@ class Own(factory.BuildFactory):
 
 
 class Translated(factory.BuildFactory):
+    prefix = []
 
     def __init__(self, platform='linux',
                  translationArgs=['-O2'], targetArgs=[],
                  app_tests=False,
                  interpreter='pypy',
                  lib_python=False,
-                 pypyjit=False
+                 pypyjit=False,
+                 **kwargs
                  ):
         factory.BuildFactory.__init__(self)
+        if 'prefix' in kwargs:
+           self.prefix = kwargs['prefix'].split()
 
         setup_steps(platform, self)
 
@@ -287,7 +291,7 @@ class Translated(factory.BuildFactory):
                 app_tests = []
             self.addStep(PytestCmd(
                 description="app-level (-A) test",
-                command=["python", "testrunner/runner.py",
+                command=self.prefix + ["python", "testrunner/runner.py",
                          "--logfile=pytest-A.log",
                          "--config=pypy/pytest-A.cfg",
                          "--root=pypy", "--timeout=1800"
@@ -299,7 +303,7 @@ class Translated(factory.BuildFactory):
         if lib_python:
             self.addStep(PytestCmd(
                 description="lib-python test",
-                command=["python", "pypy/test_all.py",
+                command=self.prefix + ["python", "pypy/test_all.py",
                          "--pypy=pypy/translator/goal/pypy-c",
                          "--resultlog=cpython.log", "lib-python"],
                 logfiles={'pytestLog': 'cpython.log'}))
@@ -310,7 +314,7 @@ class Translated(factory.BuildFactory):
             # "old" test_pypy_c
             self.addStep(PytestCmd(
                 description="pypyjit tests",
-                command=["python", "pypy/test_all.py",
+                command=self.prefix + ["python", "pypy/test_all.py",
                          "--pypy=pypy/translator/goal/pypy-c",
                          "--resultlog=pypyjit.log",
                          "pypy/module/pypyjit/test"],
@@ -323,7 +327,7 @@ class Translated(factory.BuildFactory):
                 cmd = 'pypy/translator/goal/pypy-c'
             self.addStep(PytestCmd(
                 description="pypyjit tests",
-                command=[cmd, "pypy/test_all.py",
+                command=self.prefix + [cmd, "pypy/test_all.py",
                          "--resultlog=pypyjit_new.log",
                          "pypy/module/pypyjit/test_pypy_c"],
                 logfiles={'pytestLog': 'pypyjit_new.log'}))
@@ -342,7 +346,7 @@ class Translated(factory.BuildFactory):
         name = 'pypy-c-' + kind + '-%(final_file_name)s-' + platform
         self.addStep(ShellCmd(
             description="compress pypy-c",
-            command=["python", "pypy/tool/release/package.py",
+            command=self.prefix + ["python", "pypy/tool/release/package.py",
                      ".", WithProperties(name), 'pypy',
                      '.'],
             workdir='build'))
