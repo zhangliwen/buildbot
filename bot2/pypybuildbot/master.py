@@ -301,7 +301,7 @@ BuildmasterConfig = {
             APPLVLLINUXARM,            # on hhu-cross-arm, uses 1 core ~ 5 hours
             JITLINUXARM,               # on hhu-cross-arm, uses 1 core ~ 5 hours
             JITONLYLINUXARMEL,         # on hhu-qemu-armel
-            ], hour=0, minute=0),
+            ], branch=None, hour=0, minute=0),
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
