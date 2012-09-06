@@ -1,11 +1,15 @@
+Flask==0.9
 Jinja2==2.6
 SQLAlchemy==0.7.8
 Tempita==0.5.1
 Twisted==8.2.0
+Werkzeug==0.8.3
 argparse==1.2.1
 buildbot==0.8.4
+buildbot-slave==0.8.6p1
 decorator==3.3.3
 py==1.4.9
+pytest==2.2.4
 sqlalchemy-migrate==0.6
 wsgiref==0.1.2
 zope.interface==4.0.1
