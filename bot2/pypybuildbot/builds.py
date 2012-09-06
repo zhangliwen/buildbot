@@ -362,6 +362,46 @@ class Translated(factory.BuildFactory):
                                 workdir='.',
                                 blocksize=100 * 1024))
 
+class NightlyBuild(factory.BuildFactory):
+    def __init__(self, platform='linux',
+                 translationArgs=['-O2'], targetArgs=[],
+                 interpreter='pypy',
+                 prefix=[]
+                 ):
+        factory.BuildFactory.__init__(self)
+
+        setup_steps(platform, self)
+
+        self.addStep(Translate(translationArgs, targetArgs,
+                               interpreter=interpreter))
+        if '--no-translation-jit' in translationArgs:
+            kind = 'jitnojit'
+        elif '--stackless' in translationArgs:
+            kind = 'stackless'
+        elif '-Ojit' in translationArgs:
+            kind = 'jit'
+        elif '-O2' in translationArgs:
+            kind = 'nojit'
+        else:
+            kind = 'unknown'
+        name = 'pypy-c-' + kind + '-%(final_file_name)s-' + platform
+        self.addStep(ShellCmd(
+            description="compress pypy-c",
+            command=prefix + ["python", "pypy/tool/release/package.py",
+                     ".", WithProperties(name), 'pypy',
+                     '.'],
+            workdir='build'))
+        nightly = '~/nightly/'
+        if platform == "win32":
+            extension = ".zip"
+        else:
+            extension = ".tar.bz2"
+        pypy_c_rel = "build/" + name + extension
+        self.addStep(PyPyUpload(slavesrc=WithProperties(pypy_c_rel),
+                                masterdest=WithProperties(nightly),
+                                basename=name + extension,
+                                workdir='.',
+                                blocksize=100 * 1024))
 
 class JITBenchmark(factory.BuildFactory):
     def __init__(self, platform='linux', host='tannit', postfix=''):
