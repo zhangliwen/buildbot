@@ -70,6 +70,32 @@ class PyPyUpload(transfer.FileUpload):
         except OSError:
             pass
 
+class PyPyDownload(transfer.FileDownload):
+    parms = transfer.FileDownload.parms + ['basename']
+
+    def start(self):
+
+        properties = self.build.getProperties()
+        branch = properties['branch']
+        revision = properties['revision']
+
+        if branch is None:
+            branch = 'trunk'
+        mastersrc = os.path.expanduser(self.mastersrc)
+
+        if branch.startswith('/'):
+            branch = branch[1:]
+        mastersrc = os.path.join(mastersrc, branch)
+        if revision is not None:
+            basename = WithProperties(self.basename).getRenderingFor(self.build)
+        else:
+            basename = self.basename.replace('%(final_file_name)s', 'latest')
+            assert '%' not in basename
+
+        self.mastersrc = os.path.join(mastersrc, basename)
+        #
+        transfer.FileDownload.start(self)
+
 class NumpyStatusUpload(transfer.FileUpload):
     def finished(self, *args, **kwds):
         transfer.FileUpload.finished(self, *args, **kwds)
