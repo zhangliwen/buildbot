@@ -268,8 +268,70 @@ def setup_steps(platform, factory, workdir=None,
               force_branch=force_branch)
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
+def build_name(platform, jit, flags):
+    if jit:
+        kind = 'jit'
+    else:
+        if '--stackless' in flags:
+            kind = 'stackless'
+        elif '-Ojit' in flags:
+            kind = 'jitnojit'
+        elif '-O2' in flags:
+            kind = 'nojit'
+        else:
+            kind = 'unknown'
+    return 'pypy-c-' + kind + '-%(final_file_name)s-' + platform
 
 
+def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyjit):
+    if app_tests:
+        if app_tests == True:
+            app_tests = []
+        factory.addStep(PytestCmd(
+            description="app-level (-A) test",
+            command=prefix + ["python", "testrunner/runner.py",
+                     "--logfile=pytest-A.log",
+                     "--config=pypy/pytest-A.cfg",
+                     "--root=pypy", "--timeout=1800"
+                     ] + ["--config=%s" % cfg for cfg in app_tests],
+            logfiles={'pytestLog': 'pytest-A.log'},
+            timeout=4000,
+            env={"PYTHONPATH": ['.']}))
+
+    if lib_python:
+        factory.addStep(PytestCmd(
+            description="lib-python test",
+            command=prefix + ["python", "pypy/test_all.py",
+                     "--pypy=pypy/translator/goal/pypy-c",
+                     "--resultlog=cpython.log", "lib-python"],
+            logfiles={'pytestLog': 'cpython.log'}))
+
+    if pypyjit:
+        # kill this step when the transition to test_pypy_c_new has been
+        # completed
+        # "old" test_pypy_c
+        factory.addStep(PytestCmd(
+            description="pypyjit tests",
+            command=prefix + ["python", "pypy/test_all.py",
+                     "--pypy=pypy/translator/goal/pypy-c",
+                     "--resultlog=pypyjit.log",
+                     "pypy/module/pypyjit/test"],
+            logfiles={'pytestLog': 'pypyjit.log'}))
+        #
+        # "new" test_pypy_c
+        if platform == 'win32':
+            cmd = r'pypy\translator\goal\pypy-c'
+        else:
+            cmd = 'pypy/translator/goal/pypy-c'
+        factory.addStep(PytestCmd(
+            description="pypyjit tests",
+            command=prefix + [cmd, "pypy/test_all.py",
+                     "--resultlog=pypyjit_new.log",
+                     "pypy/module/pypyjit/test_pypy_c"],
+            logfiles={'pytestLog': 'pypyjit_new.log'}))
+
+
+# ----
 class Own(factory.BuildFactory):
 
     def __init__(self, platform='linux', cherrypick='', extra_cfgs=[], **kwargs):
@@ -312,64 +374,10 @@ class Translated(factory.BuildFactory):
 
         self.addStep(Translate(translationArgs, targetArgs,
                                interpreter=interpreter))
-        if app_tests:
-            if app_tests == True:
-                app_tests = []
-            self.addStep(PytestCmd(
-                description="app-level (-A) test",
-                command=prefix + ["python", "testrunner/runner.py",
-                         "--logfile=pytest-A.log",
-                         "--config=pypy/pytest-A.cfg",
-                         "--root=pypy", "--timeout=1800"
-                         ] + ["--config=%s" % cfg for cfg in app_tests],
-                logfiles={'pytestLog': 'pytest-A.log'},
-                timeout=4000,
-                env={"PYTHONPATH": ['.']}))
 
-        if lib_python:
-            self.addStep(PytestCmd(
-                description="lib-python test",
-                command=prefix + ["python", "pypy/test_all.py",
-                         "--pypy=pypy/translator/goal/pypy-c",
-                         "--resultlog=cpython.log", "lib-python"],
-                logfiles={'pytestLog': 'cpython.log'}))
+        add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
 
-        if pypyjit:
-            # kill this step when the transition to test_pypy_c_new has been
-            # completed
-            # "old" test_pypy_c
-            self.addStep(PytestCmd(
-                description="pypyjit tests",
-                command=prefix + ["python", "pypy/test_all.py",
-                         "--pypy=pypy/translator/goal/pypy-c",
-                         "--resultlog=pypyjit.log",
-                         "pypy/module/pypyjit/test"],
-                logfiles={'pytestLog': 'pypyjit.log'}))
-            #
-            # "new" test_pypy_c
-            if platform == 'win32':
-                cmd = r'pypy\translator\goal\pypy-c'
-            else:
-                cmd = 'pypy/translator/goal/pypy-c'
-            self.addStep(PytestCmd(
-                description="pypyjit tests",
-                command=prefix + [cmd, "pypy/test_all.py",
-                         "--resultlog=pypyjit_new.log",
-                         "pypy/module/pypyjit/test_pypy_c"],
-                logfiles={'pytestLog': 'pypyjit_new.log'}))
-
-        if pypyjit:
-            kind = 'jit'
-        else:
-            if '--stackless' in translationArgs:
-                kind = 'stackless'
-            elif '-Ojit' in translationArgs:
-                kind = 'jitnojit'
-            elif '-O2' in translationArgs:
-                kind = 'nojit'
-            else:
-                kind = 'unknown'
-        name = 'pypy-c-' + kind + '-%(final_file_name)s-' + platform
+        name = build_name(platform, pypyjit, translationArgs)
         self.addStep(ShellCmd(
             description="compress pypy-c",
             command=prefix + ["python", "pypy/tool/release/package.py",
