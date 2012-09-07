@@ -251,8 +251,8 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
                                        force_branch=force_branch))
     else:
         factory.addStep(ShellCmd(description="hg update",
-                                 command="hg update --clean",
-                                 workdir=workdir))
+                command=WithProperties("hg update --clean %(revision)s"),
+                workdir=workdir))
 
 
 def setup_steps(platform, factory, workdir=None,
@@ -268,6 +268,7 @@ def setup_steps(platform, factory, workdir=None,
               force_branch=force_branch)
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
+
 def build_name(platform, jit, flags):
     if jit:
         kind = 'jit'
@@ -281,7 +282,6 @@ def build_name(platform, jit, flags):
         else:
             kind = 'unknown'
     return 'pypy-c-' + kind + '-%(final_file_name)s-' + platform
-
 
 def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyjit):
     if app_tests:
