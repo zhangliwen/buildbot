@@ -166,9 +166,13 @@ cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
 crosstranslationargs = ['--platform=arm', '--gcrootfinder=shadowstack']
 crosstranslationjitargs = ['--jit-backend=arm']
 # this one needs a larger timeout due to how it is run
-pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit/backend/",
-                                                                timeout=6*3600)
-pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=2*3600)
+pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(
+        cherrypick=':'.join(["jit/backend/arm",
+                            "jit/backend/llsupport",
+                            "jit/backend/test",  # kill this one in case it is too slow
+                            ]),
+        timeout=6 * 3600)
+pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=2 * 3600)
 pypyOwnTestFactoryARM = pypybuilds.Own(timeout=2*3600)
 pypyCrossTranslatedAppLevelTestFactoryARM = pypybuilds.Translated(
     translationArgs=crosstranslationargs+['-O2'],
