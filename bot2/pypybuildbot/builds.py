@@ -396,6 +396,59 @@ class Translated(factory.BuildFactory):
                                 workdir='.',
                                 blocksize=100 * 1024))
 
+class TranslatedTests(factory.BuildFactory):
+
+    def __init__(self, platform='linux',
+                 app_tests=False,
+                 lib_python=False,
+                 pypyjit=False,
+                 prefix=None,
+                 translationArgs=[]
+                 ):
+        factory.BuildFactory.__init__(self)
+        if prefix is not None:
+            prefix = prefix.split()
+        else:
+            prefix = []
+
+        # XXX extend to checkout the specific revision of the build
+        setup_steps(platform, self)
+
+        # download corresponding nightly build
+        self.addStep(ShellCmd(
+            description="Clear pypy-c",
+            command= ['rm', '-rf', 'pypy-c'],
+            workdir='.'))
+
+        if platform == "win32":
+            extension = ".zip"
+        else:
+            extension = ".tar.bz2"
+        name = build_name(platform, pypyjit, translationArgs) + extension
+        self.addStep(PyPyDownload(
+            basename=name,
+            mastersrc='~/nightly',
+            slavedest=WithProperties(name),
+            workdir='pypy-c'))
+
+        # extract downloaded file
+        if platform.startswith('win'):
+            raise NotImplementedError
+        else:
+            self.addStep(ShellCmd(
+                description="decompress pypy-c",
+                command=['tar', '--extract', WithProperties('--file='+name), '--strip-components=1', '--directory=.'],
+                workdir='pypy-c'))
+
+        # copy pypy-c to the expected location within the pypy source checkout  
+        self.addStep(ShellCmd(
+            description="move pypy-c",
+            command=['cp', 'pypy-c/bin/pypy', 'build/pypy/translator/goal/pypy-c'],
+            workdir='.'))
+
+        add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
+
+
 class NightlyBuild(factory.BuildFactory):
     def __init__(self, platform='linux',
                  translationArgs=['-O2'], targetArgs=[],
