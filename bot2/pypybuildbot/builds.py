@@ -458,7 +458,8 @@ class NightlyBuild(factory.BuildFactory):
     def __init__(self, platform='linux',
                  translationArgs=['-O2'], targetArgs=[],
                  interpreter='pypy',
-                 prefix=[]
+                 prefix=[],
+                 trigger=None,
                  ):
         factory.BuildFactory.__init__(self)
 
@@ -494,6 +495,8 @@ class NightlyBuild(factory.BuildFactory):
                                 basename=name + extension,
                                 workdir='.',
                                 blocksize=100 * 1024))
+        if trigger: # if provided trigger schedulers that are depend on this one
+            self.addStep(Trigger(schedulerNames=[trigger]))
 
 class JITBenchmark(factory.BuildFactory):
     def __init__(self, platform='linux', host='tannit', postfix=''):
