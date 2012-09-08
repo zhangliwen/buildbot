@@ -1,5 +1,6 @@
 from buildbot.process import factory
 from buildbot.steps import shell, transfer
+from buildbot.steps.trigger import Trigger
 from buildbot.process.properties import WithProperties
 from buildbot import locks
 from pypybuildbot.util import symlink_force
@@ -22,6 +23,10 @@ SpeedPythonCPU = locks.MasterLock('speed_python_cpu', maxCount=24)
 WinLockCPU = locks.MasterLock('win_cpu', maxCount=1)
 ARMCrossLock = locks.MasterLock('arm_cpu', maxCount=2)
 
+
+# XXX monkey patch Trigger class, there are to issues with the list of renderables
+# original: Trigger.renderables = [ 'set_propetries', 'scheduler', 'sourceStamp' ]
+Trigger.renderables = [ 'set_properties', 'schedulerNames', 'sourceStamp' ]
 
 class ShellCmd(shell.ShellCommand):
     # our own version that can distinguish abort cases (rc == -1)
