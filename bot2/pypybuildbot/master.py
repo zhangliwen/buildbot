@@ -211,7 +211,7 @@ LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 LINUXPPC64 = "own-linux-ppc-64"
 
-MACOSX32 =  "own-macosx-x86-32"
+MACOSX32 = "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
 WIN64 = "own-win-x86-64"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
@@ -248,37 +248,6 @@ BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
     'change_source': [],
-    ## 'schedulers': [
-    ##     Nightly("nightly-0-00", [
-    ##         JITBENCH,  # on tannit -- nothing else there during first round!
-    ##         MACOSX32,                  # on minime
-    ##         ], hour=0, minute=0),
-    ##     Nightly("nighly-2-00", [
-    ##         JITBENCH64, # on tannit -- nothing else there during first round!
-    ##         ], hour=2, minute=0),
-    ##     Nightly("nightly-4-00", [
-    ##         # rule: what we pick here on tannit should take at most 8 cores
-    ##         # and be hopefully finished after 2 hours
-    ##         LINUX32,                   # on tannit32, uses 4 cores
-    ##         JITLINUX32,                # on tannit32, uses 1 core
-    ##         JITLINUX64,                # on tannit64, uses 1 core
-    ##         OJITLINUX32,               # on tannit32, uses 1 core
-    ##         JITWIN32,                  # on aurora
-    ##         STACKLESSAPPLVLFREEBSD64,  # on headless
-    ##         JITMACOSX64,               # on mvt's machine
-    ##         ], hour=4, minute=0),
-    ##     Nightly("nightly-6-00", [
-    ##         # there should be only JITLINUX32 that takes a bit longer than
-    ##         # that.  We can use a few more cores now.
-    ##         APPLVLLINUX32,           # on tannit32, uses 1 core
-    ##         APPLVLLINUX64,           # on tannit64, uses 1 core
-    ##         STACKLESSAPPLVLLINUX32,  # on tannit32, uses 1 core
-    ##         ], hour=6, minute=0),
-    ##     Nightly("nightly-7-00", [
-    ##         # the remaining quickly-run stuff on tannit
-    ##         LINUX64,                 # on tannit64, uses 4 cores
-    ##         ], hour=7, minute=0),
-    ## ],
 
     'schedulers': [
         # first of all, we run the benchmarks: the two translations take ~2800
@@ -482,31 +451,31 @@ BuildmasterConfig = {
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'
                    },
-                   # PPC
+                  # PPC
                   {"name": LINUXPPC64,
                    "slavenames": ["gcc1"],
                    "builddir": LINUXPPC64,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux-ppc64',
-                  },
+                   },
                   {"name": JITONLYLINUXPPC64,
                    "slavenames": ['gcc1'],
                    "builddir": JITONLYLINUXPPC64,
                    "factory": pypyJitOnlyOwnTestFactory,
                    "category": 'linux-ppc64',
-                  },
+                   },
                   {"name": APPLVLLINUXPPC64,
                    "slavenames": ["gcc1"],
                    "builddir": APPLVLLINUXPPC64,
                    "factory": pypyTranslatedAppLevelTestFactoryPPC64,
                    "category": "linux-ppc64",
-                  },
+                   },
                   {'name': JITLINUXPPC64,
                    'slavenames': ['gcc1'],
                    'builddir': JITLINUXPPC64,
                    'factory': pypyJITTranslatedTestFactoryPPC64,
                    'category': 'linux-ppc64',
-                  },
+                   },
                   # ARM
                   # armel
                   {"name": JITBACKENDONLYLINUXARMELXDIST,
