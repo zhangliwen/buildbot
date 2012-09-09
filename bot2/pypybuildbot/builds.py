@@ -21,7 +21,14 @@ import os
 TannitCPU = locks.MasterLock('tannit_cpu', maxCount=6)
 SpeedPythonCPU = locks.MasterLock('speed_python_cpu', maxCount=24)
 WinLockCPU = locks.MasterLock('win_cpu', maxCount=1)
-ARMCrossLock = locks.MasterLock('arm_cpu', maxCount=2)
+
+# The cross translation machine can accomodate 2 jobs at the same time
+ARMCrossLock = locks.SlaveLock('arm_cpu', maxCount=2)
+# while the boards can only run one job at the same time
+ARMBoardLock = locks.SlaveLock('arm_boards', maxCount=1)
+# and the builder using xdist uses both boards and needs exclusive access to this lock
+ARMXdistLock = locks.MasterLock('arm_xdist', maxCount=2)
+
 
 
 # XXX monkey patch Trigger class, there are to issues with the list of renderables
