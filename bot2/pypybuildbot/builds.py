@@ -467,17 +467,7 @@ class NightlyBuild(factory.BuildFactory):
 
         self.addStep(Translate(translationArgs, targetArgs,
                                interpreter=interpreter))
-        if '--no-translation-jit' in translationArgs:
-            kind = 'jitnojit'
-        elif '--stackless' in translationArgs:
-            kind = 'stackless'
-        elif '-Ojit' in translationArgs:
-            kind = 'jit'
-        elif '-O2' in translationArgs:
-            kind = 'nojit'
-        else:
-            kind = 'unknown'
-        name = 'pypy-c-' + kind + '-%(final_file_name)s-' + platform
+        name = build_name(platform, pypyjit, translationArgs) + extension
         self.addStep(ShellCmd(
             description="compress pypy-c",
             command=prefix + ["python", "pypy/tool/release/package.py",
