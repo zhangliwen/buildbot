@@ -281,8 +281,8 @@ def setup_steps(platform, factory, workdir=None,
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
 
-def build_name(platform, jit, flags):
-    if jit:
+def build_name(platform, jit=False, flags=[]):
+    if jit or '-Ojit' in flags:
         kind = 'jit'
     else:
         if '--stackless' in flags:
@@ -294,6 +294,13 @@ def build_name(platform, jit, flags):
         else:
             kind = 'unknown'
     return 'pypy-c-' + kind + '-%(final_file_name)s-' + platform
+
+
+def get_extension(platform):
+    if platform == "win32":
+        return ".zip"
+    else:
+        return ".tar.bz2"
 
 def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyjit):
     if app_tests:
@@ -397,10 +404,7 @@ class Translated(factory.BuildFactory):
                      '.'],
             workdir='build'))
         nightly = '~/nightly/'
-        if platform == "win32":
-            extension = ".zip"
-        else:
-            extension = ".tar.bz2"
+        extension = get_extension(platform)
         pypy_c_rel = "build/" + name + extension
         self.addStep(PyPyUpload(slavesrc=WithProperties(pypy_c_rel),
                                 masterdest=WithProperties(nightly),
@@ -431,11 +435,7 @@ class TranslatedTests(factory.BuildFactory):
             description="Clear pypy-c",
             command= ['rm', '-rf', 'pypy-c'],
             workdir='.'))
-
-        if platform == "win32":
-            extension = ".zip"
-        else:
-            extension = ".tar.bz2"
+        extension = get_extension(platform)
         name = build_name(platform, pypyjit, translationArgs) + extension
         self.addStep(PyPyDownload(
             basename=name,
@@ -474,7 +474,7 @@ class NightlyBuild(factory.BuildFactory):
 
         self.addStep(Translate(translationArgs, targetArgs,
                                interpreter=interpreter))
-        name = build_name(platform, pypyjit, translationArgs) + extension
+        name = build_name(platform, flags=translationArgs)
         self.addStep(ShellCmd(
             description="compress pypy-c",
             command=prefix + ["python", "pypy/tool/release/package.py",
@@ -482,10 +482,7 @@ class NightlyBuild(factory.BuildFactory):
                      '.'],
             workdir='build'))
         nightly = '~/nightly/'
-        if platform == "win32":
-            extension = ".zip"
-        else:
-            extension = ".tar.bz2"
+        extension = get_extension(platform)
         pypy_c_rel = "build/" + name + extension
         self.addStep(PyPyUpload(slavesrc=WithProperties(pypy_c_rel),
                                 masterdest=WithProperties(nightly),
