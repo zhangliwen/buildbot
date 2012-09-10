@@ -287,8 +287,8 @@ BuildmasterConfig = {
             ], branch='ppc-jit-backend', hour=1, minute=0),
         # 
         Nightly("nighly-arm-0-00", [
-            BUILDLINUXARM,                 # on hhu-cross-arm, uses 1 core
-            BUILDJITLINUXARM,              # on hhu-cross-arm, uses 1 core
+            BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
+            BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
             JITBACKENDONLYLINUXARMEL,      # on hhu-beagleboard or hhu-imx.53
             JITBACKENDONLYLINUXARMELXDIST, # on hhu-arm, uses hhu-beagleboard or hhu-imx.53
             ], branch=None, hour=0, minute=0),
@@ -509,14 +509,14 @@ BuildmasterConfig = {
                    },
                   # Translation Builders for ARM
                   {"name": BUILDLINUXARM,
-                   "slavenames": ['hhu-cross-arm'],
+                   "slavenames": ['hhu-cross-armel'],
                    "builddir": BUILDLINUXARM,
                    "factory": pypyCrossTranslationFactoryARM,
                    "category": 'linux-armel',
                    "locks": [ARMCrossLock.access('counting')],
                    },
                   {"name": BUILDJITLINUXARM,
-                   "slavenames": ['hhu-cross-arm'],
+                   "slavenames": ['hhu-cross-armel'],
                    "builddir": BUILDJITLINUXARM,
                    "factory": pypyJITCrossTranslationFactoryARM,
                    "category": 'linux-armel',
