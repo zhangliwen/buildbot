@@ -100,8 +100,9 @@ class PyPyDownload(transfer.FileDownload):
         mastersrc = os.path.join(mastersrc, branch)
         if revision is not None:
             basename = WithProperties(self.basename).getRenderingFor(self.build)
+            basename = basename.replace(':', '-')
         else:
-            basename = self.basename.replace('%(final_file_name)s', 'latest')
+            basename = self.basename.replace('%(revision)s', 'latest')
             assert '%' not in basename
 
         self.mastersrc = os.path.join(mastersrc, basename)
@@ -281,7 +282,9 @@ def setup_steps(platform, factory, workdir=None,
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
 
-def build_name(platform, jit=False, flags=[]):
+def build_name(platform, jit=False, flags=[], placeholder=None):
+    if placeholder is None:
+        placeholder = '%(final_file_name)s'
     if jit or '-Ojit' in flags:
         kind = 'jit'
     else:
@@ -293,7 +296,7 @@ def build_name(platform, jit=False, flags=[]):
             kind = 'nojit'
         else:
             kind = 'unknown'
-    return 'pypy-c-' + kind + '-%(final_file_name)s-' + platform
+    return 'pypy-c-' + kind + '-%s-' % (placeholder,) + platform
 
 
 def get_extension(platform):
@@ -436,7 +439,7 @@ class TranslatedTests(factory.BuildFactory):
             command= ['rm', '-rf', 'pypy-c'],
             workdir='.'))
         extension = get_extension(platform)
-        name = build_name(platform, pypyjit, translationArgs) + extension
+        name = build_name(platform, pypyjit, translationArgs, placeholder='%(revision)s') + extension
         self.addStep(PyPyDownload(
             basename=name,
             mastersrc='~/nightly',
