@@ -443,7 +443,7 @@ class TranslatedTests(factory.BuildFactory):
         self.addStep(PyPyDownload(
             basename=name,
             mastersrc='~/nightly',
-            slavedest=WithProperties(name),
+            slavedest='pypy_build' + extension,
             workdir='pypy-c'))
 
         # extract downloaded file
@@ -452,7 +452,7 @@ class TranslatedTests(factory.BuildFactory):
         else:
             self.addStep(ShellCmd(
                 description="decompress pypy-c",
-                command=['tar', '--extract', WithProperties('--file='+name), '--strip-components=1', '--directory=.'],
+                command=['tar', '--extract', '--file=pypy_build'+ extension, '--strip-components=1', '--directory=.'],
                 workdir='pypy-c'))
 
         # copy pypy-c to the expected location within the pypy source checkout  
