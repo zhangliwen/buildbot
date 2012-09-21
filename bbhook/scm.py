@@ -1,7 +1,7 @@
 import sys
 from subprocess import Popen, PIPE
 
-MAX_DIFF_LINES = 10000
+MAX_DIFF_LINES = 2000
 
 def _hgexe(argv):
     proc = Popen(['hg'] + list(argv), stdout=PIPE, stderr=PIPE)
