@@ -415,7 +415,11 @@ class Translated(factory.BuildFactory):
                                 workdir='.',
                                 blocksize=100 * 1024))
 
+
 class TranslatedTests(factory.BuildFactory):
+    '''
+    Download a pypy nightly build and run the app-level tests on the binary
+    '''
 
     def __init__(self, platform='linux',
                  app_tests=False,
@@ -455,10 +459,15 @@ class TranslatedTests(factory.BuildFactory):
                 command=['tar', '--extract', '--file=pypy_build'+ extension, '--strip-components=1', '--directory=.'],
                 workdir='pypy-c'))
 
-        # copy pypy-c to the expected location within the pypy source checkout  
+        # copy pypy-c to the expected location within the pypy source checkout
         self.addStep(ShellCmd(
             description="move pypy-c",
-            command=['cp', 'pypy-c/bin/pypy', 'build/pypy/translator/goal/pypy-c'],
+            command=['cp', '-v', 'pypy-c/bin/pypy', 'build/pypy/translator/goal/pypy-c'],
+            workdir='.'))
+        # copy generated and copied header files
+        self.addStep(ShellCmd(
+            description="move header files",
+            command=['cp', '-vr', 'pypy-c/include/', 'build/include/'],
             workdir='.'))
 
         add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
