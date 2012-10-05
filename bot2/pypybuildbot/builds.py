@@ -464,10 +464,10 @@ class TranslatedTests(factory.BuildFactory):
             description="move pypy-c",
             command=['cp', '-v', 'pypy-c/bin/pypy', 'build/pypy/translator/goal/pypy-c'],
             workdir='.'))
-        # copy generated and copied header files
+        # copy generated and copied header files to build/include
         self.addStep(ShellCmd(
             description="move header files",
-            command=['cp', '-vr', 'pypy-c/include/', 'build/include/'],
+            command=['cp', '-vr', 'pypy-c/include', 'build'],
             workdir='.'))
 
         add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
