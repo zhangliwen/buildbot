@@ -804,6 +804,8 @@ class Summary(HtmlResource):
                 branch_key = (len(self.branch_order_prefixes)+1, branch)
         for i, catprefix in enumerate(self.categories):
             if category.startswith(catprefix):
+                # kill '-' to make 'linux32' sort before 'linux-armel'
+                category = category.replace('-', '')
                 break
         else:
             i = len(self.categories)
