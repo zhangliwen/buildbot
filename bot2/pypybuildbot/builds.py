@@ -440,7 +440,7 @@ class TranslatedTests(factory.BuildFactory):
         # download corresponding nightly build
         self.addStep(ShellCmd(
             description="Clear pypy-c",
-            command= ['rm', '-rf', 'pypy-c'],
+            command=['rm', '-rf', 'pypy-c'],
             workdir='.'))
         extension = get_extension(platform)
         name = build_name(platform, pypyjit, translationArgs, placeholder='%(revision)s') + extension
@@ -468,6 +468,11 @@ class TranslatedTests(factory.BuildFactory):
         self.addStep(ShellCmd(
             description="move header files",
             command=['cp', '-vr', 'pypy-c/include', 'build'],
+            workdir='.'))
+        # copy ctypes_resource_cache generated during translation
+        self.addStep(ShellCmd(
+            description="move ctypes resource cache",
+            command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy'],
             workdir='.'))
 
         add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
