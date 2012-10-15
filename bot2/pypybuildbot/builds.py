@@ -325,7 +325,9 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             description="lib-python test",
             command=prefix + ["python", "pypy/test_all.py",
                      "--pypy=pypy/translator/goal/pypy-c",
+                     "--timeout=1800",
                      "--resultlog=cpython.log", "lib-python"],
+            timeout=4000,
             logfiles={'pytestLog': 'cpython.log'}))
 
     if pypyjit:
