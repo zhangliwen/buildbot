@@ -249,37 +249,37 @@ BuildmasterConfig = {
     'change_source': [],
 
     'schedulers': [
-        # first of all, we run the benchmarks: the two translations take ~2800
-        # seconds and are executed in parallel. Running benchmarks takes ~3400
-        # seconds and is executed sequentially. In total, 2800 + (3300*2) ~=
-        # 160 minutes
+        # the benchmarks run on tannit and speed.python.org.
+        # All the other linux tests run on allegro
         Nightly("nightly-0-00", [
+            # benchmarks
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
             CPYTHON_64,                # on speed.python.org, uses 1 core (in part exclusively)
+
+            # linux tests
+            LINUX32,                   # on allegro32, uses 4 cores
+            LINUX64,                   # on allegro64, uses 4 cores
+            JITLINUX32,                # on allegro32, uses 1 core
+            JITLINUX64,                # on allegro64, uses 1 core
+            OJITLINUX32,               # on allegro32, uses 1 core
+            APPLVLLINUX32,             # on allegro32, uses 1 core
+            APPLVLLINUX64,             # on allegro64, uses 1 core
+
+            # other platforms
             MACOSX32,                  # on minime
-            ], branch=None, hour=0, minute=0),
-        #
-        # then, we schedule all the rest. The locks will take care not to run
-        # all of them in parallel
-        Nightly("nighly-3-00", [
-            LINUX32,                   # on tannit32, uses 4 cores
-            LINUX64,                   # on tannit64, uses 4 cores
-            JITLINUX32,                # on tannit32, uses 1 core
-            JITLINUX64,                # on tannit64, uses 1 core
-            OJITLINUX32,               # on tannit32, uses 1 core
-            APPLVLLINUX32,             # on tannit32, uses 1 core
-            APPLVLLINUX64,             # on tannit64, uses 1 core
-            #
             JITWIN32,                  # on aurora
             #JITFREEBSD64,              # on headless
             JITMACOSX64,               # on mvt's machine
-            ], branch=None, hour=3, minute=0),
+            ], branch=None, hour=0, minute=0),
 
-        Nightly("nighly-4-00-py3k", [
-            LINUX32,                   # on tannit32, uses 4 cores
-            ], branch='py3k', hour=4, minute=0),
+        Nightly("nighly-0-00-py3k", [
+            LINUX32,
+            LINUX64,
+            APPLVLLINUX32,
+            APPLVLLINUX64,
+            ], branch='py3k', hour=0, minute=0),
         #
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
@@ -308,7 +308,7 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": LINUX32,
-                   "slavenames": ["allegro32", "tannit32"],
+                   "slavenames": ["allegro32"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux32',
@@ -316,7 +316,7 @@ BuildmasterConfig = {
                    #"locks": [TannitCPU.access('exclusive')],
                   },
                   {"name": LINUX64,
-                   "slavenames": ["allegro64", "tannit64"],
+                   "slavenames": ["allegro64"],
                    "builddir": LINUX64,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux64',
@@ -324,35 +324,35 @@ BuildmasterConfig = {
                    #"locks": [TannitCPU.access('exclusive')],
                   },
                   {"name": APPLVLLINUX32,
-                   "slavenames": ["allegro32", "tannit32"],
+                   "slavenames": ["allegro32"],
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
                    'category': 'linux32',
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name": APPLVLLINUX64,
-                   "slavenames": ["allegro64", "tannit64"],
+                   "slavenames": ["allegro64"],
                    "builddir": APPLVLLINUX64,
                    "factory": pypyTranslatedAppLevelTestFactory64,
                    "category": "linux64",
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name": OJITLINUX32,
-                   "slavenames": ["allegro32", "tannit32"],
+                   "slavenames": ["allegro32"],
                    "builddir": OJITLINUX32,
                    "factory": pypy_OjitTranslatedTestFactory,
                    "category": 'linux32',
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name" : JITLINUX32,
-                   "slavenames": ["allegro32", "tannit32"],
+                   "slavenames": ["allegro32"],
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'linux32',
                    #"locks": [TannitCPU.access('counting')],
                    },
                   {'name': JITLINUX64,
-                   'slavenames': ["allegro64", 'tannit64'],
+                   'slavenames': ["allegro64"],
                    'builddir': JITLINUX64,
                    'factory': pypyJITTranslatedTestFactory64,
                    'category': 'linux64',
