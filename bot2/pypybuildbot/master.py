@@ -66,6 +66,15 @@ pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
                                                             app_tests=True,
                                                             platform='linux64')
 
+# these are like the two above: the only difference is that they only run
+# lib-python tests,not -A tests
+pypyTranslatedLibPythonTestFactory = pypybuilds.Translated(lib_python=True,
+                                                          app_tests=False)
+pypyTranslatedLibPythonTestFactory64 = pypybuilds.Translated(lib_python=True,
+                                                            app_tests=False,
+                                                            platform='linux64')
+
+
 pypyTranslatedAppLevelTestFactoryPPC64 = pypybuilds.Translated(
         lib_python=True,
         app_tests=True,
@@ -218,8 +227,10 @@ APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
 APPLVLLINUXARM = "pypy-c-app-level-linux-armel"
 APPLVLLINUXPPC64 = "pypy-c-app-level-linux-ppc-64"
-
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
+
+LIBPYTHON_LINUX32 = "pypy-c-lib-python-linux-x86-32"
+LIBPYTHON_LINUX64 = "pypy-c-lib-python-linux-x86-64"
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
@@ -277,8 +288,8 @@ BuildmasterConfig = {
         Nightly("nighly-0-00-py3k", [
             LINUX32,
             LINUX64,
-            APPLVLLINUX32,
-            APPLVLLINUX64,
+            LIBPYTHON_LINUX32,
+            LIBPYTHON_LINUX64,
             ], branch='py3k', hour=0, minute=0),
         #
         Nightly("nighly-ppc", [
@@ -337,6 +348,20 @@ BuildmasterConfig = {
                    "category": "linux64",
                    #"locks": [TannitCPU.access('counting')],
                   },
+                  {"name": LIBPYTHON_LINUX32,
+                   "slavenames": ["allegro32"],
+                   "builddir": LIBPYTHON_LINUX32,
+                   "factory": pypyTranslatedLibPythonTestFactory,
+                   'category': 'linux32',
+                   #"locks": [TannitCPU.access('counting')],
+                  },
+                  {"name": LIBPYTHON_LINUX64,
+                   "slavenames": ["allegro64"],
+                   "builddir": LIBPYTHON_LINUX64,
+                   "factory": pypyTranslatedLibPythonTestFactory,
+                   "category": "linux64",
+                   #"locks": [TannitCPU.access('counting')],
+                  },                  
                   {"name": OJITLINUX32,
                    "slavenames": ["allegro32"],
                    "builddir": OJITLINUX32,
