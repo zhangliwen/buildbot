@@ -314,7 +314,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             command=prefix + ["python", "testrunner/runner.py",
                      "--logfile=pytest-A.log",
                      "--config=pypy/pytest-A.cfg",
-                     "--root=pypy", "--timeout=1800"
+                     "--root=pypy", "--timeout=3600"
                      ] + ["--config=%s" % cfg for cfg in app_tests],
             logfiles={'pytestLog': 'pytest-A.log'},
             timeout=4000,
@@ -325,7 +325,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             description="lib-python test",
             command=prefix + ["python", "pypy/test_all.py",
                      "--pypy=pypy/translator/goal/pypy-c",
-                     "--timeout=1800",
+                     "--timeout=3600",
                      "--resultlog=cpython.log", "lib-python"],
             timeout=4000,
             logfiles={'pytestLog': 'cpython.log'}))
