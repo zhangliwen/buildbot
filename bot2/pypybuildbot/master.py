@@ -268,16 +268,8 @@ BuildmasterConfig = {
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
             CPYTHON_64,                # on speed.python.org, uses 1 core (in part exclusively)
-
             # linux tests
-            LINUX32,                   # on allegro32, uses 4 cores
-            LINUX64,                   # on allegro64, uses 4 cores
-            JITLINUX32,                # on allegro32, uses 1 core
-            JITLINUX64,                # on allegro64, uses 1 core
-            OJITLINUX32,               # on allegro32, uses 1 core
-            APPLVLLINUX32,             # on allegro32, uses 1 core
-            APPLVLLINUX64,             # on allegro64, uses 1 core
-
+            LINUX32,                   # on allegro32, uses 20 (twenty!) core 
             # other platforms
             MACOSX32,                  # on minime
             JITWIN32,                  # on aurora
@@ -285,12 +277,26 @@ BuildmasterConfig = {
             JITMACOSX64,               # on mvt's machine
             ], branch=None, hour=0, minute=0),
 
-        Nightly("nighly-0-00-py3k", [
-            LINUX32,
-            LINUX64,
-            LIBPYTHON_LINUX32,
-            LIBPYTHON_LINUX64,
-            ], branch='py3k', hour=0, minute=0),
+        Nightly("nightly-0-45", [
+            LINUX64,                   # on allegro64, uses 20 (twenty!) cores
+            ], branch=None, hour=0, minute=45),
+
+        Nightly("nightly-1-30-py3k", [
+            LINUX32,                   # on allegro64, uses 20 (twenty!) cores
+            ], branch="py3k", hour=1, minute=30),
+
+        Nightly("nightly-2-15-py3k", [
+            LINUX64,                   # on allegro64, uses 20 (twenty!) cores
+            ], branch="py3k", hour=2, minute=15),
+
+        Nightly("nightly-3-00", [
+            JITLINUX32,                # on allegro32, uses 1 core
+            JITLINUX64,                # on allegro64, uses 1 core
+            OJITLINUX32,               # on allegro32, uses 1 core
+            APPLVLLINUX32,             # on allegro32, uses 1 core
+            APPLVLLINUX64,             # on allegro64, uses 1 core
+            ], branch=None, hour=3, minute=0),
+
         #
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
