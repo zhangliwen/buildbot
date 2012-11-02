@@ -55,6 +55,7 @@ ARMXdistLock = pypybuilds.ARMXdistLock
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
+pypyOwnTestFactoryIndiana = pypybuilds.Own(platform="indiana32")
 pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 
 # OSX 32bit tests require a larger timeout to finish
@@ -114,6 +115,15 @@ pypyJITTranslatedTestFactoryPPC64 = pypybuilds.Translated(
     app_tests=True,
     platform='linux-ppc64',
     interpreter='python',
+    )
+
+pypyJITTranslatedTestFactoryIndiana = pypybuilds.Translated(
+    translationArgs=jit_translation_args,
+    targetArgs=[],
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    platform='openindiana32',
     )
 
 pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
@@ -219,6 +229,7 @@ pypyARMTranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 LINUXPPC64 = "own-linux-ppc-64"
+INDIANA32 = "own-indiana-x86-32"
 
 MACOSX32 = "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
@@ -241,6 +252,7 @@ JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
 JITWIN64 = "pypy-c-jit-win-x86-64"
 JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
+JITINDIANA32 = "pypy-c-jit-indiana-x86-32"
 
 JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
 JITBACKENDONLYLINUXARMELXDIST = "jitbackendonly-own-linux-armel-xdist"
@@ -485,6 +497,19 @@ BuildmasterConfig = {
                    'builddir': JITLINUXPPC64,
                    'factory': pypyJITTranslatedTestFactoryPPC64,
                    'category': 'linux-ppc64',
+                   },
+                  # openindiana
+                  {'name': JITINDIANA32,
+                   'slavenames': ['jcea-openindiana-32'],
+                   'builddir': JITINDIANA32,
+                   'factory': pypyJITTranslatedTestFactoryIndiana,
+                   'category': 'openindiana32',
+                   },
+                  {'name': INDIANA32,
+                   'slavenames': ['jcea-openindiana-32'],
+                   'builddir': INDIANA32,
+                   'factory': pypyOwnTestFactoryIndiana,
+                   'category': 'openindiana32',
                    },
                   # ARM
                   # armel
