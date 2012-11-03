@@ -208,11 +208,12 @@ class UpdateCheckout(ShellCmd):
 
 class CheckGotRevision(ShellCmd):
     description = 'got_revision'
-    command = ['hg', 'parents', '--template', '{rev}:{node}']
+    command = ['hg', 'parents', '--template', 'got_revision:{rev}:{node}']
 
     def commandComplete(self, cmd):
         if cmd.rc == 0:
             got_revision = cmd.logs['stdio'].getText()
+            got_revision = got_revision.split('got_revision:')[-1]
             # manually get the effect of {node|short} without using a
             # '|' in the command-line, because it doesn't work on Windows
             num = got_revision.find(':')
