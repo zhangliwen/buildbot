@@ -337,7 +337,7 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": LINUX32,
-                   "slavenames": ["allegro32"],
+                   "slavenames": ["tannit32"],
                    "builddir": LINUX32,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux32',
