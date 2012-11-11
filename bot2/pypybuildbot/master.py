@@ -286,7 +286,7 @@ BuildmasterConfig = {
             MACOSX32,                  # on minime
             JITWIN32,                  # on aurora
             #JITFREEBSD64,              # on headless
-            JITMACOSX64,               # on mvt's machine
+            #JITMACOSX64,               # on mvt's machine
             ], branch=None, hour=0, minute=0),
 
         Nightly("nightly-0-45", [
@@ -352,11 +352,12 @@ BuildmasterConfig = {
                    #"locks": [TannitCPU.access('exclusive')],
                   },
                   {"name": APPLVLLINUX32,
-                   "slavenames": ["allegro32"],
+                   #"slavenames": ["allegro32"],
+                   "slavenames": ["tannit32"],
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
                    'category': 'linux32',
-                   #"locks": [TannitCPU.access('counting')],
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": APPLVLLINUX64,
                    "slavenames": ["allegro64"],
@@ -366,11 +367,12 @@ BuildmasterConfig = {
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name": LIBPYTHON_LINUX32,
-                   "slavenames": ["allegro32"],
+                   "slavenames": ["tannit32"],
+#                   "slavenames": ["allegro32"],
                    "builddir": LIBPYTHON_LINUX32,
                    "factory": pypyTranslatedLibPythonTestFactory,
                    'category': 'linux32',
-                   #"locks": [TannitCPU.access('counting')],
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": LIBPYTHON_LINUX64,
                    "slavenames": ["allegro64"],
@@ -387,11 +389,12 @@ BuildmasterConfig = {
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name" : JITLINUX32,
-                   "slavenames": ["allegro32"],
+                   #"slavenames": ["allegro32"],
+                   "slavenames": ["tannit32"],
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'linux32',
-                   #"locks": [TannitCPU.access('counting')],
+                   "locks": [TannitCPU.access('counting')],
                    },
                   {'name': JITLINUX64,
                    'slavenames': ["allegro64"],
