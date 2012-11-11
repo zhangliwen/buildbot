@@ -318,7 +318,6 @@ BuildmasterConfig = {
             BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
             BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
             JITBACKENDONLYLINUXARMEL,      # on hhu-beagleboard or hhu-imx.53
-            JITBACKENDONLYLINUXARMELXDIST, # on hhu-arm, uses hhu-beagleboard or hhu-imx.53
             ], branch=None, hour=0, minute=0),
         #
         Triggerable("APPLVLLINUXARM_scheduler", [
