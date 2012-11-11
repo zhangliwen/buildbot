@@ -342,7 +342,7 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactory,
                    "category": 'linux32',
                    # this build needs 4 CPUs
-                   #"locks": [TannitCPU.access('exclusive')],
+                   "locks": [TannitCPU.access('exclusive')],
                   },
                   {"name": LINUX64,
                    "slavenames": ["allegro64"],
