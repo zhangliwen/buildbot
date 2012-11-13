@@ -29,6 +29,7 @@ class PyPyTarball(object):
         'linux64':   50,
         'osx':       30,
         'win32':     10,
+        'linux_armel': 5,
         }
 
     PLATFORMS = {
@@ -64,6 +65,8 @@ class PyPyTarball(object):
         else:
             raise ValueError
         name = self.filename.replace(ext, '')
+        # remove the dash from linux-armel, else the split does not work
+        name = name.replace('-armel', '_armel')
         dashes = name.count('-')
         if dashes == 4:
             # svn based
