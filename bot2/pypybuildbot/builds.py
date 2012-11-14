@@ -247,6 +247,7 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
     factory.addStep(ShellCmd(description="hg clone",
                              command=command,
                              workdir=workdir,
+                             timeout=3600,
                              haltOnFailure=True))
     #
     factory.addStep(
