@@ -309,6 +309,11 @@ BuildmasterConfig = {
             APPLVLLINUX64,             # on allegro64, uses 1 core
             ], branch=None, hour=3, minute=0),
 
+        Nightly("nightly-4-00-py3k", [
+            APPLVLLINUX32,             # on allegro32, uses 1 core
+            #APPLVLLINUX64,             # on allegro64, uses 1 core
+            ], branch="py3k", hour=4, minute=0),
+
         #
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
