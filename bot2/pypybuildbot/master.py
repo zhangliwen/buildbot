@@ -452,7 +452,8 @@ BuildmasterConfig = {
                    "slavenames": ["tannit-win32", "aurora"],
                    "builddir": WIN32,
                    "factory": pypyOwnTestFactoryWin,
-                   "category": 'win32'
+                   "category": 'win32',
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name": WIN64,
                    "slavenames": ["snakepit64"],
@@ -465,7 +466,7 @@ BuildmasterConfig = {
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
                    "category": "win32",
-                   "locks": [WinLockCPU.access('exclusive')],
+                   "locks": [TannitCPU.access('counting')],
                   },
                   {"name" : JITWIN32,
                    "slavenames": ["tannit-win32", "aurora"],
