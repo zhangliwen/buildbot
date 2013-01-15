@@ -367,12 +367,25 @@ class Own(factory.BuildFactory):
 
         timeout=kwargs.get('timeout', 4000)
         self.addStep(PytestCmd(
-            description="pytest",
+            description="pytest pypy",
             command=["python", "testrunner/runner.py",
                      "--logfile=testrun.log",
                      "--config=pypy/testrunner_cfg.py",
                      "--config=~/machine_cfg.py",
                      "--root=pypy", "--timeout=%s" % (timeout,)
+                     ] + ["--config=%s" % cfg for cfg in extra_cfgs],
+            logfiles={'pytestLog': 'testrun.log'},
+            timeout=timeout,
+            env={"PYTHONPATH": ['.'],
+                 "PYPYCHERRYPICK": cherrypick}))
+
+        self.addStep(PytestCmd(
+            description="pytest rpython",
+            command=["python", "testrunner/runner.py",
+                     "--logfile=testrun.log",
+                     "--config=pypy/testrunner_cfg.py",
+                     "--config=~/machine_cfg.py",
+                     "--root=rpython", "--timeout=%s" % (timeout,)
                      ] + ["--config=%s" % cfg for cfg in extra_cfgs],
             logfiles={'pytestLog': 'testrun.log'},
             timeout=timeout,
