@@ -326,7 +326,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         factory.addStep(PytestCmd(
             description="lib-python test",
             command=prefix + ["python", "pypy/test_all.py",
-                     "--pypy=pypy/translator/goal/pypy-c",
+                     "--pypy=pypy/goal/pypy-c",
                      "--timeout=3600",
                      "--resultlog=cpython.log", "lib-python"],
             timeout=4000,
@@ -339,16 +339,16 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         factory.addStep(PytestCmd(
             description="pypyjit tests",
             command=prefix + ["python", "pypy/test_all.py",
-                     "--pypy=pypy/translator/goal/pypy-c",
+                     "--pypy=pypy/goal/pypy-c",
                      "--resultlog=pypyjit.log",
                      "pypy/module/pypyjit/test"],
             logfiles={'pytestLog': 'pypyjit.log'}))
         #
         # "new" test_pypy_c
         if platform == 'win32':
-            cmd = r'pypy\translator\goal\pypy-c'
+            cmd = r'pypy\goal\pypy-c'
         else:
-            cmd = 'pypy/translator/goal/pypy-c'
+            cmd = 'pypy/goal/pypy-c'
         factory.addStep(PytestCmd(
             description="pypyjit tests",
             command=prefix + [cmd, "pypy/test_all.py",
@@ -479,7 +479,7 @@ class TranslatedTests(factory.BuildFactory):
         # copy pypy-c to the expected location within the pypy source checkout
         self.addStep(ShellCmd(
             description="move pypy-c",
-            command=['cp', '-v', 'pypy-c/bin/pypy', 'build/pypy/translator/goal/pypy-c'],
+            command=['cp', '-v', 'pypy-c/bin/pypy', 'build/pypy/goal/pypy-c'],
             workdir='.'))
         # copy generated and copied header files to build/include
         self.addStep(ShellCmd(
@@ -552,7 +552,7 @@ class JITBenchmark(factory.BuildFactory):
                 )
             )
         if host == 'tannit':
-            pypy_c_rel = 'build/pypy/translator/goal/pypy-c'
+            pypy_c_rel = 'build/pypy/goal/pypy-c'
             self.addStep(ShellCmd(
                 env={'PYTHONPATH': './benchmarks/lib/jinja2'},
                 description="measure numpy compatibility",
@@ -565,7 +565,7 @@ class JITBenchmark(factory.BuildFactory):
                 slavesrc="numpy-compat.html",
                 masterdest=WithProperties(resfile),
                 workdir="."))
-        pypy_c_rel = "../build/pypy/translator/goal/pypy-c"
+        pypy_c_rel = "../build/pypy/goal/pypy-c"
         self.addStep(ShellCmd(
             # this step needs exclusive access to the CPU
             locks=[lock.access('exclusive')],
