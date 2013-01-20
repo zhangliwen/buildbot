@@ -128,12 +128,12 @@ class Translate(ShellCmd):
     description = ["translating"]
     descriptionDone = ["translation"]
 
-    command = ["translate.py", "--batch"]
+    command = ["../../rpython/bin/rpython", "--batch"]
     translationTarget = "targetpypystandalone"
     haltOnFailure = True
 
     def __init__(self, translationArgs, targetArgs,
-                 workdir="build/pypy/translator/goal",
+                 workdir="build/pypy/goal",
                  interpreter='pypy',
                  *a, **kw):
         add_args = {'translationArgs': translationArgs,
