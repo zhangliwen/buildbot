@@ -252,6 +252,7 @@ JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
 JITWIN64 = "pypy-c-jit-win-x86-64"
 JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
+JITFREEBSD964 = 'pypy-c-jit-freebsd-9-x86-64'
 JITINDIANA32 = "pypy-c-jit-indiana-x86-32"
 
 JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
@@ -286,6 +287,7 @@ BuildmasterConfig = {
             MACOSX32,                  # on minime
             JITWIN32,                  # on aurora
             JITFREEBSD64,              # on headless
+            JITFREEBSD964,             # on exarkun's freebsd
             JITMACOSX64,               # on mvt's machine
             ], branch=None, hour=0, minute=0),
 
@@ -484,6 +486,12 @@ BuildmasterConfig = {
                   {"name" : JITFREEBSD64,
                    "slavenames": ['headless'],
                    'builddir' : JITFREEBSD64,
+                   'factory' : pypyJITTranslatedTestFactoryFreeBSD,
+                   "category": 'freebsd64'
+                   },
+                  {"name" : JITFREEBSD964,
+                   "slavenames": ['hybridlogic'],
+                   'builddir' : JITFREEBSD964,
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'
                    },
