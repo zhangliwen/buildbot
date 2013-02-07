@@ -285,7 +285,7 @@ BuildmasterConfig = {
             # other platforms
             MACOSX32,                  # on minime
             JITWIN32,                  # on aurora
-            #JITFREEBSD64,              # on headless
+            JITFREEBSD64,              # on headless
             JITMACOSX64,               # on mvt's machine
             ], branch=None, hour=0, minute=0),
 
