@@ -279,8 +279,8 @@ BuildmasterConfig = {
             # benchmarks
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-            JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
-            CPYTHON_64,                # on speed.python.org, uses 1 core (in part exclusively)
+            #JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
+            #CPYTHON_64,                # on speed.python.org, uses 1 core (in part exclusively)
             # linux tests
             LINUX32,                   # on allegro32, uses 20 (twenty!) core 
             # other platforms
