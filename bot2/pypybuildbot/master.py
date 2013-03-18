@@ -277,12 +277,10 @@ BuildmasterConfig = {
         # All the other linux tests run on allegro
         Nightly("nightly-0-00", [
             # benchmarks
-            JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
-            JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             #JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
             #CPYTHON_64,                # on speed.python.org, uses 1 core (in part exclusively)
             # linux tests
-            LINUX32,                   # on allegro32, uses 20 (twenty!) core 
+            LINUX32,                   # on allegro32, uses 20 (twenty!) core
             # other platforms
             MACOSX32,                  # on minime
             JITWIN32,                  # on aurora
@@ -294,10 +292,6 @@ BuildmasterConfig = {
         Nightly("nightly-0-45", [
             LINUX64,                   # on allegro64, uses 20 (twenty!) cores
             ], branch=None, hour=0, minute=45),
-
-        Nightly("nightly-1-30-py3k", [
-            LINUX32,                   # on allegro64, uses 20 (twenty!) cores
-            ], branch="py3k", hour=1, minute=30),
 
         Nightly("nightly-2-15-py3k", [
             LINUX64,                   # on allegro64, uses 20 (twenty!) cores
@@ -311,16 +305,21 @@ BuildmasterConfig = {
             APPLVLLINUX64,             # on allegro64, uses 1 core
             ], branch=None, hour=3, minute=0),
 
+        Nightly("nightly-3-30", [
+            JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
+            JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
+        ], branch=None, hour=3, minute=30),
+
         Nightly("nightly-4-00-py3k", [
-            APPLVLLINUX32,             # on allegro32, uses 1 core
-            #APPLVLLINUX64,             # on allegro64, uses 1 core
+            #APPLVLLINUX32,             # on allegro32, uses 1 core
+            APPLVLLINUX64,             # on allegro64, uses 1 core
             ], branch="py3k", hour=4, minute=0),
 
         #
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
-        # 
+        #
         Nightly("nighly-arm-0-00", [
             BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
             BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
@@ -387,7 +386,7 @@ BuildmasterConfig = {
                    "factory": pypyTranslatedLibPythonTestFactory,
                    "category": "linux64",
                    #"locks": [TannitCPU.access('counting')],
-                  },                  
+                  },
                   {"name": OJITLINUX32,
                    "slavenames": ["allegro32"],
                    "builddir": OJITLINUX32,
