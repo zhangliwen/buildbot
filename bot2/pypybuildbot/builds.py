@@ -17,10 +17,10 @@ import os
 # translations in parallel, but then the actual benchmarks are run in
 # sequence.
 
-# there are 8 logical CPUs, but only 4 physical ones
-TannitCPU = locks.MasterLock('tannit_cpu', maxCount=6)
+# there are 8 logical CPUs, but only 4 physical ones, and only enough memory for 2 translations
+TannitCPU = locks.MasterLock('tannit_cpu', maxCount=2)
 SpeedPythonCPU = locks.MasterLock('speed_python_cpu', maxCount=24)
-WinLockCPU = locks.MasterLock('win_cpu', maxCount=1)
+#WinLockCPU = locks.MasterLock('win_cpu', maxCount=1)
 
 # The cross translation machine can accomodate 2 jobs at the same time
 ARMCrossLock = locks.SlaveLock('arm_cpu', maxCount=2)

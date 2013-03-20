@@ -48,7 +48,7 @@ status.putChild('numpy-status', NumpyStatusList(os.path.expanduser('~/numpy_comp
 
 pypybuilds = load('pypybuildbot.builds')
 TannitCPU = pypybuilds.TannitCPU
-WinLockCPU = pypybuilds.WinLockCPU
+#WinLockCPU = pypybuilds.WinLockCPU
 ARMCrossLock = pypybuilds.ARMCrossLock
 ARMBoardLock = pypybuilds.ARMBoardLock
 ARMXdistLock = pypybuilds.ARMXdistLock
@@ -280,7 +280,13 @@ BuildmasterConfig = {
             #JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
             #CPYTHON_64,                # on speed.python.org, uses 1 core (in part exclusively)
             # linux tests
-            LINUX32,                   # on allegro32, uses 20 (twenty!) core
+            LINUX32,                   # on tannit32, uses all cores
+            LINUX64,                   # on allegro64, uses all cores
+            JITLINUX32,                # on tannit32, uses 1 core
+            JITLINUX64,                # on allegro64, uses 1 core
+            APPLVLLINUX32,             # on tannit32, uses 1 core
+            APPLVLLINUX64,             # on allegro64, uses 1 core
+            OJITLINUX32,               # on tannit32, uses 1 core
             # other platforms
             MACOSX32,                  # on minime
             JITWIN32,                  # on aurora
@@ -289,46 +295,31 @@ BuildmasterConfig = {
             JITMACOSX64,               # on mvt's machine
             ], branch=None, hour=0, minute=0),
 
-        Nightly("nightly-0-45", [
-            LINUX64,                   # on allegro64, uses 20 (twenty!) cores
-            ], branch=None, hour=0, minute=45),
-
-        Nightly("nightly-2-15-py3k", [
-            LINUX64,                   # on allegro64, uses 20 (twenty!) cores
-            ], branch="py3k", hour=2, minute=15),
-
-        Nightly("nightly-3-00", [
-            JITLINUX32,                # on allegro32, uses 1 core
-            JITLINUX64,                # on allegro64, uses 1 core
-            OJITLINUX32,               # on allegro32, uses 1 core
-            APPLVLLINUX32,             # on allegro32, uses 1 core
-            APPLVLLINUX64,             # on allegro64, uses 1 core
-            ], branch=None, hour=3, minute=0),
-
-        Nightly("nightly-3-30", [
+        Nightly("nightly-2-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-        ], branch=None, hour=3, minute=30),
+        ], branch=None, hour=2, minute=0),
 
-        Nightly("nightly-4-00-py3k", [
-            #APPLVLLINUX32,             # on allegro32, uses 1 core
+        Nightly("nightly-2-00-py3k", [
+            LINUX64,                   # on allegro64, uses all cores
+            #APPLVLLINUX32,             # on tannit32, uses 1 core
             APPLVLLINUX64,             # on allegro64, uses 1 core
-            ], branch="py3k", hour=4, minute=0),
+            ], branch="py3k", hour=2, minute=0),
 
-        #
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
-        #
+
         Nightly("nighly-arm-0-00", [
             BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
             BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
             JITBACKENDONLYLINUXARMEL,      # on hhu-beagleboard or hhu-imx.53
             ], branch=None, hour=0, minute=0),
-        #
+
         Triggerable("APPLVLLINUXARM_scheduler", [
             APPLVLLINUXARM,            # triggered by BUILDLINUXARM, on hhu-beagleboard or hhu-imx.53
-	]),
+        ]),
+
         Triggerable("JITLINUXARM_scheduler", [
             JITLINUXARM,               # triggered by BUILDJITLINUXARM, on hhu-beagleboard or hhu-imx.53
         ]),
@@ -374,7 +365,7 @@ BuildmasterConfig = {
                   },
                   {"name": LIBPYTHON_LINUX32,
                    "slavenames": ["tannit32"],
-#                   "slavenames": ["allegro32"],
+                   #"slavenames": ["allegro32"],
                    "builddir": LIBPYTHON_LINUX32,
                    "factory": pypyTranslatedLibPythonTestFactory,
                    'category': 'linux32',
@@ -474,7 +465,7 @@ BuildmasterConfig = {
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
-                   "locks": [WinLockCPU.access('exclusive')],
+                   "locks": [TannitCPU.access('counting')],
                    },
                   {"name" : JITWIN64,
                    "slavenames": ["snakepit64"],
