@@ -435,7 +435,7 @@ BuildmasterConfig = {
                    "category": 'mac32'
                   },
                   {"name" : JITMACOSX64,
-                   "slavenames": ["joushou-slave"],
+                   "slavenames": ["xerxes"],
                    'builddir' : JITMACOSX64,
                    'factory' : pypyJITTranslatedTestFactoryOSX64,
                    'category' : 'mac64',
