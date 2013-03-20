@@ -17,8 +17,8 @@ import os
 # translations in parallel, but then the actual benchmarks are run in
 # sequence.
 
-# there are 8 logical CPUs, but only 4 physical ones, and only enough memory for 2 translations
-TannitCPU = locks.MasterLock('tannit_cpu', maxCount=2)
+# there are 8 logical CPUs, but only 4 physical ones, and only enough memory for ~3 translations
+TannitCPU = locks.MasterLock('tannit_cpu', maxCount=3)
 SpeedPythonCPU = locks.MasterLock('speed_python_cpu', maxCount=24)
 #WinLockCPU = locks.MasterLock('win_cpu', maxCount=1)
 
