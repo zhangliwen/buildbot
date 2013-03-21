@@ -1,11 +1,10 @@
 import os.path
 import datetime
 import itertools
-import re
 import py
 import cgi
 import urllib
-from twisted.web import resource
+import sys
 from twisted.web.static import File, DirectoryLister
 
 class PyPyTarball(object):
@@ -104,15 +103,19 @@ class PyPyTarball(object):
         return self.vcs == 'latest'
 
 class PyPyDirectory(object):
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, filePath):
+        self.filename = filePath.basename()
+        self.filePath = filePath
         try:
             self.parse_filename()
         except ValueError:
             self.last_mod_time = 0
 
     def parse_filename(self):
-        raise ValueError
+        if self.filename == 'trunk':
+            self.last_mod_time = sys.maxsize
+            return
+        self.last_mod_time = self.filePath.getmtime()
 
     def key(self):
         return (self.last_mod_time)
@@ -124,23 +127,23 @@ class PyPyList(File):
         items.sort(key=PyPyTarball.key, reverse=True)
         return [item.filename for item in items]
 
-    def sortDirectoryNames(self, names):
-        items = map(PyPyTarball, names)
-        items.sort(key=PyPyTarball.key, reverse=True)
+    def sortDirectoryNames(self, filePaths):
+        items = map(PyPyDirectory, filePaths)
+        items.sort(key=PyPyDirectory.key, reverse=True)
         return [item.filename for item in items]
 
     def directoryListing(self):
-        def is_pypy_dir(names_unsorted):
-            for name in names_unsorted:
+        def is_pypy_dir(names):
+            for name in names:
                 if name.startswith('pypy-c'):
                     return True
             return False
-        names_unsorted = File.listNames(self)
-        if is_pypy_dir(names_unsorted):
-            names = self.sortBuildNames(names_unsorted)
+        names = File.listNames(self)
+        if is_pypy_dir(names):
+            names = self.sortBuildNames(names)
             Listener = PyPyDirectoryLister
         else:
-            names = self.sortDirectoryNames(names_unsorted)
+            names = self.sortDirectoryNames(File.listEntities(self))
             Listener = DirectoryLister
         return Listener(self.path,
                         names,
