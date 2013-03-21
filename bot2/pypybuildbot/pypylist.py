@@ -106,10 +106,7 @@ class PyPyDirectory(object):
     def __init__(self, filePath):
         self.filename = filePath.basename()
         self.filePath = filePath
-        try:
-            self.parse_filename()
-        except ValueError:
-            self.last_mod_time = 0
+        self.parse_filename()
 
     def parse_filename(self):
         if self.filename == 'trunk':
