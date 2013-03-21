@@ -70,17 +70,20 @@ def test_pypy_list():
 
 def test_dir_render(tmpdir):
     import os, time
+    # Create a bunch of directories, including one named trunk,
+    # Make sure the time order is reversed collation order
     tmpdir.mkdir('trunk')
     for ascii in range(ord('a'), ord('m')):
         tmpdir.mkdir(chr(ascii) * 4)
         time.sleep(0.1)
     from twisted.web.test.test_web import DummyRequest
-    pypylist = PyPyList(tmpdir.dirname)
+    pypylist = PyPyList(tmpdir.strpath)
     listener = pypylist.directoryListing()
-    request = DummyRequest([os.path.dirname(__file__)])
+    request = DummyRequest([os.path.dirname(tmpdir.strpath)])
     page = listener.render(request)
+    tmpdir.join('index.html').write(page)
     for ascii in range(ord('a'), ord('m') - 1):
-        assert page.find(chr(ascii) * 4) > page.find((chr(ascii) + 1) * 4)
+        assert page.find(chr(ascii) * 4) > page.find((chr(ascii + 1)) * 4)
     assert page.find('trunk') < page.find('mmm')
 
 def load_BuildmasterConfig():
