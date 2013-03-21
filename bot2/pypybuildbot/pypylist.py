@@ -106,22 +106,28 @@ class PyPyTarball(object):
 
 class PyPyList(File):
 
-    def listNames(self):
-        names = File.listNames(self)
+    def sortBuildNames(self, names):
+        items = map(PyPyTarball, names)
+        items.sort(key=PyPyTarball.key, reverse=True)
+        return [item.filename for item in items]
+
+    def sortDirectoryNames(self, names):
         items = map(PyPyTarball, names)
         items.sort(key=PyPyTarball.key, reverse=True)
         return [item.filename for item in items]
 
     def directoryListing(self):
-        def is_pypy_dir(names):
-            for name in names:
+        def is_pypy_dir(names_unsorted):
+            for name in names_unsorted:
                 if name.startswith('pypy-c'):
                     return True
             return False
-        names = self.listNames()
-        if is_pypy_dir(names):
+        names_unsorted = File.listNames(self)
+        if is_pypy_dir(names_unsorted):
+            names = self.sortBuildNames(names_unsorted)
             Listener = PyPyDirectoryLister
         else:
+            names = self.sortDirectoryNames(names_unsorted)
             Listener = DirectoryLister
         return Listener(self.path,
                         names,

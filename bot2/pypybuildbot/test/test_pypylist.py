@@ -37,8 +37,8 @@ def test_invalid_filename():
     t2 = PyPyTarball('pypy-c-jit-75654-linux.tar.bz2')
     assert t.key() < t2.key()
 
-def test_sort():
-    files = map(PyPyTarball, [
+def test_sort(tmpdir):
+    files = [
             'pypy-c-jit-10000-linux.tar.bz2',
             'pypy-c-jit-20000-linux.tar.bz2',
             'pypy-c-nojit-10000-linux.tar.bz2',
@@ -47,11 +47,11 @@ def test_sort():
             'pypy-c-stackless-10000-linux.tar.bz2',
             'pypy-c-jit-1000-e5b73981fc8d-linux.tar.bz2', # this is mercurial based
             'pypy-c-jit-10000-linux-armel.tar.bz2',
-            ])
-
-    files.sort(key=PyPyTarball.key, reverse=True)
-    files = [f.filename for f in files]
-    assert files == [
+            ]
+    [tmpdir.join(f).write(f) for f in files]
+    pypylist = PyPyList(tmpdir.strpath)
+    listener = pypylist.directoryListing()
+    assert listener.dirs == [
         'pypy-c-jit-1000-e5b73981fc8d-linux.tar.bz2', # mercurial first
         'pypy-c-jit-20000-linux.tar.bz2',
         'pypy-c-jit-10000-linux.tar.bz2',
@@ -62,7 +62,7 @@ def test_sort():
         'pypy-c-stackless-10000-linux.tar.bz2',
         ]
 
-def test_pypy_list():
+def test_pypy_list(tmpdir):
     import os
     pypylist = PyPyList(os.path.dirname(__file__))
     files = pypylist.listNames()
@@ -70,13 +70,13 @@ def test_pypy_list():
 
 def test_dir_render(tmpdir):
     import os, time
+    from twisted.web.test.test_web import DummyRequest
     # Create a bunch of directories, including one named trunk,
     # Make sure the time order is reversed collation order
     tmpdir.mkdir('trunk')
     for ascii in range(ord('a'), ord('m')):
         tmpdir.mkdir(chr(ascii) * 4)
         time.sleep(0.1)
-    from twisted.web.test.test_web import DummyRequest
     pypylist = PyPyList(tmpdir.strpath)
     listener = pypylist.directoryListing()
     request = DummyRequest([os.path.dirname(tmpdir.strpath)])
