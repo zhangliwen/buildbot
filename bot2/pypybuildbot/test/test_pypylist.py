@@ -60,6 +60,21 @@ def test_sort():
         'pypy-c-stackless-10000-linux.tar.bz2',
         ]
 
+def test_dir_render(tmpdir):
+    import os, time
+    tmpdir.mkdir('trunk')
+    for ascii in range(ord('a'), ord('m')):
+        tmpdir.mkdir(chr(ascii) * 4)
+        time.sleep(0.1)
+    from twisted.web.test.test_web import DummyRequest
+    pypylist = PyPyList(tmpdir.dirname)
+    listener = pypylist.directoryListing()
+    request = DummyRequest([os.path.dirname(__file__)])
+    page = listener.render(request)
+    for ascii in range(ord('a'), ord('m') - 1):
+        assert page.find(chr(ascii) * 4) > page.find((chr(ascii) + 1) * 4)
+    assert page.find('trunk') < page.find('mmm')
+
 def load_BuildmasterConfig():
     import os
     from pypybuildbot import summary, builds
