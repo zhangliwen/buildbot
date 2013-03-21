@@ -103,6 +103,19 @@ class PyPyTarball(object):
     def display_in_italic(self):
         return self.vcs == 'latest'
 
+class PyPyDirectory(object):
+    def __init__(self, filename):
+        self.filename = filename
+        try:
+            self.parse_filename()
+        except ValueError:
+            self.last_mod_time = 0
+
+    def parse_filename(self):
+        raise ValueError
+
+    def key(self):
+        return (self.last_mod_time)
 
 class PyPyList(File):
 
