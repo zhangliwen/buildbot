@@ -1,5 +1,5 @@
 import py
-from pypybuildbot.pypylist import PyPyTarball
+from pypybuildbot.pypylist import PyPyTarball, PyPyList
 
 def test_pypytarball_svn():
     t = PyPyTarball('pypy-c-jit-75654-linux.tar.bz2')
@@ -12,6 +12,7 @@ def test_pypytarball_svn():
     assert t.platform == 'linux'
     assert t.vcs == 'svn'
 
+
 def test_pypytarball_hg():
     t = PyPyTarball('pypy-c-jit-75654-foo-linux.tar.bz2')
     assert t.filename == 'pypy-c-jit-75654-foo-linux.tar.bz2'
@@ -22,6 +23,7 @@ def test_pypytarball_hg():
     assert t.numrev == 75654
     assert t.platform == 'linux'
     assert t.vcs == 'hg'
+
 
 def test_invalid_filename():
     t = PyPyTarball('foo')
@@ -60,6 +62,12 @@ def test_sort():
         'pypy-c-stackless-10000-linux.tar.bz2',
         ]
 
+def test_pypy_list():
+    import os
+    pypylist = PyPyList(os.path.dirname(__file__))
+    files = pypylist.listNames()
+    assert os.path.basename(__file__) in files
+
 def test_dir_render(tmpdir):
     import os, time
     tmpdir.mkdir('trunk')
@@ -85,7 +93,7 @@ def load_BuildmasterConfig():
             return builds
         else:
             assert False
-    
+
     this = py.path.local(__file__)
     master_py = this.dirpath().dirpath().join('master.py')
     glob = {'httpPortNumber': 80,
@@ -106,13 +114,13 @@ def test_builder_names():
         assert app == expected_app
         assert own in builders or own in known_exceptions
         assert app in builders or app in known_exceptions
-    
+
     t = PyPyTarball('pypy-c-jit-76867-linux.tar.bz2')
     check_builder_names(t, 'own-linux-x86-32', 'pypy-c-jit-linux-x86-32')
 
     t = PyPyTarball('pypy-c-nojit-76867-linux.tar.bz2')
     check_builder_names(t, 'own-linux-x86-32', 'pypy-c-app-level-linux-x86-32')
-    
+
     t = PyPyTarball('pypy-c-jit-76867-osx.tar.bz2')
     check_builder_names(t, 'own-macosx-x86-32', 'pypy-c-jit-macosx-x86-32')
 
