@@ -102,6 +102,7 @@ pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
     translationArgs=jit_translation_args,
     targetArgs=[],
     lib_python=True,
+    interpreter='/usr/bin/python',
     pypyjit=True,
     app_tests=True,
     platform='linux64',
