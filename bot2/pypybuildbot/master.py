@@ -268,6 +268,8 @@ CPYTHON_64 = "cpython-2-benchmark-x86-64"
 BUILDLINUXARM = "build-pypy-c-linux-armel"
 BUILDJITLINUXARM = "build-pypy-c-jit-linux-armel"
 
+extra_opts= {'xerxes': {'keepalive-interval': None}}
+
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
@@ -328,7 +330,7 @@ BuildmasterConfig = {
 
     'status': [status, ircbot],
 
-    'slaves': [BuildSlave(name, password)
+    'slaves': [BuildSlave(name, password, **extra_opts.get(name, {}))
                for (name, password)
                in passwords.iteritems()],
 
