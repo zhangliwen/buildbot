@@ -248,7 +248,6 @@ JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
 JITLINUXARM = "pypy-c-jit-linux-armel"
 JITLINUXPPC64 = "pypy-c-jit-linux-ppc-64"
-OJITLINUX32 = "pypy-c-Ojit-no-jit-linux-x86-32"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
 JITWIN64 = "pypy-c-jit-win-x86-64"
@@ -289,13 +288,12 @@ BuildmasterConfig = {
             JITLINUX64,                # on allegro64, uses 1 core
             APPLVLLINUX32,             # on tannit32, uses 1 core
             APPLVLLINUX64,             # on allegro64, uses 1 core
-            OJITLINUX32,               # on tannit32, uses 1 core
             # other platforms
             MACOSX32,                  # on minime
             JITWIN32,                  # on aurora
             JITFREEBSD64,              # on headless
             JITFREEBSD964,             # on exarkun's freebsd
-            JITMACOSX64,               # on mvt's machine
+            #JITMACOSX64,               # no currently working machine
             ], branch=None, hour=0, minute=0),
 
         Nightly("nightly-2-00", [
@@ -377,13 +375,6 @@ BuildmasterConfig = {
                    "builddir": LIBPYTHON_LINUX64,
                    "factory": pypyTranslatedLibPythonTestFactory,
                    "category": "linux64",
-                   #"locks": [TannitCPU.access('counting')],
-                  },
-                  {"name": OJITLINUX32,
-                   "slavenames": ["allegro32"],
-                   "builddir": OJITLINUX32,
-                   "factory": pypy_OjitTranslatedTestFactory,
-                   "category": 'linux32',
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name" : JITLINUX32,
