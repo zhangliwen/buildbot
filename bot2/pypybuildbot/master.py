@@ -267,7 +267,7 @@ CPYTHON_64 = "cpython-2-benchmark-x86-64"
 BUILDLINUXARM = "build-pypy-c-linux-armel"
 BUILDJITLINUXARM = "build-pypy-c-jit-linux-armel"
 
-extra_opts= {'xerxes': {'keepalive-interval': 15}}
+extra_opts= {'xerxes': {'keepalive_interval': 15}}
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
