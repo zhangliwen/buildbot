@@ -65,7 +65,8 @@ pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
                                                           app_tests=True)
 pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
                                                             app_tests=True,
-                                                            platform='linux64')
+                                                            platform='linux64',
+    interpreter='python')
 
 # these are like the two above: the only difference is that they only run
 # lib-python tests,not -A tests
