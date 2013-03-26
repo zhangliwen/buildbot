@@ -187,7 +187,7 @@ cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
 
 # ARM own test factories
 crosstranslationargs = ['--platform=arm', '--gcrootfinder=shadowstack']
-crosstranslationjitargs = ['--jit-backend=arm']
+crosstranslationjitargs = ['--jit-backend=armv7']
 # this one needs a larger timeout due to how it is run
 pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(
         cherrypick=':'.join(["jit/backend/arm",
