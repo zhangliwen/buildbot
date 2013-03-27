@@ -294,7 +294,7 @@ BuildmasterConfig = {
             JITWIN32,                  # on aurora
             JITFREEBSD64,              # on headless
             JITFREEBSD964,             # on exarkun's freebsd
-            #JITMACOSX64,               # no currently working machine
+            JITMACOSX64,               # on xerxes
             ], branch=None, hour=0, minute=0),
 
         Nightly("nightly-2-00", [
