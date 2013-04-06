@@ -236,6 +236,7 @@ JITFREEBSD964 = 'pypy-c-jit-freebsd-9-x86-64'
 JITINDIANA32 = "pypy-c-jit-indiana-x86-32"
 
 JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
+JITBACKENDONLYLINUXARMHF = "jitbackendonly-own-linux-armhf"
 JITONLYLINUXPPC64 = "jitonly-own-linux-ppc-64"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
@@ -293,15 +294,16 @@ BuildmasterConfig = {
         Nightly("nighly-arm-0-00", [
             BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
             BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
-            JITBACKENDONLYLINUXARMEL,      # on hhu-beagleboard or hhu-imx.53
+            JITBACKENDONLYLINUXARMEL,      # on hhu-imx.53
+            JITBACKENDONLYLINUXARMHF,      # on hhu-raspberry-pi
             ], branch=None, hour=0, minute=0),
 
         Triggerable("APPLVLLINUXARM_scheduler", [
-            APPLVLLINUXARM,            # triggered by BUILDLINUXARM, on hhu-beagleboard or hhu-imx.53
+            APPLVLLINUXARM,            # triggered by BUILDLINUXARM, on hhu-beagleboard
         ]),
 
         Triggerable("JITLINUXARM_scheduler", [
-            JITLINUXARM,               # triggered by BUILDJITLINUXARM, on hhu-beagleboard or hhu-imx.53
+            JITLINUXARM,               # triggered by BUILDJITLINUXARM, on hhu-beagleboard
         ]),
     ],
 
@@ -482,6 +484,13 @@ BuildmasterConfig = {
                    "category": 'linux-armel',
                    "locks": [ARMBoardLock.access('counting')],
                    },
+                  # armhf
+                  {"name": JITBACKENDONLYLINUXARMHF,
+                   "slavenames": ['hhu-raspberry-pi'],
+                   "builddir": JITBACKENDONLYLINUXARMHF,
+                   "factory": pypyJitBackendOnlyOwnTestFactoryARM,
+                   "category": 'linux-armhf',
+                   "locks": [ARMBoardLock.access('counting')],
                    },
                   # app level builders
                   {"name": APPLVLLINUXARM,
