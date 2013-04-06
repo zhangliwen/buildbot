@@ -51,7 +51,6 @@ TannitCPU = pypybuilds.TannitCPU
 #WinLockCPU = pypybuilds.WinLockCPU
 ARMCrossLock = pypybuilds.ARMCrossLock
 ARMBoardLock = pypybuilds.ARMBoardLock
-ARMXdistLock = pypybuilds.ARMXdistLock
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
@@ -257,7 +256,6 @@ JITFREEBSD964 = 'pypy-c-jit-freebsd-9-x86-64'
 JITINDIANA32 = "pypy-c-jit-indiana-x86-32"
 
 JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
-JITBACKENDONLYLINUXARMELXDIST = "jitbackendonly-own-linux-armel-xdist"
 JITONLYLINUXPPC64 = "jitonly-own-linux-ppc-64"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
@@ -515,19 +513,13 @@ BuildmasterConfig = {
                    },
                   # ARM
                   # armel
-                  {"name": JITBACKENDONLYLINUXARMELXDIST,
-                   "slavenames": ['hhu-arm'],
-                   "builddir": JITBACKENDONLYLINUXARMELXDIST ,
-                   "factory": pypyJitBackendOnlyOwnTestFactoryARM,
-                   "category": 'linux-armel',
-                   "locks": [ARMXdistLock.access('exclusive'), ARMBoardLock.access('counting')],
-                   },
                   {"name": JITBACKENDONLYLINUXARMEL,
                    "slavenames": ['hhu-i.mx53'],
                    "builddir": JITBACKENDONLYLINUXARMEL,
                    "factory": pypyJitBackendOnlyOwnTestFactoryARM,
                    "category": 'linux-armel',
-                   "locks": [ARMXdistLock.access('counting'), ARMBoardLock.access('counting')],
+                   "locks": [ARMBoardLock.access('counting')],
+                   },
                    },
                   # app level builders
                   {"name": APPLVLLINUXARM,
@@ -535,14 +527,14 @@ BuildmasterConfig = {
                    "builddir": APPLVLLINUXARM,
                    "factory": pypyARMTranslatedAppLevelTestFactory,
                    "category": "linux-armel",
-                   "locks": [ARMXdistLock.access('counting'), ARMBoardLock.access('counting')],
+                   "locks": [ARMBoardLock.access('counting')],
                    },
                   {"name": JITLINUXARM,
                    "slavenames": ["hhu-beagleboard"],
                    'builddir': JITLINUXARM,
                    'factory': pypyARMJITTranslatedTestFactory ,
                    'category': 'linux-armel',
-                   "locks": [ARMXdistLock.access('counting'), ARMBoardLock.access('counting')],
+                   "locks": [ARMBoardLock.access('counting')],
                    },
                   # Translation Builders for ARM
                   {"name": BUILDLINUXARM,
