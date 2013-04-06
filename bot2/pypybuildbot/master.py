@@ -75,13 +75,6 @@ pypyTranslatedLibPythonTestFactory64 = pypybuilds.Translated(lib_python=True,
                                                             app_tests=False,
                                                             platform='linux64')
 
-
-pypyTranslatedAppLevelTestFactoryPPC64 = pypybuilds.Translated(
-        lib_python=True,
-        app_tests=True,
-        platform='linux-ppc64',
-        interpreter='python')
-
 pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
     platform="win32",
     lib_python=True,
@@ -106,16 +99,6 @@ pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
     pypyjit=True,
     app_tests=True,
     platform='linux64',
-    )
-
-pypyJITTranslatedTestFactoryPPC64 = pypybuilds.Translated(
-    translationArgs=jit_translation_args,
-    targetArgs=[],
-    lib_python=True,
-    pypyjit=True,
-    app_tests=True,
-    platform='linux-ppc64',
-    interpreter='python',
     )
 
 pypyJITTranslatedTestFactoryIndiana = pypybuilds.Translated(
@@ -229,7 +212,6 @@ pypyARMTranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
 
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
-LINUXPPC64 = "own-linux-ppc-64"
 INDIANA32 = "own-indiana-x86-32"
 
 MACOSX32 = "own-macosx-x86-32"
@@ -238,7 +220,6 @@ WIN64 = "own-win-x86-64"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
 APPLVLLINUXARM = "pypy-c-app-level-linux-armel"
-APPLVLLINUXPPC64 = "pypy-c-app-level-linux-ppc-64"
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
 
 LIBPYTHON_LINUX32 = "pypy-c-lib-python-linux-x86-32"
@@ -247,7 +228,6 @@ LIBPYTHON_LINUX64 = "pypy-c-lib-python-linux-x86-64"
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
 JITLINUXARM = "pypy-c-jit-linux-armel"
-JITLINUXPPC64 = "pypy-c-jit-linux-ppc-64"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
 JITWIN64 = "pypy-c-jit-win-x86-64"
@@ -474,29 +454,11 @@ BuildmasterConfig = {
                    "category": 'freebsd64'
                    },
                   # PPC
-                  {"name": LINUXPPC64,
-                   "slavenames": ["gcc1"],
-                   "builddir": LINUXPPC64,
-                   "factory": pypyOwnTestFactory,
-                   "category": 'linux-ppc64',
-                   },
                   {"name": JITONLYLINUXPPC64,
                    "slavenames": ['gcc1'],
                    "builddir": JITONLYLINUXPPC64,
                    "factory": pypyJitOnlyOwnTestFactory,
                    "category": 'linux-ppc64',
-                   },
-                  {"name": APPLVLLINUXPPC64,
-                   "slavenames": ["gcc1"],
-                   "builddir": APPLVLLINUXPPC64,
-                   "factory": pypyTranslatedAppLevelTestFactoryPPC64,
-                   "category": "linux-ppc64",
-                   },
-                  {'name': JITLINUXPPC64,
-                   'slavenames': ['gcc1'],
-                   'builddir': JITLINUXPPC64,
-                   'factory': pypyJITTranslatedTestFactoryPPC64,
-                   'category': 'linux-ppc64',
                    },
                   # openindiana
                   {'name': JITINDIANA32,
