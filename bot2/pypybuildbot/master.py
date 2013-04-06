@@ -178,11 +178,12 @@ pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(
                             ]),
         timeout=6 * 3600)
 pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=2 * 3600)
-pypyOwnTestFactoryARM = pypybuilds.Own(timeout=2*3600)
+pypyOwnTestFactoryARM = pypybuilds.Own(timeout=2 * 3600)
 pypyCrossTranslationFactoryARM = pypybuilds.NightlyBuild(
-    translationArgs=crosstranslationargs+['-O2'],
+    translationArgs=crosstranslationargs + ['-O2'],
     platform='linux-armel',
     interpreter='pypy',
+    prefix='schroot -c armel',
     trigger='APPLVLLINUXARM_scheduler')
 
 pypyJITCrossTranslationFactoryARM = pypybuilds.NightlyBuild(
@@ -191,6 +192,7 @@ pypyJITCrossTranslationFactoryARM = pypybuilds.NightlyBuild(
                         + crosstranslationjitargs),
     platform='linux-armel',
     interpreter='pypy',
+    prefix='schroot -c armel',
     trigger='JITLINUXARM_scheduler')
 
 pypyARMJITTranslatedTestFactory = pypybuilds.TranslatedTests(
