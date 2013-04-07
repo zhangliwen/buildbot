@@ -23,7 +23,7 @@ SpeedPythonCPU = locks.MasterLock('speed_python_cpu', maxCount=24)
 #WinLockCPU = locks.MasterLock('win_cpu', maxCount=1)
 
 # The cross translation machine can accomodate 2 jobs at the same time
-ARMCrossLock = locks.SlaveLock('arm_cpu', maxCount=2)
+ARMCrossLock = locks.MasterLock('arm_cpu', maxCount=2)
 # while the boards can only run one job at the same time
 ARMBoardLock = locks.SlaveLock('arm_boards', maxCount=1)
 
