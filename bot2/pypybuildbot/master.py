@@ -47,10 +47,12 @@ status.putChild('numpy-status', NumpyStatusList(os.path.expanduser('~/numpy_comp
 
 
 pypybuilds = load('pypybuildbot.builds')
+
+# all ARM buildbot configuration si in arm_master.py
+ARM = load('pypybuildbot.arm_master')
+
 TannitCPU = pypybuilds.TannitCPU
 #WinLockCPU = pypybuilds.WinLockCPU
-ARMCrossLock = pypybuilds.ARMCrossLock
-ARMBoardLock = pypybuilds.ARMBoardLock
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
@@ -167,49 +169,6 @@ cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
                                                           platform='linux64')
 
 
-# ARM own test factories
-crosstranslationargs = ['--platform=arm', '--gcrootfinder=shadowstack']
-crosstranslationjitargs = ['--jit-backend=armv7']
-# this one needs a larger timeout due to how it is run
-pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(
-        cherrypick=':'.join(["jit/backend/arm",
-                            "jit/backend/llsupport",
-                            "jit/backend/test",  # kill this one in case it is too slow
-                            ]),
-        timeout=6 * 3600)
-pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=2 * 3600)
-pypyOwnTestFactoryARM = pypybuilds.Own(timeout=2 * 3600)
-pypyCrossTranslationFactoryARM = pypybuilds.NightlyBuild(
-    translationArgs=crosstranslationargs + ['-O2'],
-    platform='linux-armel',
-    interpreter='pypy',
-    prefix=['schroot', '-c', 'armel'],
-    trigger='APPLVLLINUXARM_scheduler')
-
-pypyJITCrossTranslationFactoryARM = pypybuilds.NightlyBuild(
-    translationArgs=(crosstranslationargs
-                        + jit_translation_args
-                        + crosstranslationjitargs),
-    platform='linux-armel',
-    interpreter='pypy',
-    prefix=['schroot', '-c', 'armel'],
-    trigger='JITLINUXARM_scheduler')
-
-pypyARMJITTranslatedTestFactory = pypybuilds.TranslatedTests(
-    translationArgs=(crosstranslationargs
-                        + jit_translation_args
-                        + crosstranslationjitargs),
-    lib_python=True,
-    pypyjit=True,
-    app_tests=True,
-    platform='linux-armel',
-    )
-pypyARMTranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
-    translationArgs=crosstranslationargs+['-O2'],
-    lib_python=True,
-    app_tests=True,
-    platform='linux-armel',
-)
 #
 
 LINUX32 = "own-linux-x86-32"
@@ -221,7 +180,6 @@ WIN32 = "own-win-x86-32"
 WIN64 = "own-win-x86-64"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
-APPLVLLINUXARM = "pypy-c-app-level-linux-armel"
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
 
 LIBPYTHON_LINUX32 = "pypy-c-lib-python-linux-x86-32"
@@ -229,7 +187,6 @@ LIBPYTHON_LINUX64 = "pypy-c-lib-python-linux-x86-64"
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
-JITLINUXARM = "pypy-c-jit-linux-armel"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
 JITWIN64 = "pypy-c-jit-win-x86-64"
@@ -237,17 +194,12 @@ JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
 JITFREEBSD964 = 'pypy-c-jit-freebsd-9-x86-64'
 JITINDIANA32 = "pypy-c-jit-indiana-x86-32"
 
-JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
-JITBACKENDONLYLINUXARMHF = "jitbackendonly-own-linux-armhf"
 JITONLYLINUXPPC64 = "jitonly-own-linux-ppc-64"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
 JITBENCH64_2 = 'jit-benchmark-linux-x86-64-2'
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
 
-# build only
-BUILDLINUXARM = "build-pypy-c-linux-armel"
-BUILDJITLINUXARM = "build-pypy-c-jit-linux-armel"
 
 extra_opts= {'xerxes': {'keepalive_interval': 15}}
 
@@ -292,22 +244,7 @@ BuildmasterConfig = {
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
-
-        Nightly("nighly-arm-0-00", [
-            BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
-            BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
-            JITBACKENDONLYLINUXARMEL,      # on hhu-imx.53
-            JITBACKENDONLYLINUXARMHF,      # on hhu-raspberry-pi
-            ], branch=None, hour=0, minute=0),
-
-        Triggerable("APPLVLLINUXARM_scheduler", [
-            APPLVLLINUXARM,            # triggered by BUILDLINUXARM, on hhu-beagleboard
-        ]),
-
-        Triggerable("JITLINUXARM_scheduler", [
-            JITLINUXARM,               # triggered by BUILDJITLINUXARM, on hhu-beagleboard
-        ]),
-    ],
+    ] + ARM.schedulers,
 
     'status': [status, ircbot],
 
@@ -477,54 +414,7 @@ BuildmasterConfig = {
                    'factory': pypyOwnTestFactoryIndiana,
                    'category': 'openindiana32',
                    },
-                  # ARM
-                  # armel
-                  {"name": JITBACKENDONLYLINUXARMEL,
-                   "slavenames": ['hhu-i.mx53'],
-                   "builddir": JITBACKENDONLYLINUXARMEL,
-                   "factory": pypyJitBackendOnlyOwnTestFactoryARM,
-                   "category": 'linux-armel',
-                   "locks": [ARMBoardLock.access('counting')],
-                   },
-                  # armhf
-                  {"name": JITBACKENDONLYLINUXARMHF,
-                   "slavenames": ['hhu-raspberry-pi'],
-                   "builddir": JITBACKENDONLYLINUXARMHF,
-                   "factory": pypyJitBackendOnlyOwnTestFactoryARM,
-                   "category": 'linux-armhf',
-                   "locks": [ARMBoardLock.access('counting')],
-                   },
-                  # app level builders
-                  {"name": APPLVLLINUXARM,
-                   "slavenames": ["hhu-beagleboard"],
-                   "builddir": APPLVLLINUXARM,
-                   "factory": pypyARMTranslatedAppLevelTestFactory,
-                   "category": "linux-armel",
-                   "locks": [ARMBoardLock.access('counting')],
-                   },
-                  {"name": JITLINUXARM,
-                   "slavenames": ["hhu-beagleboard"],
-                   'builddir': JITLINUXARM,
-                   'factory': pypyARMJITTranslatedTestFactory ,
-                   'category': 'linux-armel',
-                   "locks": [ARMBoardLock.access('counting')],
-                   },
-                  # Translation Builders for ARM
-                  {"name": BUILDLINUXARM,
-                   "slavenames": ['hhu-cross-armel'],
-                   "builddir": BUILDLINUXARM,
-                   "factory": pypyCrossTranslationFactoryARM,
-                   "category": 'linux-armel',
-                   "locks": [ARMCrossLock.access('counting')],
-                   },
-                  {"name": BUILDJITLINUXARM,
-                   "slavenames": ['hhu-cross-armel'],
-                   "builddir": BUILDJITLINUXARM,
-                   "factory": pypyJITCrossTranslationFactoryARM,
-                   "category": 'linux-armel',
-                   "locks": [ARMCrossLock.access('counting')],
-                  },
-                ],
+                ] + ARM.builders,
 
     # http://readthedocs.org/docs/buildbot/en/latest/tour.html#debugging-with-manhole
     #'manhole': manhole.PasswordManhole("tcp:1234:interface=127.0.0.1",
