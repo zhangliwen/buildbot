@@ -158,13 +158,6 @@ pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
 pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark()
 pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
                                                            postfix='-64')
-pypyJITBenchmarkFactory64_speed = pypybuilds.JITBenchmark(platform='linux64',
-                                                          postfix='-64',
-                                                          host='speed_python')
-
-cPython27BenchmarkFactory64 = pypybuilds.CPythonBenchmark('2.7',
-                                                          platform='linux64')
-
 
 #
 
@@ -320,20 +313,6 @@ BuildmasterConfig = {
                    "slavenames": ["tannit64"],
                    "builddir": JITBENCH64,
                    "factory": pypyJITBenchmarkFactory64_tannit,
-                   "category": "benchmark-run",
-                   # the locks are acquired with fine grain inside the build
-                   },
-                  {"name": JITBENCH64_2,
-                   "slavenames": ["speed-python-64"],
-                   "builddir": JITBENCH64_2,
-                   "factory": pypyJITBenchmarkFactory64_speed,
-                   "category": "benchmark-run",
-                   # the locks are acquired with fine grain inside the build
-                   },
-                  {"name": CPYTHON_64,
-                   "slavenames": ["speed-python-64"],
-                   "builddir": CPYTHON_64,
-                   "factory": cPython27BenchmarkFactory64,
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },
