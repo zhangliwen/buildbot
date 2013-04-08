@@ -1,6 +1,4 @@
 
-import os
-import getpass
 from buildbot.scheduler import Nightly, Triggerable
 from pypybuildbot.util import we_are_debugging, load
 
@@ -12,7 +10,7 @@ ARMBoardLock = pypybuilds.ARMBoardLock
 jit_translation_args = ['-Ojit']
 crosstranslationargs = ['--platform=arm', '--gcrootfinder=shadowstack']
 crosstranslationjitargs = ['--jit-backend=armv7']
-crosstranslationjitargs_raspbian = ['--jit-backend=armv6']
+crosstranslationjitargs_raspbian = ['--jit-backend=armv6hf']
 # this one needs a larger timeout due to how it is run
 pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(
         cherrypick=':'.join(["jit/backend/arm",
