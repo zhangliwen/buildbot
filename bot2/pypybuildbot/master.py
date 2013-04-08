@@ -66,8 +66,7 @@ pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
                                                           app_tests=True)
 pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
                                                             app_tests=True,
-                                                            platform='linux64',
-    interpreter='python')
+                                                            platform='linux64')
 
 # these are like the two above: the only difference is that they only run
 # lib-python tests,not -A tests
@@ -97,7 +96,6 @@ pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
     translationArgs=jit_translation_args,
     targetArgs=[],
     lib_python=True,
-    interpreter='/usr/bin/python',
     pypyjit=True,
     app_tests=True,
     platform='linux64',
@@ -129,7 +127,6 @@ pypyJITTranslatedTestFactoryOSX64 = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
-    interpreter='python',
     )
 
 pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
