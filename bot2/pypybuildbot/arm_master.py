@@ -69,7 +69,7 @@ pypyARMTranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
     platform='linux-armel',
 )
 
-pypyARMJITTranslatedTestFactory = pypybuilds.TranslatedTests(
+pypyARMHF_RASPBIAN_JITTranslatedTestFactory = pypybuilds.TranslatedTests(
     translationArgs=(crosstranslationargs
                         + jit_translation_args
                         + crosstranslationjitargs),
@@ -78,7 +78,7 @@ pypyARMJITTranslatedTestFactory = pypybuilds.TranslatedTests(
     app_tests=True,
     platform='linux-armhf-raspbian',
     )
-pypyARMTranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
+pypyARMHF_RASPBIAN_TranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
     translationArgs=crosstranslationargs + ['-O2'],
     lib_python=True,
     app_tests=True,
@@ -163,14 +163,14 @@ builders = [
   {"name": APPLVLLINUXARMHF_RASPBIAN,
    "slavenames": ["hhu-raspberry-pi"],
    "builddir": APPLVLLINUXARMHF_RASPBIAN,
-   "factory": pypyARMTranslatedAppLevelTestFactory,
+   "factory": pypyARMHF_RASPBIAN_TranslatedAppLevelTestFactory,
    "category": "linux-armhf",
    "locks": [ARMBoardLock.access('counting')],
    },
   {"name": JITLINUXARMHF_RASPBIAN,
    "slavenames": ["hhu-raspberry-pi"],
    'builddir': JITLINUXARMHF_RASPBIAN,
-   'factory': pypyARMJITTranslatedTestFactory,
+   'factory': pypyARMHF_RASPBIAN_JITTranslatedTestFactory,
    'category': 'linux-armhf',
    "locks": [ARMBoardLock.access('counting')],
    },
