@@ -118,7 +118,7 @@ class NumpyStatusUpload(transfer.FileUpload):
                                    'latest.html')
             symlink_force(self.masterdest, symname)
         except OSError:
-            pass    
+            pass
 
 class Translate(ShellCmd):
     name = "translate"
@@ -145,7 +145,6 @@ class Translate(ShellCmd):
 
 
 class PytestCmd(ShellCmd):
-
     def commandComplete(self, cmd):
         from pypybuildbot.summary import RevisionOutcomeSet
         if 'pytestLog' not in cmd.logs:
@@ -175,7 +174,6 @@ class PytestCmd(ShellCmd):
                 summary += d[key]
             d[key] = summary
         builder.saveYourself()
-
 
 # _______________________________________________________________
 
@@ -353,8 +351,8 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                      "pypy/module/pypyjit/test_pypy_c"],
             logfiles={'pytestLog': 'pypyjit_new.log'}))
 
-
 # ----
+
 class Own(factory.BuildFactory):
 
     def __init__(self, platform='linux', cherrypick='', extra_cfgs=[], **kwargs):
@@ -523,6 +521,7 @@ class NightlyBuild(factory.BuildFactory):
         if trigger: # if provided trigger schedulers that are depend on this one
             self.addStep(Trigger(schedulerNames=[trigger]))
 
+
 class JITBenchmark(factory.BuildFactory):
     def __init__(self, platform='linux', host='tannit', postfix=''):
         factory.BuildFactory.__init__(self)
@@ -568,6 +567,7 @@ class JITBenchmark(factory.BuildFactory):
             locks=[lock.access('exclusive')],
             description="run benchmarks on top of pypy-c",
             command=["python", "runner.py", '--output-filename', 'result.json',
+                     '--niceness', '-10',
                      '--changed', pypy_c_rel,
                      '--baseline', pypy_c_rel,
                      '--args', ',--jit off',
