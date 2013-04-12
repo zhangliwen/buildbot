@@ -567,7 +567,6 @@ class JITBenchmark(factory.BuildFactory):
             locks=[lock.access('exclusive')],
             description="run benchmarks on top of pypy-c",
             command=["python", "runner.py", '--output-filename', 'result.json',
-                     '--niceness', '0',  # can't get limits.conf to allow -10
                      '--changed', pypy_c_rel,
                      '--baseline', pypy_c_rel,
                      '--args', ',--jit off',
