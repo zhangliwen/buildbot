@@ -409,8 +409,6 @@ class Translated(factory.BuildFactory):
         self.addStep(Translate(translationArgs, targetArgs,
                                interpreter=interpreter))
 
-        add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
-
         name = build_name(platform, pypyjit, translationArgs)
         self.addStep(ShellCmd(
             description="compress pypy-c",
@@ -426,6 +424,8 @@ class Translated(factory.BuildFactory):
                                 basename=name + extension,
                                 workdir='.',
                                 blocksize=100 * 1024))
+
+        add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
 
 
 class TranslatedTests(factory.BuildFactory):
