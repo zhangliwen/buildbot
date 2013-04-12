@@ -43,6 +43,7 @@ class ShellCmd(shell.ShellCommand):
 
 class PyPyUpload(transfer.FileUpload):
     parms = transfer.FileUpload.parms + ['basename']
+    haltOnFailure = False
 
     def start(self):
         properties = self.build.getProperties()
@@ -412,6 +413,7 @@ class Translated(factory.BuildFactory):
         name = build_name(platform, pypyjit, translationArgs)
         self.addStep(ShellCmd(
             description="compress pypy-c",
+            haltOnFailure=False,
             command=prefix + ["python", "pypy/tool/release/package.py",
                      ".", WithProperties(name), 'pypy',
                      '.'],
