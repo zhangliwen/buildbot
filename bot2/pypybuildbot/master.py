@@ -180,7 +180,8 @@ JITLINUX64 = "pypy-c-jit-linux-x86-64"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
 JITWIN64 = "pypy-c-jit-win-x86-64"
-JITFREEBSD64 = 'pypy-c-jit-freebsd-7-x86-64'
+JITFREEBSD764 = 'pypy-c-jit-freebsd-7-x86-64'
+JITFREEBSD864 = 'pypy-c-jit-freebsd-8-x86-64'
 JITFREEBSD964 = 'pypy-c-jit-freebsd-9-x86-64'
 JITINDIANA32 = "pypy-c-jit-indiana-x86-32"
 
@@ -215,7 +216,8 @@ BuildmasterConfig = {
             # other platforms
             MACOSX32,                  # on minime
             JITWIN32,                  # on aurora
-            JITFREEBSD64,              # on headless
+            JITFREEBSD764,             # on headless
+            JITFREEBSD864,             # on ananke
             JITFREEBSD964,             # on exarkun's freebsd
             JITMACOSX64,               # on xerxes
             ], branch=None, hour=0, minute=0),
@@ -358,9 +360,15 @@ BuildmasterConfig = {
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
                    },
-                  {"name" : JITFREEBSD64,
+                  {"name" : JITFREEBSD764,
                    "slavenames": ['headless'],
-                   'builddir' : JITFREEBSD64,
+                   'builddir' : JITFREEBSD764,
+                   'factory' : pypyJITTranslatedTestFactoryFreeBSD,
+                   "category": 'freebsd64'
+                   },
+                  {"name": JITFREEBSD864,
+                   "slavenames": ['ananke'],
+                   'builddir' : JITFREEBSD864,
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'
                    },
