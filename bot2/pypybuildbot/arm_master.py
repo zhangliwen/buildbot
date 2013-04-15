@@ -1,4 +1,3 @@
-
 from buildbot.scheduler import Nightly, Triggerable
 from pypybuildbot.util import we_are_debugging, load
 
@@ -86,13 +85,16 @@ pypyARMHF_RASPBIAN_TranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
 )
 #
 APPLVLLINUXARM = "pypy-c-app-level-linux-armel"
+APPLVLLINUXARMHF_v7 = "pypy-c-app-level-linux-armhf-v7"
 APPLVLLINUXARMHF_RASPBIAN = "pypy-c-app-level-linux-armhf-raspbian"
 
 JITLINUXARM = "pypy-c-jit-linux-armel"
+JITLINUXARMHF_v7 = "pypy-c-jit-linux-armhf-v7"
 JITLINUXARMHF_RASPBIAN = "pypy-c-jit-linux-armhf-raspbian"
 
 JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
 JITBACKENDONLYLINUXARMHF = "jitbackendonly-own-linux-armhf"
+JITBACKENDONLYLINUXARMHF_v7 = "jitbackendonly-own-linux-armhf-v7"
 
 # build only
 BUILDLINUXARM = "build-pypy-c-linux-armel"
@@ -109,6 +111,7 @@ schedulers = [
         BUILDJITLINUXARMHF_RASPBIAN,   # on hhu-cross-raspbianhf, uses 1 core
         JITBACKENDONLYLINUXARMEL,      # on hhu-imx.53
         JITBACKENDONLYLINUXARMHF,      # on hhu-raspberry-pi
+        JITBACKENDONLYLINUXARMHF_v7,   # on cubieboard-bob
         ], branch=None, hour=0, minute=0),
 
     Triggerable("APPLVLLINUXARM_scheduler", [
@@ -119,17 +122,20 @@ schedulers = [
         JITLINUXARM,               # triggered by BUILDJITLINUXARM, on hhu-beagleboard
     ]),
     Triggerable("APPLVLLINUXARMHF_RASPBIAN_scheduler", [
-        APPLVLLINUXARMHF_RASPBIAN, # triggered by BUILDLINUXARMHF_RASPBIAN, on hhu-raspberry-pi
+        APPLVLLINUXARMHF_RASPBIAN,  # triggered by BUILDLINUXARMHF_RASPBIAN, on hhu-raspberry-pi
+        APPLVLLINUXARMHF_v7,        # triggered by BUILDLINUXARMHF_RASPBIAN, on cubieboard-bob
     ]),
 
     Triggerable("JITLINUXARMHF_RASPBIAN_scheduler", [
-        JITLINUXARMHF_RASPBIAN,    # triggered by BUILDJITLINUXARMHF_RASPBIAN, on hhu-raspberry-pi
+        JITLINUXARMHF_RASPBIAN,       # triggered by BUILDJITLINUXARMHF_RASPBIAN, on hhu-raspberry-pi
+        JITBACKENDONLYLINUXARMHF_v7,  # triggered by BUILDJITLINUXARMHF_RASPBIAN, on cubieboard-bob
     ]),
 ]
 
 builders = [
   # ARM
   # armel
+  ## armv7
   {"name": JITBACKENDONLYLINUXARMEL,
    "slavenames": ['hhu-i.mx53'],
    "builddir": JITBACKENDONLYLINUXARMEL,
@@ -138,6 +144,7 @@ builders = [
    "locks": [ARMBoardLock.access('counting')],
    },
   # armhf
+  ## armv6
   {"name": JITBACKENDONLYLINUXARMHF,
    "slavenames": ['hhu-raspberry-pi'],
    "builddir": JITBACKENDONLYLINUXARMHF,
@@ -145,7 +152,16 @@ builders = [
    "category": 'linux-armhf',
    "locks": [ARMBoardLock.access('counting')],
    },
+  ## armv7
+  {"name": JITBACKENDONLYLINUXARMHF_v7,
+   "slavenames": ['cubieboard-bob'],
+   "builddir": JITBACKENDONLYLINUXARMHF_v7,
+   "factory": pypyJitBackendOnlyOwnTestFactoryARM,
+   "category": 'linux-armhf',
+   "locks": [ARMBoardLock.access('counting')],
+   },
   # app level builders
+  ## armv7 softfloat
   {"name": APPLVLLINUXARM,
    "slavenames": ["hhu-beagleboard"],
    "builddir": APPLVLLINUXARM,
@@ -160,6 +176,7 @@ builders = [
    'category': 'linux-armel',
    "locks": [ARMBoardLock.access('counting')],
    },
+  ## armv6 hardfloat
   {"name": APPLVLLINUXARMHF_RASPBIAN,
    "slavenames": ["hhu-raspberry-pi"],
    "builddir": APPLVLLINUXARMHF_RASPBIAN,
@@ -171,6 +188,21 @@ builders = [
    "slavenames": ["hhu-raspberry-pi"],
    'builddir': JITLINUXARMHF_RASPBIAN,
    'factory': pypyARMHF_RASPBIAN_JITTranslatedTestFactory,
+   'category': 'linux-armhf',
+   "locks": [ARMBoardLock.access('counting')],
+   },
+  ## armv7 hardfloat
+  {"name": APPLVLLINUXARMHF_v7,
+   "slavenames": ["cubieboard-bob"],
+   "builddir": APPLVLLINUXARMHF_v7,
+   "factory": pypyARMHF_RASPBIAN_TranslatedAppLevelTestFactory,  # XXX replace this with a custom build
+   "category": "linux-armhf",
+   "locks": [ARMBoardLock.access('counting')],
+   },
+  {"name": JITLINUXARMHF_v7,
+   "slavenames": ["cubieboard-bob"],
+   'builddir': JITLINUXARMHF_v7,
+   'factory': pypyARMHF_RASPBIAN_JITTranslatedTestFactory,  # XXX replace this with a custom build
    'category': 'linux-armhf',
    "locks": [ARMBoardLock.access('counting')],
    },
@@ -192,7 +224,7 @@ builders = [
   {"name": BUILDLINUXARMHF_RASPBIAN,
    "slavenames": ['hhu-cross-raspbianhf'],
    "builddir": BUILDLINUXARMHF_RASPBIAN,
-   "factory": pypyCrossTranslationFactoryRaspbianHF ,
+   "factory": pypyCrossTranslationFactoryRaspbianHF,
    "category": 'linux-armhf',
    "locks": [ARMCrossLock.access('counting')],
    },
