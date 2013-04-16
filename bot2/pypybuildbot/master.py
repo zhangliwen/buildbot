@@ -136,7 +136,7 @@ pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
-    interpreter='python',
+    interpreter='pypy', 
     )
 
 pypyJITTranslatedTestFactoryFreeBSD = pypybuilds.Translated(
@@ -331,7 +331,7 @@ BuildmasterConfig = {
                    'category' : 'mac64',
                    },
                   {"name": WIN32,
-                   "slavenames": ["aurora"],
+                   "slavenames": ["aurora", "SalsaSalsa"],
                    "builddir": WIN32,
                    "factory": pypyOwnTestFactoryWin,
                    "category": 'win32',
@@ -343,13 +343,13 @@ BuildmasterConfig = {
                    "category": 'win32'
                   },
                   {"name": APPLVLWIN32,
-                   "slavenames": ["aurora"],
+                   "slavenames": ["aurora", "SalsaSalsa"],
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
                    "category": "win32",
                   },
                   {"name" : JITWIN32,
-                   "slavenames": ["aurora"],
+                   "slavenames": ["aurora", "SalsaSalsa"],
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
