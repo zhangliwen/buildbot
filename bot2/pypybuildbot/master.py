@@ -80,7 +80,7 @@ pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
     platform="win32",
     lib_python=True,
     app_tests=True,
-    interpreter='python')
+    )
 
 jit_translation_args = ['-Ojit']
 
@@ -136,7 +136,6 @@ pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
-    interpreter='pypy', 
     )
 
 pypyJITTranslatedTestFactoryFreeBSD = pypybuilds.Translated(
