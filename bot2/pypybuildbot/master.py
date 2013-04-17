@@ -191,7 +191,10 @@ JITBENCH64_2 = 'jit-benchmark-linux-x86-64-2'
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
 
 
-extra_opts= {'xerxes': {'keepalive_interval': 15}}
+extra_opts= {'xerxes': {'keepalive_interval': 15},
+             'aurora': {'max_builds': 1},
+             'salsa': {'max_builds': 1},
+             }
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
