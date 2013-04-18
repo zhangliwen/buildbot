@@ -5,9 +5,9 @@ First you will need to install the ``buildbot-slave`` package.
 pip install buildbot_buildslave
 
 The next step is to create a buildslave configuration file. Based on version
-0.7.12 of buildbot you need to execute the following command.
+0.8.7 of buildbot you need to execute the following command.
 
-buildbot create-slave  BASEDIR MASTERHOST:PORT SLAVENAME PASSWORD
+buildslave create-slave  BASEDIR MASTERHOST:PORT SLAVENAME PASSWORD
 
 For PyPy the MASTERHOST currently is ``buildbot.pypy.org``. The
 value for PORT is ``10407``.
@@ -28,13 +28,10 @@ reflect the changes to the configuration.
 To run the buildslave execute 
 =============================
 
-First you will need to copy the file Makefile.sample to Makefile and
-update it as necessary.
-
 To start the buildslave just run
 
-    make start
+    buildslave start BASEDIR
 
 and to stop it run
 
-    make stop
+    buildslave stop BASEDIR
