@@ -8,8 +8,7 @@ ARMBoardLock = pypybuilds.ARMBoardLock
 # ARM own test factories
 jit_translation_args = ['-Ojit']
 crosstranslationargs = ['--platform=arm', '--gcrootfinder=shadowstack']
-crosstranslationjitargs = ['--jit-backend=armv7']
-crosstranslationjitargs_raspbian = ['--jit-backend=armv6hf']
+crosstranslationjitargs = ['--jit-backend=arm']
 # this one needs a larger timeout due to how it is run
 pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(
         cherrypick=':'.join(["jit/backend/arm",
@@ -46,7 +45,7 @@ pypyCrossTranslationFactoryRaspbianHF = pypybuilds.NightlyBuild(
 pypyJITCrossTranslationFactoryRaspbianHF = pypybuilds.NightlyBuild(
     translationArgs=(crosstranslationargs
                         + jit_translation_args
-                        + crosstranslationjitargs_raspbian),
+                        + crosstranslationjitargs),
     platform='linux-armhf-raspbian',
     interpreter='pypy',
     prefix=['schroot', '-c', 'raspbian'],
