@@ -112,7 +112,7 @@ pypyJITTranslatedTestFactoryIndiana = pypybuilds.Translated(
 
 pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
     platform='osx',
-    translationArgs=jit_translation_args,
+    translationArgs=jit_translation_args + ['--make-jobs=1'],
     targetArgs=[],
     lib_python=True,
     pypyjit=True,
@@ -145,13 +145,6 @@ pypyJITTranslatedTestFactoryFreeBSD = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
-    )
-
-pypy_OjitTranslatedTestFactory = pypybuilds.Translated(
-    translationArgs=['-Ojit', '--gc=hybrid', '--no-translation-jit',
-                     '--gcrootfinder=asmgcc'],
-    lib_python=True,
-    app_tests=True
     )
 
 pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark()
@@ -206,8 +199,6 @@ BuildmasterConfig = {
         # All the other linux tests run on allegro
         Nightly("nightly-0-00", [
             # benchmarks
-            #JITBENCH64_2,              # on speed.python.org, uses 1 core (in part exclusively)
-            #CPYTHON_64,                # on speed.python.org, uses 1 core (in part exclusively)
             # linux tests
             LINUX32,                   # on tannit32, uses all cores
             LINUX64,                   # on allegro64, uses all cores
@@ -231,7 +222,6 @@ BuildmasterConfig = {
 
         Nightly("nightly-2-00-py3k", [
             LINUX64,                   # on allegro64, uses all cores
-            #APPLVLLINUX32,             # on tannit32, uses 1 core
             APPLVLLINUX64,             # on allegro64, uses 1 core
             ], branch="py3k", hour=2, minute=0),
 
