@@ -62,45 +62,70 @@ pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 # OSX 32bit tests require a larger timeout to finish
 pypyOwnTestFactoryOSX32 = pypybuilds.Own(timeout=3*3600)
 
-pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
-                                                          app_tests=True)
-pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
-                                                            app_tests=True,
-                                                            platform='linux64')
+
+# Translation builds
+# Triggers
+TRIGGER_LINUX32 = 'pypy-c-linux-x86-32-completed'
+TRIGGER_LINUX64 = 'pypy-c-linux-x86-x64-completed'
+TRIGGER_JITLINUX32 = 'pypy-c-jit-linux-x86-32-completed'
+TRIGGER_JITLINUX64 = 'pypy-c-jit-linux-x86-64-completed'
+jit_translation_args = ['-Ojit']
+# linux
+# x86
+pypyTranslatedFactory = pypybuilds.NightlyBuild(
+        trigger=TRIGGER_LINUX32,
+        platform='linux')
+pypyJitTranslatedFactory = pypybuilds.NightlyBuild(
+        trigger=TRIGGER_LINUX64,
+        translationArgs=jit_translation_args,
+        platform='linux')
+# x86_64
+pypyTranslatedFactory64 = pypybuilds.NightlyBuild(
+        trigger=TRIGGER_JITLINUX32,
+        platform='linux64')
+pypyJitTranslatedFactory64 = pypybuilds.NightlyBuild(
+        translationArgs=jit_translation_args,
+        trigger=TRIGGER_JITLINUX64,
+        platform='linux64')
+
+# App and JIT test builds
+# App level test builds
+pypyTranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
+        lib_python=True,
+        app_tests=True,
+        platform='linux')
+pypyTranslatedAppLevelTestFactory64 = pypybuilds.TranslatedTests(
+        lib_python=True,
+        app_tests=True,
+        platform='linux64')
 
 # these are like the two above: the only difference is that they only run
 # lib-python tests,not -A tests
-pypyTranslatedLibPythonTestFactory = pypybuilds.Translated(lib_python=True,
-                                                          app_tests=False)
-pypyTranslatedLibPythonTestFactory64 = pypybuilds.Translated(lib_python=True,
-                                                            app_tests=False,
-                                                            platform='linux64')
+pypyTranslatedLibPythonTestFactory = pypybuilds.TranslatedTests(
+        lib_python=True,
+        app_tests=False,
+        platform='linux')
+pypyTranslatedLibPythonTestFactory64 = pypybuilds.TranslatedTests(
+        lib_python=True,
+        app_tests=False,
+        platform='linux64')
 
-pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
-    platform="win32",
-    lib_python=True,
-    app_tests=True,
-    )
-
-jit_translation_args = ['-Ojit']
-
-pypyJITTranslatedTestFactory = pypybuilds.Translated(
+pypyJITTranslatedTestFactory = pypybuilds.TranslatedTests(
     translationArgs=jit_translation_args,
-    targetArgs=[],
     lib_python=True,
     pypyjit=True,
     app_tests=True,
-    )
+    platform='linux')
 
-pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
+pypyJITTranslatedTestFactory64 = pypybuilds.TranslatedTests(
     translationArgs=jit_translation_args,
-    targetArgs=[],
     lib_python=True,
     pypyjit=True,
     app_tests=True,
     platform='linux64',
     )
 
+# other platforms
 pypyJITTranslatedTestFactoryIndiana = pypybuilds.Translated(
     translationArgs=jit_translation_args,
     targetArgs=[],
@@ -108,6 +133,12 @@ pypyJITTranslatedTestFactoryIndiana = pypybuilds.Translated(
     pypyjit=True,
     app_tests=True,
     platform='openindiana32',
+    )
+
+pypyTranslatedAppLevelTestFactoryWin = pypybuilds.Translated(
+    platform="win32",
+    lib_python=True,
+    app_tests=True,
     )
 
 pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
@@ -183,6 +214,12 @@ JITBENCH64 = "jit-benchmark-linux-x86-64"
 JITBENCH64_2 = 'jit-benchmark-linux-x86-64-2'
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
 
+# build only
+BUILDLINUX32 = "build-pypy-c-linux-x86-32"
+BUILDJITLINUX32 = "build-pypy-c-jit-linux-x86-32"
+BUILDLINUX64 = "build-pypy-c-linux-x86-64"
+BUILDJITLINUX64 = "build-pypy-c-jit-linux-x86-64"
+
 
 extra_opts= {'xerxes': {'keepalive_interval': 15},
              'aurora': {'max_builds': 1},
@@ -202,10 +239,6 @@ BuildmasterConfig = {
             # linux tests
             LINUX32,                   # on tannit32, uses all cores
             LINUX64,                   # on allegro64, uses all cores
-            JITLINUX32,                # on tannit32, uses 1 core
-            JITLINUX64,                # on allegro64, uses 1 core
-            APPLVLLINUX32,             # on tannit32, uses 1 core
-            APPLVLLINUX64,             # on allegro64, uses 1 core
             # other platforms
             MACOSX32,                  # on minime
             JITWIN32,                  # on aurora
@@ -228,6 +261,19 @@ BuildmasterConfig = {
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
+
+        Triggerable(TRIGGER_LINUX32, [
+            APPLVLLINUX32,             # on tannit32, uses 1 core
+        ]),
+        Triggerable(TRIGGER_LINUX64, [
+            APPLVLLINUX64,             # on allegro64, uses 1 core
+        ]),
+        Triggerable(TRIGGER_JITLINUX32, [
+            JITLINUX32,                # on tannit32, uses 1 core
+        ]),
+        Triggerable(TRIGGER_JITLINUX64, [
+            JITLINUX64,                # on allegro64, uses 1 core
+        ]),
     ] + ARM.schedulers,
 
     'status': [status, ircbot],
@@ -237,6 +283,35 @@ BuildmasterConfig = {
                in passwords.iteritems()],
 
     'builders': [
+                  # Translation builders
+                  {"name": BUILDLINUX32,
+                   "slavenames": ["tannit32"],
+                   "builddir": BUILDLINUX32,
+                   "factory": pypyTranslatedFactory,
+                   'category': 'linux32',
+                   "locks": [TannitCPU.access('counting')],
+                  },
+                  {"name": BUILDLINUX64,
+                   "slavenames": ["allegro64"],
+                   "builddir": BUILDLINUX64,
+                   "factory": pypyTranslatedFactory64,
+                   "category": "linux64",
+                  },
+                  {"name" : BUILDJITLINUX32,
+                   "slavenames": ["tannit32"],
+                   'builddir' : BUILDJITLINUX32,
+                   'factory' : pypyJitTranslatedFactory,
+                   'category' : 'linux32',
+                   "locks": [TannitCPU.access('counting')],
+                   },
+                  {'name': BUILDJITLINUX64,
+                   'slavenames': ["allegro64"],
+                   'builddir': BUILDJITLINUX64,
+                   'factory': pypyJitTranslatedFactory64,
+                   'category': 'linux64',
+                   #"locks": [TannitCPU.access('counting')],
+                  },
+                  #
                   {"name": LINUX32,
                    "slavenames": ["tannit32"],
                    "builddir": LINUX32,
