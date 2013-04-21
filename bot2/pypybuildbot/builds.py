@@ -452,17 +452,23 @@ class TranslatedTests(factory.BuildFactory):
         setup_steps(platform, self)
 
         # download corresponding nightly build
-        self.addStep(ShellCmd(
-            description="Clear pypy-c",
-            command=['rm', '-rf', 'pypy-c'],
-            workdir='.'))
+        basepath = '%(workdir)s/%(buildnumber)s/'
+        nightlydir = WithProperties(basepath)
+        nightly_pypy_c = WithProperties(basepath + 'bin/pypy')
         extension = get_extension(platform)
-        name = build_name(platform, pypyjit, translationArgs, placeholder='%(revision)s') + extension
+        name = build_name(platform, pypyjit, translationArgs,
+                            placeholder='%(revision)s') + extension
+        localname = 'pypy_build' + extension
+        self.addStep(ShellCmd(
+                        description="Clear pypy-c",
+                        command=['rm', '-rf', 'pypy-c'],
+                        workdir='.'))
+        #
         self.addStep(PyPyDownload(
             basename=name,
             mastersrc='~/nightly',
-            slavedest='pypy_build' + extension,
-            workdir='pypy-c'))
+            slavedest=localname,
+            workdir=nightlydir))
 
         # extract downloaded file
         if platform.startswith('win'):
@@ -470,26 +476,27 @@ class TranslatedTests(factory.BuildFactory):
         else:
             self.addStep(ShellCmd(
                 description="decompress pypy-c",
-                command=['tar', '--extract', '--file=pypy_build'+ extension, '--strip-components=1', '--directory=.'],
-                workdir='pypy-c'))
+                command=['tar', '--extract', '--file=' + localname,
+                         '--strip-components=1', '--directory=.'],
+                workdir=nightlydir))
 
-        # copy pypy-c to the expected location within the pypy source checkout
+        # link pypy-c to the expected location within the pypy source checkout
         self.addStep(ShellCmd(
-            description="move pypy-c",
-            command=['cp', '-v', 'pypy-c/bin/pypy', 'build/pypy/goal/pypy-c'],
-            workdir='.'))
-        # copy generated and copied header files to build/include
-        self.addStep(ShellCmd(
-            description="move header files",
-            command=['cp', '-vr', 'pypy-c/include', 'build'],
-            workdir='.'))
-        # copy ctypes_resource_cache generated during translation
-        self.addStep(ShellCmd(
-            description="move ctypes resource cache",
-            command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy'],
-            workdir='.'))
+            description="Symlink pypy-c",
+            command=['ln', '-sf', nightly_pypy_c, 'pypy/goal/pypy-c'],
+            workdir='build/'))
 
         add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
+
+        self.addStep(ShellCmd(
+            description="Clear symlink to pypy-c",
+            command=['rm', 'pypy/goal/pypy-c'],
+            workdir='build/'))
+
+        self.addStep(ShellCmd(
+            description="Clear downloaded nightly build",
+            command=['rm', '-rf', nightlydir]))
+
 
 
 class NightlyBuild(factory.BuildFactory):
