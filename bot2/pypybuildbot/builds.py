@@ -312,6 +312,8 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             command=prefix + ["python", "testrunner/runner.py",
                      "--logfile=pytest-A.log",
                      "--config=pypy/pytest-A.cfg",
+                     "--config=pypy/pytest-A.py",
+                     "--config=~/machine-A_cfg.py",
                      "--root=pypy", "--timeout=3600"
                      ] + ["--config=%s" % cfg for cfg in app_tests],
             logfiles={'pytestLog': 'pytest-A.log'},
