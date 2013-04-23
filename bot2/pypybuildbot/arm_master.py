@@ -104,10 +104,12 @@ BUILDJITLINUXARMHF_RASPBIAN = "build-pypy-c-jit-linux-armhf-raspbian"
 
 schedulers = [
     Nightly("nighly-arm-0-00", [
-        BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
         BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
-        BUILDLINUXARMHF_RASPBIAN,      # on hhu-cross-raspbianhf, uses 1 core
         BUILDJITLINUXARMHF_RASPBIAN,   # on hhu-cross-raspbianhf, uses 1 core
+
+        BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
+        BUILDLINUXARMHF_RASPBIAN,      # on hhu-cross-raspbianhf, uses 1 core
+
         JITBACKENDONLYLINUXARMEL,      # on hhu-imx.53
         JITBACKENDONLYLINUXARMHF,      # on hhu-raspberry-pi
         JITBACKENDONLYLINUXARMHF_v7,   # on cubieboard-bob
@@ -127,7 +129,7 @@ schedulers = [
 
     Triggerable("JITLINUXARMHF_RASPBIAN_scheduler", [
         JITLINUXARMHF_RASPBIAN,       # triggered by BUILDJITLINUXARMHF_RASPBIAN, on hhu-raspberry-pi
-        JITBACKENDONLYLINUXARMHF_v7,  # triggered by BUILDJITLINUXARMHF_RASPBIAN, on cubieboard-bob
+        JITLINUXARMHF_v7,             # triggered by BUILDJITLINUXARMHF_RASPBIAN, on cubieboard-bob
     ]),
 ]
 
