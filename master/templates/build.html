@@ -7,7 +7,7 @@
 <h1>
 Builder <a href="{{ path_to_builder }}">{{ b.getBuilder().getName() }}</a>
 Build #{{ b.getNumber() }}
-<!-- PyPy specific change: add a "view in summary" linke -->
+<!-- PyPy specific change: add a "view in summary" link -->
 &nbsp;&nbsp;&nbsp;(<a href="{{ path_to_root }}summary?builder={{ b.getBuilder().getName() }}">view in summary</a>)
 </h1>
 
@@ -44,6 +44,7 @@ Build #{{ b.getNumber() }}
 <table class="info" width="100%">
 {% set ss_class = cycler('alt','') %}
 
+{% set ss = sourcestamps[0] %}
 {% if ss.project %}
   <tr class="{{ ss_class.next() }}"><td class="left">Project</td><td>{{ ss.project|projectlink }}</td></tr>
 {% endif %}
