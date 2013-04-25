@@ -2,6 +2,7 @@
 import os
 import getpass
 from buildbot.scheduler import Nightly, Triggerable
+from buildbot.schedulers.forcesched import ForceScheduler
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
 from buildbot.process.builder import Builder
@@ -228,6 +229,35 @@ BuildmasterConfig = {
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
+        ForceScheduler('Force Scheduler', [
+                        LINUX32,
+                        LINUX64,
+                        INDIANA32,
+
+                        MACOSX32,
+                        WIN32,
+                        WIN64,
+                        APPLVLLINUX32,
+                        APPLVLLINUX64,
+                        APPLVLWIN32,
+
+                        LIBPYTHON_LINUX32,
+                        LIBPYTHON_LINUX64,
+
+                        JITLINUX32,
+                        JITLINUX64,
+                        JITMACOSX64,
+                        JITWIN32,
+                        JITWIN64,
+                        JITFREEBSD764,
+                        JITFREEBSD864,
+                        JITFREEBSD964,
+                        JITINDIANA32,
+
+                        JITONLYLINUXPPC64,
+                        JITBENCH,
+                        JITBENCH64,
+        ] + ARM.builderNames),
     ] + ARM.schedulers,
 
     'status': [status, ircbot],
