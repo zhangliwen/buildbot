@@ -20,9 +20,9 @@
   </head>
   <body class="interface">
     {% block header -%}
-    <div class="header">    
+    <div class="header">
         <a href="{{ path_to_root or '.' }}">Home</a>
-        - 
+        -
         <!-- PyPy specific items -->
         <a href="http://speed.pypy.org/">Speed</a>
         <a href="{{ path_to_root }}summary?branch=&lt;trunk&gt;">Summary (trunk)</a>
@@ -46,13 +46,19 @@
     {%- block barecontent -%}
     <hr/>
 
+    {% if alert_msg != '' %}
+    <div class="alert">
+        {{alert_msg}}
+    </div>
+    {% endif %}
+
     <div class="content">
-      {%- block content -%}     
+      {%- block content -%}
       {%- endblock -%}
     </div>
     {%- endblock -%}
 
-    {%- block footer -%} 
+    {%- block footer -%}
     <div class="footer" style="clear:both">
       <hr/>
       <a href="http://buildbot.net/">BuildBot</a> ({{version}})
