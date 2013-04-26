@@ -2,6 +2,7 @@
 import os
 from buildbot.scheduler import Nightly
 from buildbot.schedulers.forcesched import ForceScheduler
+from buildbot.schedulers.forcesched import ValidationError
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
 #from buildbot import manhole
@@ -10,10 +11,10 @@ from pypybuildbot.ircbot import IRC  # side effects
 from pypybuildbot.util import we_are_debugging
 
 # Forbid "force build" with empty user name
-
 class CustomForceScheduler(ForceScheduler):
     def force(self, owner, builder_name, **kwargs):
-        assert owner, "Please write your name in the corresponding field."
+        if not owner:
+            raise ValidationError, "Please write your name in the corresponding field."
         return ForceScheduler.force(self, owner, builder_name, **kwargs)
 
 
