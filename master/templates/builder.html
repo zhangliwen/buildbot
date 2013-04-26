@@ -5,7 +5,6 @@
 {% block content %}
 
 <h1>Builder {{ name }}</h1>
-
 <!-- PyPy specific change: add the "view in summary" link -->
 <p>
   (<a href="{{ path_to_root }}waterfall?show={{ name }}">view in waterfall</a>)
@@ -48,17 +47,22 @@
 
     {% if b.num_changes < 4 %}
         {% for c in b.changes %}{{ c.revision|shortrev(c.repo) }}
-        (<a href="{{ c.url }}">{{ c.who }}</a>){% if not loop.last %},{% endif %}
+        (<a href="{{ c.url }}">{{ c.who|email }}</a>){% if not loop.last %},{% endif %}
         {% endfor %}
     {% else %}
         ({{ b.num_changes }} changes)
     {% endif %}
 
+      {% if 'owner' in b.properties %}
+        <b>Forced build</b>
+        by {{b.properties['owner'][0]}}
+        <small>{{b.properties['reason'][0]}}</small>
+      {% endif %}
     </li>
   {% endfor %}
   </ul>
 
-  {% if authz.advertiseAction('cancelPendingBuild', requeset) %}
+  {% if authz.advertiseAction('cancelPendingBuild', request) %}
     {{ forms.cancel_pending_build(builder_url+"/cancelbuild", authz, short=False, id='all') }}
   {% endif %}
 
