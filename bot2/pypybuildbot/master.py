@@ -1,26 +1,21 @@
 
 import os
-import getpass
-from buildbot.scheduler import Nightly, Triggerable
+from buildbot.scheduler import Nightly
 from buildbot.schedulers.forcesched import ForceScheduler
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
-from buildbot.process.builder import Builder
 #from buildbot import manhole
 from pypybuildbot.pypylist import PyPyList, NumpyStatusList
-from pypybuildbot.ircbot import IRC # side effects
+from pypybuildbot.ircbot import IRC  # side effects
 from pypybuildbot.util import we_are_debugging
 
 # Forbid "force build" with empty user name
-from buildbot.status.web.builder import StatusResourceBuilder
-def my_force(self, req, *args, **kwds):
-    name = req.args.get("username", [""])[0]
-    assert name, "Please write your name in the corresponding field."
-    return _previous_force(self, req, *args, **kwds)
-_previous_force = StatusResourceBuilder.force
-if _previous_force.__name__ == 'force':
-    StatusResourceBuilder.force = my_force
-# Done
+
+class CustomForceScheduler(ForceScheduler):
+    def force(self, owner, builder_name, **kwargs):
+        assert owner, "Please write your name in the corresponding field."
+        return ForceScheduler.force(self, owner, builder_name, **kwargs)
+
 
 if we_are_debugging():
     channel = '#buildbot-test'
@@ -229,7 +224,8 @@ BuildmasterConfig = {
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
-        ForceScheduler('Force Scheduler', [
+        CustomForceScheduler('Force Scheduler', 
+            builderNames=[
                         LINUX32,
                         LINUX64,
                         INDIANA32,
@@ -257,7 +253,7 @@ BuildmasterConfig = {
                         JITONLYLINUXPPC64,
                         JITBENCH,
                         JITBENCH64,
-        ] + ARM.builderNames),
+            ] + ARM.builderNames),
     ] + ARM.schedulers,
 
     'status': [status, ircbot],
