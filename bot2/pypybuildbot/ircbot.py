@@ -33,7 +33,7 @@ def color(s, code=None, bold=False):
     return s
 
 
-def extract_username(build):
+def get_build_information(build):
     owner = build.getProperty("owner")
     reason = build.getProperty("reason")
     return ": ".join(k for k in (owner, reason) if k)
@@ -42,9 +42,9 @@ def extract_username(build):
 def get_description_for_build(url, build):
     url = color(url, 'GRAY')  # in gray
     infos = []
-    username = extract_username(build)
-    if username:
-        infos.append(color(username, 'BLUE'))  # in blue
+    buildinfo = get_build_information(build)
+    if buildinfo:
+        infos.append(color(buildinfo, 'BLUE'))  # in blue
     #
     branch = build.getProperty('branch')
     if branch:
