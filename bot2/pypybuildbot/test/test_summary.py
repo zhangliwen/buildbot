@@ -401,7 +401,7 @@ class FakeRequest(object):
 
     def __init__(self, builders, args={}):
         master = FakeMaster(builders)
-        status = status_builder.Status(master)
+        status = status_builder.Status(master, builders)
         self.args = args
         self.site = FakeSite(status)
 
@@ -444,7 +444,7 @@ def add_builds(builder, builds):
     n = getattr(builder, 'nextBuildNumber', 0)
     t = 1000
     for rev, reslog in builds:
-        build = status_builder.BuildStatus(builder, n)
+        build = status_builder.BuildStatus(builder, builder.master, n)
         build.started = time.time()
         build.setProperty('got_revision', str(rev), None)
         step = build.addStepWithName('pytest')
@@ -463,6 +463,7 @@ class TestSummary(object):
 
     def setup_method(self, meth):
         summary.outcome_set_cache.clear()
+        self.master = FakeMaster([])
 
     def test_sanity(self):
         s = summary.Summary()
@@ -474,9 +475,9 @@ class TestSummary(object):
         assert cat_branch == {}
 
     def test_one_build_no_rev(self):
-        builder = status_builder.BuilderStatus('builder0')
-        build = status_builder.BuildStatus(builder, 0)
-        build.started = time.time()
+        builder = status_builder.BuilderStatus('builder0', '', self.master)
+        build = status_builder.BuildStatus(builder, self.master, 0)
+        builder.buildStarted(build)
         build.buildFinished()
         builder.touchBuildCache(build)
         builder.nextBuildNumber = len(builder.buildCache)
@@ -490,8 +491,8 @@ class TestSummary(object):
         assert cat_branch == {(None, None): ({}, [build])}
 
     def test_one_build_no_logs(self):
-        builder = status_builder.BuilderStatus('builder0')
-        build = status_builder.BuildStatus(builder, 0)
+        builder = status_builder.BuilderStatus('builder0', '', self.master)
+        build = status_builder.BuildStatus(None, builder, 0)
         build.started = time.time()        
         build.setProperty('got_revision', '50000', None)
         build.buildFinished()
@@ -510,7 +511,7 @@ class TestSummary(object):
         assert '&lt;run&gt;' in out
 
     def test_one_build_no_logs_failure(self):
-        builder = status_builder.BuilderStatus('builder0')
+        builder = status_builder.BuilderStatus('builder0', '', self.master)
         build = status_builder.BuildStatus(builder, 0)
         build.started = time.time()        
         build.setProperty('got_revision', '50000', None)
@@ -537,7 +538,7 @@ class TestSummary(object):
         assert 'other borken' not in out        
         
     def test_one_build(self):
-        builder = status_builder.BuilderStatus('builder0')
+        builder = status_builder.BuilderStatus('builder0', '', self.master)
         add_builds(builder, [(60000, "F TEST1\n. b")])
 
         s = summary.Summary()
@@ -555,7 +556,7 @@ class TestSummary(object):
         assert 'TEST1' in out
 
     def test_two_builds(self):
-        builder = status_builder.BuilderStatus('builder0')
+        builder = status_builder.BuilderStatus('builder0', '', self.master)
         add_builds(builder, [('60000', "F TEST1\n. b"),
                              ('60001', ". TEST1\n. b")])
 
@@ -585,7 +586,7 @@ class TestSummary(object):
         assert '\n <a class="failSummary failed" href="javascript:togglestate(1,1)" id="a1c1">-</a> <span class="failSummary success">+</span>  success' in out
 
     def test_two_builds_samerev(self):
-        builder = status_builder.BuilderStatus('builder0')
+        builder = status_builder.BuilderStatus('builder0', '', self.master)
         add_builds(builder, [('60000', "F TEST1\n. b"),
                              ('60000', "F TEST1\n. b")])        
 
@@ -604,7 +605,7 @@ class TestSummary(object):
         assert 'TEST1' in out
 
     def test_two_builds_recentrev(self):
-        builder = status_builder.BuilderStatus('builder0')
+        builder = status_builder.BuilderStatus('builder0', '', self.master)
         add_builds(builder, [('60000', "F TEST1\n. b"),
                              ('60001', "F TEST1\n. b")])
 
@@ -624,7 +625,7 @@ class TestSummary(object):
         assert 'TEST1' in out
 
     def test_many_builds_query_builder(self):
-        builder = status_builder.BuilderStatus('builder0')
+        builder = status_builder.BuilderStatus('builder0', '', self.master)
         add_builds(builder, [('60000', "F TEST1\n. b"),
                              ('60000', ". a\n. b"),
                              ('60001', "F TEST1\n. b")])        
@@ -660,7 +661,7 @@ class TestSummary(object):
 
 
     def test_many_builds_query_builder_builds(self):
-        builder = status_builder.BuilderStatus('builder0')
+        builder = status_builder.BuilderStatus('builder0', '', self.master)
         add_builds(builder, [('60000', "F TEST1\n. b"),
                              ('60000', ". a\n. b"),
                              ('60001', "F TEST1\n. b")])        
@@ -692,7 +693,7 @@ class TestSummary(object):
         assert 'TEST1' in out
 
     def test_many_pytestLogs(self):
-        builder = status_builder.BuilderStatus('builder1')
+        builder = status_builder.BuilderStatus('builder1', '', self.master)
         build = status_builder.BuildStatus(builder, 0)
         build.started = time.time()
         build.setProperty('got_revision', '70000', None)
@@ -719,7 +720,7 @@ class TestSummary(object):
         assert 'pytest2 aborted' in out
 
     def test_subtle_failures(self):
-        builder = status_builder.BuilderStatus('builder1')
+        builder = status_builder.BuilderStatus('builder1', '', self.master)
         build = status_builder.BuildStatus(builder, 0)
         build.started = time.time()
         build.setProperty('got_revision', '70000', None)
@@ -767,12 +768,9 @@ class TestSummary(object):
         assert res == (2, '', 4, 'what')                
 
     def test_builders_with_categories(self):
-        builder1 = status_builder.BuilderStatus('builder_foo')
-        builder1.category = 'foo'
-        builder2 = status_builder.BuilderStatus('builder_bar')
-        builder2.category = 'bar'
-        builder3 = status_builder.BuilderStatus('builder_')
-        builder3.category = ''
+        builder1 = status_builder.BuilderStatus('builder_foo', 'foo', self.master)
+        builder2 = status_builder.BuilderStatus('builder_bar', 'bar', self.master)
+        builder3 = status_builder.BuilderStatus('builder_', '', self.master)
 
         add_builds(builder1, [('60000', "F TEST1\n")])
         add_builds(builder2, [('60000', "F TEST2\n")])
@@ -792,7 +790,7 @@ class TestSummary(object):
         assert "{bar}" in out
 
     def test_two_builds_different_rev_digits(self):
-        builder = status_builder.BuilderStatus('builder0')
+        builder = status_builder.BuilderStatus('builder0', '', self.master)
         add_builds(builder, [(999, "F TEST1\n. b"),
                              (1000, "F TEST1\n. b")])
 
@@ -806,8 +804,8 @@ class TestSummary(object):
         assert p999builder0-p999 == p1000builder0-p1000+1
 
     def test_build_times_and_filtering(self):
-        builder1 = status_builder.BuilderStatus('builder1')
-        builder2 = status_builder.BuilderStatus('builder2')
+        builder1 = status_builder.BuilderStatus('builder1', '', self.master)
+        builder2 = status_builder.BuilderStatus('builder2', '', self.master)
  
         add_builds(builder1, [('60000', "F TEST1\n")])
         add_builds(builder2, [('50000', ". TEST2\n")])        
