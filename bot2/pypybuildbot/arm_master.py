@@ -111,7 +111,7 @@ schedulers = [
         BUILDLINUXARMHF_RASPBIAN,      # on hhu-cross-raspbianhf, uses 1 core
 
         JITBACKENDONLYLINUXARMEL,      # on hhu-imx.53
-        JITBACKENDONLYLINUXARMHF,      # on hhu-raspberry-pi
+        JITBACKENDONLYLINUXARMHF,
         JITBACKENDONLYLINUXARMHF_v7,   # on cubieboard-bob
         ], branch=None, hour=0, minute=0),
 
@@ -123,12 +123,12 @@ schedulers = [
         JITLINUXARM,               # triggered by BUILDJITLINUXARM, on hhu-beagleboard
     ]),
     Triggerable("APPLVLLINUXARMHF_RASPBIAN_scheduler", [
-        APPLVLLINUXARMHF_RASPBIAN,  # triggered by BUILDLINUXARMHF_RASPBIAN, on hhu-raspberry-pi
+        APPLVLLINUXARMHF_RASPBIAN,  # triggered by BUILDLINUXARMHF_RASPBIAN
         APPLVLLINUXARMHF_v7,        # triggered by BUILDLINUXARMHF_RASPBIAN, on cubieboard-bob
     ]),
 
     Triggerable("JITLINUXARMHF_RASPBIAN_scheduler", [
-        JITLINUXARMHF_RASPBIAN,       # triggered by BUILDJITLINUXARMHF_RASPBIAN, on hhu-raspberry-pi
+        JITLINUXARMHF_RASPBIAN,       # triggered by BUILDJITLINUXARMHF_RASPBIAN
         JITLINUXARMHF_v7,             # triggered by BUILDJITLINUXARMHF_RASPBIAN, on cubieboard-bob
     ]),
 ]
@@ -147,7 +147,7 @@ builders = [
   # armhf
   ## armv6
   {"name": JITBACKENDONLYLINUXARMHF,
-   "slavenames": ['hhu-raspberry-pi'],
+   "slavenames": ['hhu-raspberry-pi', 'hhu-pypy-pi', 'hhu-pypy-pi2'],
    "builddir": JITBACKENDONLYLINUXARMHF,
    "factory": pypyJitBackendOnlyOwnTestFactoryARM,
    "category": 'linux-armhf',
@@ -179,14 +179,14 @@ builders = [
    },
   ## armv6 hardfloat
   {"name": APPLVLLINUXARMHF_RASPBIAN,
-   "slavenames": ["hhu-raspberry-pi"],
+   "slavenames": ['hhu-raspberry-pi', 'hhu-pypy-pi', 'hhu-pypy-pi2'],
    "builddir": APPLVLLINUXARMHF_RASPBIAN,
    "factory": pypyARMHF_RASPBIAN_TranslatedAppLevelTestFactory,
    "category": "linux-armhf",
    "locks": [ARMBoardLock.access('counting')],
    },
   {"name": JITLINUXARMHF_RASPBIAN,
-   "slavenames": ["hhu-raspberry-pi"],
+   "slavenames": ['hhu-raspberry-pi', 'hhu-pypy-pi', 'hhu-pypy-pi2'],
    'builddir': JITLINUXARMHF_RASPBIAN,
    'factory': pypyARMHF_RASPBIAN_JITTranslatedTestFactory,
    'category': 'linux-armhf',
