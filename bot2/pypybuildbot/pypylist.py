@@ -66,6 +66,8 @@ class PyPyTarball(object):
         name = self.filename.replace(ext, '')
         # remove the dash from linux-armel, else the split does not work
         name = name.replace('-armel', '_armel')
+        name = name.replace('-libc2', '_libc2')
+        name = name.replace('-armhf-rasp', '_armhf_rasp')
         dashes = name.count('-')
         if dashes == 4:
             # svn based
