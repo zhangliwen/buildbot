@@ -28,6 +28,7 @@ class PyPyTarball(object):
         'linux64':   50,
         'osx':       30,
         'win32':     10,
+        'linux_armhf_raspbian': 6,
         'linux_armel': 5,
         }
 
