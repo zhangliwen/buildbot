@@ -51,6 +51,14 @@ pypyJITCrossTranslationFactoryRaspbianHF = pypybuilds.NightlyBuild(
     prefix=['schroot', '-c', 'raspbian'],
     trigger='JITLINUXARMHF_RASPBIAN_scheduler')
 
+pypyJITCrossTranslationFactoryRaringHF = pypybuilds.NightlyBuild(
+    translationArgs=(crosstranslationargs
+                        + jit_translation_args
+                        + crosstranslationjitargs),
+    platform='linux-armhf-raring',
+    interpreter='pypy',
+    prefix=['schroot', '-c', 'raring'])
+
 pypyARMJITTranslatedTestFactory = pypybuilds.TranslatedTests(
     translationArgs=(crosstranslationargs
                         + jit_translation_args
@@ -100,12 +108,14 @@ BUILDLINUXARM = "build-pypy-c-linux-armel"
 BUILDJITLINUXARM = "build-pypy-c-jit-linux-armel"
 BUILDLINUXARMHF_RASPBIAN = "build-pypy-c-linux-armhf-raspbian"
 BUILDJITLINUXARMHF_RASPBIAN = "build-pypy-c-jit-linux-armhf-raspbian"
+BUILDJITLINUXARMHF_RARING = "build-pypy-c-jit-linux-armhf-raring"
 
 
 schedulers = [
     Nightly("nighly-arm-0-00", [
         BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
         BUILDJITLINUXARMHF_RASPBIAN,   # on hhu-cross-raspbianhf, uses 1 core
+        BUILDJITLINUXARMHF_RARING,     # on hhu-cross-raring-armhf, uses 1 core
 
         BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
         BUILDLINUXARMHF_RASPBIAN,      # on hhu-cross-raspbianhf, uses 1 core
@@ -233,6 +243,13 @@ builders = [
    "slavenames": ['hhu-cross-raspbianhf'],
    "builddir": BUILDJITLINUXARMHF_RASPBIAN,
    "factory": pypyJITCrossTranslationFactoryRaspbianHF,
+   "category": 'linux-armhf',
+   "locks": [ARMCrossLock.access('counting')],
+  },
+  {"name": BUILDJITLINUXARMHF_RARING,
+   "slavenames": ['hhu-cross-raring'],
+   "builddir": BUILDJITLINUXARMHF_RARING,
+   "factory": pypyJITCrossTranslationFactoryRaringHF,
    "category": 'linux-armhf',
    "locks": [ARMCrossLock.access('counting')],
   },
