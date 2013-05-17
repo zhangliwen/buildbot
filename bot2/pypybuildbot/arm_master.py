@@ -23,8 +23,7 @@ pypyCrossTranslationFactoryARM = pypybuilds.NightlyBuild(
     translationArgs=crosstranslationargs + ['-O2'],
     platform='linux-armel',
     interpreter='pypy',
-    prefix=['schroot', '-c', 'armel'],
-    trigger='APPLVLLINUXARM_scheduler')
+    prefix=['schroot', '-c', 'armel'])
 
 pypyJITCrossTranslationFactoryARM = pypybuilds.NightlyBuild(
     translationArgs=(crosstranslationargs
