@@ -28,7 +28,8 @@ class PyPyTarball(object):
         'linux64':   50,
         'osx':       30,
         'win32':     10,
-        'linux_armhf_raspbian': 6,
+        'linux_armhf_raspbian': 7,
+        'linux_armhf_raring': 6,
         'linux_armel': 5,
         }
 
@@ -68,7 +69,7 @@ class PyPyTarball(object):
         # remove the dash from linux-armel, else the split does not work
         name = name.replace('-armel', '_armel')
         name = name.replace('-libc2', '_libc2')
-        name = name.replace('-armhf-rasp', '_armhf_rasp')
+        name = name.replace('-armhf-ra', '_armhf_ra')
         dashes = name.count('-')
         if dashes == 4:
             # svn based
