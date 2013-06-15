@@ -62,7 +62,7 @@ def test_Translate():
 def test_pypy_upload():
     pth = py.test.ensuretemp('buildbot')
     inst = builds.PyPyUpload(slavesrc='slavesrc', masterdest=str(pth.join('mstr')),
-                             basename='base-%(final_file_name)s', workdir='.',
+                             basename='base-%(got_revision)s', workdir='.',
                              blocksize=100)
     factory = inst._getStepFactory().factory
     kw = inst._getStepFactory().kwargs
@@ -73,7 +73,7 @@ def test_pypy_upload():
     rebuilt.start()
     assert pth.join('mstr').check(dir=True)
     assert rebuilt.masterdest == str(pth.join('mstr', 'trunk',
-                                              'base-123-ea5ca8'))
+                                              'base-123'))
     assert rebuilt.symlinkname == str(pth.join('mstr', 'trunk',
                                                'base-latest'))
 
