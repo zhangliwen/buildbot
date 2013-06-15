@@ -181,9 +181,12 @@ JITBENCH64_2 = 'jit-benchmark-linux-x86-64-2'
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
 
 
-extra_opts= {'xerxes': {'keepalive_interval': 15},
+extra_opts = {'xerxes': {'keepalive_interval': 15},
              'aurora': {'max_builds': 1},
              'salsa': {'max_builds': 1},
+             'hhu-raspberry-pi': {'max_builds': 1},
+             'hhu-pypy-pi': {'max_builds': 1},
+             'hhu-pypy-pi2': {'max_builds': 1},
              }
 
 BuildmasterConfig = {
@@ -204,7 +207,7 @@ BuildmasterConfig = {
             APPLVLLINUX32,             # on tannit32, uses 1 core
             APPLVLLINUX64,             # on allegro64, uses 1 core
             # other platforms
-            MACOSX32,                  # on minime
+            #MACOSX32,                 # on minime
             JITWIN32,                  # on aurora
             JITFREEBSD764,             # on headless
             JITFREEBSD864,             # on ananke

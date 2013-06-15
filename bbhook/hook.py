@@ -3,6 +3,8 @@ import py
 import subprocess
 import sys
 import time
+import thread, Queue
+import traceback
 
 from .main import app
 from . import scm
@@ -39,7 +41,24 @@ def get_commits(payload, seen_nodes=set()):
         yield commit
 
 
-def handle(payload, test=False):
+
+def _handle_thread():
+    while True:
+        local_repo = payload = None
+        try:
+            local_repo, payload = queue.get()
+            _do_handle(local_repo, payload)
+        except:
+            traceback.print_exc()
+            print >> sys.stderr, 'payload:'
+            pprint.pprint(payload, sys.stderr)
+            print >> sys.stderr
+
+queue = Queue.Queue()
+thread.start_new_thread(_handle_thread, ())
+
+
+def handle(payload, test=True):
     path = payload['repository']['absolute_url']
     owner = payload['repository']['owner']
     local_repo = app.config['LOCAL_REPOS'].join(path)
@@ -47,6 +66,12 @@ def handle(payload, test=False):
     if not check_for_local_repo(local_repo, remote_repo, owner):
         print >> sys.stderr, 'Ignoring unknown repo', path
         return
+    if test:
+        _do_handle(local_repo, payload, test)
+    else:
+        queue.put((local_repo, payload))
+
+def _do_handle(local_repo, payload, test=False):
     scm.hg('pull', '-R', local_repo)
     for commit in get_commits(payload):
         for handler in HANDLERS:

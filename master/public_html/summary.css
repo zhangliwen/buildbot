@@ -73,6 +73,10 @@ table.Grid tr td.build {
     border: 1px gray solid;
 }
 
+div.header {
+    margin-top: 15px;
+}
+
 div.footer {
     font-size: 80%;
 }
