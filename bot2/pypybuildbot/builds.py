@@ -202,6 +202,30 @@ class UpdateCheckout(ShellCmd):
         ShellCmd.start(self)
 
 
+class UpdateGitCheckout(ShellCmd):
+    description = 'git checkout'
+    command = 'UNKNOWN'
+
+    def __init__(self, workdir=None, haltOnFailure=True, force_branch=None,
+                 **kwargs):
+        ShellCmd.__init__(self, workdir=workdir, haltOnFailure=haltOnFailure,
+                          **kwargs)
+        self.force_branch = force_branch
+        self.addFactoryArguments(force_branch=force_branch)
+
+    def start(self):
+        if self.force_branch is not None:
+            branch = self.force_branch
+            # Note: We could add a warning to the output if we
+            # ignore the branch set by the user.
+        else:
+            properties = self.build.getProperties()
+            branch = properties['branch'] or 'default'
+        command = ["git", "checkout", "-f", branch]
+        self.setCommand(command)
+        ShellCmd.start(self)
+
+
 class CheckGotRevision(ShellCmd):
     description = 'got_revision'
     command = ['hg', 'parents', '--template', 'got_revision:{rev}:{node}']
@@ -263,6 +287,47 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
     else:
         factory.addStep(ShellCmd(description="hg update",
                 command=WithProperties("hg update --clean %(revision)s"),
+                workdir=workdir))
+
+def update_git(platform, factory, repourl, workdir, use_branch,
+              force_branch=None):
+    if platform == 'win32':
+        command = "if not exist .git rmdir /q /s ."
+    else:
+        command = "if [ ! -d .git ]; then rm -fr * .[a-z]*; fi"
+    factory.addStep(ShellCmd(description="rmdir?",
+                             command=command,
+                             workdir=workdir,
+                             haltOnFailure=False))
+    #
+    if platform == "win32":
+        command = "if not exist .git %s"
+    else:
+        command = "if [ ! -d .git ]; then %s; fi"
+    command = command % ("git clone " + repourl + " .")
+    factory.addStep(ShellCmd(description="git clone",
+                             command=command,
+                             workdir=workdir,
+                             timeout=3600,
+                             haltOnFailure=True))
+    #
+    factory.addStep(
+        ShellCmd(description="git clean",
+                 command="git clean",
+                 workdir=workdir,
+                 haltOnFailure=True))
+    #
+    factory.addStep(ShellCmd(description="git pull",
+                             command="git pull",
+                             workdir=workdir))
+    #
+    if use_branch or force_branch:
+        factory.addStep(UpdateGitCheckout(workdir=workdir,
+                                       haltOnFailure=True,
+                                       force_branch=force_branch))
+    else:
+        factory.addStep(ShellCmd(description="git checkout",
+                command=WithProperties("git checkout -f %(revision)s"),
                 workdir=workdir))
 
 
@@ -670,3 +735,63 @@ class CPythonBenchmark(factory.BuildFactory):
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                                          masterdest=WithProperties(resultfile),
                                          workdir="."))
+
+class NativeNumpyTests(factory.BuildFactory):
+    '''
+    Download a pypy nightly, install nose and numpy, and run the numpy test suite
+    '''
+    def __init__(self, platform='linux',
+                 app_tests=False,
+                 lib_python=False,
+                 pypyjit=False,
+                 prefix=None,
+                 translationArgs=[]
+                 ):
+        factory.BuildFactory.__init__(self)
+
+        # XXX extend to checkout the specific revision of the build
+        setup_steps(platform, self)
+
+        # download corresponding nightly build
+        self.addStep(ShellCmd(
+            description="Clear pypy-c",
+            command=['rm', '-rf', 'pypy-c'],
+            workdir='.'))
+        extension = get_extension(platform)
+        name = build_name(platform, pypyjit, translationArgs, placeholder='%(revision)s') + extension
+        self.addStep(PyPyDownload(
+            basename=name,
+            mastersrc='~/nightly',
+            slavedest='pypy_build' + extension,
+            workdir='pypy-c'))
+
+        # extract downloaded file
+        if platform.startswith('win'):
+            raise NotImplementedError
+        else:
+            self.addStep(ShellCmd(
+                description="decompress pypy-c",
+                command=['tar', '--extract', '--file=pypy_build'+ extension, '--strip-components=1', '--directory=.'],
+                workdir='pypy-c'))
+
+        # copy pypy-c to the expected location within the pypy source checkout
+        self.addStep(ShellCmd(
+            description="move pypy-c",
+            command=['cp', '-v', 'pypy-c/bin/pypy', 'build/pypy/goal/pypy-c'],
+            workdir='.'))
+        # copy generated and copied header files to build/include
+        self.addStep(ShellCmd(
+            description="move header files",
+            command=['cp', '-vr', 'pypy-c/include', 'build'],
+            workdir='.'))
+        # copy ctypes_resource_cache generated during translation
+        self.addStep(ShellCmd(
+            description="move ctypes resource cache",
+            command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy'],
+            workdir='.'))
+
+        # obtain a pypy-compatible branch of numpy
+        numpy_url = 'https://github.com/mattip/numpy'
+        numpy_pypy_branch = 'pypy'
+        update_git(platform, factory, numpy_url, 'numpy_src', use_branch=True,
+              force_branch=numpy_pypy_branch)
