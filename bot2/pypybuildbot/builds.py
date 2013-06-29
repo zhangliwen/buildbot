@@ -771,27 +771,38 @@ class NativeNumpyTests(factory.BuildFactory):
         else:
             self.addStep(ShellCmd(
                 description="decompress pypy-c",
-                command=['tar', '--extract', '--file=pypy_build'+ extension, '--strip-components=1', '--directory=.'],
-                workdir='pypy-c'))
+                command=['tar', '--extract', '--file=pypy_build'+ extension,
+                         '--strip-components=1', '--directory=.'],
+                workdir='pypy-c/download'))
 
-        # copy pypy-c to the expected location within the pypy source checkout
+        # virtualenv the download
         self.addStep(ShellCmd(
-            description="move pypy-c",
-            command=['cp', '-v', 'pypy-c/bin/pypy', 'build/pypy/goal/pypy-c'],
-            workdir='.'))
-        # copy generated and copied header files to build/include
+            description="create virtualenv",
+            command=['virtualenv','-p', 'download/bin/pypy', 'install'],
+            workdir='pypy-c'))
+
         self.addStep(ShellCmd(
-            description="move header files",
-            command=['cp', '-vr', 'pypy-c/include', 'build'],
-            workdir='.'))
-        # copy ctypes_resource_cache generated during translation
-        self.addStep(ShellCmd(
-            description="move ctypes resource cache",
-            command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy'],
-            workdir='.'))
+            description="install nose",
+            command=['download/bin/pip', 'install','nose'],
+            workdir='pypy-c'))
 
         # obtain a pypy-compatible branch of numpy
         numpy_url = 'https://github.com/mattip/numpy'
         numpy_pypy_branch = 'pypy'
         update_git(platform, factory, numpy_url, 'numpy_src', use_branch=True,
               force_branch=numpy_pypy_branch)
+
+        self.addStep(ShellCmd(
+            description="install numpy",
+            command=['download/bin/python', 'setup.py','install'],
+            workdir='numpy_src'))
+
+        self.addStep(ShellCmd(
+            description="test numpy",
+            command=['download/bin/python', '-c', '"import numpy;numpy.test()"',
+                     '> pytest-numpy.log','2>&1'],
+            logfiles={'pytestLog': 'pytest-numpy.log'},
+            timeout=4000,
+            workdir='numpy_src',
+            #env={"PYTHONPATH": ['download']}, # shouldn't be needed, but what if it is set externally?
+        ))
