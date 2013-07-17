@@ -783,23 +783,30 @@ class NativeNumpyTests(factory.BuildFactory):
 
         self.addStep(ShellCmd(
             description="install nose",
-            command=['download/bin/pip', 'install','nose'],
+            command=['install/bin/pip', 'install','nose'],
             workdir='pypy-c'))
 
         # obtain a pypy-compatible branch of numpy
         numpy_url = 'https://github.com/mattip/numpy'
         numpy_pypy_branch = 'pypy'
-        update_git(platform, factory, numpy_url, 'numpy_src', use_branch=True,
+        update_git(platform, self, numpy_url, 'numpy_src', use_branch=True,
               force_branch=numpy_pypy_branch)
+
+        if os.path.exists('pypy_c/download/lib_pypy/numpy.py'):
+            self.addStep(ShellCmd(
+                description="delete lib_pypy/numpy.*",
+                command=['rm', 'download/lib_pypy/numpy.*'],
+                workdir='pypy-c'))
+
 
         self.addStep(ShellCmd(
             description="install numpy",
-            command=['download/bin/python', 'setup.py','install'],
+            command=['install/bin/python', 'setup.py','install'],
             workdir='numpy_src'))
 
         self.addStep(ShellCmd(
             description="test numpy",
-            command=['download/bin/python', '-c', '"import numpy;numpy.test()"',
+            command=['install/bin/python', '-c', '"import numpy;numpy.test()"',
                      '> pytest-numpy.log','2>&1'],
             logfiles={'pytestLog': 'pytest-numpy.log'},
             timeout=4000,
