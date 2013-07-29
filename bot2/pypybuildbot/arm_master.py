@@ -100,6 +100,7 @@ pypyARMHF_RARING_JITTranslatedTestFactory = pypybuilds.TranslatedTests(
     platform='linux-armhf-raring',
     )
 #
+LINUXARMHF = "own-linux-armhf"
 APPLVLLINUXARM = "pypy-c-app-level-linux-armel"
 APPLVLLINUXARMHF_v7 = "pypy-c-app-level-linux-armhf-v7"
 APPLVLLINUXARMHF_RASPBIAN = "pypy-c-app-level-linux-armhf-raspbian"
@@ -178,6 +179,12 @@ builders = [
    "locks": [ARMBoardLock.access('counting')],
    },
   ## armv7
+  {"name": LINUXARMHF,
+   "slavenames": ["greenbox3-node0"],
+   "builddir": LINUXARMHF,
+   "factory": pypyOwnTestFactoryARM,
+   "category": 'linux-armhf',
+  },
   {"name": JITBACKENDONLYLINUXARMHF_v7,
    "slavenames": ['cubieboard-bob'],
    "builddir": JITBACKENDONLYLINUXARMHF_v7,
