@@ -179,14 +179,14 @@ class RevisionOutcomeSetCache(object):
         run_info = {'URL': run_url, 'elapsed': pytest_elapsed or None,
                     'times': build.getTimes()}
         outcome_set = RevisionOutcomeSet(rev, key, run_info)
-        someresult = False
-        # "*-run" categories mean the build is not a test build!
-        if builderStatus.category:
-            someresult = builderStatus.category.endswith("-run")
+        #someresult = False
+        ## "*-run" categories mean the build is not a test build!
+        #if builderStatus.category:
+        #    someresult = builderStatus.category.endswith("-run")
         if pytest_logs:
             for stepName, resultLog in pytest_logs:
                 if resultLog.hasContents():
-                    someresult = True
+                    #someresult = True
                     outcome_set.populate(resultLog)
 
         failedtests = not not outcome_set.failed
@@ -201,11 +201,12 @@ class RevisionOutcomeSetCache(object):
                 failure = text
                 break
 
-        if not someresult or failure is not None:
-            if failure:
-                name = '"%s"' % failure # quote
-            else:
-                name = '<run>'
+        #if not someresult or failure is not None:
+        if failure is not None:
+            #if failure:
+            name = '"%s"' % failure # quote
+            #else:
+            #    name = '<run>'
             outcome_set.populate_one(name, '!')
 
         return outcome_set

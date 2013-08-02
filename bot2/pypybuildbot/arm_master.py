@@ -56,7 +56,8 @@ pypyJITCrossTranslationFactoryRaringHF = pypybuilds.NightlyBuild(
                         + crosstranslationjitargs),
     platform='linux-armhf-raring',
     interpreter='pypy',
-    prefix=['schroot', '-c', 'raring'])
+    prefix=['schroot', '-c', 'raring'],
+    trigger='JITLINUXARMHF_RARING_scheduler')
 
 pypyARMJITTranslatedTestFactory = pypybuilds.TranslatedTests(
     translationArgs=(crosstranslationargs
@@ -89,6 +90,15 @@ pypyARMHF_RASPBIAN_TranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
     app_tests=True,
     platform='linux-armhf-raspbian',
 )
+pypyARMHF_RARING_JITTranslatedTestFactory = pypybuilds.TranslatedTests(
+    translationArgs=(crosstranslationargs
+                        + jit_translation_args
+                        + crosstranslationjitargs),
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    platform='linux-armhf-raring',
+    )
 #
 APPLVLLINUXARM = "pypy-c-app-level-linux-armel"
 APPLVLLINUXARMHF_v7 = "pypy-c-app-level-linux-armhf-v7"
@@ -97,6 +107,7 @@ APPLVLLINUXARMHF_RASPBIAN = "pypy-c-app-level-linux-armhf-raspbian"
 JITLINUXARM = "pypy-c-jit-linux-armel"
 JITLINUXARMHF_v7 = "pypy-c-jit-linux-armhf-v7"
 JITLINUXARMHF_RASPBIAN = "pypy-c-jit-linux-armhf-raspbian"
+JITLINUXARMHF_RARING = "pypy-c-jit-linux-armhf-raring"
 
 JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
 JITBACKENDONLYLINUXARMHF = "jitbackendonly-own-linux-armhf"
@@ -155,6 +166,10 @@ schedulers = [
         JITLINUXARMHF_RASPBIAN,       # triggered by BUILDJITLINUXARMHF_RASPBIAN
         JITLINUXARMHF_v7,             # triggered by BUILDJITLINUXARMHF_RASPBIAN, on cubieboard-bob
     ]),
+
+    Triggerable("JITLINUXARMHF_RARING_scheduler", [
+        JITLINUXARMHF_RARING,         # triggered by BUILDJITLINUXARMHF_RARING
+    ])
 ]
 
 builders = [
@@ -230,6 +245,12 @@ builders = [
    'factory': pypyARMHF_RASPBIAN_JITTranslatedTestFactory,  # XXX replace this with a custom build
    'category': 'linux-armhf',
    "locks": [ARMBoardLock.access('counting')],
+   },
+  {"name": JITLINUXARMHF_RARING,
+   "slavenames": ["greenbox3-node0"],
+   'builddir': JITLINUXARMHF_RARING,
+   'factory': pypyARMHF_RARING_JITTranslatedTestFactory,
+   'category': 'linux-armhf',
    },
   # Translation Builders for ARM
   {"name": BUILDLINUXARM,
