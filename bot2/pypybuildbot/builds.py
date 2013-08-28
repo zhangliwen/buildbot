@@ -29,10 +29,6 @@ ARMCrossLock = locks.MasterLock('arm_cpu', maxCount=2)
 ARMBoardLock = locks.SlaveLock('arm_boards', maxCount=1)
 
 
-# XXX monkey patch Trigger class, there are to issues with the list of renderables
-# original: Trigger.renderables = [ 'set_propetries', 'scheduler', 'sourceStamp' ]
-Trigger.renderables = [ 'set_properties', 'schedulerNames', 'sourceStamp' ]
-
 class ShellCmd(shell.ShellCommand):
     # our own version that can distinguish abort cases (rc == -1)
 
