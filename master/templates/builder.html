@@ -12,6 +12,10 @@
   (<a href="{{ path_to_root }}summary?builder={{ name }}">view in summary</a>)
 </p>
 
+{% if description %}
+  <div class="BuilderDescription">{{ description }}</div>
+{% endif %}
+
 <div class="column">
 
 {% if current %}
@@ -74,6 +78,8 @@
 
 {{ build_table(recent) }}
 
+<a href="?numbuilds={{numbuilds + 5}}">Show more</a>
+
 </div>
 <div class="column">
 
@@ -90,12 +96,15 @@
   <tr class="{{ loop.cycle('alt', '') }}">
   <td><b><a href="{{ s.link|e }}">{{ s.name|e }}</a></b></td>
   {% if s.connected %}
-    <td class="idle">connected</td>
-    <td>{{ s.admin|email if s.admin else ""}}</td>
+    {% if s.paused %}
+      <td class="paused">paused</td>
+    {% else %}
+      <td class="idle">connected</td>
+    {% endif %}
   {% else %}
-    <td class="offline">offline</td>
-    <td/>
+    <td class="offline">offline</td> 
   {% endif %}
+  <td>{{ s.admin|email if s.admin else ""}}</td>
   </tr>
 {% else %}
   <td>no slaves attached</td>
