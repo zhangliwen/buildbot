@@ -661,8 +661,7 @@ class Summary(HtmlResource):
 
     def getTitle(self, request):
         status = self.getStatus(request)
-        return "%s: summaries of last %d revisions" % (status.getProjectName(),
-                                                       N)
+        return "%s: summaries of last %d revisions" % (status.getTitle(), N)
 
     @staticmethod
     def _prune_runs(runs, cutnum):
@@ -686,8 +685,10 @@ class Summary(HtmlResource):
         except KeyError:
             pass
         builder = status.botmaster.builders[builderName]
+        factory = builder.config.factory
         branch = None
-        for _, kw in builder.buildFactory.steps:
+        for step in factory.steps:
+            kw = step.kwargs
             if 'defaultBranch' in kw:
                 if kw.get('explicitBranch'):
                     branch = kw['defaultBranch']
@@ -722,7 +723,6 @@ class Summary(HtmlResource):
                          only_builder or only_branches)
 
         cat_branches = {}
-
         for builderName in status.getBuilderNames(only_categories):
             if not test_builder(builderName):
                 continue
