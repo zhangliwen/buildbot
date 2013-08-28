@@ -15,6 +15,7 @@
     <title>{{ pageTitle|e }}</title>
     <link rel="stylesheet" href="{{ stylesheet }}" type="text/css" />
     <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ path_to_root }}rss">
+    <link rel="shortcut icon" href="{{ path_to_root }}favicon.ico">
     {% block morehead %}{% endblock %}
     {% endblock %}
   </head>
@@ -45,10 +46,10 @@
 
     {%- block barecontent -%}
     <hr/>
-
-    {% if alert_msg != '' %}
-    <div class="alert">
-        {{alert_msg}}
+    
+    {% if alert_msg != "" %}
+    <div class="alert">    
+    {{ alert_msg }}
     </div>
     {% endif %}
 
