@@ -374,7 +374,7 @@ class SummaryPage(object):
 
     def _start_cat_branch(self, cat_branch, fine=False):
         category, branch = cat_branch
-        branch = trunk_name(branch)
+        branch = default_name(branch)
         category = category_name(category)
 
         self.cur_cat_branch = (category, branch)
@@ -615,14 +615,16 @@ def make_test(lst):
         return lambda v: v in membs
 
 def make_subst(v1, v2):
+    if not isinstance(v1, list):
+        v1 = [v1]
     def subst(v):
-        if v == v1:
+        if v in v1:
             return v2
         return v
     return subst
 
-trunk_name = make_subst(None, "<trunk>")
-trunk_value = make_subst("<trunk>", None)
+default_name = make_subst(['default', None], '<default>')
+default_value = make_subst(['default', '<default>'], ['default', None])
 category_name = make_subst(None, '-')
 nocat_value = make_subst("-", None)
 
@@ -825,7 +827,13 @@ class Summary(HtmlResource):
         only_branches = request.args.get('branch', None)
         only_recentrevs = request.args.get('recentrev', None)
         if only_branches is not None:
-            only_branches = map(trunk_value, only_branches)
+            branches = []
+            for x in map(default_value, only_branches):
+                if isinstance(x, str):
+                    branches.append(x)
+                else:
+                    branches.extend(x)
+            only_branches = branches
         only_builder = request.args.get('builder', None)
         only_builds = None
         if only_builder is not None:
@@ -861,16 +869,16 @@ class Summary(HtmlResource):
                                          outcome_set_cache.stats()))
 
         if request.args:
-            trunk_vs_any_text = "filter nothing"
-            trunk_vs_any_query = ""
+            default_vs_any_text = "filter nothing"
+            default_vs_any_query = ""
         else:
-            trunk_vs_any_text = "all <trunk>"
-            trunk_vs_any_query = "?branch=<trunk>"
+            default_vs_any_text = "all <default>"
+            default_vs_any_query = "?branch=<default>"
 
-        trunk_vs_any_anchor = html.a(trunk_vs_any_text,
+        default_vs_any_anchor = html.a(default_vs_any_text,
                                      href="/summary%s" %
-                                     trunk_vs_any_query,
+                                     default_vs_any_query,
                                      class_="failSummary trunkVsAny")
-        trunk_vs_any = html.div(trunk_vs_any_anchor,
+        default_vs_any = html.div(default_vs_any_anchor,
                                 style="position: absolute; right: 5%;")
-        return trunk_vs_any.unicode() + page.render()
+        return default_vs_any.unicode() + page.render()
