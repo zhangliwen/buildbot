@@ -482,6 +482,9 @@ def add_builds(builder, builds):
     builder.nextBuildNumber = n
 
 
+METABRANCH = '<default>'
+
+
 class TestSummary(object):
 
     def setup_method(self, meth):
@@ -510,7 +513,7 @@ class TestSummary(object):
         out = s.body(req)
         cat_branch = res()
 
-        assert cat_branch == {(None, None): ({}, [build])}
+        assert cat_branch == {(None, METABRANCH): ({}, [build])}
 
     def test_one_build_no_logs(self):
         builder = status_builder.BuilderStatus('builder0', None, self.master, '')
@@ -527,7 +530,7 @@ class TestSummary(object):
         out = s.body(req)
         cat_branch = res()
 
-        revs = cat_branch[(None, None)][0]
+        revs = cat_branch[(None, METABRANCH)][0]
         assert revs.keys() == ['50000']
 
         assert 'success' in out
@@ -553,7 +556,7 @@ class TestSummary(object):
         out = s.body(req)
         cat_branch = res()
 
-        revs = cat_branch[(None, None)][0]
+        revs = cat_branch[(None, METABRANCH)][0]
         assert revs.keys() == ['50000']
 
         assert 'step borken' in out
@@ -569,7 +572,7 @@ class TestSummary(object):
         out = s.body(req)
         cat_branch = res()
 
-        revs = cat_branch[(None, None)][0]
+        revs = cat_branch[(None, METABRANCH)][0]
         assert revs.keys() == ['60000']
         outcome = revs['60000']['builder0']
         assert outcome.revision == '60000'
@@ -588,7 +591,7 @@ class TestSummary(object):
         out = s.body(req)
         cat_branch = res()
 
-        revs = cat_branch[(None, None)][0]
+        revs = cat_branch[(None, METABRANCH)][0]
         assert sorted(revs.keys()) == ['60000', '60001']
         outcome = revs['60000']['builder0']
         assert outcome.revision == '60000'
@@ -619,7 +622,7 @@ class TestSummary(object):
         out = s.body(req)
         cat_branch = res()
 
-        revs = cat_branch[(None, None)][0]
+        revs = cat_branch[(None, METABRANCH)][0]
         assert sorted(revs.keys()) == ['60000']
         outcome = revs['60000']['builder0']
         assert outcome.revision == '60000'
@@ -639,7 +642,7 @@ class TestSummary(object):
         out = s.body(req)
         cat_branch = res()
 
-        revs = cat_branch[(None, None)][0]
+        revs = cat_branch[(None, METABRANCH)][0]
         assert sorted(revs.keys()) == ['60000']
         outcome = revs['60000']['builder0']
         assert outcome.revision == '60000'
@@ -660,7 +663,7 @@ class TestSummary(object):
         out = s.body(req)
         cat_branch = res()
 
-        runs = cat_branch[(None, None)][0]
+        runs = cat_branch[(None, METABRANCH)][0]
         assert sorted(runs.keys()) == [(0, '60000'), (1, '60000'), (2, '60001')]
         outcome = runs[(0, '60000')]['builder0']
         assert outcome.revision == '60000'
@@ -697,7 +700,7 @@ class TestSummary(object):
         out = s.body(req)
         cat_branch = res()
 
-        runs = cat_branch[(None, None)][0]
+        runs = cat_branch[(None, METABRANCH)][0]
         assert sorted(runs.keys()) == [(0, '60000'), (2, '60001')]
         outcome = runs[(0, '60000')]['builder0']
         assert outcome.revision == '60000'

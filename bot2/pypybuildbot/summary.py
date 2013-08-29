@@ -374,7 +374,7 @@ class SummaryPage(object):
 
     def _start_cat_branch(self, cat_branch, fine=False):
         category, branch = cat_branch
-        branch = default_name(branch)
+        branch = meta_branch_name(branch)
         category = category_name(category)
 
         self.cur_cat_branch = (category, branch)
@@ -623,8 +623,11 @@ def make_subst(v1, v2):
         return v
     return subst
 
-default_name = make_subst(['default', None], '<default>')
-default_value = make_subst(['default', '<default>'], ['default', None])
+# Map certain branch names from SourceStamps to a common name shown on the page
+meta_branch_name = make_subst(['default', '', None], '<default>')
+# map the meta-branch <default> to the actual branch entries from the
+# SourceStamp
+default_value = make_subst('<default>', ['default', '', None])
 category_name = make_subst(None, '-')
 nocat_value = make_subst("-", None)
 
@@ -749,6 +752,7 @@ class Summary(HtmlResource):
                 if not test_rev(got_rev):
                     continue
 
+                branch = meta_branch_name(branch)
                 cat_branch = (builderStatus.category, branch)
 
                 runs, no_revision_builds = cat_branches.setdefault(cat_branch,
