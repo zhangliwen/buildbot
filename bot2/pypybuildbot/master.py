@@ -257,7 +257,7 @@ BuildmasterConfig = {
                         JITONLYLINUXPPC64,
                         JITBENCH,
                         JITBENCH64,
-            ] + ARM.builderNames),
+            ] + ARM.builderNames, properties=[]),
     ] + ARM.schedulers,
 
     'status': [status, ircbot],
