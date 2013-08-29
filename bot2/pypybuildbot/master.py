@@ -213,12 +213,12 @@ BuildmasterConfig = {
             JITFREEBSD864,             # on ananke
             JITFREEBSD964,             # on exarkun's freebsd
             JITMACOSX64,               # on xerxes
-            ], branch=None, hour=0, minute=0),
+            ], branch='default', hour=0, minute=0),
 
         Nightly("nightly-2-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-        ], branch=None, hour=2, minute=0),
+        ], branch='default', hour=2, minute=0),
 
         Nightly("nightly-2-00-py3k", [
             LINUX64,                   # on allegro64, uses all cores
