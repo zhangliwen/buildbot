@@ -587,3 +587,35 @@ class CPythonBenchmark(factory.BuildFactory):
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                                          masterdest=WithProperties(resultfile),
                                          workdir="."))
+
+class PyPyBuildbotTestFactory(factory.BuildFactory):
+    def __init__(self):
+        factory.BuildFactory.__init__(self)
+        # clone
+        self.addStep(
+            Mercurial(
+                repourl='https://bitbucket.org/pypy/buildbot',
+                mode='incremental',
+                method='fresh',
+                defaultBranch='default',
+                branchType='inrepo',
+                clobberOnBranchChange=False,
+                logEnviron=False))
+        # create a virtualenv
+        self.addStep(ShellCmd(
+            description='create virtualenv',
+            haltOnFailure=True,
+            command='virtualenv ../venv'))
+        # install deps
+        self.addStep(ShellCmd(
+            description="install dependencies",
+            haltOnFailure=True,
+            command=('../venv/bin/pip install -r requirements.txt').split()))
+        # run tests
+        self.addStep(PytestCmd(
+            description="pytest buildbot",
+            haltOnFailure=True,
+            command=["../venv/bin/py.test",
+                     "--resultlog=testrun.log",
+                     ],
+            logfiles={'pytestLog': 'testrun.log'}))
