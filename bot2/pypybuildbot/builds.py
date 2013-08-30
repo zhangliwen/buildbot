@@ -28,6 +28,7 @@ ARMCrossLock = locks.MasterLock('arm_cpu', maxCount=2)
 # while the boards can only run one job at the same time
 ARMBoardLock = locks.SlaveLock('arm_boards', maxCount=1)
 
+map_branch_name = lambda x: x if x not in ['', None, 'default'] else 'trunk'
 
 class ShellCmd(shell.ShellCommand):
     # our own version that can distinguish abort cases (rc == -1)
@@ -44,9 +45,7 @@ class PyPyUpload(transfer.FileUpload):
 
     def start(self):
         properties = self.build.getProperties()
-        branch = properties['branch']
-        if branch is None:
-            branch = 'trunk'
+        branch = map_branch_name(properties['branch'])
         #masterdest = properties.render(self.masterdest)
         masterdest = os.path.expanduser(self.masterdest)
         if branch.startswith('/'):
@@ -83,11 +82,8 @@ class PyPyDownload(transfer.FileDownload):
     def start(self):
 
         properties = self.build.getProperties()
-        branch = properties['branch']
+        branch = map_branch_name(properties['branch'])
         revision = properties['revision']
-
-        if branch is None:
-            branch = 'trunk'
         mastersrc = os.path.expanduser(self.mastersrc)
 
         if branch.startswith('/'):
@@ -158,9 +154,7 @@ class PytestCmd(ShellCmd):
             builder.summary_by_branch_and_revision = {}
         try:
             rev = properties['got_revision']
-            branch = properties['branch']
-            if branch is None:
-                branch = 'trunk'
+            branch = map_branch_name(properties['branch'])
             if branch.endswith('/'):
                 branch = branch[:-1]
         except KeyError:
