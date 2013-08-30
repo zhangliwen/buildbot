@@ -89,7 +89,7 @@ class PyPyDownload(transfer.FileDownload):
         if branch.startswith('/'):
             branch = branch[1:]
         mastersrc = os.path.join(mastersrc, branch)
-        if revision is not None:
+        if revision:
             basename = WithProperties(self.basename).getRenderingFor(self.build)
             basename = basename.replace(':', '-')
         else:
