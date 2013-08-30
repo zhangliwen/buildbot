@@ -390,22 +390,27 @@ class TranslatedTests(factory.BuildFactory):
             self.addStep(ShellCmd(
                 description="decompress pypy-c",
                 command=['tar', '--extract', '--file=pypy_build'+ extension, '--strip-components=1', '--directory=.'],
-                workdir='pypy-c'))
+                workdir='pypy-c',
+                haltOnFailure=True,
+                ))
 
         # copy pypy-c to the expected location within the pypy source checkout
         self.addStep(ShellCmd(
             description="move pypy-c",
             command=['cp', '-v', 'pypy-c/bin/pypy', 'build/pypy/goal/pypy-c'],
+            haltOnFailure=True,
             workdir='.'))
         # copy generated and copied header files to build/include
         self.addStep(ShellCmd(
             description="move header files",
             command=['cp', '-vr', 'pypy-c/include', 'build'],
+            haltOnFailure=True,
             workdir='.'))
         # copy ctypes_resource_cache generated during translation
         self.addStep(ShellCmd(
             description="move ctypes resource cache",
             command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy'],
+            haltOnFailure=True,
             workdir='.'))
 
         add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
@@ -430,6 +435,7 @@ class NightlyBuild(factory.BuildFactory):
             command=prefix + ["python", "pypy/tool/release/package.py",
                      ".", WithProperties(name), 'pypy',
                      '.'],
+            haltOnFailure=True,
             workdir='build'))
         nightly = '~/nightly/'
         extension = get_extension(platform)
