@@ -5,8 +5,7 @@ from pypybuildbot import builds
 class FakeProperties(object):
 
     def __init__(self):
-        from buildbot.process.properties import PropertyMap
-        self.pmap = PropertyMap(self)
+        pass
     
     def __getitem__(self, item):
         if item == 'branch':
@@ -42,15 +41,16 @@ class FakeDeferred(object):
         return FakeDeferred()
 
 def test_Translate():
-    expected = ['translate.py', '--batch', '-O0',
+    expected = ['pypy', '../../rpython/bin/rpython', '--batch', '-O0',
                 'targetpypystandalone', '--no-allworkingmodules']
 
     translateInst = builds.Translate(['-O0'], ['--no-allworkingmodules'])
 
     assert translateInst.command[-len(expected):] == expected
     
-    translateFactory, kw = translateInst.factory
-    rebuiltTranslate = translateFactory(**kw)
+    translateFactory = translateInst._getStepFactory().factory
+    args = translateInst._getStepFactory().args
+    rebuiltTranslate = translateFactory(*args)
                 
     assert rebuiltTranslate.command[-len(expected):] == expected
 
@@ -62,9 +62,10 @@ def test_Translate():
 def test_pypy_upload():
     pth = py.test.ensuretemp('buildbot')
     inst = builds.PyPyUpload(slavesrc='slavesrc', masterdest=str(pth.join('mstr')),
-                             basename='base-%(final_file_name)s', workdir='.',
+                             basename='base-%(got_revision)s', workdir='.',
                              blocksize=100)
-    factory, kw = inst.factory
+    factory = inst._getStepFactory().factory
+    kw = inst._getStepFactory().kwargs
     rebuilt = factory(**kw)
     rebuilt.build = FakeBuild()
     rebuilt.step_status = FakeStepStatus()
@@ -72,7 +73,7 @@ def test_pypy_upload():
     rebuilt.start()
     assert pth.join('mstr').check(dir=True)
     assert rebuilt.masterdest == str(pth.join('mstr', 'trunk',
-                                              'base-123-ea5ca8'))
+                                              'base-123'))
     assert rebuilt.symlinkname == str(pth.join('mstr', 'trunk',
                                                'base-latest'))
 

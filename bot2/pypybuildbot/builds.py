@@ -1,3 +1,4 @@
+from buildbot.steps.source.mercurial import Mercurial
 from buildbot.process import factory
 from buildbot.steps import shell, transfer
 from buildbot.steps.trigger import Trigger
@@ -27,10 +28,7 @@ ARMCrossLock = locks.MasterLock('arm_cpu', maxCount=2)
 # while the boards can only run one job at the same time
 ARMBoardLock = locks.SlaveLock('arm_boards', maxCount=1)
 
-
-# XXX monkey patch Trigger class, there are to issues with the list of renderables
-# original: Trigger.renderables = [ 'set_propetries', 'scheduler', 'sourceStamp' ]
-Trigger.renderables = [ 'set_properties', 'schedulerNames', 'sourceStamp' ]
+map_branch_name = lambda x: x if x not in ['', None, 'default'] else 'trunk'
 
 class ShellCmd(shell.ShellCommand):
     # our own version that can distinguish abort cases (rc == -1)
@@ -47,9 +45,7 @@ class PyPyUpload(transfer.FileUpload):
 
     def start(self):
         properties = self.build.getProperties()
-        branch = properties['branch']
-        if branch is None:
-            branch = 'trunk'
+        branch = map_branch_name(properties['branch'])
         #masterdest = properties.render(self.masterdest)
         masterdest = os.path.expanduser(self.masterdest)
         if branch.startswith('/'):
@@ -59,8 +55,8 @@ class PyPyUpload(transfer.FileUpload):
         if not os.path.exists(masterdest):
             os.makedirs(masterdest)
         #
-        assert '%(final_file_name)s' in self.basename
-        symname = self.basename.replace('%(final_file_name)s', 'latest')
+        assert '%(got_revision)s' in self.basename
+        symname = self.basename.replace('%(got_revision)s', 'latest')
         assert '%' not in symname
         self.symlinkname = os.path.join(masterdest, symname)
         #
@@ -86,17 +82,14 @@ class PyPyDownload(transfer.FileDownload):
     def start(self):
 
         properties = self.build.getProperties()
-        branch = properties['branch']
+        branch = map_branch_name(properties['branch'])
         revision = properties['revision']
-
-        if branch is None:
-            branch = 'trunk'
         mastersrc = os.path.expanduser(self.mastersrc)
 
         if branch.startswith('/'):
             branch = branch[1:]
         mastersrc = os.path.join(mastersrc, branch)
-        if revision is not None:
+        if revision:
             basename = WithProperties(self.basename).getRenderingFor(self.build)
             basename = basename.replace(':', '-')
         else:
@@ -161,9 +154,7 @@ class PytestCmd(ShellCmd):
             builder.summary_by_branch_and_revision = {}
         try:
             rev = properties['got_revision']
-            branch = properties['branch']
-            if branch is None:
-                branch = 'trunk'
+            branch = map_branch_name(properties['branch'])
             if branch.endswith('/'):
                 branch = branch[:-1]
         except KeyError:
@@ -178,92 +169,18 @@ class PytestCmd(ShellCmd):
 
 # _______________________________________________________________
 
-class UpdateCheckout(ShellCmd):
-    description = 'hg update'
-    command = 'UNKNOWN'
-
-    def __init__(self, workdir=None, haltOnFailure=True, force_branch=None,
-                 **kwargs):
-        ShellCmd.__init__(self, workdir=workdir, haltOnFailure=haltOnFailure,
-                          **kwargs)
-        self.force_branch = force_branch
-        self.addFactoryArguments(force_branch=force_branch)
-
-    def start(self):
-        if self.force_branch is not None:
-            branch = self.force_branch
-            # Note: We could add a warning to the output if we
-            # ignore the branch set by the user.
-        else:
-            properties = self.build.getProperties()
-            branch = properties['branch'] or 'default'
-        command = ["hg", "update", "--clean", "-r", branch]
-        self.setCommand(command)
-        ShellCmd.start(self)
-
-
-class CheckGotRevision(ShellCmd):
-    description = 'got_revision'
-    command = ['hg', 'parents', '--template', 'got_revision:{rev}:{node}']
-
-    def commandComplete(self, cmd):
-        if cmd.rc == 0:
-            got_revision = cmd.logs['stdio'].getText()
-            got_revision = got_revision.split('got_revision:')[-1]
-            # manually get the effect of {node|short} without using a
-            # '|' in the command-line, because it doesn't work on Windows
-            num = got_revision.find(':')
-            if num > 0:
-                got_revision = got_revision[:num + 13]
-            #
-            final_file_name = got_revision.replace(':', '-')
-            # ':' should not be part of filenames --- too many issues
-            self.build.setProperty('got_revision', got_revision,
-                                   'got_revision')
-            self.build.setProperty('final_file_name', final_file_name,
-                                   'got_revision')
-
-
 def update_hg(platform, factory, repourl, workdir, use_branch,
               force_branch=None):
-    if platform == 'win32':
-        command = "if not exist .hg rmdir /q /s ."
-    else:
-        command = "if [ ! -d .hg ]; then rm -fr * .[a-z]*; fi"
-    factory.addStep(ShellCmd(description="rmdir?",
-                             command=command,
-                             workdir=workdir,
-                             haltOnFailure=False))
-    #
-    if platform == "win32":
-        command = "if not exist .hg %s"
-    else:
-        command = "if [ ! -d .hg ]; then %s; fi"
-    command = command % ("hg clone -U " + repourl + " .")
-    factory.addStep(ShellCmd(description="hg clone",
-                             command=command,
-                             workdir=workdir,
-                             timeout=3600,
-                             haltOnFailure=True))
-    #
     factory.addStep(
-        ShellCmd(description="hg purge",
-                 command="hg --config extensions.purge= purge --all",
-                 workdir=workdir,
-                 haltOnFailure=True))
-    #
-    factory.addStep(ShellCmd(description="hg pull",
-                             command="hg pull",
-                             workdir=workdir))
-    #
-    if use_branch or force_branch:
-        factory.addStep(UpdateCheckout(workdir=workdir,
-                                       haltOnFailure=True,
-                                       force_branch=force_branch))
-    else:
-        factory.addStep(ShellCmd(description="hg update",
-                command=WithProperties("hg update --clean %(revision)s"),
-                workdir=workdir))
+            Mercurial(
+                repourl=repourl,
+                mode='incremental',
+                method='fresh',
+                defaultBranch=force_branch,
+                branchType='inrepo',
+                clobberOnBranchChange=False,
+                workdir=workdir,
+                logEnviron=False))
 
 
 def setup_steps(platform, factory, workdir=None,
@@ -278,11 +195,11 @@ def setup_steps(platform, factory, workdir=None,
     update_hg(platform, factory, repourl, workdir, use_branch=True,
               force_branch=force_branch)
     #
-    factory.addStep(CheckGotRevision(workdir=workdir))
+
 
 def build_name(platform, jit=False, flags=[], placeholder=None):
     if placeholder is None:
-        placeholder = '%(final_file_name)s'
+        placeholder = '%(got_revision)s'
     if jit or '-Ojit' in flags:
         kind = 'jit'
     else:
@@ -473,22 +390,27 @@ class TranslatedTests(factory.BuildFactory):
             self.addStep(ShellCmd(
                 description="decompress pypy-c",
                 command=['tar', '--extract', '--file=pypy_build'+ extension, '--strip-components=1', '--directory=.'],
-                workdir='pypy-c'))
+                workdir='pypy-c',
+                haltOnFailure=True,
+                ))
 
         # copy pypy-c to the expected location within the pypy source checkout
         self.addStep(ShellCmd(
             description="move pypy-c",
             command=['cp', '-v', 'pypy-c/bin/pypy', 'build/pypy/goal/pypy-c'],
+            haltOnFailure=True,
             workdir='.'))
         # copy generated and copied header files to build/include
         self.addStep(ShellCmd(
             description="move header files",
             command=['cp', '-vr', 'pypy-c/include', 'build'],
+            haltOnFailure=True,
             workdir='.'))
         # copy ctypes_resource_cache generated during translation
         self.addStep(ShellCmd(
             description="move ctypes resource cache",
             command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy'],
+            haltOnFailure=True,
             workdir='.'))
 
         add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
@@ -513,6 +435,7 @@ class NightlyBuild(factory.BuildFactory):
             command=prefix + ["python", "pypy/tool/release/package.py",
                      ".", WithProperties(name), 'pypy',
                      '.'],
+            haltOnFailure=True,
             workdir='build'))
         nightly = '~/nightly/'
         extension = get_extension(platform)
@@ -670,3 +593,35 @@ class CPythonBenchmark(factory.BuildFactory):
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                                          masterdest=WithProperties(resultfile),
                                          workdir="."))
+
+class PyPyBuildbotTestFactory(factory.BuildFactory):
+    def __init__(self):
+        factory.BuildFactory.__init__(self)
+        # clone
+        self.addStep(
+            Mercurial(
+                repourl='https://bitbucket.org/pypy/buildbot',
+                mode='incremental',
+                method='fresh',
+                defaultBranch='default',
+                branchType='inrepo',
+                clobberOnBranchChange=False,
+                logEnviron=False))
+        # create a virtualenv
+        self.addStep(ShellCmd(
+            description='create virtualenv',
+            haltOnFailure=True,
+            command='virtualenv ../venv'))
+        # install deps
+        self.addStep(ShellCmd(
+            description="install dependencies",
+            haltOnFailure=True,
+            command=('../venv/bin/pip install -r requirements.txt').split()))
+        # run tests
+        self.addStep(PytestCmd(
+            description="pytest buildbot",
+            haltOnFailure=True,
+            command=["../venv/bin/py.test",
+                     "--resultlog=testrun.log",
+                     ],
+            logfiles={'pytestLog': 'testrun.log'}))
