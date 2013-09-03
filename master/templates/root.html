@@ -26,11 +26,11 @@
     The <a href="http://speed.pypy.org/">Performance Plots</a> will give you
       an overview of performance for recent revisions.
   </li>
-  
+
   <li class="{{ item_class.next() }}">
-    The <a href="summary?branch=&lt;trunk&gt;">Summary Display
-    &lt;trunk&gt;</a> will give you a failure-oriented summary for recent
-    revisions (&lt;trunk&gt; only).
+    The <a href="summary?branch=&lt;default&gt;">Summary Display
+    &lt;default&gt;</a> will give you a failure-oriented summary for recent
+    revisions (&lt;default&gt; only).
   </li>
 
   <li class="{{ item_class.next() }}">
@@ -53,7 +53,7 @@
   <li class="{{ item_class.next() }}">The <a href="tgrid">Transposed Grid Display</a> presents
   the same information as the grid, but lists the revisions down the side.</li>
 
-  <li class="{{ item_class.next() }}">The <a href="console">Console</a> presents 
+  <li class="{{ item_class.next() }}">The <a href="console">Console</a> presents
   a user-oriented status page.</li>
 
   <li class="{{ item_class.next() }}">The <a href="builders">Builders</a> and their most recent builds are
@@ -68,19 +68,6 @@
   <li class="{{ item_class.next() }}"><a href="about">About</a> this Buildbot</li>
 </ul>
 
-<!-- PyPy specific: comment out the clean shutdown button
-{%- if authz.advertiseAction('cleanShutdown') -%}
-{%- if shutting_down -%}
-Master is shutting down<br/>
-{{ forms.cancel_clean_shutdown(cancel_shutdown_url, authz) }}
-{%- else -%}
-{{ forms.clean_shutdown(shutdown_url, authz) }}
-{%- endif -%}
-{%- endif -%}
-
-<p><i>This and other pages can be overridden and customized.</i></p>
-
--->
 
 </div>
 

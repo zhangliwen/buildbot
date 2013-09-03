@@ -1,7 +1,6 @@
 .. -*- mode: rst -*-
 
-Everything has been tested with builbot 0.7.12.  Not sure what happens with
-other versions :-)
+Everything has been tested with builbot 0.8.8.
 
 How to hack the PyPy buildbot
 ==============================
@@ -24,12 +23,12 @@ How to run the PyPy buildbot
 If you want to run buildbot in production, you need to make sure that the
 function ``pypybuildbot.util.we_are_debugging`` returns ``False`` in your
 environment.  At the moment of writing, debugging is enabled everywhere but on
-wyvern.
+cobra.
 
 You still need to fill ``master/slaveinfo.py`` with the passwords of the
 various slaves you want to use.
 
-Then, to start the buildbot master: ``cd master; make start``
+Then, to start the buildbot master: ``buildbot start <path-to pypy-buildbot/master>``
 
 
 To restart the buildmaster
@@ -43,13 +42,13 @@ $ cd master
 
 $ buildbot checkconfig
 
-$ make reconfig
+$ buildbot reconfig
 
 OR
 
-$ make stop
+$ buildbot stop
 
-$ make start
+$ buildbot start
 
 To run a buildslave
 ===================
