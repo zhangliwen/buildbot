@@ -9,3 +9,5 @@ Disallow: /one_line_per_build
 Disallow: /one_box_per_builder
 Disallow: /xmlrpc
 Disallow: /grid
+Disallow: /tgrid
+Disallow: /json
