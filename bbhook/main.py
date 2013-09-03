@@ -38,8 +38,9 @@ def test_form():
 
 @app.route('/', methods=['POST'])
 def handle_payload():
-    payload = json.loads(flask.request.form['payload'])
+    open('/tmp/payload', 'w').write(flask.request.form['payload'])
     try:
+        payload = json.loads(flask.request.form['payload'])
         from . import hook
         hook.handle(payload, test=app.testing)
     except:
