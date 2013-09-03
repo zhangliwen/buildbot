@@ -482,7 +482,7 @@ def add_builds(builder, builds):
     builder.nextBuildNumber = n
 
 
-METABRANCH = '<default>'
+METABRANCH = '<trunk>'
 
 
 class TestSummary(object):
