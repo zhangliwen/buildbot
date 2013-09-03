@@ -122,6 +122,7 @@ BUILDJITLINUXARMHF_RASPBIAN = "build-pypy-c-jit-linux-armhf-raspbian"
 BUILDJITLINUXARMHF_RARING = "build-pypy-c-jit-linux-armhf-raring"
 
 builderNames = [
+    LINUXARMHF,
     APPLVLLINUXARM,
     APPLVLLINUXARMHF_v7,
     APPLVLLINUXARMHF_RASPBIAN,
