@@ -1,25 +1,22 @@
 
 import os
-import getpass
-from buildbot.scheduler import Nightly, Triggerable
+from buildbot.scheduler import Nightly
+from buildbot.schedulers.forcesched import ForceScheduler
+from buildbot.schedulers.forcesched import ValidationError
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
-from buildbot.process.builder import Builder
 #from buildbot import manhole
 from pypybuildbot.pypylist import PyPyList, NumpyStatusList
-from pypybuildbot.ircbot import IRC # side effects
+from pypybuildbot.ircbot import IRC  # side effects
 from pypybuildbot.util import we_are_debugging
 
 # Forbid "force build" with empty user name
-from buildbot.status.web.builder import StatusResourceBuilder
-def my_force(self, req, *args, **kwds):
-    name = req.args.get("username", [""])[0]
-    assert name, "Please write your name in the corresponding field."
-    return _previous_force(self, req, *args, **kwds)
-_previous_force = StatusResourceBuilder.force
-if _previous_force.__name__ == 'force':
-    StatusResourceBuilder.force = my_force
-# Done
+class CustomForceScheduler(ForceScheduler):
+    def force(self, owner, builder_name, **kwargs):
+        if not owner:
+            raise ValidationError, "Please write your name in the corresponding field."
+        return ForceScheduler.force(self, owner, builder_name, **kwargs)
+
 
 if we_are_debugging():
     channel = '#buildbot-test'
@@ -216,12 +213,12 @@ BuildmasterConfig = {
             JITFREEBSD864,             # on ananke
             JITFREEBSD964,             # on exarkun's freebsd
             JITMACOSX64,               # on xerxes
-            ], branch=None, hour=0, minute=0),
+            ], branch='default', hour=0, minute=0),
 
         Nightly("nightly-2-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-        ], branch=None, hour=2, minute=0),
+        ], branch='default', hour=2, minute=0),
 
         Nightly("nightly-2-00-py3k", [
             LINUX64,                   # on allegro64, uses all cores
@@ -231,6 +228,36 @@ BuildmasterConfig = {
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
+        CustomForceScheduler('Force Scheduler', 
+            builderNames=[
+                        LINUX32,
+                        LINUX64,
+                        INDIANA32,
+
+                        MACOSX32,
+                        WIN32,
+                        WIN64,
+                        APPLVLLINUX32,
+                        APPLVLLINUX64,
+                        APPLVLWIN32,
+
+                        LIBPYTHON_LINUX32,
+                        LIBPYTHON_LINUX64,
+
+                        JITLINUX32,
+                        JITLINUX64,
+                        JITMACOSX64,
+                        JITWIN32,
+                        JITWIN64,
+                        JITFREEBSD764,
+                        JITFREEBSD864,
+                        JITFREEBSD964,
+                        JITINDIANA32,
+
+                        JITONLYLINUXPPC64,
+                        JITBENCH,
+                        JITBENCH64,
+            ] + ARM.builderNames, properties=[]),
     ] + ARM.schedulers,
 
     'status': [status, ircbot],
