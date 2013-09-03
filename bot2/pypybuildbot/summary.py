@@ -624,10 +624,10 @@ def make_subst(v1, v2):
     return subst
 
 # Map certain branch names from SourceStamps to a common name shown on the page
-meta_branch_name = make_subst(['default', '', None], '<default>')
-# map the meta-branch <default> to the actual branch entries from the
+meta_branch_name = make_subst(['default', '', None], '<trunk>')
+# map the meta-branch <trunk> to the actual branch entries from the
 # SourceStamp
-default_value = make_subst('<default>', ['default', '', None])
+default_value = make_subst('<trunk>', ['default', '', None])
 category_name = make_subst(None, '-')
 nocat_value = make_subst("-", None)
 
@@ -876,8 +876,8 @@ class Summary(HtmlResource):
             default_vs_any_text = "filter nothing"
             default_vs_any_query = ""
         else:
-            default_vs_any_text = "all <default>"
-            default_vs_any_query = "?branch=<default>"
+            default_vs_any_text = "all <trunk>"
+            default_vs_any_query = "?branch=<trunk>"
 
         default_vs_any_anchor = html.a(default_vs_any_text,
                                      href="/summary%s" %
