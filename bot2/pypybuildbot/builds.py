@@ -394,6 +394,11 @@ class TranslatedTests(factory.BuildFactory):
                 haltOnFailure=True,
                 ))
 
+        self.addStep(ShellCmd(
+            description="reset permissions",
+            command=['chmod', 'u+rw', '-R', 'build/include'],
+            haltOnFailure=True,
+            workdir='.'))
         # copy pypy-c to the expected location within the pypy source checkout
         self.addStep(ShellCmd(
             description="move pypy-c",
@@ -407,6 +412,11 @@ class TranslatedTests(factory.BuildFactory):
             haltOnFailure=True,
             workdir='.'))
         # copy ctypes_resource_cache generated during translation
+        self.addStep(ShellCmd(
+            description="reset permissions",
+            command=['chmod', 'u+rw', '-R', 'build/lib_pypy'],
+            haltOnFailure=True,
+            workdir='.'))
         self.addStep(ShellCmd(
             description="move ctypes resource cache",
             command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy'],
