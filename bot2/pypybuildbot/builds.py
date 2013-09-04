@@ -484,10 +484,11 @@ class JITBenchmark(factory.BuildFactory):
     def __init__(self, platform='linux', host='tannit', postfix=''):
         factory.BuildFactory.__init__(self)
 
-        setup_steps(platform, self)
         #
         repourl = 'https://bitbucket.org/pypy/benchmarks'
         update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
+        #
+        setup_steps(platform, self)
         if host == 'tannit':
             lock = TannitCPU
         elif host == 'speed_python':
@@ -565,13 +566,13 @@ class CPythonBenchmark(factory.BuildFactory):
         '''
         factory.BuildFactory.__init__(self)
 
-        # checks out and updates the repo
-        setup_steps(platform, self, repourl='http://hg.python.org/cpython',
-                    force_branch=branch)
-
         # check out and update benchmarks
         repourl = 'https://bitbucket.org/pypy/benchmarks'
         update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
+
+        # checks out and updates the repo
+        setup_steps(platform, self, repourl='http://hg.python.org/cpython',
+                    force_branch=branch)
 
         lock = SpeedPythonCPU
 
