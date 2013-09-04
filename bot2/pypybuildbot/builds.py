@@ -55,8 +55,8 @@ class PyPyUpload(transfer.FileUpload):
         if not os.path.exists(masterdest):
             os.makedirs(masterdest)
         #
-        assert '%(got_revision)s' in self.basename
-        symname = self.basename.replace('%(got_revision)s', 'latest')
+        assert '%(final_file_name)s' in self.basename
+        symname = self.basename.replace('%(final_file_name)s', 'latest')
         assert '%' not in symname
         self.symlinkname = os.path.join(masterdest, symname)
         #
@@ -168,6 +168,26 @@ class PytestCmd(ShellCmd):
         builder.saveYourself()
 
 # _______________________________________________________________
+class CheckGotRevision(ShellCmd):
+    description = 'got_revision'
+    command = ['hg', 'parents', '--template', 'got_revision:{rev}:{node}']
+
+    def commandComplete(self, cmd):
+        if cmd.rc == 0:
+            got_revision = cmd.logs['stdio'].getText()
+            got_revision = got_revision.split('got_revision:')[-1]
+            # manually get the effect of {node|short} without using a
+            # '|' in the command-line, because it doesn't work on Windows
+            num = got_revision.find(':')
+            if num > 0:
+                got_revision = got_revision[:num + 13]
+            #
+            final_file_name = got_revision.replace(':', '-')
+            # ':' should not be part of filenames --- too many issues
+            self.build.setProperty('got_revision', got_revision,
+                                   'got_revision')
+            self.build.setProperty('final_file_name', final_file_name,
+                                   'got_revision')
 
 def update_hg(platform, factory, repourl, workdir, use_branch,
               force_branch=None):
@@ -195,11 +215,12 @@ def setup_steps(platform, factory, workdir=None,
     update_hg(platform, factory, repourl, workdir, use_branch=True,
               force_branch=force_branch)
     #
+    factory.addStep(CheckGotRevision(workdir=workdir))
 
 
 def build_name(platform, jit=False, flags=[], placeholder=None):
     if placeholder is None:
-        placeholder = '%(got_revision)s'
+        placeholder = '%(final_file_name)s'
     if jit or '-Ojit' in flags:
         kind = 'jit'
     else:
