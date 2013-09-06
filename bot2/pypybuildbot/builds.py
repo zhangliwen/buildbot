@@ -194,7 +194,7 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
     factory.addStep(
             Mercurial(
                 repourl=repourl,
-                mode='incremental',
+                mode='full',
                 method='fresh',
                 defaultBranch=force_branch,
                 branchType='inrepo',
