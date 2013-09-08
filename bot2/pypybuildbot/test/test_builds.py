@@ -192,6 +192,8 @@ class TestParseRevision(object):
         self.rebuilt.build = FakeBuild({'revision':u'123:ea5ca8'})
         self.rebuilt.start()
         assert self.rebuilt.build.getProperties()['revision'] == 'ea5ca8'
+        assert self.rebuilt.build.getProperties()['original_revision'] == '123:ea5ca8'
+        assert self.rebuilt.build.getProperties()['final_file_name'] == '123-ea5ca8'
 
     def test_no_revision(self):
         self.rebuilt.build = FakeBuild()
