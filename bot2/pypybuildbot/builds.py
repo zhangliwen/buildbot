@@ -203,8 +203,9 @@ class CheckGotRevision(ShellCmd):
             # ':' should not be part of filenames --- too many issues
             self.build.setProperty('got_revision', got_revision,
                                    'got_revision')
-            self.build.setProperty('final_file_name', final_file_name,
-                                   'got_revision')
+            if not self.build.hasProperty('final_file_name'):
+                self.build.setProperty('final_file_name', final_file_name,
+                                       'got_revision')
 
 class ParseRevision(BuildStep):
     """Parse the revision property of the source stamp and extract the global
@@ -226,12 +227,20 @@ class ParseRevision(BuildStep):
 
     def start(self):
         stamp = self.build.getSourceStamp()
-        revision = stamp.revision
-        if isinstance(revision, (unicode, str)) and ':' in revision:
-            parts = revision.split(':')
-            self.build.setProperty('revision', parts[1], 'parse_revision')
-            stamp.revision = parts[1]
-            self.finished(SUCCESS)
+        revision = stamp.revision if stamp.revision is not None else ''
+        #
+        if not isinstance(revision, (unicode, str)) or ":" not in revision:
+            self.finished(SKIPPED)
+            return
+        #
+        self.build.setProperty('original_revision', revision, 'parse_revision')
+        self.build.setProperty('final_file_name',
+                                revision.replace(':', '-'), 'parse_revision')
+        #
+        parts = revision.split(':')
+        self.build.setProperty('revision', parts[1], 'parse_revision')
+        stamp.revision = parts[1]
+        self.finished(SUCCESS)
 
 
 def update_hg(platform, factory, repourl, workdir, use_branch,
