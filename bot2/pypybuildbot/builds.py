@@ -85,7 +85,7 @@ class PyPyDownload(transfer.FileDownload):
 
         properties = self.build.getProperties()
         branch = map_branch_name(properties['branch'])
-        revision = properties['revision']
+        revision = properties['final_file_name']
         mastersrc = os.path.expanduser(self.mastersrc)
 
         if branch.startswith('/'):
@@ -95,7 +95,7 @@ class PyPyDownload(transfer.FileDownload):
             basename = WithProperties(self.basename).getRenderingFor(self.build)
             basename = basename.replace(':', '-')
         else:
-            basename = self.basename.replace('%(revision)s', 'latest')
+            basename = self.basename.replace('%(final_file_name)s', 'latest')
             assert '%' not in basename
 
         self.mastersrc = os.path.join(mastersrc, basename)
@@ -454,7 +454,7 @@ class TranslatedTests(factory.BuildFactory):
             command=['rm', '-rf', 'pypy-c'],
             workdir='.'))
         extension = get_extension(platform)
-        name = build_name(platform, pypyjit, translationArgs, placeholder='%(revision)s') + extension
+        name = build_name(platform, pypyjit, translationArgs, placeholder='%(final_file_name)s') + extension
         self.addStep(PyPyDownload(
             basename=name,
             mastersrc='~/nightly',
