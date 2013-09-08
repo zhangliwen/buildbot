@@ -180,6 +180,8 @@ JITBENCH64 = "jit-benchmark-linux-x86-64"
 JITBENCH64_2 = 'jit-benchmark-linux-x86-64-2'
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
 
+# buildbot builder
+PYPYBUILDBOT = 'pypy-buildbot'
 
 extra_opts = {'xerxes': {'keepalive_interval': 15},
              'aurora': {'max_builds': 1},
@@ -213,6 +215,8 @@ BuildmasterConfig = {
             JITFREEBSD864,             # on ananke
             JITFREEBSD964,             # on exarkun's freebsd
             JITMACOSX64,               # on xerxes
+            # buildbot selftest
+            PYPYBUILDBOT               # on cobra
             ], branch='default', hour=0, minute=0),
 
         Nightly("nightly-2-00", [
@@ -228,8 +232,9 @@ BuildmasterConfig = {
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
-        CustomForceScheduler('Force Scheduler', 
+        CustomForceScheduler('Force Scheduler',
             builderNames=[
+                        PYPYBUILDBOT,
                         LINUX32,
                         LINUX64,
                         INDIANA32,
@@ -420,6 +425,13 @@ BuildmasterConfig = {
                    'factory': pypyOwnTestFactoryIndiana,
                    'category': 'openindiana32',
                    },
+                  {'name': PYPYBUILDBOT,
+                   'slavenames': ['cobra'],
+                   'builddir': PYPYBUILDBOT,
+                   'factory': pypybuilds.PyPyBuildbotTestFactory(),
+                   'category': 'buildbot',
+                   }
+
                 ] + ARM.builders,
 
     # http://readthedocs.org/docs/buildbot/en/latest/tour.html#debugging-with-manhole
