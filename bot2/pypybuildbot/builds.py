@@ -1,10 +1,12 @@
 from buildbot.steps.source.mercurial import Mercurial
+from buildbot.process.buildstep import BuildStep
 from buildbot.process import factory
 from buildbot.steps import shell, transfer
 from buildbot.steps.trigger import Trigger
 from buildbot.process.properties import WithProperties
 from buildbot import locks
 from pypybuildbot.util import symlink_force
+from buildbot.status.results import SKIPPED, SUCCESS
 import os
 
 # buildbot supports SlaveLocks, which can be used to limit the amout of builds
@@ -168,6 +170,21 @@ class PytestCmd(ShellCmd):
         builder.saveYourself()
 
 # _______________________________________________________________
+# XXX Currently the build properties got_revision and final_file_name contain
+# the revision number and the changeset-id, CheckGotRevision takes care to set
+# the corresponding build properties
+# rev:changeset for got_revision
+# rev-changeset for final_file_name
+#
+# The rev part of got_revision and filename is used everywhere to sort the
+# builds, i.e. on the summary and download pages.
+#
+# The rev part is strictly local and needs to be removed from the SourceStamp,
+# at least for decoupled builds, which is what ParseRevision does.
+#
+# XXX in general it would be nice to drop the revision-number using only the
+# changeset-id for got_revision and final_file_name and sorting the builds
+# chronologically
 class CheckGotRevision(ShellCmd):
     description = 'got_revision'
     command = ['hg', 'parents', '--template', 'got_revision:{rev}:{node}']
@@ -188,6 +205,34 @@ class CheckGotRevision(ShellCmd):
                                    'got_revision')
             self.build.setProperty('final_file_name', final_file_name,
                                    'got_revision')
+
+class ParseRevision(BuildStep):
+    """Parse the revision property of the source stamp and extract the global
+    part of the revision
+    123:3a34 -> 3a34"""
+    name = "parse_revision"
+
+    def __init__(self, *args, **kwargs):
+        BuildStep.__init__(self, *args, **kwargs)
+
+    @staticmethod
+    def hideStepIf(results, step):
+        return results==SKIPPED
+
+    @staticmethod
+    def doStepIf(step):
+        revision = step.build.getSourceStamp().revision
+        return isinstance(revision, (unicode, str)) and ':' in revision
+
+    def start(self):
+        stamp = self.build.getSourceStamp()
+        revision = stamp.revision
+        if isinstance(revision, (unicode, str)) and ':' in revision:
+            parts = revision.split(':')
+            self.build.setProperty('revision', parts[1], 'parse_revision')
+            stamp.revision = parts[1]
+            self.finished(SUCCESS)
+
 
 def update_hg(platform, factory, repourl, workdir, use_branch,
               force_branch=None):
@@ -211,6 +256,9 @@ def setup_steps(platform, factory, workdir=None,
     if getpass.getuser() == 'antocuni':
         # for debugging
         repourl = '/home/antocuni/pypy/default'
+    #
+    factory.addStep(ParseRevision(hideStepIf=ParseRevision.hideStepIf,
+                                  doStepIf=ParseRevision.doStepIf))
     #
     update_hg(platform, factory, repourl, workdir, use_branch=True,
               force_branch=force_branch)
@@ -476,7 +524,7 @@ class NightlyBuild(factory.BuildFactory):
                                 basename=name + extension,
                                 workdir='.',
                                 blocksize=100 * 1024))
-        if trigger: # if provided trigger schedulers that are depend on this one
+        if trigger: # if provided trigger schedulers that depend on this one
             self.addStep(Trigger(schedulerNames=[trigger]))
 
 
