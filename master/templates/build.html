@@ -9,8 +9,9 @@ Builder <a href="{{ path_to_builder }}">{{ b.getBuilder().getName() }}</a>
 Build #{{ b.getNumber() }}
 </h1>
 <!-- PyPy specific change: add a "view in summary" link -->
-&nbsp;&nbsp;&nbsp;(<a href="{{ path_to_root }}summary?builder={{ b.getBuilder().getName() }}">view in summary</a>)
-
+<div>
+  (<a href="{{ path_to_root }}summary?builder={{ b.getBuilder().getName() }}">view in summary</a>)
+</div>
 <div class="column">
 
 {% if not b.isFinished() %}
