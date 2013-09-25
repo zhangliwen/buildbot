@@ -243,8 +243,52 @@ class ParseRevision(BuildStep):
         self.finished(SUCCESS)
 
 
+def update_hg_old_method(platform, factory, repourl, workdir):
+    # baaaaaah.  Seems that the Mercurial class doesn't support
+    # updating to a different branch than the one specified by
+    # the user (like "default").  This is nonsense if we need
+    # an auxiliary check-out :-(  At least I didn't find how.
+    if platform == 'win32':
+        command = "if not exist .hg rmdir /q /s ."
+    else:
+        command = "if [ ! -d .hg ]; then rm -fr * .[a-z]*; fi"
+    factory.addStep(ShellCmd(description="rmdir?",
+                             command=command,
+                             workdir=workdir,
+                             haltOnFailure=False))
+    #
+    if platform == "win32":
+        command = "if not exist .hg %s"
+    else:
+        command = "if [ ! -d .hg ]; then %s; fi"
+    command = command % ("hg clone -U " + repourl + " .")
+    factory.addStep(ShellCmd(description="hg clone",
+                             command=command,
+                             workdir=workdir,
+                             timeout=3600,
+                             haltOnFailure=True))
+    #
+    factory.addStep(
+        ShellCmd(description="hg purge",
+                 command="hg --config extensions.purge= purge --all",
+                 workdir=workdir,
+                 haltOnFailure=True))
+    #
+    factory.addStep(ShellCmd(description="hg pull",
+                             command="hg pull",
+                             workdir=workdir))
+    #
+    # here, update without caring about branches
+    factory.addStep(ShellCmd(description="hg update",
+           command=WithProperties("hg update --clean %(revision)s"),
+           workdir=workdir))
+
 def update_hg(platform, factory, repourl, workdir, use_branch,
               force_branch=None):
+    if not use_branch:
+        assert force_branch is None
+        update_hg_old_method(platform, factory, repourl, workdir)
+        return
     factory.addStep(
             Mercurial(
                 repourl=repourl,
