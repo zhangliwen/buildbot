@@ -215,8 +215,7 @@ BuildmasterConfig = {
             JITFREEBSD764,             # on headless
             JITFREEBSD864,             # on ananke
             JITFREEBSD964,             # on exarkun's freebsd
-            #JITMACOSX64,              # on xerxes
-            #^^^ status: "py.test -A" eats 20GB of memory apparently :-(
+            JITMACOSX64,               # on xerxes
             # buildbot selftest
             PYPYBUILDBOT               # on cobra
             ], branch='default', hour=0, minute=0),
