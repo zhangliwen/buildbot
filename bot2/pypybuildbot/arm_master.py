@@ -147,6 +147,8 @@ schedulers = [
         BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
         BUILDLINUXARMHF_RASPBIAN,      # on hhu-cross-raspbianhf, uses 1 core
 
+        LINUXARMHF,                    # onw tests on greenbox3-node0
+
         JITBACKENDONLYLINUXARMEL,      # on hhu-imx.53
         JITBACKENDONLYLINUXARMHF,
         JITBACKENDONLYLINUXARMHF_v7,   # on cubieboard-bob
