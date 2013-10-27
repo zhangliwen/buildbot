@@ -745,6 +745,8 @@ class Summary(HtmlResource):
             for build in builditer:
                 if prune_old and self._age(build) > 7:
                     continue
+                if self._age(build) > 60:   # two months old: prune anyway
+                    continue
                 branch = self._get_branch(status, build)
                 if not test_branch(branch):
                     continue
