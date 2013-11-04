@@ -1,25 +1,22 @@
 
 import os
-import getpass
-from buildbot.scheduler import Nightly, Triggerable
+from buildbot.scheduler import Nightly
+from buildbot.schedulers.forcesched import ForceScheduler
+from buildbot.schedulers.forcesched import ValidationError
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
-from buildbot.process.builder import Builder
 #from buildbot import manhole
 from pypybuildbot.pypylist import PyPyList, NumpyStatusList
-from pypybuildbot.ircbot import IRC # side effects
+from pypybuildbot.ircbot import IRC  # side effects
 from pypybuildbot.util import we_are_debugging
 
 # Forbid "force build" with empty user name
-from buildbot.status.web.builder import StatusResourceBuilder
-def my_force(self, req, *args, **kwds):
-    name = req.args.get("username", [""])[0]
-    assert name, "Please write your name in the corresponding field."
-    return _previous_force(self, req, *args, **kwds)
-_previous_force = StatusResourceBuilder.force
-if _previous_force.__name__ == 'force':
-    StatusResourceBuilder.force = my_force
-# Done
+class CustomForceScheduler(ForceScheduler):
+    def force(self, owner, builder_name, **kwargs):
+        if not owner:
+            raise ValidationError, "Please write your name in the corresponding field."
+        return ForceScheduler.force(self, owner, builder_name, **kwargs)
+
 
 if we_are_debugging():
     channel = '#buildbot-test'
@@ -172,6 +169,7 @@ LIBPYTHON_LINUX64 = "pypy-c-lib-python-linux-x86-64"
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
+JITMACOSX64_2 = "pypy-c-jit-macosx-x86-64-2"
 JITWIN32 = "pypy-c-jit-win-x86-32"
 JITWIN64 = "pypy-c-jit-win-x86-64"
 JITFREEBSD764 = 'pypy-c-jit-freebsd-7-x86-64'
@@ -185,6 +183,8 @@ JITBENCH64 = "jit-benchmark-linux-x86-64"
 JITBENCH64_2 = 'jit-benchmark-linux-x86-64-2'
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
 NUMPY_64 = "numpy-compatability-linux-x86-64"
+# buildbot builder
+PYPYBUILDBOT = 'pypy-buildbot'
 
 extra_opts = {'xerxes': {'keepalive_interval': 15},
              'aurora': {'max_builds': 1},
@@ -218,12 +218,14 @@ BuildmasterConfig = {
             JITFREEBSD864,             # on ananke
             JITFREEBSD964,             # on exarkun's freebsd
             JITMACOSX64,               # on xerxes
-            ], branch=None, hour=0, minute=0),
+            # buildbot selftest
+            PYPYBUILDBOT               # on cobra
+            ], branch='default', hour=0, minute=0),
 
         Nightly("nightly-2-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-        ], branch=None, hour=2, minute=0),
+        ], branch='default', hour=2, minute=0),
 
         Nightly("nightly-2-00-py3k", [
             LINUX64,                   # on allegro64, uses all cores
@@ -233,6 +235,38 @@ BuildmasterConfig = {
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
+        CustomForceScheduler('Force Scheduler',
+            builderNames=[
+                        PYPYBUILDBOT,
+                        LINUX32,
+                        LINUX64,
+                        INDIANA32,
+
+                        MACOSX32,
+                        WIN32,
+                        WIN64,
+                        APPLVLLINUX32,
+                        APPLVLLINUX64,
+                        APPLVLWIN32,
+
+                        LIBPYTHON_LINUX32,
+                        LIBPYTHON_LINUX64,
+
+                        JITLINUX32,
+                        JITLINUX64,
+                        JITMACOSX64,
+                        JITMACOSX64_2,
+                        JITWIN32,
+                        JITWIN64,
+                        JITFREEBSD764,
+                        JITFREEBSD864,
+                        JITFREEBSD964,
+                        JITINDIANA32,
+
+                        JITONLYLINUXPPC64,
+                        JITBENCH,
+                        JITBENCH64,
+            ] + ARM.builderNames, properties=[]),
     ] + ARM.schedulers,
 
     'status': [status, ircbot],
@@ -322,8 +356,14 @@ BuildmasterConfig = {
                    "category": 'mac32'
                   },
                   {"name" : JITMACOSX64,
-                   "slavenames": ["xerxes"],
+                   "slavenames": ["xerxes", "tosh"],
                    'builddir' : JITMACOSX64,
+                   'factory' : pypyJITTranslatedTestFactoryOSX64,
+                   'category' : 'mac64',
+                   },
+                  {"name" : JITMACOSX64_2,
+                   "slavenames": ["xerxes", "tosh"],
+                   'builddir' : JITMACOSX64_2,
                    'factory' : pypyJITTranslatedTestFactoryOSX64,
                    'category' : 'mac64',
                    },
@@ -401,6 +441,13 @@ BuildmasterConfig = {
                    'factory': pypyNumpyCompatability,
                    'category': 'numpy',
                    },
+                  {'name': PYPYBUILDBOT,
+                   'slavenames': ['cobra'],
+                   'builddir': PYPYBUILDBOT,
+                   'factory': pypybuilds.PyPyBuildbotTestFactory(),
+                   'category': 'buildbot',
+                   }
+
                 ] + ARM.builders,
 
     # http://readthedocs.org/docs/buildbot/en/latest/tour.html#debugging-with-manhole

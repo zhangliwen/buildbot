@@ -78,18 +78,20 @@ def test_dir_render(tmpdir):
         newdir.setmtime(oldtime + ascii * 10)
     pypylist = PyPyList(tmpdir.strpath)
     listener = pypylist.directoryListing()
-    assert listener.dirs == ['trunk', 'mmmm', 'llll',
+    assert listener.dirs == ['trunk', 'llll',
         'kkkk','jjjj','iiii','hhhh','gggg','ffff','eeee',
         'dddd','cccc','bbbb','aaaa']
 
 def load_BuildmasterConfig():
     import os
-    from pypybuildbot import summary, builds
+    from pypybuildbot import summary, builds, arm_master
     def load(name):
         if name == 'pypybuildbot.summary':
             return summary
         elif name == 'pypybuildbot.builds':
             return builds
+        elif name == 'pypybuildbot.arm_master':
+            return arm_master
         else:
             assert False
 

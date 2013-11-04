@@ -7,54 +7,64 @@ If you uncomment out this code, things will still work and you'll just loose
 the customized IRC messages.
 """
 
-import re
-from buildbot.status.words import Contact, IRC, log
+from buildbot.status.words import IRC, log, IRCContact
 
+# see http://www.mirc.com/colors.html
 USE_COLOR_CODES = True
-GREEN  = '\x033'
-RED    = '\x034'
-AZURE  = '\x0311'
-BLUE   = '\x0312'
-PURPLE = '\x0313'
-GRAY   = '\x0315'
-BOLD   = '\x02'
-def color(code, s):
+BOLD = '\x02'
+COLORS = {
+    'WHITE': '\x030',
+    'BLACK': '\x031',
+    'GREEN': '\x033',
+    'RED': '\x034',
+    'AZURE': '\x0311',
+    'BLUE': '\x0312',
+    'PURPLE': '\x0313',
+    'GRAY': '\x0315',
+}
+
+
+def color(s, code=None, bold=False):
     if USE_COLOR_CODES:
-        return '%s%s\x0F' % (code, s)
+        c = BOLD if bold else ''
+        if code in COLORS:
+            c += COLORS[code]
+        return '%s%s\x0F' % (c, s)
     return s
 
-def extract_username(build):
-    regexp = r"The web-page 'force build' button was pressed by '(.*)': .*"
-    match = re.match(regexp, build.getReason())
-    if match:
-        return match.group(1)
-    return None
+
+def get_build_information(build):
+    owner = build.getProperty("owner")
+    reason = build.getProperty("reason")
+    return ": ".join(k for k in (owner, reason) if k)
 
 
 def get_description_for_build(url, build):
-    url = color(GRAY, url) # in gray
+    url = color(url, 'GRAY')  # in gray
     infos = []
-    username = extract_username(build)
-    if username:
-        infos.append(color(BLUE, username)) # in blue
+    buildinfo = get_build_information(build)
+    if buildinfo:
+        infos.append(color(buildinfo, 'BLUE'))  # in blue
     #
-    branch = build.source.branch
+    branch = build.getProperty('branch')
     if branch:
-        infos.append(color(BOLD, branch)) # in bold
+        infos.append(color(branch, bold=True))  # in bold
     #
     if infos:
         return '%s [%s]' % (url, ', '.join(infos))
     else:
         return url
 
+
 def buildStarted(self, builderName, build):
     builder = build.getBuilder()
-    log.msg('[Contact] Builder %r in category %s started' % (builder, builder.category))
+    log.msg('[Contact] Builder %r in category %s started' %
+                                            (builder, builder.category))
 
     # only notify about builders we are interested in
 
-    if (self.channel.categories != None and
-       builder.category not in self.channel.categories):
+    if (self.bot.categories is not None and
+       builder.category not in self.bot.categories):
         log.msg('Not notifying for a build in the wrong category')
         return
 
@@ -62,7 +72,7 @@ def buildStarted(self, builderName, build):
         log.msg('Not notifying for a build when started-notification disabled')
         return
 
-    buildurl = self.channel.status.getURLForThing(build)
+    buildurl = self.bot.status.getURLForThing(build)
     descr = get_description_for_build(buildurl, build)
     msg = "Started: %s" % descr
     self.send(msg)
@@ -72,29 +82,28 @@ def buildFinished(self, builderName, build, results):
     builder = build.getBuilder()
 
     # only notify about builders we are interested in
-    log.msg('[Contact] builder %r in category %s finished' % (builder, builder.category))
+    log.msg('[Contact] builder %r in category %s finished' %
+                                            (builder, builder.category))
 
-    if (self.channel.categories != None and
-        builder.category not in self.channel.categories):
+    if (self.bot.categories is not None and
+        builder.category not in self.bot.categories):
         return
 
     if not self.notify_for_finished(build):
         return
 
-    buildurl = self.channel.status.getURLForThing(build)
+    buildurl = self.bot.status.getURLForThing(build)
     descr = get_description_for_build(buildurl, build)
-    result = self.results_descriptions.get(build.getResults(), "Finished ??")
-    if result == 'Success':
-        result = color(BOLD+GREEN, result)
-    elif result == 'Exception':
-        result = color(BOLD+PURPLE, result)
-    else:
-        result = color(BOLD+RED, result)
+    result, c = self.results_descriptions.get(build.getResults(),
+                                                ("Finished ??", 'RED'))
+    if c not in COLORS:
+        c = 'RED'
+    result = color(result, c, bold=True)
     msg = "%s: %s" % (result, descr)
     self.send(msg)
 
-Contact.buildStarted = buildStarted
-Contact.buildFinished = buildFinished
+IRCContact.buildStarted = buildStarted
+IRCContact.buildFinished = buildFinished
 
 
 ## def send_message(message, test=False):

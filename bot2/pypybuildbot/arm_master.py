@@ -56,7 +56,8 @@ pypyJITCrossTranslationFactoryRaringHF = pypybuilds.NightlyBuild(
                         + crosstranslationjitargs),
     platform='linux-armhf-raring',
     interpreter='pypy',
-    prefix=['schroot', '-c', 'raring'])
+    prefix=['schroot', '-c', 'raring'],
+    trigger='JITLINUXARMHF_RARING_scheduler')
 
 pypyARMJITTranslatedTestFactory = pypybuilds.TranslatedTests(
     translationArgs=(crosstranslationargs
@@ -89,7 +90,17 @@ pypyARMHF_RASPBIAN_TranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
     app_tests=True,
     platform='linux-armhf-raspbian',
 )
+pypyARMHF_RARING_JITTranslatedTestFactory = pypybuilds.TranslatedTests(
+    translationArgs=(crosstranslationargs
+                        + jit_translation_args
+                        + crosstranslationjitargs),
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    platform='linux-armhf-raring',
+    )
 #
+LINUXARMHF = "own-linux-armhf"
 APPLVLLINUXARM = "pypy-c-app-level-linux-armel"
 APPLVLLINUXARMHF_v7 = "pypy-c-app-level-linux-armhf-v7"
 APPLVLLINUXARMHF_RASPBIAN = "pypy-c-app-level-linux-armhf-raspbian"
@@ -97,6 +108,7 @@ APPLVLLINUXARMHF_RASPBIAN = "pypy-c-app-level-linux-armhf-raspbian"
 JITLINUXARM = "pypy-c-jit-linux-armel"
 JITLINUXARMHF_v7 = "pypy-c-jit-linux-armhf-v7"
 JITLINUXARMHF_RASPBIAN = "pypy-c-jit-linux-armhf-raspbian"
+JITLINUXARMHF_RARING = "pypy-c-jit-linux-armhf-raring"
 
 JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
 JITBACKENDONLYLINUXARMHF = "jitbackendonly-own-linux-armhf"
@@ -109,6 +121,22 @@ BUILDLINUXARMHF_RASPBIAN = "build-pypy-c-linux-armhf-raspbian"
 BUILDJITLINUXARMHF_RASPBIAN = "build-pypy-c-jit-linux-armhf-raspbian"
 BUILDJITLINUXARMHF_RARING = "build-pypy-c-jit-linux-armhf-raring"
 
+builderNames = [
+    LINUXARMHF,
+    APPLVLLINUXARM,
+    APPLVLLINUXARMHF_v7,
+    APPLVLLINUXARMHF_RASPBIAN,
+    JITLINUXARM,
+    JITLINUXARMHF_v7,
+    JITLINUXARMHF_RASPBIAN,
+    JITBACKENDONLYLINUXARMEL,
+    JITBACKENDONLYLINUXARMHF,
+    JITBACKENDONLYLINUXARMHF_v7,
+    BUILDLINUXARM,
+    BUILDJITLINUXARM,
+    BUILDLINUXARMHF_RASPBIAN,
+    BUILDJITLINUXARMHF_RASPBIAN,
+]
 
 schedulers = [
     Nightly("nighly-arm-0-00", [
@@ -118,6 +146,8 @@ schedulers = [
 
         BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
         BUILDLINUXARMHF_RASPBIAN,      # on hhu-cross-raspbianhf, uses 1 core
+
+        LINUXARMHF,                    # onw tests on greenbox3-node0
 
         JITBACKENDONLYLINUXARMEL,      # on hhu-imx.53
         JITBACKENDONLYLINUXARMHF,
@@ -140,6 +170,10 @@ schedulers = [
         JITLINUXARMHF_RASPBIAN,       # triggered by BUILDJITLINUXARMHF_RASPBIAN
         JITLINUXARMHF_v7,             # triggered by BUILDJITLINUXARMHF_RASPBIAN, on cubieboard-bob
     ]),
+
+    Triggerable("JITLINUXARMHF_RARING_scheduler", [
+        JITLINUXARMHF_RARING,         # triggered by BUILDJITLINUXARMHF_RARING
+    ])
 ]
 
 builders = [
@@ -163,6 +197,12 @@ builders = [
    "locks": [ARMBoardLock.access('counting')],
    },
   ## armv7
+  {"name": LINUXARMHF,
+   "slavenames": ["greenbox3-node0"],
+   "builddir": LINUXARMHF,
+   "factory": pypyOwnTestFactoryARM,
+   "category": 'linux-armhf',
+  },
   {"name": JITBACKENDONLYLINUXARMHF_v7,
    "slavenames": ['cubieboard-bob'],
    "builddir": JITBACKENDONLYLINUXARMHF_v7,
@@ -215,6 +255,12 @@ builders = [
    'factory': pypyARMHF_RASPBIAN_JITTranslatedTestFactory,  # XXX replace this with a custom build
    'category': 'linux-armhf',
    "locks": [ARMBoardLock.access('counting')],
+   },
+  {"name": JITLINUXARMHF_RARING,
+   "slavenames": ["greenbox3-node0"],
+   'builddir': JITLINUXARMHF_RARING,
+   'factory': pypyARMHF_RARING_JITTranslatedTestFactory,
+   'category': 'linux-armhf',
    },
   # Translation Builders for ARM
   {"name": BUILDLINUXARM,

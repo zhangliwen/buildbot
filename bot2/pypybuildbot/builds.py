@@ -1,9 +1,12 @@
+from buildbot.steps.source.mercurial import Mercurial
+from buildbot.process.buildstep import BuildStep
 from buildbot.process import factory
 from buildbot.steps import shell, transfer
 from buildbot.steps.trigger import Trigger
 from buildbot.process.properties import WithProperties
 from buildbot import locks
 from pypybuildbot.util import symlink_force
+from buildbot.status.results import SKIPPED, SUCCESS
 import os
 
 # buildbot supports SlaveLocks, which can be used to limit the amout of builds
@@ -27,10 +30,7 @@ ARMCrossLock = locks.MasterLock('arm_cpu', maxCount=2)
 # while the boards can only run one job at the same time
 ARMBoardLock = locks.SlaveLock('arm_boards', maxCount=1)
 
-
-# XXX monkey patch Trigger class, there are to issues with the list of renderables
-# original: Trigger.renderables = [ 'set_propetries', 'scheduler', 'sourceStamp' ]
-Trigger.renderables = [ 'set_properties', 'schedulerNames', 'sourceStamp' ]
+map_branch_name = lambda x: x if x not in ['', None, 'default'] else 'trunk'
 
 class ShellCmd(shell.ShellCommand):
     # our own version that can distinguish abort cases (rc == -1)
@@ -47,9 +47,7 @@ class PyPyUpload(transfer.FileUpload):
 
     def start(self):
         properties = self.build.getProperties()
-        branch = properties['branch']
-        if branch is None:
-            branch = 'trunk'
+        branch = map_branch_name(properties['branch'])
         #masterdest = properties.render(self.masterdest)
         masterdest = os.path.expanduser(self.masterdest)
         if branch.startswith('/'):
@@ -86,21 +84,18 @@ class PyPyDownload(transfer.FileDownload):
     def start(self):
 
         properties = self.build.getProperties()
-        branch = properties['branch']
-        revision = properties['revision']
-
-        if branch is None:
-            branch = 'trunk'
+        branch = map_branch_name(properties['branch'])
+        revision = properties['final_file_name']
         mastersrc = os.path.expanduser(self.mastersrc)
 
         if branch.startswith('/'):
             branch = branch[1:]
         mastersrc = os.path.join(mastersrc, branch)
-        if revision is not None:
+        if revision:
             basename = WithProperties(self.basename).getRenderingFor(self.build)
             basename = basename.replace(':', '-')
         else:
-            basename = self.basename.replace('%(revision)s', 'latest')
+            basename = self.basename.replace('%(final_file_name)s', 'latest')
             assert '%' not in basename
 
         self.mastersrc = os.path.join(mastersrc, basename)
@@ -161,9 +156,7 @@ class PytestCmd(ShellCmd):
             builder.summary_by_branch_and_revision = {}
         try:
             rev = properties['got_revision']
-            branch = properties['branch']
-            if branch is None:
-                branch = 'trunk'
+            branch = map_branch_name(properties['branch'])
             if branch.endswith('/'):
                 branch = branch[:-1]
         except KeyError:
@@ -177,31 +170,21 @@ class PytestCmd(ShellCmd):
         builder.saveYourself()
 
 # _______________________________________________________________
-
-class UpdateCheckout(ShellCmd):
-    description = 'hg update'
-    command = 'UNKNOWN'
-
-    def __init__(self, workdir=None, haltOnFailure=True, force_branch=None,
-                 **kwargs):
-        ShellCmd.__init__(self, workdir=workdir, haltOnFailure=haltOnFailure,
-                          **kwargs)
-        self.force_branch = force_branch
-        self.addFactoryArguments(force_branch=force_branch)
-
-    def start(self):
-        if self.force_branch is not None:
-            branch = self.force_branch
-            # Note: We could add a warning to the output if we
-            # ignore the branch set by the user.
-        else:
-            properties = self.build.getProperties()
-            branch = properties['branch'] or 'default'
-        command = ["hg", "update", "--clean", "-r", branch]
-        self.setCommand(command)
-        ShellCmd.start(self)
-
-
+# XXX Currently the build properties got_revision and final_file_name contain
+# the revision number and the changeset-id, CheckGotRevision takes care to set
+# the corresponding build properties
+# rev:changeset for got_revision
+# rev-changeset for final_file_name
+#
+# The rev part of got_revision and filename is used everywhere to sort the
+# builds, i.e. on the summary and download pages.
+#
+# The rev part is strictly local and needs to be removed from the SourceStamp,
+# at least for decoupled builds, which is what ParseRevision does.
+#
+# XXX in general it would be nice to drop the revision-number using only the
+# changeset-id for got_revision and final_file_name and sorting the builds
+# chronologically
 class UpdateGitCheckout(ShellCmd):
     description = 'git checkout'
     command = 'UNKNOWN'
@@ -244,12 +227,51 @@ class CheckGotRevision(ShellCmd):
             # ':' should not be part of filenames --- too many issues
             self.build.setProperty('got_revision', got_revision,
                                    'got_revision')
-            self.build.setProperty('final_file_name', final_file_name,
-                                   'got_revision')
+            if not self.build.hasProperty('final_file_name'):
+                self.build.setProperty('final_file_name', final_file_name,
+                                       'got_revision')
+
+class ParseRevision(BuildStep):
+    """Parse the revision property of the source stamp and extract the global
+    part of the revision
+    123:3a34 -> 3a34"""
+    name = "parse_revision"
+
+    def __init__(self, *args, **kwargs):
+        BuildStep.__init__(self, *args, **kwargs)
+
+    @staticmethod
+    def hideStepIf(results, step):
+        return results==SKIPPED
+
+    @staticmethod
+    def doStepIf(step):
+        revision = step.build.getSourceStamp().revision
+        return isinstance(revision, (unicode, str)) and ':' in revision
+
+    def start(self):
+        stamp = self.build.getSourceStamp()
+        revision = stamp.revision if stamp.revision is not None else ''
+        #
+        if not isinstance(revision, (unicode, str)) or ":" not in revision:
+            self.finished(SKIPPED)
+            return
+        #
+        self.build.setProperty('original_revision', revision, 'parse_revision')
+        self.build.setProperty('final_file_name',
+                                revision.replace(':', '-'), 'parse_revision')
+        #
+        parts = revision.split(':')
+        self.build.setProperty('revision', parts[1], 'parse_revision')
+        stamp.revision = parts[1]
+        self.finished(SUCCESS)
 
 
-def update_hg(platform, factory, repourl, workdir, use_branch,
-              force_branch=None):
+def update_hg_old_method(platform, factory, repourl, workdir):
+    # baaaaaah.  Seems that the Mercurial class doesn't support
+    # updating to a different branch than the one specified by
+    # the user (like "default").  This is nonsense if we need
+    # an auxiliary check-out :-(  At least I didn't find how.
     if platform == 'win32':
         command = "if not exist .hg rmdir /q /s ."
     else:
@@ -280,14 +302,27 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
                              command="hg pull",
                              workdir=workdir))
     #
-    if use_branch or force_branch:
-        factory.addStep(UpdateCheckout(workdir=workdir,
-                                       haltOnFailure=True,
-                                       force_branch=force_branch))
-    else:
-        factory.addStep(ShellCmd(description="hg update",
-                command=WithProperties("hg update --clean %(revision)s"),
-                workdir=workdir))
+    # here, update without caring about branches
+    factory.addStep(ShellCmd(description="hg update",
+           command=WithProperties("hg update --clean %(revision)s"),
+           workdir=workdir))
+
+def update_hg(platform, factory, repourl, workdir, use_branch,
+              force_branch=None):
+    if not use_branch:
+        assert force_branch is None
+        update_hg_old_method(platform, factory, repourl, workdir)
+        return
+    factory.addStep(
+            Mercurial(
+                repourl=repourl,
+                mode='full',
+                method='fresh',
+                defaultBranch=force_branch,
+                branchType='inrepo',
+                clobberOnBranchChange=False,
+                workdir=workdir,
+                logEnviron=False))
 
 def update_git(platform, factory, repourl, workdir, use_branch,
               force_branch=None):
@@ -340,10 +375,14 @@ def setup_steps(platform, factory, workdir=None,
         # for debugging
         repourl = '/home/antocuni/pypy/default'
     #
+    factory.addStep(ParseRevision(hideStepIf=ParseRevision.hideStepIf,
+                                  doStepIf=ParseRevision.doStepIf))
+    #
     update_hg(platform, factory, repourl, workdir, use_branch=True,
               force_branch=force_branch)
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
+
 
 def build_name(platform, jit=False, flags=[], placeholder=None):
     if placeholder is None:
@@ -524,7 +563,7 @@ class TranslatedTests(factory.BuildFactory):
             command=['rm', '-rf', 'pypy-c'],
             workdir='.'))
         extension = get_extension(platform)
-        name = build_name(platform, pypyjit, translationArgs, placeholder='%(revision)s') + extension
+        name = build_name(platform, pypyjit, translationArgs, placeholder='%(final_file_name)s') + extension
         self.addStep(PyPyDownload(
             basename=name,
             mastersrc='~/nightly',
@@ -538,22 +577,37 @@ class TranslatedTests(factory.BuildFactory):
             self.addStep(ShellCmd(
                 description="decompress pypy-c",
                 command=['tar', '--extract', '--file=pypy_build'+ extension, '--strip-components=1', '--directory=.'],
-                workdir='pypy-c'))
+                workdir='pypy-c',
+                haltOnFailure=True,
+                ))
 
+        self.addStep(ShellCmd(
+            description="reset permissions",
+            command=['chmod', 'u+rw', '-R', 'build/include'],
+            haltOnFailure=True,
+            workdir='.'))
         # copy pypy-c to the expected location within the pypy source checkout
         self.addStep(ShellCmd(
             description="move pypy-c",
             command=['cp', '-v', 'pypy-c/bin/pypy', 'build/pypy/goal/pypy-c'],
+            haltOnFailure=True,
             workdir='.'))
         # copy generated and copied header files to build/include
         self.addStep(ShellCmd(
             description="move header files",
             command=['cp', '-vr', 'pypy-c/include', 'build'],
+            haltOnFailure=True,
             workdir='.'))
         # copy ctypes_resource_cache generated during translation
         self.addStep(ShellCmd(
+            description="reset permissions",
+            command=['chmod', 'u+rw', '-R', 'build/lib_pypy'],
+            haltOnFailure=True,
+            workdir='.'))
+        self.addStep(ShellCmd(
             description="move ctypes resource cache",
             command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy'],
+            haltOnFailure=True,
             workdir='.'))
 
         add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
@@ -578,6 +632,7 @@ class NightlyBuild(factory.BuildFactory):
             command=prefix + ["python", "pypy/tool/release/package.py",
                      ".", WithProperties(name), 'pypy',
                      '.'],
+            haltOnFailure=True,
             workdir='build'))
         nightly = '~/nightly/'
         extension = get_extension(platform)
@@ -587,7 +642,7 @@ class NightlyBuild(factory.BuildFactory):
                                 basename=name + extension,
                                 workdir='.',
                                 blocksize=100 * 1024))
-        if trigger: # if provided trigger schedulers that are depend on this one
+        if trigger: # if provided trigger schedulers that depend on this one
             self.addStep(Trigger(schedulerNames=[trigger]))
 
 
@@ -595,10 +650,11 @@ class JITBenchmark(factory.BuildFactory):
     def __init__(self, platform='linux', host='tannit', postfix=''):
         factory.BuildFactory.__init__(self)
 
-        setup_steps(platform, self)
         #
         repourl = 'https://bitbucket.org/pypy/benchmarks'
         update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
+        #
+        setup_steps(platform, self)
         if host == 'tannit':
             lock = TannitCPU
         elif host == 'speed_python':
@@ -676,13 +732,13 @@ class CPythonBenchmark(factory.BuildFactory):
         '''
         factory.BuildFactory.__init__(self)
 
-        # checks out and updates the repo
-        setup_steps(platform, self, repourl='http://hg.python.org/cpython',
-                    force_branch=branch)
-
         # check out and update benchmarks
         repourl = 'https://bitbucket.org/pypy/benchmarks'
         update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
+
+        # checks out and updates the repo
+        setup_steps(platform, self, repourl='http://hg.python.org/cpython',
+                    force_branch=branch)
 
         lock = SpeedPythonCPU
 
@@ -735,6 +791,39 @@ class CPythonBenchmark(factory.BuildFactory):
         self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
                                          masterdest=WithProperties(resultfile),
                                          workdir="."))
+
+class PyPyBuildbotTestFactory(factory.BuildFactory):
+    def __init__(self):
+        factory.BuildFactory.__init__(self)
+        # clone
+        self.addStep(
+            Mercurial(
+                repourl='https://bitbucket.org/pypy/buildbot',
+                mode='incremental',
+                method='fresh',
+                defaultBranch='default',
+                branchType='inrepo',
+                clobberOnBranchChange=False,
+                logEnviron=False))
+        # create a virtualenv
+        self.addStep(ShellCmd(
+            description='create virtualenv',
+            haltOnFailure=True,
+            command='virtualenv ../venv'))
+        # install deps
+        self.addStep(ShellCmd(
+            description="install dependencies",
+            haltOnFailure=True,
+            command=('../venv/bin/pip install -r requirements.txt').split()))
+        # run tests
+        self.addStep(PytestCmd(
+            description="pytest buildbot",
+            haltOnFailure=True,
+            command=["../venv/bin/py.test",
+                     "--resultlog=testrun.log",
+                     ],
+            logfiles={'pytestLog': 'testrun.log'}))
+
 
 class NativeNumpyTests(factory.BuildFactory):
     '''
