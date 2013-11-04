@@ -1,4 +1,5 @@
 from buildbot.steps.source.mercurial import Mercurial
+from buildbot.steps.source.git import Git
 from buildbot.process.buildstep import BuildStep
 from buildbot.process import factory
 from buildbot.steps import shell, transfer
@@ -85,7 +86,7 @@ class PyPyDownload(transfer.FileDownload):
 
         properties = self.build.getProperties()
         branch = map_branch_name(properties['branch'])
-        revision = properties['final_file_name']
+        revision = properties.getProperty('final_file_name')
         mastersrc = os.path.expanduser(self.mastersrc)
 
         if branch.startswith('/'):
@@ -185,6 +186,7 @@ class PytestCmd(ShellCmd):
 # XXX in general it would be nice to drop the revision-number using only the
 # changeset-id for got_revision and final_file_name and sorting the builds
 # chronologically
+
 class UpdateGitCheckout(ShellCmd):
     description = 'git checkout'
     command = 'UNKNOWN'
@@ -326,45 +328,16 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
 
 def update_git(platform, factory, repourl, workdir, use_branch,
               force_branch=None):
-    if platform == 'win32':
-        command = "if not exist .git rmdir /q /s ."
-    else:
-        command = "if [ ! -d .git ]; then rm -fr * .[a-z]*; fi"
-    factory.addStep(ShellCmd(description="rmdir?",
-                             command=command,
-                             workdir=workdir,
-                             haltOnFailure=False))
-    #
-    if platform == "win32":
-        command = "if not exist .git %s"
-    else:
-        command = "if [ ! -d .git ]; then %s; fi"
-    command = command % ("git clone " + repourl + " .")
-    factory.addStep(ShellCmd(description="git clone",
-                             command=command,
-                             workdir=workdir,
-                             timeout=3600,
-                             haltOnFailure=True))
-    #
-    factory.addStep(
-        ShellCmd(description="git clean",
-                 command="git clean",
-                 workdir=workdir,
-                 haltOnFailure=True))
-    #
-    factory.addStep(ShellCmd(description="git pull",
-                             command="git pull",
-                             workdir=workdir))
-    #
-    if use_branch or force_branch:
-        factory.addStep(UpdateGitCheckout(workdir=workdir,
-                                       haltOnFailure=True,
-                                       force_branch=force_branch))
-    else:
-        factory.addStep(ShellCmd(description="git checkout",
-                command=WithProperties("git checkout -f %(revision)s"),
-                workdir=workdir))
-
+    factory.addstep(
+            Git(
+                repourl=repourl,
+                mode='full',
+                method='fresh',
+                defaultBranch=force_branch,
+                branchType='inrepo',
+                clobberOnBranchChange=False,
+                workdir=workdir,
+                logEnviron=False))
 
 def setup_steps(platform, factory, workdir=None,
                 repourl='https://bitbucket.org/pypy/pypy/',
@@ -832,22 +805,21 @@ class NativeNumpyTests(factory.BuildFactory):
     def __init__(self, platform='linux',
                  app_tests=False,
                  lib_python=False,
-                 pypyjit=False,
+                 pypyjit=True,
                  prefix=None,
                  translationArgs=[]
                  ):
         factory.BuildFactory.__init__(self)
 
-        # XXX extend to checkout the specific revision of the build
-        setup_steps(platform, self)
-
+        self.addStep(ParseRevision(hideStepIf=ParseRevision.hideStepIf,
+                                  doStepIf=ParseRevision.doStepIf))
         # download corresponding nightly build
         self.addStep(ShellCmd(
             description="Clear pypy-c",
             command=['rm', '-rf', 'pypy-c'],
             workdir='.'))
         extension = get_extension(platform)
-        name = build_name(platform, pypyjit, translationArgs, placeholder='%(revision)s') + extension
+        name = build_name(platform, pypyjit, translationArgs, placeholder='%(final_file_name)s') + extension
         self.addStep(PyPyDownload(
             basename=name,
             mastersrc='~/nightly',
@@ -860,33 +832,31 @@ class NativeNumpyTests(factory.BuildFactory):
         else:
             self.addStep(ShellCmd(
                 description="decompress pypy-c",
-                command=['tar', '--extract', '--file=pypy_build'+ extension,
-                         '--strip-components=1', '--directory=.'],
-                workdir='pypy-c/download'))
+                command=['tar', '--extract', '--file=pypy_build'+ extension, '--strip-components=1', '--directory=.'],
+                workdir='pypy-c',
+                haltOnFailure=True,
+                ))
 
         # virtualenv the download
         self.addStep(ShellCmd(
             description="create virtualenv",
-            command=['virtualenv','-p', 'download/bin/pypy', 'install'],
-            workdir='pypy-c'))
+            command=['virtualenv','-p', 'bin/pypy', 'install'],
+            workdir='pypy-c',
+            haltOnFailure=True,
+            ))
 
         self.addStep(ShellCmd(
             description="install nose",
             command=['install/bin/pip', 'install','nose'],
-            workdir='pypy-c'))
+            workdir='pypy-c',
+            haltOnFailure=True,
+            ))
 
         # obtain a pypy-compatible branch of numpy
-        numpy_url = 'https://github.com/mattip/numpy'
+        numpy_url = 'https://www.bitbucket.org/pypy/numpy'
         numpy_pypy_branch = 'pypy'
         update_git(platform, self, numpy_url, 'numpy_src', use_branch=True,
               force_branch=numpy_pypy_branch)
-
-        if os.path.exists('pypy_c/download/lib_pypy/numpy.py'):
-            self.addStep(ShellCmd(
-                description="delete lib_pypy/numpy.*",
-                command=['rm', 'download/lib_pypy/numpy.*'],
-                workdir='pypy-c'))
-
 
         self.addStep(ShellCmd(
             description="install numpy",

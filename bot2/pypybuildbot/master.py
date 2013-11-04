@@ -148,7 +148,7 @@ pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark()
 pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
                                                            postfix='-64')
 
-pypyNumpyCompatability = pypybuilds.NativeNumpyTests()
+pypyNumpyCompatability = pypybuilds.NativeNumpyTests(platform='linux64')
 
 #
 
@@ -266,6 +266,7 @@ BuildmasterConfig = {
                         JITONLYLINUXPPC64,
                         JITBENCH,
                         JITBENCH64,
+                        NUMPY_64,
             ] + ARM.builderNames, properties=[]),
     ] + ARM.schedulers,
 
