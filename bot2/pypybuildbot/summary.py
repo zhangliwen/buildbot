@@ -374,7 +374,7 @@ class SummaryPage(object):
 
     def _start_cat_branch(self, cat_branch, fine=False):
         category, branch = cat_branch
-        branch = trunk_name(branch)
+        branch = meta_branch_name(branch)
         category = category_name(category)
 
         self.cur_cat_branch = (category, branch)
@@ -615,14 +615,19 @@ def make_test(lst):
         return lambda v: v in membs
 
 def make_subst(v1, v2):
+    if not isinstance(v1, list):
+        v1 = [v1]
     def subst(v):
-        if v == v1:
+        if v in v1:
             return v2
         return v
     return subst
 
-trunk_name = make_subst(None, "<trunk>")
-trunk_value = make_subst("<trunk>", None)
+# Map certain branch names from SourceStamps to a common name shown on the page
+meta_branch_name = make_subst(['default', '', None], '<trunk>')
+# map the meta-branch <trunk> to the actual branch entries from the
+# SourceStamp
+default_value = make_subst('<trunk>', ['default', '', None])
 category_name = make_subst(None, '-')
 nocat_value = make_subst("-", None)
 
@@ -661,8 +666,7 @@ class Summary(HtmlResource):
 
     def getTitle(self, request):
         status = self.getStatus(request)
-        return "%s: summaries of last %d revisions" % (status.getProjectName(),
-                                                       N)
+        return "%s: summaries of last %d revisions" % (status.getTitle(), N)
 
     @staticmethod
     def _prune_runs(runs, cutnum):
@@ -686,8 +690,10 @@ class Summary(HtmlResource):
         except KeyError:
             pass
         builder = status.botmaster.builders[builderName]
+        factory = builder.config.factory
         branch = None
-        for _, kw in builder.buildFactory.steps:
+        for step in factory.steps:
+            kw = step.kwargs
             if 'defaultBranch' in kw:
                 if kw.get('explicitBranch'):
                     branch = kw['defaultBranch']
@@ -722,7 +728,6 @@ class Summary(HtmlResource):
                          only_builder or only_branches)
 
         cat_branches = {}
-
         for builderName in status.getBuilderNames(only_categories):
             if not test_builder(builderName):
                 continue
@@ -740,6 +745,8 @@ class Summary(HtmlResource):
             for build in builditer:
                 if prune_old and self._age(build) > 7:
                     continue
+                if self._age(build) > 60:   # two months old: prune anyway
+                    continue
                 branch = self._get_branch(status, build)
                 if not test_branch(branch):
                     continue
@@ -747,6 +754,7 @@ class Summary(HtmlResource):
                 if not test_rev(got_rev):
                     continue
 
+                branch = meta_branch_name(branch)
                 cat_branch = (builderStatus.category, branch)
 
                 runs, no_revision_builds = cat_branches.setdefault(cat_branch,
@@ -825,7 +833,13 @@ class Summary(HtmlResource):
         only_branches = request.args.get('branch', None)
         only_recentrevs = request.args.get('recentrev', None)
         if only_branches is not None:
-            only_branches = map(trunk_value, only_branches)
+            branches = []
+            for x in map(default_value, only_branches):
+                if isinstance(x, str):
+                    branches.append(x)
+                else:
+                    branches.extend(x)
+            only_branches = branches
         only_builder = request.args.get('builder', None)
         only_builds = None
         if only_builder is not None:
@@ -861,16 +875,16 @@ class Summary(HtmlResource):
                                          outcome_set_cache.stats()))
 
         if request.args:
-            trunk_vs_any_text = "filter nothing"
-            trunk_vs_any_query = ""
+            default_vs_any_text = "filter nothing"
+            default_vs_any_query = ""
         else:
-            trunk_vs_any_text = "all <trunk>"
-            trunk_vs_any_query = "?branch=<trunk>"
+            default_vs_any_text = "all <trunk>"
+            default_vs_any_query = "?branch=<trunk>"
 
-        trunk_vs_any_anchor = html.a(trunk_vs_any_text,
+        default_vs_any_anchor = html.a(default_vs_any_text,
                                      href="/summary%s" %
-                                     trunk_vs_any_query,
+                                     default_vs_any_query,
                                      class_="failSummary trunkVsAny")
-        trunk_vs_any = html.div(trunk_vs_any_anchor,
+        default_vs_any = html.div(default_vs_any_anchor,
                                 style="position: absolute; right: 5%;")
-        return trunk_vs_any.unicode() + page.render()
+        return default_vs_any.unicode() + page.render()

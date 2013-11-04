@@ -4,53 +4,83 @@ from pypybuildbot import builds
 
 class FakeProperties(object):
 
-    def __init__(self):
-        from buildbot.process.properties import PropertyMap
-        self.pmap = PropertyMap(self)
-    
+    sources = {}
+
+    def __init__(self, properties=None):
+        if properties is None:
+            self.properties = {'branch':None, 'got_revision': 123,
+                    'final_file_name': '123-ea5ca8'}
+        else:
+            self.properties = properties
+
     def __getitem__(self, item):
-        if item == 'branch':
-            return None
-        if item == 'got_revision':
-            return 123
-        if item == 'final_file_name':
-            return '123-ea5ca8'
-    
+        return self.properties.get(item)
+
+    def __setitem__(self, name, value):
+        self.properties[name] = value
+
     def render(self, x):
         return x
+
+class FakeSourceStamp(object):
+    def __init__(self, properties=None):
+        self.properties = properties if properties is not None else {}
+
+    def __getattr__(self, name):
+        return self.properties.get(name)
+
+    def __setattribute__(self, name, value):
+        self.properties[name] = value
 
 class FakeBuild(object):
     slaveEnvironment = None
 
-    def __init__(self):
-        self.properties = FakeProperties()
-    
+    def __init__(self, properties=None):
+        self.properties = FakeProperties(properties)
+        self.source_stamp = FakeSourceStamp(properties)
+
     def getProperties(self):
         return self.properties
 
+    def setProperty(self, name, value, source):
+        self.properties[name] = value
+        self.properties.sources[name] = source
+
     def getSlaveCommandVersion(self, *args):
         return 3
+
+    def getSourceStamp(self, *args):
+        return self.source_stamp
 
 class FakeStepStatus(object):
     def setText(self, *args):
         pass
 
+    def stepFinished(self, results):
+        self.results = results
+
+    def setHidden(self, *args):
+        pass
+
 class FakeDeferred(object):
+    def callback(*args):
+        pass
     def addCallback(self, *args):
         return FakeDeferred()
     def addErrback(self, *args):
         return FakeDeferred()
 
 def test_Translate():
-    expected = ['translate.py', '--batch', '-O0',
+    expected = ['pypy', '../../rpython/bin/rpython', '--batch', '-O0',
                 'targetpypystandalone', '--no-allworkingmodules']
 
     translateInst = builds.Translate(['-O0'], ['--no-allworkingmodules'])
 
     assert translateInst.command[-len(expected):] == expected
     
-    translateFactory, kw = translateInst.factory
-    rebuiltTranslate = translateFactory(**kw)
+    translateFactory = translateInst._getStepFactory().factory
+    args = translateInst._getStepFactory().args
+    rebuiltTranslate = translateFactory(*args)
                 
     assert rebuiltTranslate.command[-len(expected):] == expected
 
@@ -64,7 +94,8 @@ def test_pypy_upload():
     inst = builds.PyPyUpload(slavesrc='slavesrc', masterdest=str(pth.join('mstr')),
                              basename='base-%(final_file_name)s', workdir='.',
                              blocksize=100)
-    factory, kw = inst.factory
+    factory = inst._getStepFactory().factory
+    kw = inst._getStepFactory().kwargs
     rebuilt = factory(**kw)
     rebuilt.build = FakeBuild()
     rebuilt.step_status = FakeStepStatus()
@@ -145,3 +176,36 @@ S a/c.py:test_four
         step.commandComplete(cmd)
         summary = builder.summary_by_branch_and_revision[('trunk', '123')]
         assert summary.to_tuple() == (2, 2, 4, 0)
+
+
+class TestParseRevision(object):
+
+    def setup_method(self, mth):
+        inst = builds.ParseRevision()
+        factory = inst._getStepFactory().factory
+        kw = inst._getStepFactory().kwargs
+        self.rebuilt = factory(**kw)
+        self.rebuilt.step_status = FakeStepStatus()
+        self.rebuilt.deferred = FakeDeferred()
+
+    def test_has_revision(self):
+        self.rebuilt.build = FakeBuild({'revision':u'123:ea5ca8'})
+        self.rebuilt.start()
+        assert self.rebuilt.build.getProperties()['revision'] == 'ea5ca8'
+        assert self.rebuilt.build.getProperties()['original_revision'] == '123:ea5ca8'
+        assert self.rebuilt.build.getProperties()['final_file_name'] == '123-ea5ca8'
+
+    def test_no_revision(self):
+        self.rebuilt.build = FakeBuild()
+        self.rebuilt.start()
+        assert self.rebuilt.build.getProperties()['revision'] is None
+
+    def test_revision_no_local_part(self):
+        self.rebuilt.build = FakeBuild({'revision':u'ea5ca8'})
+        self.rebuilt.start()
+        assert self.rebuilt.build.getProperties()['revision'] == 'ea5ca8'
+
+    def test_empty_revision(self):
+        self.rebuilt.build = FakeBuild({'revision':u''})
+        self.rebuilt.start()
+        assert self.rebuilt.build.getProperties()['revision'] == ''
