@@ -6,6 +6,7 @@ import cgi
 import urllib
 import sys
 from twisted.web.static import File, DirectoryLister
+from buildbot.status.web.base import path_to_root
 
 class PyPyTarball(object):
 
@@ -145,7 +146,7 @@ class PyPyList(File):
             Listener = PyPyDirectoryLister
         else:
             names = self.sortDirectoryNames(File.listEntities(self))
-            Listener = DirectoryLister
+            Listener = PyPyDirectoryLister
         return Listener(self.path,
                         names,
                         self.contentTypes,
@@ -158,7 +159,10 @@ class NumpyStatusList(File):
 class PyPyDirectoryLister(DirectoryLister):
     template = """<html>
 <head>
-<title>%(header)s</title>
+<title>%%(header)s</title>
+    <link rel="stylesheet" href="%(path_to_root)sdefault.css" type="text/css" />
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="%(path_to_root)srss">
+    <link rel="shortcut icon" href="%(path_to_root)sfavicon.ico">
 <style>
 .even        { background-color: #eee    }
 .odd         { background-color: #dedede }
@@ -180,7 +184,7 @@ class PyPyDirectoryLister(DirectoryLister):
 .listing {
     margin-left: auto;
     margin-right: auto;
-    width: 50%%;
+    width: 50%%%%;
     padding: 0.1em;
     }
 
@@ -191,8 +195,29 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
 </style>
 </head>
 
-<body>
-<h1>%(header)s</h1>
+<body class="interface">
+   <div class="header">
+        <a href="%(path_to_root)s">Home</a>
+        -
+        <!-- PyPy specific items -->
+        <a href="http://speed.pypy.org/">Speed</a>
+        <a href="%(path_to_root)ssummary?branch=&lt;trunk&gt;">Summary (trunk)</a>
+        <a href="%(path_to_root)ssummary">Summary</a>
+        <a href="%(path_to_root)snightly/">Nightly builds</a>
+        <!-- end of PyPy specific items -->
+
+        <a href="%(path_to_root)swaterfall">Waterfall</a>
+        <!-- <a href="%(path_to_root)sgrid">Grid</a> -->
+        <!-- <a href="%(path_to_root)stgrid">T-Grid</a> -->
+        <!-- <a href="%(path_to_root)sconsole">Console</a> -->
+        <a href="%(path_to_root)sbuilders">Builders</a>
+        <!-- <a href="%(path_to_root)sone_line_per_build">Recent Builds</a> -->
+        <!-- <a href="%(path_to_root)sbuildslaves">Buildslaves</a> -->
+        <!-- <a href="%(path_to_root)schanges">Changesources</a> -->
+        <!-- - <a href="%(path_to_root)sjson/help">JSON API</a> -->
+        - <a href="%(path_to_root)sabout">About</a>
+    </div>
+<h1>%%(header)s</h1>
 
 <table>
     <thead>
@@ -205,7 +230,7 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
         </tr>
     </thead>
     <tbody>
-%(tableContent)s
+%%(tableContent)s
     </tbody>
 </table>
 
@@ -224,6 +249,7 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
 
     def render(self, request):
         self.status = request.site.buildbot_service.getStatus()
+        self.template = self.template % {'path_to_root': path_to_root(request)}
         return DirectoryLister.render(self, request)
 
     def _buildTableContent(self, elements):
