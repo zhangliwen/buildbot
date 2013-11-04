@@ -1,44 +1,56 @@
-
-import os
-
+# -*- mode: python -*-
 from twisted.application import service
-from buildslave.bot import BuildSlave
+try:
+    # 8.x
+    from buildslave.bot import BuildSlave
+except ImportError:
+    #7.x
+    from buildbot.slave.bot import BuildSlave
 
-basedir = r'/home/matti/pypy_stuff/buildbot/slave'
-rotateLength = 10000000
-maxRotatedFiles = 10
+# ---------------------------------------------------------------
+# manual editing of the automatically generated buildbot.tac
+#
+import os.path
+thisfile = os.path.join(os.getcwd(), __file__)
+basedir = os.path.abspath(os.path.dirname(thisfile))
+#
+# ---------------------------------------------------------------
 
-# if this is a relocatable tac file, get the directory containing the TAC
-if basedir == '.':
-    import os.path
-    basedir = os.path.abspath(os.path.dirname(__file__))
+def find_passwd(slavename):
+  masterdir = os.path.join(basedir, '..', 'master')
+  slaveinfo = os.path.join(masterdir, 'slaveinfo.py')
+  d = {}
+  try:
+    execfile(slaveinfo, d)
+    return d['passwords'][slavename]
+  except Exception, e:
+    print 'error when executing ../master/slaveinfo.py: %s' % repr(e)
+    print 'using default password for the slave'
+    return 'default_password'
+  
 
-# note: this line is matched against to check that this is a buildslave
-# directory; do not edit it.
+buildmaster_host = 'localhost'
+port = 10407
+slavename = 'localhost'
+passwd = find_passwd(slavename)
+keepalive = 600
+usepty = 0
+umask = None
+maxdelay = 300
+rotateLength = 1000000
+maxRotatedFiles = None
+
 application = service.Application('buildslave')
-
 try:
   from twisted.python.logfile import LogFile
   from twisted.python.log import ILogObserver, FileLogObserver
-  logfile = LogFile.fromFullPath(os.path.join(basedir, "twistd.log"), rotateLength=rotateLength,
+  logfile = LogFile.fromFullPath("twistd.log", rotateLength=rotateLength,
                                  maxRotatedFiles=maxRotatedFiles)
   application.setComponent(ILogObserver, FileLogObserver(logfile).emit)
 except ImportError:
   # probably not yet twisted 8.2.0 and beyond, can't set log yet
   pass
-
-buildmaster_host = 'localhost'
-port = 10407
-slavename = 'localhost'
-passwd = 'stam'
-keepalive = 600
-usepty = 0
-umask = None
-maxdelay = 300
-allow_shutdown = None
-
 s = BuildSlave(buildmaster_host, port, slavename, passwd, basedir,
-               keepalive, usepty, umask=umask, maxdelay=maxdelay,
-               allow_shutdown=allow_shutdown)
+               keepalive, usepty, umask=umask, maxdelay=maxdelay)
 s.setServiceParent(application)
 
