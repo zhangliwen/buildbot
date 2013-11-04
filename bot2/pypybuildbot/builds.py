@@ -328,14 +328,11 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
 
 def update_git(platform, factory, repourl, workdir, use_branch,
               force_branch=None):
-    factory.addstep(
+    factory.addStep(
             Git(
                 repourl=repourl,
                 mode='full',
                 method='fresh',
-                defaultBranch=force_branch,
-                branchType='inrepo',
-                clobberOnBranchChange=False,
                 workdir=workdir,
                 logEnviron=False))
 
@@ -840,35 +837,35 @@ class NativeNumpyTests(factory.BuildFactory):
         # virtualenv the download
         self.addStep(ShellCmd(
             description="create virtualenv",
-            command=['virtualenv','-p', 'bin/pypy', 'install'],
-            workdir='pypy-c',
+            command=['virtualenv','-p', 'pypy-c/bin/pypy', 'install'],
+            workdir='./',
             haltOnFailure=True,
             ))
 
         self.addStep(ShellCmd(
             description="install nose",
             command=['install/bin/pip', 'install','nose'],
-            workdir='pypy-c',
+            workdir='./',
             haltOnFailure=True,
             ))
 
         # obtain a pypy-compatible branch of numpy
         numpy_url = 'https://www.bitbucket.org/pypy/numpy'
-        numpy_pypy_branch = 'pypy'
+        numpy_pypy_branch = 'pypy-compat'
         update_git(platform, self, numpy_url, 'numpy_src', use_branch=True,
               force_branch=numpy_pypy_branch)
 
         self.addStep(ShellCmd(
             description="install numpy",
-            command=['install/bin/python', 'setup.py','install'],
+            command=['../install/bin/python', 'setup.py','install'],
             workdir='numpy_src'))
 
         self.addStep(ShellCmd(
             description="test numpy",
-            command=['install/bin/python', '-c', '"import numpy;numpy.test()"',
-                     '> pytest-numpy.log','2>&1'],
-            logfiles={'pytestLog': 'pytest-numpy.log'},
+            command=['bin/nosetests', 'site-packages/numpy',
+                    ],
+            #logfiles={'pytestLog': 'pytest-numpy.log'},
             timeout=4000,
-            workdir='numpy_src',
+            workdir='install',
             #env={"PYTHONPATH": ['download']}, # shouldn't be needed, but what if it is set externally?
         ))
