@@ -157,7 +157,9 @@ class NumpyStatusList(File):
     pass
 
 class PyPyDirectoryLister(DirectoryLister):
-    template = """<html>
+    template = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>%%(header)s</title>
     <link rel="stylesheet" href="%(path_to_root)sdefault.css" type="text/css" />
@@ -189,7 +191,6 @@ class PyPyDirectoryLister(DirectoryLister):
     }
 
 body { border: 0; padding: 0; margin: 0; background-color: #efefef; }
-h1 {padding: 0.1em; background-color: #777; color: white; border-bottom: thin white dashed;}
 td,th {padding-left: 0.5em; padding-right: 0.5em; }
 
 </style>
@@ -217,23 +218,25 @@ td,th {padding-left: 0.5em; padding-right: 0.5em; }
         <!-- - <a href="%(path_to_root)sjson/help">JSON API</a> -->
         - <a href="%(path_to_root)sabout">About</a>
     </div>
-<h1>%%(header)s</h1>
+    <hr />
+    <div class="content">
+        <h1>%%(header)s</h1>
 
-<table>
-    <thead>
-        <tr>
-            <th>Filename</th>
-            <th>Size</th>
-            <th>Date</th>
-            <th><i>own</i> tests</th>
-            <th><i>applevel</i> tests</th>
-        </tr>
-    </thead>
-    <tbody>
-%%(tableContent)s
-    </tbody>
-</table>
-
+        <table>
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Size</th>
+                    <th>Date</th>
+                    <th><i>own</i> tests</th>
+                    <th><i>applevel</i> tests</th>
+                </tr>
+            </thead>
+            <tbody>
+        %%(tableContent)s
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
 """
