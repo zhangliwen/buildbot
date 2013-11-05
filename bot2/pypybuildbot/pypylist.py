@@ -5,8 +5,8 @@ import py
 import cgi
 import urllib
 import sys
-from twisted.web.static import File, DirectoryLister
-from buildbot.status.web.base import path_to_root
+from twisted.web.static import File
+from buildbot.status.web.base import DirectoryLister
 
 class PyPyTarball(object):
 
@@ -143,10 +143,9 @@ class PyPyList(File):
         names = File.listNames(self)
         if is_pypy_dir(names):
             names = self.sortBuildNames(names)
-            Listener = PyPyDirectoryLister
         else:
             names = self.sortDirectoryNames(File.listEntities(self))
-            Listener = PyPyDirectoryLister
+        Listener = PyPyDirectoryLister
         return Listener(self.path,
                         names,
                         self.contentTypes,
@@ -157,112 +156,16 @@ class NumpyStatusList(File):
     pass
 
 class PyPyDirectoryLister(DirectoryLister):
-    template = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>%%(header)s</title>
-    <link rel="stylesheet" href="%(path_to_root)sdefault.css" type="text/css" />
-    <link rel="alternate" type="application/rss+xml" title="RSS" href="%(path_to_root)srss">
-    <link rel="shortcut icon" href="%(path_to_root)sfavicon.ico">
-<style>
-.even        { background-color: #eee    }
-.odd         { background-color: #dedede }
-.even-passed { background-color: #caffd8 }
-.odd-passed  { background-color: #a3feba }
-.even-failed { background-color: #ffbbbb }
-.odd-failed  { background-color: #ff9797 }
+    '''template based, uses master/templates/directory.html
+    '''
 
-.summary_link {
-    color: black;
-    text-decoration: none;
-}
-.summary_link:hover {
-    color: blue;
-    text-decoration: underline;
-}
-
-.icon { text-align: center }
-.listing {
-    margin-left: auto;
-    margin-right: auto;
-    width: 50%%%%;
-    padding: 0.1em;
-    }
-
-body { border: 0; padding: 0; margin: 0; background-color: #efefef; }
-td,th {padding-left: 0.5em; padding-right: 0.5em; }
-
-</style>
-</head>
-
-<body class="interface">
-   <div class="header">
-        <a href="%(path_to_root)s">Home</a>
-        -
-        <!-- PyPy specific items -->
-        <a href="http://speed.pypy.org/">Speed</a>
-        <a href="%(path_to_root)ssummary?branch=&lt;trunk&gt;">Summary (trunk)</a>
-        <a href="%(path_to_root)ssummary">Summary</a>
-        <a href="%(path_to_root)snightly/">Nightly builds</a>
-        <!-- end of PyPy specific items -->
-
-        <a href="%(path_to_root)swaterfall">Waterfall</a>
-        <!-- <a href="%(path_to_root)sgrid">Grid</a> -->
-        <!-- <a href="%(path_to_root)stgrid">T-Grid</a> -->
-        <!-- <a href="%(path_to_root)sconsole">Console</a> -->
-        <a href="%(path_to_root)sbuilders">Builders</a>
-        <!-- <a href="%(path_to_root)sone_line_per_build">Recent Builds</a> -->
-        <!-- <a href="%(path_to_root)sbuildslaves">Buildslaves</a> -->
-        <!-- <a href="%(path_to_root)schanges">Changesources</a> -->
-        <!-- - <a href="%(path_to_root)sjson/help">JSON API</a> -->
-        - <a href="%(path_to_root)sabout">About</a>
-    </div>
-    <hr />
-    <div class="content">
-        <h1>%%(header)s</h1>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Filename</th>
-                    <th>Size</th>
-                    <th>Date</th>
-                    <th><i>own</i> tests</th>
-                    <th><i>applevel</i> tests</th>
-                </tr>
-            </thead>
-            <tbody>
-        %%(tableContent)s
-            </tbody>
-        </table>
-    </div>
-</body>
-</html>
-"""
-
-    linePattern = """<tr class="%(class)s">
-    <td><a href="%(href)s">%(text)s</a></td>
-    <td>%(size)s</td>
-    <td>%(date)s</td>
-    <td class="%(own_summary_class)s">%(own_summary)s</td>
-    <td class="%(app_summary_class)s">%(app_summary)s</td>
-</tr>
-"""
-
-    def render(self, request):
-        self.status = request.site.buildbot_service.getStatus()
-        self.template = self.template % {'path_to_root': path_to_root(request)}
-        return DirectoryLister.render(self, request)
-
-    def _buildTableContent(self, elements):
-        tableContent = []
+    def _getFilesAndDirectories(self, directory):
+        dirs, files = DirectoryLister._getFilesAndDirectories(self, directory)
         rowClasses = itertools.cycle(['odd', 'even'])
-        for element, rowClass in zip(elements, rowClasses):
-            element["class"] = rowClass
-            self._add_test_results(element, rowClass)
-            tableContent.append(self.linePattern % element)
-        return tableContent
+        for f, rowClass in zip(files, rowClasses):
+            f["class"] = rowClass
+            self._add_test_results(f, rowClass)
+        return dirs, files
 
     def _add_test_results(self, element, rowClass):
         filename = urllib.unquote(element['href'])

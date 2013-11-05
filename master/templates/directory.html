@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block morehead %}
+<style>
+.even        { background-color: #eee    }
+.odd         { background-color: #dedede }
+.even-passed { background-color: #caffd8 }
+.odd-passed  { background-color: #a3feba }
+.even-failed { background-color: #ffbbbb }
+.odd-failed  { background-color: #ff9797 }
+
+.summary_link {
+    color: black;
+    text-decoration: none;
+}
+.summary_link:hover {
+    color: blue;
+    text-decoration: underline;
+}
+
+.icon { text-align: center }
+.listing {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%%%%;
+    padding: 0.1em;
+    }
+
+body { border: 0; padding: 0; margin: 0; background-color: #efefef; }
+td,th {padding-left: 0.5em; padding-right: 0.5em; }
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<h1>Directory listing for {{ path }}</h1>
+
+{% set row_class = cycler('odd', 'even') %}
+
+<table>
+
+<tr class="{{ row_class.next() }}">
+<th>Filename</th>
+<th>Size</th>
+<th>Date</th>
+<th><i>own</i> tests</th>
+<th><i>applevel</i> tests</th>
+</tr>
+
+{% for d in directories %}  
+  <tr class="{{ row_class.next() }}">
+    <td><a href="{{ d.href }}"><b>{{ d.text }}</b></a></td>
+    <td><b>{{ d.size }}</b></td>
+    <td><b>{{ d.type }}</b></td>
+    <td><b>{{ d.encoding }}</b></td>
+  </tr>
+{% endfor %}
+
+{% for f in files %}
+  <tr class="{{ f.class }}">
+    <td><a href="{{ f.href }}">{{ f.text }}</a></td>
+    <td>{{ f.size }}</td>
+    <td>{{ f.date }}</td>
+    <td class="{{ f.own_summary_class }}">{{ f.own_summary }}</td>
+    <td class="{{ f.app_summary_class }}">{{ f.app_summary }}</td>
+  </tr>
+{% endfor %}
+</table>
+
+{% endblock %}
