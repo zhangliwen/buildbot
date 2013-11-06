@@ -5,7 +5,7 @@ import py
 import cgi
 import urllib
 import sys
-from twisted.web.static import File
+from twisted.web.static import File, formatFileSize
 from buildbot.status.web.base import DirectoryLister
 
 class PyPyTarball(object):
@@ -165,6 +165,15 @@ class PyPyDirectoryLister(DirectoryLister):
         for f, rowClass in zip(files, rowClasses):
             f["class"] = rowClass
             self._add_test_results(f, rowClass)
+        for d in dirs:
+            dirname = urllib.unquote(d['href'])
+            dd = py.path.local(self.path).join(dirname)
+            date = datetime.date.fromtimestamp(dd.mtime())
+            d['date'] = date.isoformat()
+            # Assume dir is non-recursive
+            size = sum([f.size() for f in dd.listdir() if f.isfile()])
+            d['size'] = formatFileSize(size)
+
         return dirs, files
 
     def _add_test_results(self, element, rowClass):
