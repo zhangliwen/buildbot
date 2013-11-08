@@ -642,20 +642,6 @@ class JITBenchmark(factory.BuildFactory):
                 locks=[lock.access('counting')],
                 )
             )
-        if host == 'tannit':
-            pypy_c_rel = 'build/pypy/goal/pypy-c'
-            self.addStep(ShellCmd(
-                env={'PYTHONPATH': './benchmarks/lib/jinja2'},
-                description="measure numpy compatibility",
-                command=[pypy_c_rel,
-                         'build/pypy/module/micronumpy/tool/numready/',
-                         pypy_c_rel, 'numpy-compat.html'],
-                workdir="."))
-            resfile = os.path.expanduser("~/numpy_compat/%(got_revision)s.html")
-            self.addStep(NumpyStatusUpload(
-                slavesrc="numpy-compat.html",
-                masterdest=WithProperties(resfile),
-                workdir="."))
         pypy_c_rel = "../build/pypy/goal/pypy-c"
         self.addStep(ShellCmd(
             # this step needs exclusive access to the CPU
@@ -801,6 +787,7 @@ class NativeNumpyTests(factory.BuildFactory):
     '''
     def __init__(self, platform='linux',
                  app_tests=False,
+                 host = 'tannit',
                  lib_python=False,
                  pypyjit=True,
                  prefix=None,
@@ -869,3 +856,16 @@ class NativeNumpyTests(factory.BuildFactory):
             workdir='install',
             #env={"PYTHONPATH": ['download']}, # shouldn't be needed, but what if it is set externally?
         ))
+        if host == 'tannit':
+            pypy_c_rel = 'install/bin/python'
+            self.addStep(ShellCmd(
+                description="measure numpy compatibility",
+                command=[pypy_c_rel,
+                         'numpy_src/tools/numready/',
+                         pypy_c_rel, 'numpy-compat.html'],
+                workdir="."))
+            resfile = os.path.expanduser("~/numpy_compat/%(got_revision)s.html")
+            self.addStep(NumpyStatusUpload(
+                slavesrc="numpy-compat.html",
+                masterdest=WithProperties(resfile),
+                workdir="."))
