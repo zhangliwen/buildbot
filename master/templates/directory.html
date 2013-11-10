@@ -41,7 +41,7 @@ td:first-child {text-align: left;}
 
 <table>
 
-{% if files|length > 1 %}
+{% if files|length > 0 %}
 <tr class="{{ row_class.next() }}">
 <th>Filename</th>
 <th>Size</th>
@@ -59,7 +59,7 @@ td:first-child {text-align: left;}
 </tr>
 {% endif %}
 
-{% for d in directories %}  
+{% for d in directories %}
   <tr class="{{ row_class.next() }}">
     <td><a href="{{ d.href }}"><b>{{ d.text }}</b></a></td>
     <td>{{ d.size}}</td>
