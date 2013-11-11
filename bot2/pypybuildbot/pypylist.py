@@ -5,7 +5,8 @@ import py
 import cgi
 import urllib
 import sys
-from twisted.web.static import File, DirectoryLister
+from twisted.web.static import File, formatFileSize
+from buildbot.status.web.base import DirectoryLister
 
 class PyPyTarball(object):
 
@@ -142,10 +143,9 @@ class PyPyList(File):
         names = File.listNames(self)
         if is_pypy_dir(names):
             names = self.sortBuildNames(names)
-            Listener = PyPyDirectoryLister
         else:
             names = self.sortDirectoryNames(File.listEntities(self))
-            Listener = DirectoryLister
+        Listener = PyPyDirectoryLister
         return Listener(self.path,
                         names,
                         self.contentTypes,
@@ -156,84 +156,25 @@ class NumpyStatusList(File):
     pass
 
 class PyPyDirectoryLister(DirectoryLister):
-    template = """<html>
-<head>
-<title>%(header)s</title>
-<style>
-.even        { background-color: #eee    }
-.odd         { background-color: #dedede }
-.even-passed { background-color: #caffd8 }
-.odd-passed  { background-color: #a3feba }
-.even-failed { background-color: #ffbbbb }
-.odd-failed  { background-color: #ff9797 }
+    '''template based, uses master/templates/directory.html
+    '''
 
-.summary_link {
-    color: black;
-    text-decoration: none;
-}
-.summary_link:hover {
-    color: blue;
-    text-decoration: underline;
-}
-
-.icon { text-align: center }
-.listing {
-    margin-left: auto;
-    margin-right: auto;
-    width: 50%%;
-    padding: 0.1em;
-    }
-
-body { border: 0; padding: 0; margin: 0; background-color: #efefef; }
-h1 {padding: 0.1em; background-color: #777; color: white; border-bottom: thin white dashed;}
-td,th {padding-left: 0.5em; padding-right: 0.5em; }
-
-</style>
-</head>
-
-<body>
-<h1>%(header)s</h1>
-
-<table>
-    <thead>
-        <tr>
-            <th>Filename</th>
-            <th>Size</th>
-            <th>Date</th>
-            <th><i>own</i> tests</th>
-            <th><i>applevel</i> tests</th>
-        </tr>
-    </thead>
-    <tbody>
-%(tableContent)s
-    </tbody>
-</table>
-
-</body>
-</html>
-"""
-
-    linePattern = """<tr class="%(class)s">
-    <td><a href="%(href)s">%(text)s</a></td>
-    <td>%(size)s</td>
-    <td>%(date)s</td>
-    <td class="%(own_summary_class)s">%(own_summary)s</td>
-    <td class="%(app_summary_class)s">%(app_summary)s</td>
-</tr>
-"""
-
-    def render(self, request):
-        self.status = request.site.buildbot_service.getStatus()
-        return DirectoryLister.render(self, request)
-
-    def _buildTableContent(self, elements):
-        tableContent = []
+    def _getFilesAndDirectories(self, directory):
+        dirs, files = DirectoryLister._getFilesAndDirectories(self, directory)
         rowClasses = itertools.cycle(['odd', 'even'])
-        for element, rowClass in zip(elements, rowClasses):
-            element["class"] = rowClass
-            self._add_test_results(element, rowClass)
-            tableContent.append(self.linePattern % element)
-        return tableContent
+        for f, rowClass in zip(files, rowClasses):
+            f["class"] = rowClass
+            self._add_test_results(f, rowClass)
+        for d in dirs:
+            dirname = urllib.unquote(d['href'])
+            dd = py.path.local(self.path).join(dirname)
+            date = datetime.date.fromtimestamp(dd.mtime())
+            d['date'] = date.isoformat()
+            # Assume dir is non-recursive
+            size = sum([f.size() for f in dd.listdir() if f.isfile()])
+            d['size'] = formatFileSize(size)
+
+        return dirs, files
 
     def _add_test_results(self, element, rowClass):
         filename = urllib.unquote(element['href'])
