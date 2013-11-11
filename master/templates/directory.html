@@ -39,6 +39,9 @@ td:first-child {text-align: left;}
 
 {% set row_class = cycler('odd', 'even') %}
 
+{% set has_tests = files|join('', attribute='own_summary')|length > 0 or 
+      files|join('', attribute='app_summary')|length > 0 %}
+
 <table>
 
 {% if files|length > 0 %}
@@ -46,16 +49,20 @@ td:first-child {text-align: left;}
 <th>Filename</th>
 <th>Size</th>
 <th>Date</th>
+{% if has_tests %}
 <th><i>own</i> tests</th>
 <th><i>applevel</i> tests</th>
+{% endif %}
 </tr>
 {% else %}
 <tr class="{{ row_class.next() }}">
 <th>Directory</th>
 <th>Size</th>
 <th>Date</th>
+{% if has_tests %}
 <th></th>
 <th></th>
+{% endif %}
 </tr>
 {% endif %}
 
@@ -64,8 +71,10 @@ td:first-child {text-align: left;}
     <td><a href="{{ d.href }}"><b>{{ d.text }}</b></a></td>
     <td>{{ d.size}}</td>
     <td>{{ d.date}}</td>
+{% if has_tests %}
     <td></td>
     <td></td>
+{% endif %}
   </tr>
 {% endfor %}
 
@@ -74,8 +83,10 @@ td:first-child {text-align: left;}
     <td><a href="{{ f.href }}">{{ f.text }}</a></td>
     <td>{{ f.size }}</td>
     <td>{{ f.date }}</td>
+{% if has_tests %}
     <td class="{{ f.own_summary_class }}">{{ f.own_summary }}</td>
     <td class="{{ f.app_summary_class }}">{{ f.app_summary }}</td>
+{% endif %}
   </tr>
 {% endfor %}
 </table>
