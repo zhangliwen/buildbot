@@ -23,19 +23,19 @@
     {% block header -%}
     <div class="header">
         <a href="{{ path_to_root or '.' }}">Home</a>
-        -
         <!-- PyPy specific items -->
-        <a href="http://speed.pypy.org/">Speed</a>
-        <a href="{{ path_to_root }}summary?branch=&lt;trunk&gt;">Summary (trunk)</a>
-        <a href="{{ path_to_root }}summary">Summary</a>
-        <a href="{{ path_to_root }}nightly/">Nightly builds</a>
+        - <a href="http://speed.pypy.org/">Speed</a>
+        - <a href="{{ path_to_root }}numpy-status/">Numpy compatability</a>
+        - <a href="{{ path_to_root }}summary?branch=&lt;trunk&gt;">Summary (trunk)</a>
+        - <a href="{{ path_to_root }}summary">Summary</a>
+        - <a href="{{ path_to_root }}nightly/">Nightly builds</a>
         <!-- end of PyPy specific items -->
 
-        <a href="{{ path_to_root }}waterfall">Waterfall</a>
+        - <a href="{{ path_to_root }}waterfall">Waterfall</a>
         <!-- <a href="{{ path_to_root }}grid">Grid</a> -->
         <!-- <a href="{{ path_to_root }}tgrid">T-Grid</a> -->
         <!-- <a href="{{ path_to_root }}console">Console</a> -->
-        <a href="{{ path_to_root }}builders">Builders</a>
+        - <a href="{{ path_to_root }}builders">Builders</a>
         <!-- <a href="{{ path_to_root }}one_line_per_build">Recent Builds</a> -->
         <!-- <a href="{{ path_to_root }}buildslaves">Buildslaves</a> -->
         <!-- <a href="{{ path_to_root }}changes">Changesources</a> -->

@@ -152,9 +152,6 @@ class PyPyList(File):
                         self.contentEncodings,
                         self.defaultType)
 
-class NumpyStatusList(File):
-    pass
-
 class PyPyDirectoryLister(DirectoryLister):
     '''template based, uses master/templates/directory.html
     '''
@@ -232,4 +229,7 @@ class PyPyDirectoryLister(DirectoryLister):
             return rowClass + '-passed'
         else:
             return rowClass + '-failed'
+
+class NumpyStatusList(PyPyList):
+    pass
 
