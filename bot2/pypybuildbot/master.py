@@ -225,6 +225,9 @@ BuildmasterConfig = {
         Nightly("nightly-2-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
+            NUMPY_64,                  # on allegro64, uses 1 core
+                                       # XXX maybe use a trigger instead?
+
         ], branch='default', hour=2, minute=0),
 
         Nightly("nightly-2-00-py3k", [
@@ -235,6 +238,7 @@ BuildmasterConfig = {
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
+
         CustomForceScheduler('Force Scheduler',
             builderNames=[
                         PYPYBUILDBOT,
@@ -437,11 +441,10 @@ BuildmasterConfig = {
                    'category': 'openindiana32',
                    },
                   {'name': NUMPY_64,
-                   'slavenames': ["tannit64"],
+                   'slavenames': ["allegro64"],
                    'builddir': NUMPY_64,
                    'factory': pypyNumpyCompatability,
                    'category': 'numpy',
-                   'locks': [TannitCPU.access('counting')],
                    },
                   {'name': PYPYBUILDBOT,
                    'slavenames': ['cobra'],
