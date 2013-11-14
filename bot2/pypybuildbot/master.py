@@ -223,10 +223,10 @@ BuildmasterConfig = {
             ], branch='default', hour=0, minute=0),
 
         Nightly("nightly-2-00", [
+            NUMPY_64,                  # on tannit64, uses 1 core, takes about 15min.
+                                       # XXX maybe use a trigger instead?
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-            NUMPY_64,                  # on allegro64, uses 1 core
-                                       # XXX maybe use a trigger instead?
 
         ], branch='default', hour=2, minute=0),
 
@@ -441,10 +441,11 @@ BuildmasterConfig = {
                    'category': 'openindiana32',
                    },
                   {'name': NUMPY_64,
-                   'slavenames': ["allegro64"],
+                   'slavenames': ["tannit64"],
                    'builddir': NUMPY_64,
                    'factory': pypyNumpyCompatability,
                    'category': 'numpy',
+                   'locks': [TannitCPU.access('counting')],
                    },
                   {'name': PYPYBUILDBOT,
                    'slavenames': ['cobra'],
