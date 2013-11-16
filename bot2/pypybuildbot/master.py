@@ -415,7 +415,7 @@ BuildmasterConfig = {
                    "category": 'freebsd64'
                    },
                   {"name" : JITFREEBSD964,
-                   "slavenames": ['hybridlogic'],
+                   "slavenames": ['hybridlogic', 'tavendo-freebsd-9.2-amd64'],
                    'builddir' : JITFREEBSD964,
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'
