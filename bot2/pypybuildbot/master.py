@@ -214,9 +214,9 @@ BuildmasterConfig = {
             # other platforms
             #MACOSX32,                 # on minime
             JITWIN32,                  # on aurora
-            JITFREEBSD764,             # on headless
-            JITFREEBSD864,             # on ananke
-            JITFREEBSD964,             # on exarkun's freebsd
+            #JITFREEBSD764,            # on headless
+            #JITFREEBSD864,            # on ananke
+            JITFREEBSD964,             # on tavendo
             JITMACOSX64,               # on xerxes
             # buildbot selftest
             PYPYBUILDBOT               # on cobra
