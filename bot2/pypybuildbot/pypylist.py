@@ -156,6 +156,10 @@ class PyPyDirectoryLister(DirectoryLister):
     '''template based, uses master/templates/directory.html
     '''
 
+    def render(self, request):
+        self.status = request.site.buildbot_service.getStatus()
+        return DirectoryLister.render(self, request)
+
     def _getFilesAndDirectories(self, directory):
         dirs, files = DirectoryLister._getFilesAndDirectories(self, directory)
         rowClasses = itertools.cycle(['odd', 'even'])
