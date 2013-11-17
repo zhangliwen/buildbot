@@ -214,18 +214,21 @@ BuildmasterConfig = {
             # other platforms
             #MACOSX32,                 # on minime
             JITWIN32,                  # on aurora
-            JITFREEBSD764,             # on headless
-            JITFREEBSD864,             # on ananke
-            JITFREEBSD964,             # on exarkun's freebsd
+            #JITFREEBSD764,            # on headless
+            #JITFREEBSD864,            # on ananke
+            JITFREEBSD964,             # on tavendo
             JITMACOSX64,               # on xerxes
             # buildbot selftest
             PYPYBUILDBOT               # on cobra
             ], branch='default', hour=0, minute=0),
 
         Nightly("nightly-2-00", [
+            NUMPY_64,                  # on tannit64, uses 1 core, takes about 15min.
+                                       # XXX maybe use a trigger instead?
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-        ], branch='default', hour=2, minute=0),
+
+        ], branch=None, hour=2, minute=0),
 
         Nightly("nightly-2-00-py3k", [
             LINUX64,                   # on allegro64, uses all cores
@@ -235,6 +238,7 @@ BuildmasterConfig = {
         Nightly("nighly-ppc", [
             JITONLYLINUXPPC64,         # on gcc1
             ], branch='ppc-jit-backend', hour=1, minute=0),
+
         CustomForceScheduler('Force Scheduler',
             builderNames=[
                         PYPYBUILDBOT,
@@ -411,7 +415,7 @@ BuildmasterConfig = {
                    "category": 'freebsd64'
                    },
                   {"name" : JITFREEBSD964,
-                   "slavenames": ['hybridlogic'],
+                   "slavenames": ['hybridlogic', 'tavendo-freebsd-9.2-amd64'],
                    'builddir' : JITFREEBSD964,
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'

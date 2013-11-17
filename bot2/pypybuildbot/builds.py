@@ -857,6 +857,11 @@ class NativeNumpyTests(factory.BuildFactory):
             #env={"PYTHONPATH": ['download']}, # shouldn't be needed, but what if it is set externally?
         ))
         if host == 'tannit':
+            self.addStep(ShellCmd(
+                description="install jinja2",
+                command=['install/bin/pip', 'install', 'jinja2'],
+                workdir='./',
+                haltOnFailure=True,))
             pypy_c_rel = 'install/bin/python'
             self.addStep(ShellCmd(
                 description="measure numpy compatibility",
