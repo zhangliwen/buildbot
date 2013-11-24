@@ -836,6 +836,13 @@ class NativeNumpyTests(factory.BuildFactory):
             haltOnFailure=True,
             ))
 
+        self.addStep(ShellCmd(
+            description="install pytest",
+            command=['install/bin/pip', 'install','pytest'],
+            workdir='./',
+            haltOnFailure=True,
+            ))
+
         # obtain a pypy-compatible branch of numpy
         numpy_url = 'https://www.bitbucket.org/pypy/numpy'
         numpy_pypy_branch = 'pypy-compat'
@@ -847,14 +854,16 @@ class NativeNumpyTests(factory.BuildFactory):
             command=['../install/bin/python', 'setup.py','install'],
             workdir='numpy_src'))
 
-        self.addStep(ShellCmd(
+        #test_cmd = 'bin/nosetests'
+        test_cmd = 'bin/py.test'
+        self.addStep(PytestCmd(
             description="test numpy",
-            command=['bin/nosetests', 'site-packages/numpy',
+            command=[test_cmd, 'site-packages/numpy',
+                     "--resultlog=testrun.log",
                     ],
-            #logfiles={'pytestLog': 'pytest-numpy.log'},
-            timeout=4000,
+            logfiles={'pytestLog': 'testrun.log'},
+            timeout=1000,
             workdir='install',
-            #env={"PYTHONPATH": ['download']}, # shouldn't be needed, but what if it is set externally?
         ))
         if host == 'tannit':
             self.addStep(ShellCmd(
