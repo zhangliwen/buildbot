@@ -1,6 +1,6 @@
 from buildbot.steps.source.mercurial import Mercurial
 from buildbot.steps.source.git import Git
-from buildbot.process.buildstep import BuildStep
+from buildbot.process.buildstep import BuildStep, BuildStepFailed
 from buildbot.process import factory
 from buildbot.steps import shell, transfer
 from buildbot.steps.trigger import Trigger
@@ -8,6 +8,8 @@ from buildbot.process.properties import WithProperties
 from buildbot import locks
 from pypybuildbot.util import symlink_force
 from buildbot.status.results import SKIPPED, SUCCESS
+from twisted.python import log
+from twisted.internet import defer
 import os
 
 # buildbot supports SlaveLocks, which can be used to limit the amout of builds
@@ -187,30 +189,6 @@ class PytestCmd(ShellCmd):
 # changeset-id for got_revision and final_file_name and sorting the builds
 # chronologically
 
-class UpdateGitCheckout(ShellCmd):
-    description = 'git checkout'
-    command = 'UNKNOWN'
-
-    def __init__(self, workdir=None, haltOnFailure=True, force_branch=None,
-                 **kwargs):
-        ShellCmd.__init__(self, workdir=workdir, haltOnFailure=haltOnFailure,
-                          **kwargs)
-        self.force_branch = force_branch
-        self.addFactoryArguments(force_branch=force_branch)
-
-    def start(self):
-        if self.force_branch is not None:
-            branch = self.force_branch
-            # Note: We could add a warning to the output if we
-            # ignore the branch set by the user.
-        else:
-            properties = self.build.getProperties()
-            branch = properties['branch'] or 'default'
-        command = ["git", "checkout", "-f", branch]
-        self.setCommand(command)
-        ShellCmd.start(self)
-
-
 class CheckGotRevision(ShellCmd):
     description = 'got_revision'
     command = ['hg', 'parents', '--template', 'got_revision:{rev}:{node}']
@@ -326,14 +304,23 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
                 workdir=workdir,
                 logEnviron=False))
 
+class PyPyGit(Git):
+    @defer.inlineCallbacks
+    def parseGotRevision(self, _=None):
+        stdout = yield self._dovccmd(['describe', '--tags', 'HEAD'], collectStdout=True)
+        revision = ':'.join(stdout.strip().split('-')[-2:])
+        log.msg("Got Git revision %s" % (revision, ))
+        self.updateSourceProperty('got_revision', revision)
+        defer.returnValue(0)
+
 def update_git(platform, factory, repourl, workdir, use_branch,
-              force_branch=None):
-    factory.addStep(
-            Git(
+              force_branch='HEAD'):
+    factory.addStep( PyPyGit(
                 repourl=repourl,
                 mode='full',
                 method='fresh',
                 workdir=workdir,
+                branch=force_branch,
                 logEnviron=False))
 
 def setup_steps(platform, factory, workdir=None,

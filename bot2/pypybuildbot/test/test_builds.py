@@ -77,11 +77,11 @@ def test_Translate():
     translateInst = builds.Translate(['-O0'], ['--no-allworkingmodules'])
 
     assert translateInst.command[-len(expected):] == expected
-    
+
     translateFactory = translateInst._getStepFactory().factory
     args = translateInst._getStepFactory().args
     rebuiltTranslate = translateFactory(*args)
-                
+
     assert rebuiltTranslate.command[-len(expected):] == expected
 
     rebuiltTranslate.build = FakeBuild()
@@ -108,7 +108,7 @@ def test_pypy_upload():
                                                'base-latest'))
 
 class TestPytestCmd(object):
-    
+
     class Fake(object):
         def __init__(self, **kwds):
             self.__dict__.update(kwds)
@@ -154,7 +154,7 @@ S a/c.py:test_four
         summary = builder.summary_by_branch_and_revision[('trunk', '123')]
         assert summary.to_tuple() == (1, 1, 2, 0)
 
-    def test_branch_is_None(self): 
+    def test_branch_is_None(self):
         step, cmd, builder = self._create(log='', rev='123', branch=None)
         step.commandComplete(cmd)
         assert ('trunk', '123') in builder.summary_by_branch_and_revision
@@ -163,7 +163,7 @@ S a/c.py:test_four
         step, cmd, builder = self._create(log='', rev='123', branch='branch/foo/')
         step.commandComplete(cmd)
         assert ('branch/foo', '123') in builder.summary_by_branch_and_revision
-        
+
     def test_multiple_logs(self):
         log = """F a/b.py:test_one
 . a/b.py:test_two
