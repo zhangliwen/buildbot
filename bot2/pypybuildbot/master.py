@@ -147,6 +147,9 @@ pypyJITTranslatedTestFactoryFreeBSD = pypybuilds.Translated(
 pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark()
 pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
                                                            postfix='-64')
+pypyJITBenchmarkFactory64_speed = pypybuilds.JITBenchmarkSingleRun(
+    platform='linux64',
+    postfix='-64')
 
 pypyNumpyCompatability = pypybuilds.NativeNumpyTests(platform='linux64')
 
@@ -180,7 +183,7 @@ JITINDIANA32 = "pypy-c-jit-indiana-x86-32"
 JITONLYLINUXPPC64 = "jitonly-own-linux-ppc-64"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
-JITBENCH64_2 = 'jit-benchmark-linux-x86-64-2'
+JITBENCH64_NEW = 'jit-benchmark-linux-x86-64-single-run'
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
 NUMPY_64 = "numpy-compatability-linux-x86-64"
 # buildbot builder
@@ -354,6 +357,12 @@ BuildmasterConfig = {
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },
+                   {"name": JITBENCH64_NEW,
+                    "slavenames": ["speed-python-64"],
+                    "builddir": JITBENCH64_NEW,
+                    "factory": pypyJITBenchmarkFactory64_speed,
+                    "category": "benchmark-run",
+                    },
                   {"name": MACOSX32,
                    "slavenames": ["minime"],
                    "builddir": MACOSX32,
