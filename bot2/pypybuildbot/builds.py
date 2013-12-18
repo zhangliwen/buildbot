@@ -615,6 +615,50 @@ class NightlyBuild(factory.BuildFactory):
         if trigger: # if provided trigger schedulers that depend on this one
             self.addStep(Trigger(schedulerNames=[trigger]))
 
+class JITBenchmarkSingleRun(factory.BuildFactory):
+    def __init__(self, platform='linux', host='tannit', postfix=''):
+        factory.BuildFactory.__init__(self)
+
+        repourl = 'https://bitbucket.org/pypy/benchmarks'
+        update_hg(platform, self, repourl, 'benchmarks', use_branch=True,
+                  force_branch='single-run')
+        #
+        setup_steps(platform, self)
+        if host == 'tannit':
+            lock = TannitCPU
+        elif host == 'speed_python':
+            lock = SpeedPythonCPU
+        else:
+            assert False, 'unknown host %s' % host
+
+        self.addStep(
+            Translate(
+                translationArgs=['-Ojit'],
+                targetArgs=[],
+                haltOnFailure=True,
+                # this step can be executed in parallel with other builds
+                locks=[lock.access('counting')],
+                )
+            )
+        pypy_c_rel = "../build/pypy/goal/pypy-c"
+        self.addStep(ShellCmd(
+            # this step needs exclusive access to the CPU
+            locks=[lock.access('exclusive')],
+            description="run benchmarks on top of pypy-c",
+            command=["python", "runner.py", '--output-filename', 'result.json',
+                     '--python', pypy_c_rel,
+                     '--full-store',
+                     '--revision', WithProperties('%(got_revision)s'),
+                     '--branch', WithProperties('%(branch)s'),
+                     ],
+            workdir='./benchmarks',
+            timeout=3600))
+        # a bit obscure hack to get both os.path.expand and a property
+        filename = '%(got_revision)s' + (postfix or '')
+        resfile = os.path.expanduser("~/bench_results_new/%s.json" % filename)
+        self.addStep(transfer.FileUpload(slavesrc="benchmarks/result.json",
+                                         masterdest=WithProperties(resfile),
+                                         workdir="."))
 
 class JITBenchmark(factory.BuildFactory):
     def __init__(self, platform='linux', host='tannit', postfix=''):
