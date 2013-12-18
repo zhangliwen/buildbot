@@ -273,6 +273,7 @@ BuildmasterConfig = {
                         JITONLYLINUXPPC64,
                         JITBENCH,
                         JITBENCH64,
+                        JITBENCH64_NEW,
                         NUMPY_64,
             ] + ARM.builderNames, properties=[]),
     ] + ARM.schedulers,
