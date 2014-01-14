@@ -230,6 +230,7 @@ BuildmasterConfig = {
                                        # XXX maybe use a trigger instead?
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
+            JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
         ], branch=None, hour=2, minute=0),
 
