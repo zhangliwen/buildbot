@@ -5,6 +5,7 @@ import sys
 import time
 import thread, Queue
 import traceback
+import pprint
 
 from .main import app
 from . import scm
