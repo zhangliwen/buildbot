@@ -38,6 +38,7 @@ class PyPyTarball(object):
         'linux':   'linux-x86-32',
         'linux64': 'linux-x86-64',
         'osx':     'macosx-x86-32',
+        'osx64':   'macosx-x86-64',
         'win32':   'win-x86-32',
         }
 
