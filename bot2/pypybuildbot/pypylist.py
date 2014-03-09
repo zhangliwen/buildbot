@@ -202,7 +202,7 @@ class PyPyDirectoryLister(DirectoryLister):
                 branch = '%3Ctrunk%3E' # <trunk>
             if category:
                 href = cgi.escape('/summary?category=%s&branch=%s&recentrev=%s' % (category, branch, rev))
-                str_summary = '<!-- %s --><a class="summary_link" href="%s">%s</a>' % (builder_name, href, summary)
+                str_summary = '<a class="summary_link" href="%s">%s</a>' % (href, summary)
             else:
                 str_summary = str(summary)
         element[prefix + 'summary'] = str_summary
