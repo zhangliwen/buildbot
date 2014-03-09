@@ -49,7 +49,7 @@ pypybuilds = load('pypybuildbot.builds')
 ARM = load('pypybuildbot.arm_master')
 
 TannitCPU = pypybuilds.TannitCPU
-#WinLockCPU = pypybuilds.WinLockCPU
+WinSlaveLock = pypybuilds.WinSlaveLock
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
@@ -216,7 +216,8 @@ BuildmasterConfig = {
             APPLVLLINUX64,             # on allegro64, uses 1 core
             # other platforms
             #MACOSX32,                 # on minime
-            JITWIN32,                  # on aurora
+            JITWIN32,                  # on aurora, SalsaSalsa
+            WIN32,                     # on aurora, SalsaSalsa
             #JITFREEBSD764,            # on headless
             #JITFREEBSD864,            # on ananke
             JITFREEBSD964,             # on tavendo
@@ -387,6 +388,7 @@ BuildmasterConfig = {
                    "slavenames": ["aurora", "SalsaSalsa"],
                    "builddir": WIN32,
                    "factory": pypyOwnTestFactoryWin,
+                   "locks": [WinSlaveLock],
                    "category": 'win32',
                   },
                   {"name": WIN64,
@@ -399,12 +401,14 @@ BuildmasterConfig = {
                    "slavenames": ["aurora", "SalsaSalsa"],
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
+                   "locks": [WinSlaveLock],
                    "category": "win32",
                   },
                   {"name" : JITWIN32,
                    "slavenames": ["aurora", "SalsaSalsa"],
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
+                   "locks": [WinSlaveLock],
                    'category' : 'win32',
                    },
                   {"name" : JITWIN64,

@@ -24,7 +24,7 @@ import os
 # there are 8 logical CPUs, but only 4 physical ones, and only enough memory for ~3 translations
 TannitCPU = locks.MasterLock('tannit_cpu', maxCount=3)
 SpeedPythonCPU = locks.MasterLock('speed_python_cpu', maxCount=24)
-#WinLockCPU = locks.MasterLock('win_cpu', maxCount=1)
+WinSlaveLock = locks.SlaveLock('win_cpu', maxCount=1)
 
 # The cross translation machine can accomodate 2 jobs at the same time
 ARMCrossLock = locks.MasterLock('arm_cpu', maxCount=2)
