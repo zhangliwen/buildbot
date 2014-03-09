@@ -35,11 +35,12 @@ class PyPyTarball(object):
         }
 
     PLATFORMS = {
-        'linux':   'linux-x86-32',
-        'linux64': 'linux-x86-64',
-        'osx':     'macosx-x86-32',
-        'osx64':   'macosx-x86-64',
-        'win32':   'win-x86-32',
+        'linux':     'linux-x86-32',
+        'linux64':   'linux-x86-64',
+        'osx':       'macosx-x86-32',
+        'osx64':     'macosx-x86-64',
+        'win32':     'win-x86-32',
+        'freebsd64': 'freebsd-9-x86-64',
         }
 
     DESCRIPTIONS = {
