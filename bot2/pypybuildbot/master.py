@@ -385,7 +385,7 @@ BuildmasterConfig = {
                    'category' : 'mac64',
                    },
                   {"name": WIN32,
-                   "slavenames": ["aurora", "SalsaSalsa_own"],
+                   "slavenames": ["aurora", "SalsaSalsa"],
                    "builddir": WIN32,
                    "factory": pypyOwnTestFactoryWin,
                    "locks": [WinSlaveLock.access('counting')],
