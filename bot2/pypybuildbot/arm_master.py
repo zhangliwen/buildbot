@@ -15,7 +15,7 @@ pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(
                             "jit/backend/llsupport",
                             "jit/backend/test",  # kill this one in case it is too slow
                             ]),
-        timeout=6 * 3600)
+        timeout=36000)
 pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=2 * 3600)
 pypyOwnTestFactoryARM = pypybuilds.Own(timeout=2 * 3600)
 
