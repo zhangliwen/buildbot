@@ -122,7 +122,6 @@ BUILDJITLINUXARMHF_RASPBIAN = "build-pypy-c-jit-linux-armhf-raspbian"
 BUILDJITLINUXARMHF_RARING = "build-pypy-c-jit-linux-armhf-raring"
 
 builderNames = [
-    LINUXARMHF,
     APPLVLLINUXARM,
     APPLVLLINUXARMHF_v7,
     APPLVLLINUXARMHF_RASPBIAN,
@@ -148,8 +147,6 @@ schedulers = [
         BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
         BUILDLINUXARMHF_RASPBIAN,      # on hhu-cross-raspbianhf, uses 1 core
 
-        LINUXARMHF,                    # onw tests on greenbox3-node0
-
         JITBACKENDONLYLINUXARMEL,      # on hhu-imx.53
         JITBACKENDONLYLINUXARMHF,
         JITBACKENDONLYLINUXARMHF_v7,   # on cubieboard-bob
@@ -172,8 +169,7 @@ schedulers = [
         JITLINUXARMHF_v7,             # triggered by BUILDJITLINUXARMHF_RASPBIAN, on cubieboard-bob
     ]),
 
-    Triggerable("JITLINUXARMHF_RARING_scheduler", [
-        JITLINUXARMHF_RARING,         # triggered by BUILDJITLINUXARMHF_RARING
+    Triggerable("JITLINUXARMHF_RARING_scheduler", [ # triggered by BUILDJITLINUXARMHF_RARING
     ])
 ]
 
@@ -198,12 +194,6 @@ builders = [
    "locks": [ARMBoardLock.access('counting')],
    },
   ## armv7
-  {"name": LINUXARMHF,
-   "slavenames": ["greenbox3-node0"],
-   "builddir": LINUXARMHF,
-   "factory": pypyOwnTestFactoryARM,
-   "category": 'linux-armhf',
-  },
   {"name": JITBACKENDONLYLINUXARMHF_v7,
    "slavenames": ['cubieboard-bob'],
    "builddir": JITBACKENDONLYLINUXARMHF_v7,
@@ -256,12 +246,6 @@ builders = [
    'factory': pypyARMHF_RASPBIAN_JITTranslatedTestFactory,  # XXX replace this with a custom build
    'category': 'linux-armhf',
    "locks": [ARMBoardLock.access('counting')],
-   },
-  {"name": JITLINUXARMHF_RARING,
-   "slavenames": ["greenbox3-node0"],
-   'builddir': JITLINUXARMHF_RARING,
-   'factory': pypyARMHF_RARING_JITTranslatedTestFactory,
-   'category': 'linux-armhf',
    },
   # Translation Builders for ARM
   {"name": BUILDLINUXARM,
