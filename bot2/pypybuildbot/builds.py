@@ -491,8 +491,7 @@ class Translated(factory.BuildFactory):
             description="compress pypy-c",
             haltOnFailure=False,
             command=prefix + ["python", "pypy/tool/release/package.py",
-                     ".", WithProperties(name), 'pypy',
-                     '.'],
+                              "--targetdir=.", ".", WithProperties(name)],
             workdir='build'))
         nightly = '~/nightly/'
         extension = get_extension(platform)
@@ -600,8 +599,7 @@ class NightlyBuild(factory.BuildFactory):
         self.addStep(ShellCmd(
             description="compress pypy-c",
             command=prefix + ["python", "pypy/tool/release/package.py",
-                     ".", WithProperties(name), 'pypy',
-                     '.'],
+                              "--targetdir=.", ".", WithProperties(name)],
             haltOnFailure=True,
             workdir='build'))
         nightly = '~/nightly/'
