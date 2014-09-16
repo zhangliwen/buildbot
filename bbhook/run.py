@@ -17,7 +17,7 @@ if __name__ == '__main__':
     HOST_NAME = ''
     PORT_NUMBER = 9237
     # WARNING:
-    # deply is meant as a argument for running public facing,
+    # deploy is meant as an argument for running public facing,
     # its not supposed to be used when running a proxy setup
     main.app.run(
         host = HOST_NAME if 'deploy' in sys.argv else '127.0.0.1',

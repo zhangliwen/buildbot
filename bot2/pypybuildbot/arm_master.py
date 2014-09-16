@@ -23,7 +23,7 @@ pypyCrossTranslationFactoryARM = pypybuilds.NightlyBuild(
     translationArgs=crosstranslationargs + ['-O2'],
     platform='linux-armel',
     interpreter='pypy',
-    prefix=['schroot', '-c', 'armel'])
+    prefix=['schroot', '-c', 'armel', '--'])
 
 pypyJITCrossTranslationFactoryARM = pypybuilds.NightlyBuild(
     translationArgs=(crosstranslationargs
@@ -31,14 +31,14 @@ pypyJITCrossTranslationFactoryARM = pypybuilds.NightlyBuild(
                         + crosstranslationjitargs),
     platform='linux-armel',
     interpreter='pypy',
-    prefix=['schroot', '-c', 'armel'],
+    prefix=['schroot', '-c', 'armel', '--'],
     trigger='JITLINUXARM_scheduler')
 
 pypyCrossTranslationFactoryRaspbianHF = pypybuilds.NightlyBuild(
     translationArgs=crosstranslationargs + ['-O2'],
     platform='linux-armhf-raspbian',
     interpreter='pypy',
-    prefix=['schroot', '-c', 'raspbian'],
+    prefix=['schroot', '-c', 'raspbian', '--'],
     trigger='APPLVLLINUXARMHF_RASPBIAN_scheduler')
 
 pypyJITCrossTranslationFactoryRaspbianHF = pypybuilds.NightlyBuild(
@@ -47,7 +47,7 @@ pypyJITCrossTranslationFactoryRaspbianHF = pypybuilds.NightlyBuild(
                         + crosstranslationjitargs),
     platform='linux-armhf-raspbian',
     interpreter='pypy',
-    prefix=['schroot', '-c', 'raspbian'],
+    prefix=['schroot', '-c', 'raspbian', '--'],
     trigger='JITLINUXARMHF_RASPBIAN_scheduler')
 
 pypyJITCrossTranslationFactoryRaringHF = pypybuilds.NightlyBuild(
@@ -56,7 +56,7 @@ pypyJITCrossTranslationFactoryRaringHF = pypybuilds.NightlyBuild(
                         + crosstranslationjitargs),
     platform='linux-armhf-raring',
     interpreter='pypy',
-    prefix=['schroot', '-c', 'raring'],
+    prefix=['schroot', '-c', 'raring', '--'],
     trigger='JITLINUXARMHF_RARING_scheduler')
 
 pypyARMJITTranslatedTestFactory = pypybuilds.TranslatedTests(
