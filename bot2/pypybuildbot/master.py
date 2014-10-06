@@ -172,7 +172,7 @@ LIBPYTHON_LINUX64 = "pypy-c-lib-python-linux-x86-64"
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
-JITMACOSX64_2 = "pypy-c-jit-macosx-x86-64-2"
+#JITMACOSX64_2 = "pypy-c-jit-macosx-x86-64-2"
 JITWIN32 = "pypy-c-jit-win-x86-32"
 JITWIN64 = "pypy-c-jit-win-x86-64"
 JITFREEBSD764 = 'pypy-c-jit-freebsd-7-x86-64'
@@ -264,7 +264,7 @@ BuildmasterConfig = {
                         JITLINUX32,
                         JITLINUX64,
                         JITMACOSX64,
-                        JITMACOSX64_2,
+                        #JITMACOSX64_2,
                         JITWIN32,
                         JITWIN64,
                         JITFREEBSD764,
@@ -373,17 +373,17 @@ BuildmasterConfig = {
                    "category": 'mac32'
                   },
                   {"name" : JITMACOSX64,
-                   "slavenames": ["xerxes", "tosh"],
+                   "slavenames": ["rebuy-de", "xerxes", "tosh"],
                    'builddir' : JITMACOSX64,
                    'factory' : pypyJITTranslatedTestFactoryOSX64,
                    'category' : 'mac64',
                    },
-                  {"name" : JITMACOSX64_2,
-                   "slavenames": ["xerxes", "tosh"],
-                   'builddir' : JITMACOSX64_2,
-                   'factory' : pypyJITTranslatedTestFactoryOSX64,
-                   'category' : 'mac64',
-                   },
+                  #{"name" : JITMACOSX64_2,
+                  # "slavenames": ["rebuy-de", "xerxes", "tosh"],
+                  # 'builddir' : JITMACOSX64_2,
+                  # 'factory' : pypyJITTranslatedTestFactoryOSX64,
+                  # 'category' : 'mac64',
+                  # },
                   {"name": WIN32,
                    "slavenames": ["SalsaSalsa", "allegro_win32"],
                    "builddir": WIN32,
