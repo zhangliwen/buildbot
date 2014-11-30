@@ -240,9 +240,11 @@ BuildmasterConfig = {
             APPLVLLINUX64,             # on allegro64, uses 1 core
             ], branch="py3k", hour=2, minute=0),
 
-        Nightly("nighly-ppc", [
-            JITONLYLINUXPPC64,         # on gcc1
-            ], branch='ppc-jit-backend', hour=1, minute=0),
+        # this one has faithfully run every night even though the latest
+        # change to that branch was in January 2013.  Re-enable one day.
+        #Nightly("nighly-ppc", [
+        #    JITONLYLINUXPPC64,         # on gcc1
+        #    ], branch='ppc-jit-backend', hour=1, minute=0),
 
         CustomForceScheduler('Force Scheduler',
             builderNames=[
