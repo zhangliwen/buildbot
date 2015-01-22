@@ -212,7 +212,7 @@ BuildmasterConfig = {
             LINUX64,                   # on allegro64, uses all cores
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on allegro64, uses 1 core
-            APPLVLLINUX32,             # on tannit32, uses 1 core
+            #APPLVLLINUX32,            # on tannit32, uses 1 core
             APPLVLLINUX64,             # on allegro64, uses 1 core
             # other platforms
             #MACOSX32,                 # on minime
@@ -226,14 +226,14 @@ BuildmasterConfig = {
             PYPYBUILDBOT               # on cobra
             ], branch='default', hour=0, minute=0),
 
-        Nightly("nightly-2-00", [
+        Nightly("nightly-1-00", [
             NUMPY_64,                  # on tannit64, uses 1 core, takes about 15min.
                                        # XXX maybe use a trigger instead?
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
-        ], branch=None, hour=2, minute=0),
+        ], branch=None, hour=1, minute=0),
 
         Nightly("nightly-2-00-py3k", [
             LINUX64,                   # on allegro64, uses all cores
