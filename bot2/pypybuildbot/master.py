@@ -1,6 +1,6 @@
 
 import os
-from buildbot.scheduler import Nightly
+from buildbot.scheduler import Nightly, Triggerable
 from buildbot.schedulers.forcesched import ForceScheduler
 from buildbot.schedulers.forcesched import ValidationError
 from buildbot.buildslave import BuildSlave
@@ -96,6 +96,7 @@ pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
     pypyjit=True,
     app_tests=True,
     platform='linux64',
+    trigger='NUMPY64_scheduler',
     )
 
 pypyJITTranslatedTestFactoryIndiana = pypybuilds.Translated(
@@ -133,6 +134,7 @@ pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
+    trigger='NUMPYWIN_scheduler',
     )
 
 pypyJITTranslatedTestFactoryFreeBSD = pypybuilds.Translated(
@@ -186,6 +188,7 @@ JITBENCH64 = "jit-benchmark-linux-x86-64"
 JITBENCH64_NEW = 'jit-benchmark-linux-x86-64-single-run'
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
 NUMPY_64 = "numpy-compatability-linux-x86-64"
+NUMPY_WIN = "numpy-compatability-win-x86-32"
 # buildbot builder
 PYPYBUILDBOT = 'pypy-buildbot'
 
@@ -216,8 +219,8 @@ BuildmasterConfig = {
             APPLVLLINUX64,             # on allegro64, uses 1 core
             # other platforms
             #MACOSX32,                 # on minime
-            JITWIN32,                  # on aurora, SalsaSalsa
-            WIN32,                     # on aurora, SalsaSalsa
+            JITWIN32,                  # on allegro_win32, SalsaSalsa
+            WIN32,                     # on allegro_win32, SalsaSalsa
             #JITFREEBSD764,            # on headless
             #JITFREEBSD864,            # on ananke
             JITFREEBSD964,             # on tavendo
@@ -227,13 +230,19 @@ BuildmasterConfig = {
             ], branch='default', hour=0, minute=0),
 
         Nightly("nightly-1-00", [
-            NUMPY_64,                  # on tannit64, uses 1 core, takes about 15min.
-                                       # XXX maybe use a trigger instead?
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
         ], branch=None, hour=1, minute=0),
+
+        Triggerable("NUMPY64_scheduler", [
+            NUMPY_64,                  # on tannit64, uses 1 core, takes about 15min.
+        ]),
+
+        Triggerable("NUMPYWIN_scheduler", [
+            NUMPY_WIN,                  # on allegro_win32, SalsaSalsa
+        ]),
 
         Nightly("nightly-2-00-py3k", [
             LINUX64,                   # on allegro64, uses all cores
@@ -279,6 +288,7 @@ BuildmasterConfig = {
                         JITBENCH64,
                         JITBENCH64_NEW,
                         NUMPY_64,
+                        NUMPY_WIN,
             ] + ARM.builderNames, properties=[]),
     ] + ARM.schedulers,
 
@@ -463,7 +473,14 @@ BuildmasterConfig = {
                    'factory': pypyNumpyCompatability,
                    'category': 'numpy',
                    'locks': [TannitCPU.access('counting')],
-                   },
+                  },
+                  {'name': NUMPY_WIN,
+                   'slavenames': ["allegro_win32", "SalsaSalsa"],
+                   'builddir': NUMPY_WIN,
+                   'factory': pypyNumpyCompatability,
+                   "locks": [WinSlaveLock.access('counting')],
+                   'category': 'numpy',
+                  },
                   {'name': PYPYBUILDBOT,
                    'slavenames': ['cobra'],
                    'builddir': PYPYBUILDBOT,
