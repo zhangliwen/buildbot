@@ -146,14 +146,17 @@ pypyJITTranslatedTestFactoryFreeBSD = pypybuilds.Translated(
     app_tests=True,
     )
 
-pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark()
+pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark(host='tannit')
 pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
+                                                           host='tannit',
                                                            postfix='-64')
 pypyJITBenchmarkFactory64_speed = pypybuilds.JITBenchmarkSingleRun(
     platform='linux64',
+    host='speed_python',
     postfix='-64')
 
 pypyNumpyCompatability = pypybuilds.NativeNumpyTests(platform='linux64')
+pypyNumpyCompatabilityWin = pypybuilds.NativeNumpyTests(platform='win32')
 
 #
 
@@ -477,7 +480,7 @@ BuildmasterConfig = {
                   {'name': NUMPY_WIN,
                    'slavenames': ["allegro_win32", "SalsaSalsa"],
                    'builddir': NUMPY_WIN,
-                   'factory': pypyNumpyCompatability,
+                   'factory': pypyNumpyCompatabilityWin,
                    "locks": [WinSlaveLock.access('counting')],
                    'category': 'numpy',
                   },
