@@ -843,7 +843,6 @@ class NativeNumpyTests(factory.BuildFactory):
     '''
     def __init__(self, platform='linux',
                  app_tests=False,
-                 host = 'tannit',
                  lib_python=False,
                  pypyjit=True,
                  prefix=None,
@@ -854,9 +853,18 @@ class NativeNumpyTests(factory.BuildFactory):
         self.addStep(ParseRevision(hideStepIf=ParseRevision.hideStepIf,
                                   doStepIf=ParseRevision.doStepIf))
         # download corresponding nightly build
+        if platform == 'win32':
+            target = r'pypy-c\pypy.exe'
+            untar = ['unzip']
+            sep = '\\'
+        else:
+            target = r'pypy-c/bin/pypy'
+            untar = ['tar', '--strip-components=1', '--directory=.', '-xf']
+            sep = '/'
         self.addStep(ShellCmd(
-            description="Clear pypy-c",
-            command=['rm', '-rf', 'pypy-c'],
+            description="Clear",
+            # assume, as part of git, that windows has rm
+            command=['rm', '-rf', 'pypy-c', 'install'],
             workdir='.'))
         extension = get_extension(platform)
         name = build_name(platform, pypyjit, translationArgs, placeholder='%(final_file_name)s') + extension
@@ -867,12 +875,17 @@ class NativeNumpyTests(factory.BuildFactory):
             workdir='pypy-c'))
 
         # extract downloaded file
-        if platform.startswith('win'):
-            raise NotImplementedError
-        else:
+        self.addStep(ShellCmd(
+            description="decompress pypy-c",
+            command=untar + ['pypy_build'+ extension],
+            workdir='pypy-c',
+            haltOnFailure=True,
+            ))
+        
+        if platform == 'win32':
             self.addStep(ShellCmd(
-                description="decompress pypy-c",
-                command=['tar', '--extract', '--file=pypy_build'+ extension, '--strip-components=1', '--directory=.'],
+                description='move decomporessed dir',
+                command = ['mv', '*/*', '.'],
                 workdir='pypy-c',
                 haltOnFailure=True,
                 ))
@@ -880,21 +893,21 @@ class NativeNumpyTests(factory.BuildFactory):
         # virtualenv the download
         self.addStep(ShellCmd(
             description="create virtualenv",
-            command=['virtualenv','-p', 'pypy-c/bin/pypy', 'install'],
+            command=['virtualenv','-p', target, 'install'],
             workdir='./',
             haltOnFailure=True,
             ))
 
         self.addStep(ShellCmd(
             description="report version",
-            command=['install/bin/pypy', '--version'],
+            command=[sep.join(['install','bin','pypy'])] + ['--version'],
             workdir='./',
             haltOnFailure=True,
             ))
 
         self.addStep(ShellCmd(
             description="install nose",
-            command=['install/bin/pip', 'install','nose'],
+            command=[sep.join(['install','bin','pip'])] + ['install','nose'],
             workdir='./',
             haltOnFailure=True,
             ))
@@ -905,19 +918,20 @@ class NativeNumpyTests(factory.BuildFactory):
 
         self.addStep(ShellCmd(
             description="install numpy",
-            command=['../install/bin/python', 'setup.py','install'],
+            command=[sep.join(['..', 'install', 'bin', 'pypy'])] + ['setup.py','install'],
             workdir='numpy_src'))
 
         self.addStep(ShellCmd(
             description="test numpy",
-            command=['bin/nosetests', 'site-packages/numpy',
+            command=[sep.join(['bin', 'nosetests'])] + ['site-packages/numpy',
+                        # XXX enable '-with-doctest',
                     ],
             #logfiles={'pytestLog': 'pytest-numpy.log'},
             timeout=4000,
             workdir='install',
             #env={"PYTHONPATH": ['download']}, # shouldn't be needed, but what if it is set externally?
         ))
-        if host == 'tannit':
+        if platform != 'win32':
             self.addStep(ShellCmd(
                 description="install jinja2",
                 command=['install/bin/pip', 'install', 'jinja2'],
