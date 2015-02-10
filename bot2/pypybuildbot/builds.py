@@ -326,14 +326,14 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
                 workdir=workdir,
                 logEnviron=False))
 
-def update_git(platform, factory, repourl, workdir, use_branch,
-              force_branch=None):
+def update_git(platform, factory, repourl, workdir, branch='master'):
     factory.addStep(
             Git(
                 repourl=repourl,
                 mode='full',
                 method='fresh',
                 workdir=workdir,
+                branch=branch,
                 logEnviron=False))
 
 def setup_steps(platform, factory, workdir=None,
@@ -473,7 +473,8 @@ class Translated(factory.BuildFactory):
                  interpreter='pypy',
                  lib_python=False,
                  pypyjit=False,
-                 prefix=None
+                 prefix=None,
+                 trigger=None,
                  ):
         factory.BuildFactory.__init__(self)
         if prefix is not None:
@@ -501,6 +502,9 @@ class Translated(factory.BuildFactory):
                                 basename=name + extension,
                                 workdir='.',
                                 blocksize=100 * 1024))
+
+        if trigger: # if provided trigger schedulers that depend on this one
+            self.addStep(Trigger(schedulerNames=[trigger]))
 
         add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
 
@@ -882,6 +886,13 @@ class NativeNumpyTests(factory.BuildFactory):
             ))
 
         self.addStep(ShellCmd(
+            description="report version",
+            command=['install/bin/pypy', '--version'],
+            workdir='./',
+            haltOnFailure=True,
+            ))
+
+        self.addStep(ShellCmd(
             description="install nose",
             command=['install/bin/pip', 'install','nose'],
             workdir='./',
@@ -890,9 +901,7 @@ class NativeNumpyTests(factory.BuildFactory):
 
         # obtain a pypy-compatible branch of numpy
         numpy_url = 'https://www.bitbucket.org/pypy/numpy'
-        numpy_pypy_branch = 'pypy-compat'
-        update_git(platform, self, numpy_url, 'numpy_src', use_branch=True,
-              force_branch=numpy_pypy_branch)
+        update_git(platform, self, numpy_url, 'numpy_src', branch='master')
 
         self.addStep(ShellCmd(
             description="install numpy",
