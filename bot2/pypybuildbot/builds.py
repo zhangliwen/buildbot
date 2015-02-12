@@ -403,6 +403,8 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
     factory.addStep(PytestCmd(
         description="cleanout old test files",
         command = command,
+        flunkOnFailure=False,
+        haltOnFailure=False,
         ))
 
     if app_tests:
@@ -500,6 +502,8 @@ class Own(factory.BuildFactory):
         self.addStep(PytestCmd(
             description="cleanout old test files",
             command = command,
+            flunkOnFailure=False,
+            haltOnFailure=False,
             ))
 
         self.addStep(PytestCmd(
