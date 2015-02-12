@@ -4,7 +4,7 @@ from buildbot.process.buildstep import BuildStep
 from buildbot.process import factory
 from buildbot.steps import shell, transfer
 from buildbot.steps.trigger import Trigger
-from buildbot.process.properties import WithProperties
+from buildbot.process.properties import WithProperties, Interpolate
 from buildbot import locks
 from pypybuildbot.util import symlink_force
 from buildbot.status.results import SKIPPED, SUCCESS
@@ -378,6 +378,19 @@ def get_extension(platform):
         return ".tar.bz2"
 
 def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyjit):
+    factory.addStep(shell.SetPropertyFromCommand(
+            command=['python', '-c', "import tempfile, os ;print"
+                     " tempfile.gettempdir() + os.path.sep"],
+             property="target_tmpdir"))
+    # If target_tmpdir is empty, crash.
+    tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
+    factory.addStep(PytestCmd( 
+        description="mkdir for tests",
+        command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
+                    tmp_or_crazy + "pytest') if not os.path.exists(r'" + \
+                    tmp_or_crazy + "pytest') else True")],
+        haltOnFailure=True,
+        ))
     if app_tests:
         if app_tests == True:
             app_tests = []
@@ -392,7 +405,9 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                      ] + ["--config=%s" % cfg for cfg in app_tests],
             logfiles={'pytestLog': 'pytest-A.log'},
             timeout=4000,
-            env={"PYTHONPATH": ['.']}))
+            env={"PYTHONPATH": ['.'],
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+                }))
 
     if lib_python:
         factory.addStep(PytestCmd(
@@ -402,7 +417,9 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                      "--timeout=3600",
                      "--resultlog=cpython.log", "lib-python"],
             timeout=4000,
-            logfiles={'pytestLog': 'cpython.log'}))
+            logfiles={'pytestLog': 'cpython.log'},
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+                }))
 
     if pypyjit:
         # kill this step when the transition to test_pypy_c_new has been
@@ -414,7 +431,9 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                      "--pypy=pypy/goal/pypy-c",
                      "--resultlog=pypyjit.log",
                      "pypy/module/pypyjit/test"],
-            logfiles={'pytestLog': 'pypyjit.log'}))
+            logfiles={'pytestLog': 'pypyjit.log'},
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+                }))
         #
         # "new" test_pypy_c
         if platform == 'win32':
@@ -426,7 +445,10 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             command=prefix + [cmd, "pypy/test_all.py",
                      "--resultlog=pypyjit_new.log",
                      "pypy/module/pypyjit/test_pypy_c"],
-            logfiles={'pytestLog': 'pypyjit_new.log'}))
+            logfiles={'pytestLog': 'pypyjit_new.log'},
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+                }))
+
 
 # ----
 
@@ -438,6 +460,19 @@ class Own(factory.BuildFactory):
         setup_steps(platform, self)
 
         timeout=kwargs.get('timeout', 4000)
+        self.addStep(shell.SetPropertyFromCommand(
+                command=['python', '-c', "import tempfile, os ;print"
+                         " tempfile.gettempdir() + os.path.sep"],
+                 property="target_tmpdir"))
+        # If target_tmpdir is empty, crash.
+        tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
+        self.addStep(PytestCmd( 
+            description="mkdir for tests",
+            command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
+                        tmp_or_crazy + "pytest') if not os.path.exists(r'" + \
+                        tmp_or_crazy + "pytest') else True")],
+            haltOnFailure=True,
+            ))
         self.addStep(PytestCmd(
             description="pytest pypy",
             command=["python", "testrunner/runner.py",
@@ -449,7 +484,9 @@ class Own(factory.BuildFactory):
             logfiles={'pytestLog': 'testrun.log'},
             timeout=timeout,
             env={"PYTHONPATH": ['.'],
-                 "PYPYCHERRYPICK": cherrypick}))
+                 "PYPYCHERRYPICK": cherrypick,
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+                 }))
 
         self.addStep(PytestCmd(
             description="pytest rpython",
@@ -462,7 +499,9 @@ class Own(factory.BuildFactory):
             logfiles={'pytestLog': 'testrun.log'},
             timeout=timeout,
             env={"PYTHONPATH": ['.'],
-                 "PYPYCHERRYPICK": cherrypick}))
+                 "PYPYCHERRYPICK": cherrypick,
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+                 }))
 
 
 class Translated(factory.BuildFactory):
