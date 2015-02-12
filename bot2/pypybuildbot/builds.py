@@ -384,13 +384,27 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
              property="target_tmpdir"))
     # If target_tmpdir is empty, crash.
     tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
+    pytest = "pytest"
     factory.addStep(PytestCmd( 
         description="mkdir for tests",
         command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
-                    tmp_or_crazy + "pytest') if not os.path.exists(r'" + \
-                    tmp_or_crazy + "pytest') else True")],
+                    tmp_or_crazy + pytest + "') if not os.path.exists(r'" + \
+                    tmp_or_crazy + pytest + "') else True")],
         haltOnFailure=True,
         ))
+
+    nDays = '3' #str, not int
+    if platform == 'win32':
+        command = ['FORFILES', '/P', Interpolate(tmp_or_crazy + pytest),
+                   '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
+    else:
+        command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
+                   '+' + nDays, '-exec', 'rm', "'{}'", "';'"] 
+    factory.addStep(PytestCmd(
+        description="cleanout old test files",
+        command = command,
+        ))
+
     if app_tests:
         if app_tests == True:
             app_tests = []
@@ -406,7 +420,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             logfiles={'pytestLog': 'pytest-A.log'},
             timeout=4000,
             env={"PYTHONPATH": ['.'],
-                 "TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                 }))
 
     if lib_python:
@@ -418,7 +432,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                      "--resultlog=cpython.log", "lib-python"],
             timeout=4000,
             logfiles={'pytestLog': 'cpython.log'},
-            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                 }))
 
     if pypyjit:
@@ -432,7 +446,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                      "--resultlog=pypyjit.log",
                      "pypy/module/pypyjit/test"],
             logfiles={'pytestLog': 'pypyjit.log'},
-            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                 }))
         #
         # "new" test_pypy_c
@@ -446,7 +460,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                      "--resultlog=pypyjit_new.log",
                      "pypy/module/pypyjit/test_pypy_c"],
             logfiles={'pytestLog': 'pypyjit_new.log'},
-            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                 }))
 
 
@@ -460,19 +474,34 @@ class Own(factory.BuildFactory):
         setup_steps(platform, self)
 
         timeout=kwargs.get('timeout', 4000)
+
         self.addStep(shell.SetPropertyFromCommand(
                 command=['python', '-c', "import tempfile, os ;print"
                          " tempfile.gettempdir() + os.path.sep"],
                  property="target_tmpdir"))
         # If target_tmpdir is empty, crash.
         tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
+        pytest = "pytest"
         self.addStep(PytestCmd( 
             description="mkdir for tests",
             command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
-                        tmp_or_crazy + "pytest') if not os.path.exists(r'" + \
-                        tmp_or_crazy + "pytest') else True")],
+                        tmp_or_crazy + pytest + "') if not os.path.exists(r'" + \
+                        tmp_or_crazy + pytest + "') else True")],
             haltOnFailure=True,
             ))
+
+        nDays = '3' #str, not int
+        if platform == 'win32':
+            command = ['FORFILES', '/P', Interpolate(tmp_or_crazy + pytest),
+                       '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
+        else:
+            command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
+                       '+' + nDays, '-exec', 'rm', "'{}'", "';'"] 
+        self.addStep(PytestCmd(
+            description="cleanout old test files",
+            command = command,
+            ))
+
         self.addStep(PytestCmd(
             description="pytest pypy",
             command=["python", "testrunner/runner.py",
@@ -485,7 +514,7 @@ class Own(factory.BuildFactory):
             timeout=timeout,
             env={"PYTHONPATH": ['.'],
                  "PYPYCHERRYPICK": cherrypick,
-                 "TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                  }))
 
         self.addStep(PytestCmd(
@@ -500,7 +529,7 @@ class Own(factory.BuildFactory):
             timeout=timeout,
             env={"PYTHONPATH": ['.'],
                  "PYPYCHERRYPICK": cherrypick,
-                 "TMPDIR": Interpolate('%(prop:target_tmpdir)spytest'),
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                  }))
 
 
