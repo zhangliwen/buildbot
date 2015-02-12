@@ -399,7 +399,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                    '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
     else:
         command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
-                   '+' + nDays, '-exec', 'rm', "'{}'", "';'"] 
+                   '+' + nDays, '-exec', 'rm', '{}', ';'] 
     factory.addStep(PytestCmd(
         description="cleanout old test files",
         command = command,
@@ -498,7 +498,7 @@ class Own(factory.BuildFactory):
                        '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
         else:
             command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
-                       '+' + nDays, '-exec', 'rm', "'{}'", "';'"] 
+                       '+' + nDays, '-exec', 'rm', '{}', ';'] 
         self.addStep(PytestCmd(
             description="cleanout old test files",
             command = command,
