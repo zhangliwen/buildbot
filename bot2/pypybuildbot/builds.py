@@ -956,7 +956,7 @@ class NativeNumpyTests(factory.BuildFactory):
         
         if platform == 'win32':
             self.addStep(ShellCmd(
-                description='move decomporessed dir',
+                description='move decompressed dir',
                 command = ['mv', '*/*', '.'],
                 workdir='pypy-c',
                 haltOnFailure=True,
