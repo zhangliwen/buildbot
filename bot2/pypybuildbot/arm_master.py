@@ -1,5 +1,5 @@
 from buildbot.scheduler import Nightly, Triggerable
-from pypybuildbot.util import we_are_debugging, load
+from pypybuildbot.util import load
 
 pypybuilds = load('pypybuildbot.builds')
 ARMCrossLock = pypybuilds.ARMCrossLock

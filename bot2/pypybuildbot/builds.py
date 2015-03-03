@@ -4,7 +4,7 @@ from buildbot.process.buildstep import BuildStep
 from buildbot.process import factory
 from buildbot.steps import shell, transfer
 from buildbot.steps.trigger import Trigger
-from buildbot.process.properties import WithProperties
+from buildbot.process.properties import WithProperties, Interpolate
 from buildbot import locks
 from pypybuildbot.util import symlink_force
 from buildbot.status.results import SKIPPED, SUCCESS
@@ -326,14 +326,14 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
                 workdir=workdir,
                 logEnviron=False))
 
-def update_git(platform, factory, repourl, workdir, use_branch,
-              force_branch=None):
+def update_git(platform, factory, repourl, workdir, branch='master'):
     factory.addStep(
             Git(
                 repourl=repourl,
                 mode='full',
                 method='fresh',
                 workdir=workdir,
+                branch=branch,
                 logEnviron=False))
 
 def setup_steps(platform, factory, workdir=None,
@@ -378,6 +378,35 @@ def get_extension(platform):
         return ".tar.bz2"
 
 def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyjit):
+    factory.addStep(shell.SetPropertyFromCommand(
+            command=['python', '-c', "import tempfile, os ;print"
+                     " tempfile.gettempdir() + os.path.sep"],
+             property="target_tmpdir"))
+    # If target_tmpdir is empty, crash.
+    tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
+    pytest = "pytest"
+    factory.addStep(PytestCmd( 
+        description="mkdir for tests",
+        command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
+                    tmp_or_crazy + pytest + "') if not os.path.exists(r'" + \
+                    tmp_or_crazy + pytest + "') else True")],
+        haltOnFailure=True,
+        ))
+
+    nDays = '3' #str, not int
+    if platform == 'win32':
+        command = ['FORFILES', '/P', Interpolate(tmp_or_crazy + pytest),
+                   '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
+    else:
+        command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
+                   '+' + nDays, '-exec', 'rm', '{}', ';'] 
+    factory.addStep(PytestCmd(
+        description="cleanout old test files",
+        command = command,
+        flunkOnFailure=False,
+        haltOnFailure=False,
+        ))
+
     if app_tests:
         if app_tests == True:
             app_tests = []
@@ -392,7 +421,9 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                      ] + ["--config=%s" % cfg for cfg in app_tests],
             logfiles={'pytestLog': 'pytest-A.log'},
             timeout=4000,
-            env={"PYTHONPATH": ['.']}))
+            env={"PYTHONPATH": ['.'],
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+                }))
 
     if lib_python:
         factory.addStep(PytestCmd(
@@ -402,7 +433,9 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                      "--timeout=3600",
                      "--resultlog=cpython.log", "lib-python"],
             timeout=4000,
-            logfiles={'pytestLog': 'cpython.log'}))
+            logfiles={'pytestLog': 'cpython.log'},
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+                }))
 
     if pypyjit:
         # kill this step when the transition to test_pypy_c_new has been
@@ -414,7 +447,9 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                      "--pypy=pypy/goal/pypy-c",
                      "--resultlog=pypyjit.log",
                      "pypy/module/pypyjit/test"],
-            logfiles={'pytestLog': 'pypyjit.log'}))
+            logfiles={'pytestLog': 'pypyjit.log'},
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+                }))
         #
         # "new" test_pypy_c
         if platform == 'win32':
@@ -426,7 +461,10 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             command=prefix + [cmd, "pypy/test_all.py",
                      "--resultlog=pypyjit_new.log",
                      "pypy/module/pypyjit/test_pypy_c"],
-            logfiles={'pytestLog': 'pypyjit_new.log'}))
+            logfiles={'pytestLog': 'pypyjit_new.log'},
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+                }))
+
 
 # ----
 
@@ -438,6 +476,36 @@ class Own(factory.BuildFactory):
         setup_steps(platform, self)
 
         timeout=kwargs.get('timeout', 4000)
+
+        self.addStep(shell.SetPropertyFromCommand(
+                command=['python', '-c', "import tempfile, os ;print"
+                         " tempfile.gettempdir() + os.path.sep"],
+                 property="target_tmpdir"))
+        # If target_tmpdir is empty, crash.
+        tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
+        pytest = "pytest"
+        self.addStep(PytestCmd( 
+            description="mkdir for tests",
+            command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
+                        tmp_or_crazy + pytest + "') if not os.path.exists(r'" + \
+                        tmp_or_crazy + pytest + "') else True")],
+            haltOnFailure=True,
+            ))
+
+        nDays = '3' #str, not int
+        if platform == 'win32':
+            command = ['FORFILES', '/P', Interpolate(tmp_or_crazy + pytest),
+                       '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
+        else:
+            command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
+                       '+' + nDays, '-exec', 'rm', '{}', ';'] 
+        self.addStep(PytestCmd(
+            description="cleanout old test files",
+            command = command,
+            flunkOnFailure=False,
+            haltOnFailure=False,
+            ))
+
         self.addStep(PytestCmd(
             description="pytest pypy",
             command=["python", "testrunner/runner.py",
@@ -449,7 +517,9 @@ class Own(factory.BuildFactory):
             logfiles={'pytestLog': 'testrun.log'},
             timeout=timeout,
             env={"PYTHONPATH": ['.'],
-                 "PYPYCHERRYPICK": cherrypick}))
+                 "PYPYCHERRYPICK": cherrypick,
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+                 }))
 
         self.addStep(PytestCmd(
             description="pytest rpython",
@@ -462,7 +532,9 @@ class Own(factory.BuildFactory):
             logfiles={'pytestLog': 'testrun.log'},
             timeout=timeout,
             env={"PYTHONPATH": ['.'],
-                 "PYPYCHERRYPICK": cherrypick}))
+                 "PYPYCHERRYPICK": cherrypick,
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+                 }))
 
 
 class Translated(factory.BuildFactory):
@@ -473,7 +545,8 @@ class Translated(factory.BuildFactory):
                  interpreter='pypy',
                  lib_python=False,
                  pypyjit=False,
-                 prefix=None
+                 prefix=None,
+                 trigger=None,
                  ):
         factory.BuildFactory.__init__(self)
         if prefix is not None:
@@ -501,6 +574,9 @@ class Translated(factory.BuildFactory):
                                 basename=name + extension,
                                 workdir='.',
                                 blocksize=100 * 1024))
+
+        if trigger: # if provided trigger schedulers that depend on this one
+            self.addStep(Trigger(schedulerNames=[trigger]))
 
         add_translated_tests(self, prefix, platform, app_tests, lib_python, pypyjit)
 
@@ -839,7 +915,6 @@ class NativeNumpyTests(factory.BuildFactory):
     '''
     def __init__(self, platform='linux',
                  app_tests=False,
-                 host = 'tannit',
                  lib_python=False,
                  pypyjit=True,
                  prefix=None,
@@ -850,9 +925,18 @@ class NativeNumpyTests(factory.BuildFactory):
         self.addStep(ParseRevision(hideStepIf=ParseRevision.hideStepIf,
                                   doStepIf=ParseRevision.doStepIf))
         # download corresponding nightly build
+        if platform == 'win32':
+            target = r'pypy-c\pypy.exe'
+            untar = ['unzip']
+            sep = '\\'
+        else:
+            target = r'pypy-c/bin/pypy'
+            untar = ['tar', '--strip-components=1', '--directory=.', '-xf']
+            sep = '/'
         self.addStep(ShellCmd(
-            description="Clear pypy-c",
-            command=['rm', '-rf', 'pypy-c'],
+            description="Clear",
+            # assume, as part of git, that windows has rm
+            command=['rm', '-rf', 'pypy-c', 'install'],
             workdir='.'))
         extension = get_extension(platform)
         name = build_name(platform, pypyjit, translationArgs, placeholder='%(final_file_name)s') + extension
@@ -863,12 +947,17 @@ class NativeNumpyTests(factory.BuildFactory):
             workdir='pypy-c'))
 
         # extract downloaded file
-        if platform.startswith('win'):
-            raise NotImplementedError
-        else:
+        self.addStep(ShellCmd(
+            description="decompress pypy-c",
+            command=untar + ['pypy_build'+ extension],
+            workdir='pypy-c',
+            haltOnFailure=True,
+            ))
+        
+        if platform == 'win32':
             self.addStep(ShellCmd(
-                description="decompress pypy-c",
-                command=['tar', '--extract', '--file=pypy_build'+ extension, '--strip-components=1', '--directory=.'],
+                description='move decompressed dir',
+                command = ['mv', '*/*', '.'],
                 workdir='pypy-c',
                 haltOnFailure=True,
                 ))
@@ -876,39 +965,45 @@ class NativeNumpyTests(factory.BuildFactory):
         # virtualenv the download
         self.addStep(ShellCmd(
             description="create virtualenv",
-            command=['virtualenv','-p', 'pypy-c/bin/pypy', 'install'],
+            command=['virtualenv','-p', target, 'install'],
+            workdir='./',
+            haltOnFailure=True,
+            ))
+
+        self.addStep(ShellCmd(
+            description="report version",
+            command=[sep.join(['install','bin','pypy'])] + ['--version'],
             workdir='./',
             haltOnFailure=True,
             ))
 
         self.addStep(ShellCmd(
             description="install nose",
-            command=['install/bin/pip', 'install','nose'],
+            command=[sep.join(['install','bin','pip'])] + ['install','nose'],
             workdir='./',
             haltOnFailure=True,
             ))
 
         # obtain a pypy-compatible branch of numpy
         numpy_url = 'https://www.bitbucket.org/pypy/numpy'
-        numpy_pypy_branch = 'pypy-compat'
-        update_git(platform, self, numpy_url, 'numpy_src', use_branch=True,
-              force_branch=numpy_pypy_branch)
+        update_git(platform, self, numpy_url, 'numpy_src', branch='master')
 
         self.addStep(ShellCmd(
             description="install numpy",
-            command=['../install/bin/python', 'setup.py','install'],
+            command=[sep.join(['..', 'install', 'bin', 'pypy'])] + ['setup.py','install'],
             workdir='numpy_src'))
 
         self.addStep(ShellCmd(
             description="test numpy",
-            command=['bin/nosetests', 'site-packages/numpy',
+            command=[sep.join(['bin', 'nosetests'])] + ['site-packages/numpy',
+                        # XXX enable '-with-doctest',
                     ],
             #logfiles={'pytestLog': 'pytest-numpy.log'},
             timeout=4000,
             workdir='install',
             #env={"PYTHONPATH": ['download']}, # shouldn't be needed, but what if it is set externally?
         ))
-        if host == 'tannit':
+        if platform != 'win32':
             self.addStep(ShellCmd(
                 description="install jinja2",
                 command=['install/bin/pip', 'install', 'jinja2'],
