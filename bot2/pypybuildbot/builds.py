@@ -326,7 +326,8 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
                 workdir=workdir,
                 logEnviron=False))
 
-def update_git(platform, factory, repourl, workdir, branch='master'):
+def update_git(platform, factory, repourl, workdir, branch='master',
+               alwaysUseLatest=False):
     factory.addStep(
             Git(
                 repourl=repourl,
@@ -334,6 +335,7 @@ def update_git(platform, factory, repourl, workdir, branch='master'):
                 method='fresh',
                 workdir=workdir,
                 branch=branch,
+                alwaysUseLatest=alwaysUseLatest,
                 logEnviron=False))
 
 def setup_steps(platform, factory, workdir=None,
@@ -986,7 +988,10 @@ class NativeNumpyTests(factory.BuildFactory):
 
         # obtain a pypy-compatible branch of numpy
         numpy_url = 'https://www.bitbucket.org/pypy/numpy'
-        update_git(platform, self, numpy_url, 'numpy_src', branch='master')
+        update_git(platform, self, numpy_url, 'numpy_src', branch='master',
+                   alwaysUseLatest=True, # ignore pypy rev number when 
+                                         # triggered by a pypy build
+                   )
 
         self.addStep(ShellCmd(
             description="install numpy",
