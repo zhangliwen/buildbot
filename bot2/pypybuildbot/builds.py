@@ -170,6 +170,10 @@ class PytestCmd(ShellCmd):
             d[key] = summary
         builder.saveYourself()
 
+class SuccessAlways(ShellCmd):
+    def evaluateCommand(self, cmd):
+        return SUCCESS
+
 # _______________________________________________________________
 # XXX Currently the build properties got_revision and final_file_name contain
 # the revision number and the changeset-id, CheckGotRevision takes care to set
@@ -401,8 +405,8 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                    '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
     else:
         command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
-                   '+' + nDays, '-exec', 'rm', '{}', ';'] 
-    factory.addStep(PytestCmd(
+                   '+' + nDays, '-exec', 'rm -r', '{}', ';'] 
+    factory.addStep(SuccessAlways(
         description="cleanout old test files",
         command = command,
         flunkOnFailure=False,
@@ -500,8 +504,8 @@ class Own(factory.BuildFactory):
                        '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
         else:
             command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
-                       '+' + nDays, '-exec', 'rm', '{}', ';'] 
-        self.addStep(PytestCmd(
+                       '+' + nDays, '-exec', 'rm -r', '{}', ';'] 
+        self.addStep(SuccessAlways(
             description="cleanout old test files",
             command = command,
             flunkOnFailure=False,
