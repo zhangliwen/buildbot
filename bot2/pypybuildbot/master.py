@@ -162,11 +162,9 @@ pypyNumpyCompatabilityWin = pypybuilds.NativeNumpyTests(platform='win32')
 
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
-INDIANA32 = "own-indiana-x86-32"
 
 MACOSX32 = "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
-WIN64 = "own-win-x86-64"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
@@ -179,22 +177,69 @@ JITLINUX64 = "pypy-c-jit-linux-x86-64"
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 #JITMACOSX64_2 = "pypy-c-jit-macosx-x86-64-2"
 JITWIN32 = "pypy-c-jit-win-x86-32"
-JITWIN64 = "pypy-c-jit-win-x86-64"
-JITFREEBSD764 = 'pypy-c-jit-freebsd-7-x86-64'
-JITFREEBSD864 = 'pypy-c-jit-freebsd-8-x86-64'
-JITFREEBSD964 = 'pypy-c-jit-freebsd-9-x86-64'
-JITINDIANA32 = "pypy-c-jit-indiana-x86-32"
 
 JITONLYLINUXPPC64 = "jitonly-own-linux-ppc-64"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
-JITBENCH64_NEW = 'jit-benchmark-linux-x86-64-single-run'
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
 NUMPY_64 = "numpy-compatability-linux-x86-64"
 NUMPY_WIN = "numpy-compatability-win-x86-32"
 # buildbot builder
 PYPYBUILDBOT = 'pypy-buildbot'
+JITFREEBSD964 = 'pypy-c-jit-freebsd-9-x86-64'
 
+WIN64 = "own-win-x86-64"
+INDIANA32 = "own-indiana-x86-32"
+JITWIN64 = "pypy-c-jit-win-x86-64"
+JITFREEBSD764 = 'pypy-c-jit-freebsd-7-x86-64'
+JITFREEBSD864 = 'pypy-c-jit-freebsd-8-x86-64'
+JITINDIANA32 = "pypy-c-jit-indiana-x86-32"
+JITBENCH64_NEW = 'jit-benchmark-linux-x86-64-single-run'
+inactive_slaves = [
+                  {"name": WIN64,
+                   "slavenames": [],
+                   "builddir": WIN64,
+                   "factory": pypyOwnTestFactoryWin,
+                   "category": 'win32'
+                  },
+                  {'name': INDIANA32,
+                   'slavenames': [],
+                   'builddir': INDIANA32,
+                   'factory': pypyOwnTestFactoryIndiana,
+                   'category': 'openindiana32',
+                   },
+                  {"name" : JITWIN64,
+                   "slavenames": [],
+                   'builddir' : JITWIN64,
+                   'factory' : pypyJITTranslatedTestFactoryWin,
+                   'category' : 'win32',
+                   },
+                  {"name" : JITFREEBSD764,
+                   "slavenames": [],
+                   'builddir' : JITFREEBSD764,
+                   'factory' : pypyJITTranslatedTestFactoryFreeBSD,
+                   "category": 'freebsd64'
+                   },
+                  {"name": JITFREEBSD864,
+                   "slavenames": [],
+                   'builddir' : JITFREEBSD864,
+                   'factory' : pypyJITTranslatedTestFactoryFreeBSD,
+                   "category": 'freebsd64'
+                   },
+                   {"name": JITBENCH64_NEW,
+                    "slavenames": [],
+                    "builddir": JITBENCH64_NEW,
+                    "factory": pypyJITBenchmarkFactory64_speed,
+                    "category": "benchmark-run",
+                    },
+                  # openindiana
+                  {'name': JITINDIANA32,
+                   'slavenames': [],
+                   'builddir': JITINDIANA32,
+                   'factory': pypyJITTranslatedTestFactoryIndiana,
+                   'category': 'openindiana32',
+                   },
+                   ]
 extra_opts = {'xerxes': {'keepalive_interval': 15},
              'aurora': {'max_builds': 1},
              'salsa': {'max_builds': 1},
@@ -263,11 +308,9 @@ BuildmasterConfig = {
                         PYPYBUILDBOT,
                         LINUX32,
                         LINUX64,
-                        #INDIANA32,
 
                         MACOSX32,
                         WIN32,
-                        #WIN64,
                         APPLVLLINUX32,
                         APPLVLLINUX64,
                         APPLVLWIN32,
@@ -278,20 +321,22 @@ BuildmasterConfig = {
                         JITLINUX32,
                         JITLINUX64,
                         JITMACOSX64,
-                        #JITMACOSX64_2,
                         JITWIN32,
-                        #JITWIN64,
-                        #JITFREEBSD764,
-                        #JITFREEBSD864,
                         JITFREEBSD964,
-                        #JITINDIANA32,
 
                         JITONLYLINUXPPC64,
                         JITBENCH,
                         JITBENCH64,
-                        JITBENCH64_NEW,
+                        #JITBENCH64_NEW,
                         NUMPY_64,
                         NUMPY_WIN,
+                        #INDIANA32,
+                        #WIN64,
+                        #JITMACOSX64_2,
+                        #JITWIN64,
+                        #JITFREEBSD764,
+                        #JITFREEBSD864,
+                        #JITINDIANA32,
             ] + ARM.builderNames, properties=[]),
     ] + ARM.schedulers,
 
@@ -375,12 +420,6 @@ BuildmasterConfig = {
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },
-                   {"name": JITBENCH64_NEW,
-                    "slavenames": [],
-                    "builddir": JITBENCH64_NEW,
-                    "factory": pypyJITBenchmarkFactory64_speed,
-                    "category": "benchmark-run",
-                    },
                   {"name": MACOSX32,
                    "slavenames": ["minime"],
                    "builddir": MACOSX32,
@@ -406,13 +445,7 @@ BuildmasterConfig = {
                    "locks": [WinSlaveLock.access('counting')],
                    "category": 'win32',
                   },
-                  {"name": WIN64,
-                   "slavenames": [],
-                   "builddir": WIN64,
-                   "factory": pypyOwnTestFactoryWin,
-                   "category": 'win32'
-                  },
-                  {"name": APPLVLWIN32,
+                 {"name": APPLVLWIN32,
                    "slavenames": ["SalsaSalsa", "allegro_win32"],
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
@@ -426,24 +459,6 @@ BuildmasterConfig = {
                    "locks": [WinSlaveLock.access('counting')],
                    'category' : 'win32',
                    },
-                  {"name" : JITWIN64,
-                   "slavenames": [],
-                   'builddir' : JITWIN64,
-                   'factory' : pypyJITTranslatedTestFactoryWin,
-                   'category' : 'win32',
-                   },
-                  {"name" : JITFREEBSD764,
-                   "slavenames": [],
-                   'builddir' : JITFREEBSD764,
-                   'factory' : pypyJITTranslatedTestFactoryFreeBSD,
-                   "category": 'freebsd64'
-                   },
-                  {"name": JITFREEBSD864,
-                   "slavenames": [],
-                   'builddir' : JITFREEBSD864,
-                   'factory' : pypyJITTranslatedTestFactoryFreeBSD,
-                   "category": 'freebsd64'
-                   },
                   {"name" : JITFREEBSD964,
                    "slavenames": ['hybridlogic', 'tavendo-freebsd-9.2-amd64'],
                    'builddir' : JITFREEBSD964,
@@ -456,19 +471,6 @@ BuildmasterConfig = {
                    "builddir": JITONLYLINUXPPC64,
                    "factory": pypyJitOnlyOwnTestFactory,
                    "category": 'linux-ppc64',
-                   },
-                  # openindiana
-                  {'name': JITINDIANA32,
-                   'slavenames': [],
-                   'builddir': JITINDIANA32,
-                   'factory': pypyJITTranslatedTestFactoryIndiana,
-                   'category': 'openindiana32',
-                   },
-                  {'name': INDIANA32,
-                   'slavenames': [],
-                   'builddir': INDIANA32,
-                   'factory': pypyOwnTestFactoryIndiana,
-                   'category': 'openindiana32',
                    },
                   {'name': NUMPY_64,
                    'slavenames': ["tannit64"],
