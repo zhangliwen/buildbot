@@ -235,7 +235,7 @@ BuildmasterConfig = {
         Nightly("nightly-1-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-            JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
+            #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
         ], branch=None, hour=1, minute=0),
 
@@ -263,11 +263,11 @@ BuildmasterConfig = {
                         PYPYBUILDBOT,
                         LINUX32,
                         LINUX64,
-                        INDIANA32,
+                        #INDIANA32,
 
                         MACOSX32,
                         WIN32,
-                        WIN64,
+                        #WIN64,
                         APPLVLLINUX32,
                         APPLVLLINUX64,
                         APPLVLWIN32,
@@ -280,11 +280,11 @@ BuildmasterConfig = {
                         JITMACOSX64,
                         #JITMACOSX64_2,
                         JITWIN32,
-                        JITWIN64,
-                        JITFREEBSD764,
-                        JITFREEBSD864,
+                        #JITWIN64,
+                        #JITFREEBSD764,
+                        #JITFREEBSD864,
                         JITFREEBSD964,
-                        JITINDIANA32,
+                        #JITINDIANA32,
 
                         JITONLYLINUXPPC64,
                         JITBENCH,
@@ -376,7 +376,7 @@ BuildmasterConfig = {
                    # the locks are acquired with fine grain inside the build
                    },
                    {"name": JITBENCH64_NEW,
-                    "slavenames": ["speed-python-64"],
+                    "slavenames": [],
                     "builddir": JITBENCH64_NEW,
                     "factory": pypyJITBenchmarkFactory64_speed,
                     "category": "benchmark-run",
@@ -407,7 +407,7 @@ BuildmasterConfig = {
                    "category": 'win32',
                   },
                   {"name": WIN64,
-                   "slavenames": ["snakepit64"],
+                   "slavenames": [],
                    "builddir": WIN64,
                    "factory": pypyOwnTestFactoryWin,
                    "category": 'win32'
@@ -427,19 +427,19 @@ BuildmasterConfig = {
                    'category' : 'win32',
                    },
                   {"name" : JITWIN64,
-                   "slavenames": ["snakepit64"],
+                   "slavenames": [],
                    'builddir' : JITWIN64,
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    'category' : 'win32',
                    },
                   {"name" : JITFREEBSD764,
-                   "slavenames": ['headless'],
+                   "slavenames": [],
                    'builddir' : JITFREEBSD764,
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'
                    },
                   {"name": JITFREEBSD864,
-                   "slavenames": ['ananke'],
+                   "slavenames": [],
                    'builddir' : JITFREEBSD864,
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'
@@ -459,13 +459,13 @@ BuildmasterConfig = {
                    },
                   # openindiana
                   {'name': JITINDIANA32,
-                   'slavenames': ['jcea-openindiana-32'],
+                   'slavenames': [],
                    'builddir': JITINDIANA32,
                    'factory': pypyJITTranslatedTestFactoryIndiana,
                    'category': 'openindiana32',
                    },
                   {'name': INDIANA32,
-                   'slavenames': ['jcea-openindiana-32'],
+                   'slavenames': [],
                    'builddir': INDIANA32,
                    'factory': pypyOwnTestFactoryIndiana,
                    'category': 'openindiana32',
