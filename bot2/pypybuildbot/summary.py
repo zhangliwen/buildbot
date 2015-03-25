@@ -597,7 +597,8 @@ class LongRepr(HtmlResource):
 
         longrepr = outcome_set.get_longrepr(namekey)
 
-        return html.div([html.pre(longrepr),
+        return html.div([html.h2(self.getTitle(request)),
+                         html.pre(longrepr),
                          py.xml.raw("<!-- %s -->" % outcome_set_cache.stats())
                          ]).unicode()
 
