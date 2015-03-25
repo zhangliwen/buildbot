@@ -34,6 +34,7 @@ class FakeSourceStamp(object):
 
 class FakeBuild(object):
     slaveEnvironment = None
+    master = None
 
     def __init__(self, properties=None):
         self.properties = FakeProperties(properties)
