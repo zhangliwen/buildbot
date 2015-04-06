@@ -254,17 +254,17 @@ BuildmasterConfig = {
     'change_source': [],
 
     'schedulers': [
-        # the benchmarks run on tannit and speed.python.org.
-        # All the other linux tests run on allegro
+        # the benchmarks run on tannit and (planned) speed-old.python.org.
+        # All the other linux tests run on speed-old.python.org.
         Nightly("nightly-0-00", [
             # benchmarks
             # linux tests
             LINUX32,                   # on tannit32, uses all cores
-            LINUX64,                   # on allegro64, uses all cores
+            LINUX64,                   # on speed-old, uses all cores
             JITLINUX32,                # on tannit32, uses 1 core
-            JITLINUX64,                # on allegro64, uses 1 core
+            JITLINUX64,                # on speed-old, uses 1 core
             #APPLVLLINUX32,            # on tannit32, uses 1 core
-            APPLVLLINUX64,             # on allegro64, uses 1 core
+            APPLVLLINUX64,             # on speed-old, uses 1 core
             # other platforms
             #MACOSX32,                 # on minime
             JITWIN32,                  # on allegro_win32, SalsaSalsa
@@ -293,8 +293,8 @@ BuildmasterConfig = {
         ]),
 
         Nightly("nightly-2-00-py3k", [
-            LINUX64,                   # on allegro64, uses all cores
-            APPLVLLINUX64,             # on allegro64, uses 1 core
+            LINUX64,                   # on speed-old, uses all cores
+            APPLVLLINUX64,             # on speed-old, uses 1 core
             ], branch="py3k", hour=2, minute=0),
 
         # this one has faithfully run every night even though the latest
@@ -355,7 +355,7 @@ BuildmasterConfig = {
                    "locks": [TannitCPU.access('counting')],
                   },
                   {"name": LINUX64,
-                   "slavenames": ["allegro64"],
+                   "slavenames": ["speed-old"],
                    "builddir": LINUX64,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux64',
@@ -370,7 +370,7 @@ BuildmasterConfig = {
                    "locks": [TannitCPU.access('counting')],
                   },
                   {"name": APPLVLLINUX64,
-                   "slavenames": ["allegro64"],
+                   "slavenames": ["speed-old"],
                    "builddir": APPLVLLINUX64,
                    "factory": pypyTranslatedAppLevelTestFactory64,
                    "category": "linux64",
@@ -385,7 +385,7 @@ BuildmasterConfig = {
                    "locks": [TannitCPU.access('counting')],
                   },
                   {"name": LIBPYTHON_LINUX64,
-                   "slavenames": ["allegro64"],
+                   "slavenames": ["speed-old"],
                    "builddir": LIBPYTHON_LINUX64,
                    "factory": pypyTranslatedLibPythonTestFactory,
                    "category": "linux64",
@@ -400,7 +400,7 @@ BuildmasterConfig = {
                    "locks": [TannitCPU.access('counting')],
                    },
                   {'name': JITLINUX64,
-                   'slavenames': ["allegro64"],
+                   'slavenames': ["speed-old"],
                    'builddir': JITLINUX64,
                    'factory': pypyJITTranslatedTestFactory64,
                    'category': 'linux64',
