@@ -2,7 +2,7 @@ How to setup a buildslave for PyPy
 ==================================
 
 First you will need to install the ``buildbot-slave`` package.
-pip install buildbot_buildslave
+pip install buildbot-slave
 
 The next step is to create a buildslave configuration file. Based on version
 0.8.7 of buildbot you need to execute the following command.
