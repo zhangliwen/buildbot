@@ -226,12 +226,6 @@ inactive_slaves = [
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'
                    },
-                   {"name": JITBENCH64_NEW,
-                    "slavenames": [],
-                    "builddir": JITBENCH64_NEW,
-                    "factory": pypyJITBenchmarkFactory64_speed,
-                    "category": "benchmark-run",
-                    },
                   # openindiana
                   {'name': JITINDIANA32,
                    'slavenames': [],
@@ -280,7 +274,7 @@ BuildmasterConfig = {
         Nightly("nightly-1-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-            #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
+            JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
         ], branch=None, hour=1, minute=0),
 
@@ -327,7 +321,7 @@ BuildmasterConfig = {
                         JITONLYLINUXPPC64,
                         JITBENCH,
                         JITBENCH64,
-                        #JITBENCH64_NEW,
+                        JITBENCH64_NEW,
                         NUMPY_64,
                         NUMPY_WIN,
                         #INDIANA32,
@@ -420,6 +414,12 @@ BuildmasterConfig = {
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },
+                   {"name": JITBENCH64_NEW,
+                    "slavenames": ['speed-old'],
+                    "builddir": JITBENCH64_NEW,
+                    "factory": pypyJITBenchmarkFactory64_speed,
+                    "category": "benchmark-run",
+                    },
                   {"name": MACOSX32,
                    "slavenames": ["minime"],
                    "builddir": MACOSX32,
