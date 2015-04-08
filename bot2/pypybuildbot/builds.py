@@ -737,9 +737,9 @@ class JITBenchmarkSingleRun(factory.BuildFactory):
             description="run benchmarks on top of pypy-c",
             command=["python", "runner.py", '--output-filename', 'result.json',
                      '--python', pypy_c_rel,
-                     '--full-store',
                      '--revision', WithProperties('%(got_revision)s'),
                      '--branch', WithProperties('%(branch)s'),
+                     '--force-interpreter-name', 'pypy-c-jit',
                      ],
             workdir='./benchmarks',
             timeout=3600))
