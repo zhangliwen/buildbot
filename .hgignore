@@ -36,3 +36,4 @@ http.log*
 *-win-x86-64
 slave/pypy-buildbot
 master/pypy-buildbot
+*.swp
