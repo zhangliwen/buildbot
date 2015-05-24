@@ -1,15 +1,21 @@
 How to setup a buildslave for PyPy
 ==================================
 
-First you will need to install the ``buildbot-slave`` package.
-pip install buildbot-slave
+The recommended setup is to have a "pypy" in your path that will translate and
+a "python" (cpython) in your path that will run the test suites.
+
+Then you will need to install the ``buildbot-slave`` package, which will
+install many other packages like twised, so you may prefer to run the
+slave in a virtualenv::
+
+    pip install buildbot-slave
 
 The next step is to create a buildslave configuration file. Based on version
 0.8.7 of buildbot you need to execute the following command.
 
 buildslave create-slave  BASEDIR MASTERHOST:PORT SLAVENAME PASSWORD
 
-For PyPy the MASTERHOST currently is ``buildbot.pypy.org``. The
+The MASTERHOST currently is ``buildbot.pypy.org``. The
 value for PORT is ``10407``.
 SLAVENAME and PASSWORD can be freely chosen. These values need to be added to
 the slaveinfo.py configuration file on the MASTERHOST, ask in the IRC channel
@@ -18,15 +24,14 @@ local directory that will be created to contain all the files will be used by
 the buildslave. 
 
 Finally you will need to update the buildmaster configuration found in
-bot2/pypybuildbot/master.py to associate the buildslave with one or more
+https://bitbucket.org/pypy/buildbot/src/default/bot2/pypybuildbot/master.py
+to associate the buildslave with one or more
 builders. Builders define what tasks should be executed on the buildslave. 
-The changeset of revision 2f982db47d5d is a good place to start
-(https://bitbucket.org/pypy/buildbot/changeset/2f982db47d5d). Once the changes
-are commited the buildmaster on MASTERHOST needs to be updated and restared to
-reflect the changes to the configuration.
+Once the changes are commited the buildmaster on MASTERHOST needs to be updated
+and restared to reflect the changes to the configuration.
 
-To run the buildslave execute 
-=============================
+Starting and stopping the buildslave
+====================================
 
 To start the buildslave just run
 
