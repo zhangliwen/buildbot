@@ -182,8 +182,8 @@ JITONLYLINUXPPC64 = "jitonly-own-linux-ppc-64"
 JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
-NUMPY_64 = "numpy-compatability-linux-x86-64"
-NUMPY_WIN = "numpy-compatability-win-x86-32"
+NUMPY_64 = "numpy-compatibility-linux-x86-64"
+NUMPY_WIN = "numpy-compatibility-win-x86-32"
 # buildbot builder
 PYPYBUILDBOT = 'pypy-buildbot'
 JITFREEBSD964 = 'pypy-c-jit-freebsd-9-x86-64'
