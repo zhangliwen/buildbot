@@ -566,7 +566,7 @@ span.header {
 }
 
 pre {
-	white-space: pre-wrap;
+	white-space: pre;
 }
 
 /* change comments (use regular colors here) */
