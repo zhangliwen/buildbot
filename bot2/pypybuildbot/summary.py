@@ -530,7 +530,7 @@ class SummaryPage(object):
             lines.append(html.span(line,
                                    class_="a%dc%d" % (a_num, combination)))
 
-        section = html.pre(lines)
+        section = html.nobr(html.pre(lines))
         self.sections.append(section)
 
     def add_no_revision_builds(self, status, no_revision_builds):
