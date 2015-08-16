@@ -279,7 +279,7 @@ BuildmasterConfig = {
         ], branch=None, hour=1, minute=0),
 
         Triggerable("NUMPY64_scheduler", [
-            NUMPY_64,                  # on tannit64, uses 1 core, takes about 15min.
+            NUMPY_64,                  # on tannit64, uses 1 core, takes about 5min.
         ]),
 
         Triggerable("NUMPYWIN_scheduler", [
