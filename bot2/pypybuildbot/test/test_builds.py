@@ -99,7 +99,7 @@ def test_pypy_upload():
     kw = inst._getStepFactory().kwargs
     rebuilt = factory(**kw)
     rebuilt.build = FakeBuild()
-    rebuilt.step_status = FakeStepStatus()
+    rebuilt.setStepStatus(FakeStepStatus())
     rebuilt.runCommand = lambda *args: FakeDeferred()
     rebuilt.start()
     assert pth.join('mstr').check(dir=True)
@@ -186,7 +186,7 @@ class TestParseRevision(object):
         factory = inst._getStepFactory().factory
         kw = inst._getStepFactory().kwargs
         self.rebuilt = factory(**kw)
-        self.rebuilt.step_status = FakeStepStatus()
+        self.rebuilt.setStepStatus(FakeStepStatus())
         self.rebuilt.deferred = FakeDeferred()
 
     def test_has_revision(self):
