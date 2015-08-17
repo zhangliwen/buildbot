@@ -671,7 +671,7 @@ class TranslatedTests(factory.BuildFactory):
             haltOnFailure=True,
             workdir='.'))
         self.addStep(ShellCmd(
-            description="copy cffi import libraries"
+            description="copy cffi import libraries",
             command=['cp', '-rv', 'pypy-c/lib_pypy/*.so', 'build/lib_pypy'],
             haltOnFailure=True,
             workdir='.'))
