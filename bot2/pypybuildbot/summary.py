@@ -233,19 +233,23 @@ class RevisionOutcomeSetCache(object):
 
 class GatherOutcomeSet(object):
 
-    def __init__(self, map):
-        self.map = map
+    def __init__(self, builds):
+        self.builds = builds
         self._failed = None
         self._skipped = None
         self._numpassed = None
         self._numxfailed = None
-        self.revision = map.values()[0].revision
+        # In the case of a hg revision, this is of the form int:hash
+        # where the hashes should be identical, the int values may
+        # vary dependent on build slave repe. 
+        # Should we sort, if so by what?
+        self.revision = builds.values()[0].revision
 
     @property
     def failed(self):
         if self._failed is None:
             self._failed = set()
-            for prefix, outcome in self.map.items():
+            for prefix, outcome in self.builds.items():
                 self._failed.update([(prefix,)+ namekey for namekey in
                                      outcome.failed])
         return self._failed
@@ -254,7 +258,7 @@ class GatherOutcomeSet(object):
     def skipped(self):
         if self._skipped is None:
             self._skipped = set()
-            for prefix, outcome in self.map.items():
+            for prefix, outcome in self.builds.items():
                 self._skipped.update([(prefix,) + namekey for namekey in
                                      outcome.skipped])
         return self._skipped
@@ -263,7 +267,7 @@ class GatherOutcomeSet(object):
     def numpassed(self):
         if self._numpassed is None:
             numpassed = 0
-            for  prefix, outcome in self.map.items():
+            for  prefix, outcome in self.builds.items():
                 numpassed += outcome.numpassed
             self._numpassed = numpassed
         return self._numpassed
@@ -272,29 +276,29 @@ class GatherOutcomeSet(object):
     def numxfailed(self):
         if self._numxfailed is None:
             numxfailed = 0
-            for  prefix, outcome in self.map.items():
+            for  prefix, outcome in self.builds.items():
                 numxfailed += outcome.numxfailed
             self._numxfailed = numxfailed
         return self._numxfailed
 
     def get_outcome(self, namekey):
         which = namekey[0]
-        if which not in self.map:
+        if which not in self.builds:
             return ' '
-        return self.map[which].get_outcome(namekey[1:])
+        return self.builds[which].get_outcome(namekey[1:])
 
     def get_longrepr(self, namekey):
         which = namekey[0]
-        if which not in self.map:
+        if which not in self.builds:
             return ''
-        return self.map[which].get_longrepr(namekey[1:])
+        return self.builds[which].get_longrepr(namekey[1:])
 
     def get_key_namekey(self, namekey):
-        return self.map[namekey[0]].get_key_namekey(namekey[1:])
+        return self.builds[namekey[0]].get_key_namekey(namekey[1:])
 
     def get_run_infos(self):
         all = {}
-        for outcome_set in self.map.itervalues():
+        for outcome_set in self.builds.itervalues():
             all.update(outcome_set.get_run_infos())
         return all
 
@@ -403,7 +407,7 @@ class SummaryPage(object):
                       class_=' '.join(["failSummary", cls]))
 
     def _builder_num(self, outcome_set):
-        return outcome_set.map.values()[0].key
+        return outcome_set.builds.values()[0].key
 
     def _label(self, outcome_set):
         if self.fixed_builder:
@@ -429,7 +433,7 @@ class SummaryPage(object):
         if self.fixed_builder:
             pick = "builder=%s&builds=%d" % self._builder_num(outcome_set)
         else:
-            pick = "recentrev=%s" % rev
+            pick = "recentrev=%s" % rev.split(':')[-1]
         category, branch = self.cur_cat_branch
         revtxt = str(rev)
         rev_anchor = html.a(revtxt, href="/summary?category=%s&branch=%s&%s" %
@@ -752,6 +756,8 @@ class Summary(HtmlResource):
                 if not test_branch(branch):
                     continue
                 got_rev = getProp(build, 'got_revision', None)
+                if got_rev:
+                    got_rev = got_rev.split(':')[-1]
                 if not test_rev(got_rev):
                     continue
 
@@ -766,6 +772,8 @@ class Summary(HtmlResource):
                         no_revision_builds.append(build)
                 else:
                     rev = got_rev
+                    if ':' in rev:
+                        rev = rev.split(':')[-1]
                     buildNumber = build.getNumber()
                     if fixed_builder:
                         builds = runs.setdefault((buildNumber, rev), {})
@@ -783,7 +791,6 @@ class Summary(HtmlResource):
                     key = (builderName, buildNumber)
                     outcome_set = outcome_set_cache.get(status, key)
                     runBuilds[builderName] = outcome_set
-
         return cat_branches
 
     @staticmethod

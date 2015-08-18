@@ -797,23 +797,31 @@ class TestSummary(object):
         builder1 = status_builder.BuilderStatus('builder_foo', 'foo', self.master, '')
         builder2 = status_builder.BuilderStatus('builder_bar', 'bar', self.master, '')
         builder3 = status_builder.BuilderStatus('builder_', '', self.master, '')
+        builder4 = status_builder.BuilderStatus('builder_xyz', 'foo', self.master, '')
 
         add_builds(builder1, [('60000', "F TEST1\n")])
         add_builds(builder2, [('60000', "F TEST2\n")])
         add_builds(builder3, [('60000', "F TEST3\n")])
+        add_builds(builder4, [('60000', "F TEST4\n")])
 
         s = summary.Summary(['foo', 'bar'])
-        req = FakeRequest([builder1, builder2, builder3])
+        req = FakeRequest([builder1, builder2, builder3, builder4])
         out = s.body(req)
 
         rel1 = out.index('TEST1')
         rel2 = out.index('TEST2')
         rel3 = out.index('TEST3')
+        rel4 = out.index('TEST4')
 
-        assert rel3 > rel2 > rel1
+        assert rel3 > rel2 > rel4 > rel1
 
-        assert "{foo}" in out
-        assert "{bar}" in out
+        # since the two foo category builds have the same rev number, they
+        # should appear on the same line. Strip HTML tags and check for the rev
+        plain = re.sub('<[^<]+?>', '', out)
+        relFoo = plain.index("{foo}")
+        relBar = plain.index("{bar}")
+        
+        assert plain.count('60000', relFoo, relBar) == 1
 
     def test_two_builds_different_rev_digits(self):
         builder = status_builder.BuilderStatus('builder0', '', self.master, '')
@@ -828,6 +836,32 @@ class TestSummary(object):
         p1000 = out.find('1000')
         p1000builder0 = out.find('builder0', p1000)
         assert p999builder0-p999 == p1000builder0-p1000+1
+
+    def test_builds_coalesced_by_rev_hash(self):
+        # Two builds with the same category and the same hash should ignore
+        # revision numbers
+        category = 'nightly'
+        builder0 = status_builder.BuilderStatus('builder1', category, self.master, '')
+        builder1 = status_builder.BuilderStatus('builder0', category, self.master, '')
+        add_builds(builder0, [('999:abcdefg', "F TEST1\n. b"),
+                             ('1000:hijklmn', "F TEST1\n. b")])
+        add_builds(builder1, [('1999:abcdefg', "F TEST3\n. b"),
+                             ('2000:hijklmn', "F TEST3\n. b")])
+
+        s = summary.Summary()
+        req = FakeRequest([builder0, builder1])
+        out = s.body(req)
+
+        p999 = out.find('999')
+        p999builder0 = out.find('builder0', p999)
+        p1000 = out.find('1000')
+        p1000builder0 = out.find('builder0', p1000)
+        assert p999builder0-p999 == p1000builder0-p1000+2,'%d != %d' %(
+                                        p999builder0-p999, p1000builder0-p1000+1)
+
+        req.args = {'recentrev': ['abcdefg']}
+        out = s.body(req)
+        assert out.count('999') == 1
 
     def test_build_times_and_filtering(self):
         builder1 = status_builder.BuilderStatus('builder1', '', self.master, '')
