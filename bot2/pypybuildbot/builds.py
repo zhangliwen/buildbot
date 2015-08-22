@@ -273,6 +273,21 @@ class ParseRevision(BuildStep):
         self.finished(SUCCESS)
 
 
+# hack the Mercurial class in-place: it should do "hg pull" without
+# passing a "--rev" argument.  The problem is that while it sounds like
+# a good idea, passing a "--rev" argument here changes the order of
+# the checkouts.  Then our revisions "12345:432bcbb1ba" are bogus.
+def _my_pullUpdate(self, res):
+    command = ['pull' , self.repourl]
+    #if self.revision:                   <disabled!>
+    #    command.extend(['--rev', self.revision])
+    d = self._dovccmd(command)
+    d.addCallback(self._checkBranchChange)
+    return d
+assert hasattr(Mercurial, '_pullUpdate')
+Mercurial._pullUpdate = _my_pullUpdate
+
+
 def update_hg_old_method(platform, factory, repourl, workdir):
     # baaaaaah.  Seems that the Mercurial class doesn't support
     # updating to a different branch than the one specified by
