@@ -286,10 +286,10 @@ BuildmasterConfig = {
             NUMPY_WIN,                  # on allegro_win32, SalsaSalsa
         ]),
 
-        Nightly("nightly-2-00-py3k", [
+        Nightly("nightly-3-00-py3.3", [
             LINUX64,                   # on speed-old, uses all cores
             APPLVLLINUX64,             # on speed-old, uses 1 core
-            ], branch="py3k", hour=2, minute=0),
+            ], branch="py3.3", hour=3, minute=0),
 
         # this one has faithfully run every night even though the latest
         # change to that branch was in January 2013.  Re-enable one day.
