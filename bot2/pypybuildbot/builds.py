@@ -1024,13 +1024,10 @@ class NativeNumpyTests(factory.BuildFactory):
 
         self.addStep(ShellCmd(
             description="test numpy",
-            command=[sep.join(['bin', 'nosetests'])] + ['site-packages/numpy',
-                        # XXX enable '-with-doctest',
-                    ],
+            command=[sep.join(['..', 'install', 'bin', 'pypy'])] + ['runtests.py'],
             #logfiles={'pytestLog': 'pytest-numpy.log'},
             timeout=4000,
-            workdir='install',
-            #env={"PYTHONPATH": ['download']}, # shouldn't be needed, but what if it is set externally?
+            workdir='numpy_src',
         ))
         if platform != 'win32':
             self.addStep(ShellCmd(
