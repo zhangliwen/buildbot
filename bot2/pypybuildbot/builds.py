@@ -1045,5 +1045,6 @@ class NativeNumpyTests(factory.BuildFactory):
             resfile = os.path.expanduser("~/numpy_compat/%(got_revision)s.html")
             self.addStep(NumpyStatusUpload(
                 slavesrc="numpy-compat.html",
-                masterdest=WithProperties(resfile),
+                #masterdest=WithProperties(resfile),
+                masterdest=os.path.expanduser("~/numpy_compat/index.html"),
                 workdir="."))
