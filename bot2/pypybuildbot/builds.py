@@ -45,12 +45,20 @@ class ShellCmd(shell.ShellCommand):
 class PyPyUpload(transfer.FileUpload):
     parms = transfer.FileUpload.parms + ['basename']
     haltOnFailure = False
+    
+    def __init__(self, oldest_in_days=-1, **kwargs):
+        self.oldest_in_days = oldest_in_days
+        transfer.FileUpload.__init__(self, **kwargs)
 
+       
+    
     def start(self):
         properties = self.build.getProperties()
         branch = map_branch_name(properties['branch'])
         #masterdest = properties.render(self.masterdest)
         masterdest = os.path.expanduser(self.masterdest)
+        if self.oldest_in_days > 0:
+            util.clean_old_files(self.masterdest, self.oldest_in_days)
         if branch.startswith('/'):
             branch = branch[1:]
         # workaround for os.path.join
@@ -721,7 +729,9 @@ class NightlyBuild(factory.BuildFactory):
                                 masterdest=WithProperties(nightly),
                                 basename=name + extension,
                                 workdir='.',
-                                blocksize=100 * 1024))
+                                blocksize=100 * 1024,
+                                oldest_in_days=90,
+                                ))
         if trigger: # if provided trigger schedulers that depend on this one
             self.addStep(Trigger(schedulerNames=[trigger]))
 
