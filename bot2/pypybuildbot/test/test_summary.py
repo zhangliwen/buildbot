@@ -150,11 +150,12 @@ s a/c.py
         rev_outcome_set = summary.RevisionOutcomeSet('50000')
         log = StringIO("""x a/b.py
  EXC
+X a/b.py::test_1
 """)
 
         rev_outcome_set.populate(log)
-
         assert rev_outcome_set.numxfailed == 1
+        assert not rev_outcome_set.failed
 
 
     def test_absent_outcome(self):
@@ -204,9 +205,10 @@ s a/c.py
         log = StringIO("""F a/b.py:test_one
  some
  traceback
-. a/b.py:test_two
-s a/b.py:test_three
-x a/b.py:test_four
+. a/b.py::test_two
+s a/b.py::test_three
+x a/b.py::test_four
+X a/b.py::test_five
 """)
 
         rev_outcome_set_foo.populate(log)
@@ -215,9 +217,9 @@ x a/b.py:test_four
         key_bar = ('bar', 7)
         rev_outcome_set_bar = summary.RevisionOutcomeSet('50000',
                                                          key_bar)
-        log = StringIO(""". a/b.py:test_one
-. a/b.py:test_two
-s a/b.py:test_three
+        log = StringIO(""". a/b.py::test_one
+. a/b.py::test_two
+s a/b.py::test_three
 """)
 
         rev_outcome_set_bar.populate(log)

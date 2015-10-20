@@ -55,6 +55,7 @@ class RevisionOutcomeSet(object):
         self.failed = set()
         self.skipped = set()
         self._xfailed = 0
+        self._xpassed = 0
         self.longreprs = {}
         self._run_info = run_info
 
@@ -88,6 +89,8 @@ class RevisionOutcomeSet(object):
             pass
         elif shortrepr == 'x':
             self._xfailed += 1
+        elif shortrepr == 'X':
+            self._xpassed += 1
         else:
             self.failed.add(namekey)
 
@@ -101,8 +104,8 @@ class RevisionOutcomeSet(object):
 
     @property
     def numpassed(self):
-        return (len(self._outcomes) - len(self.skipped) - len(self.failed)
-                                    - self._xfailed)
+        return (len(self._outcomes) - len(self.skipped) - len(self.failed) -
+                self._xfailed - self._xpassed)
 
     @property
     def numxfailed(self):
@@ -246,7 +249,7 @@ class GatherOutcomeSet(object):
         if self._failed is None:
             self._failed = set()
             for prefix, outcome in self.map.items():
-                self._failed.update([(prefix,)+ namekey for namekey in
+                self._failed.update([(prefix,) + namekey for namekey in
                                      outcome.failed])
         return self._failed
 
@@ -497,7 +500,7 @@ class SummaryPage(object):
             combination = 0
             for i, (label, outcome_set) in enumerate(by_label):
                 letter = outcome_set.get_outcome(failure)
-                failed = letter.lower() not in ('s', '.', ' ')
+                failed = letter.lower() not in ('s', '.', ' ', 'x')
                 if failed:
                     combination |= 1 << i
                 if outcome_set.get_longrepr(failure):
