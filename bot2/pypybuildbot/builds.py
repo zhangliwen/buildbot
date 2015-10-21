@@ -919,7 +919,7 @@ class PyPyBuildbotTestFactory(factory.BuildFactory):
         self.addStep(ShellCmd(
             description='create virtualenv',
             haltOnFailure=True,
-            command='virtualenv ../venv'))
+            command='virtualenv --clear ../venv'))
         # install deps
         self.addStep(ShellCmd(
             description="install dependencies",
