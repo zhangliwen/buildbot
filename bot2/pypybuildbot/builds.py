@@ -140,6 +140,22 @@ class Translate(ShellCmd):
                         [self.translationTarget] + targetArgs)
         #self.command = ['cp', '/tmp/pypy-c', '.']
 
+class BuildCffiImports(ShellCmd):
+    # assumes workdir is pypy basedir
+    name = "build_cffi_imports"
+    description = ["building cffi imports"]
+    descriptionDone = ["built cffi imports"]
+
+    command = ["pypy/tool/build_cffi_imports.py"]
+    haltOnFailure = True
+
+    def __init__(self, interpreter='pypy/goal/pypy-c', 
+                env={'PYTHONPATH':'.'},
+                *a, **kw):
+        kw['timeout'] = 600
+        kw['env'] = env
+        ShellCmd.__init__(self, *a, **kw)
+        self.command = ([interpreter] + self.command)
 
 class PytestCmd(ShellCmd):
     def commandComplete(self, cmd):
@@ -579,6 +595,7 @@ class Translated(factory.BuildFactory):
 
         self.addStep(Translate(translationArgs, targetArgs,
                                interpreter=interpreter))
+        self.addStep(BuildCffiImports(workdir='build'))
 
         name = build_name(platform, pypyjit, translationArgs)
         self.addStep(ShellCmd(
@@ -707,6 +724,8 @@ class NightlyBuild(factory.BuildFactory):
 
         self.addStep(Translate(translationArgs, targetArgs,
                                interpreter=interpreter))
+        self.addStep(BuildCffiImports(workdir='build'))
+
         name = build_name(platform, flags=translationArgs)
         self.addStep(ShellCmd(
             description="compress pypy-c",
@@ -751,6 +770,7 @@ class JITBenchmarkSingleRun(factory.BuildFactory):
                 )
             )
         pypy_c_rel = "../build/pypy/goal/pypy-c"
+        self.addStep(BuildCffiImports(workdir='../build'))
         self.addStep(ShellCmd(
             # this step needs exclusive access to the CPU
             locks=[lock.access('exclusive')],
@@ -797,6 +817,7 @@ class JITBenchmark(factory.BuildFactory):
                 )
             )
         pypy_c_rel = "../build/pypy/goal/pypy-c"
+        self.addStep(BuildCffiImports(workdir='../build'))
         self.addStep(ShellCmd(
             # this step needs exclusive access to the CPU
             locks=[lock.access('exclusive')],
