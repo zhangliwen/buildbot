@@ -90,6 +90,13 @@ def test_Translate():
     rebuiltTranslate.startCommand = lambda *args: None
     rebuiltTranslate.start()
 
+def test_BuildCffiImports():
+    expected = ['pypy/goal/pypy-c', 'pypy/tool/build_cffi_imports.py']
+    cffiInst = builds.BuildCffiImports()
+
+    assert cffiInst.command == expected
+    assert cffiInst.remote_kwargs['env']['PYTHONPATH'] == '.'
+
 def test_pypy_upload():
     pth = py.test.ensuretemp('buildbot')
     inst = builds.PyPyUpload(slavesrc='slavesrc', masterdest=str(pth.join('mstr')),
