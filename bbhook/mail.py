@@ -53,5 +53,11 @@ def send(from_, to, subject, body, test=False):
         print msg.get_payload(decode=True)
     else:
         smtp = SMTP(app.config['SMTP_SERVER'], app.config['SMTP_PORT'])
+        smtp.ehlo()
+        if app.config['SMTP_TLS']:
+            smtp.starttls()
+            smtp.ehlo()
+        if app.config['SMTP_USERNAME']:
+            smtp.login(app.config['SMTP_USERNAME'], app.config['SMTP_PASSWORD'])
         smtp.sendmail(from_, [to], msg.as_string())
 

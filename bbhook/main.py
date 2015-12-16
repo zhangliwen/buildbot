@@ -62,27 +62,17 @@ class DefaultConfig(object):
     DEFAULT_REPO = 'pypy'
 
 
-class WyvernConfig(DefaultConfig):
-    SMTP_SERVER = 'localhost'
+class BuildbotConfig(DefaultConfig):
+    SMTP_SERVER = 'smtp.gmail.com'
     SMTP_PORT = 25
+    SMTP_TLS = True
+    SMTP_USERNAME = 'pypy.commits@gmail.com'
+    SMTP_PASSWORD = py.path.local(__file__).dirpath('smtp.password').read().strip()
     ADDRESS = 'pypy-commit@python.org'
     #
     CHANNEL = '#pypy'
     #BOT = '/svn/hooks/commit-bot/message'
     BOT = '/home/buildmaster/commit-bot/message'
 
-class ViperConfig(DefaultConfig):
-    SMTP_SERVER = "out.alice.it"
-    SMTP_PORT = 25
-    ADDRESS = 'anto.cuni@gmail.com'
-    #
-    CHANNEL = '#test'
-    BOT = '/tmp/commit-bot/message'
 
-
-if py.std.socket.gethostname() == 'viper':
-    # for debugging, antocuni's settings
-    app.config.from_object(ViperConfig)
-else:
-    # real settings, (they works on codespeak at least)
-    app.config.from_object(WyvernConfig)
+app.config.from_object(BuildbotConfig)
