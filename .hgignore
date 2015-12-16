@@ -7,6 +7,7 @@ syntax: glob
 
 # master/slaveinfo.py contains the passwords, so it should never be tracked
 master/slaveinfo.py
+bbhook/smtp.password
 
 # ignore pidfiles and all the logs
 twistd.pid
