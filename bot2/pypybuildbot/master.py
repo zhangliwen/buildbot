@@ -64,6 +64,9 @@ pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
 pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
                                                             app_tests=True,
                                                             platform='linux64')
+pypyTranslatedAppLevelTestFactoryS390X = pypybuilds.Translated(lib_python=True,
+                                                               app_tests=True,
+                                                               platform='s390x')
 
 # these are like the two above: the only difference is that they only run
 # lib-python tests,not -A tests
@@ -146,6 +149,15 @@ pypyJITTranslatedTestFactoryFreeBSD = pypybuilds.Translated(
     app_tests=True,
     )
 
+pypyJITTranslatedTestFactoryS390X = pypybuilds.Translated(
+    platform='s390x',
+    translationArgs=jit_translation_args,
+    targetArgs=[],
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    )
+
 pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark(host='tannit')
 pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
                                                            host='tannit',
@@ -162,18 +174,22 @@ pypyNumpyCompatabilityWin = pypybuilds.NativeNumpyTests(platform='win32')
 
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
+LINUX_S390X = "own-linux-s390x"
 
 MACOSX32 = "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
+APPLVLLINUX_S390X = "pypy-c-app-level-linux-s390x"
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
 
 LIBPYTHON_LINUX32 = "pypy-c-lib-python-linux-x86-32"
 LIBPYTHON_LINUX64 = "pypy-c-lib-python-linux-x86-64"
+LIBPYTHON_LINUX_S390X = "pypy-c-lib-python-linux-s390x"
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
+JITLINUX_S390X = 'pypy-c-jit-linux-s390x'
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 #JITMACOSX64_2 = "pypy-c-jit-macosx-x86-64-2"
 JITWIN32 = "pypy-c-jit-win-x86-32"
@@ -184,6 +200,7 @@ JITBENCH64 = "jit-benchmark-linux-x86-64"
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
 NUMPY_64 = "numpy-compatibility-linux-x86-64"
 NUMPY_WIN = "numpy-compatibility-win-x86-32"
+
 # buildbot builder
 PYPYBUILDBOT = 'pypy-buildbot'
 JITFREEBSD964 = 'pypy-c-jit-freebsd-9-x86-64'
@@ -255,10 +272,13 @@ BuildmasterConfig = {
             # linux tests
             LINUX32,                   # on tannit32, uses all cores
             LINUX64,                   # on speed-old, uses all cores
+            LINUX_S390X,               # vm (ibm-research)
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on speed-old, uses 1 core
+            JITLINUX_S390X,            # vm (ibm-research)
             #APPLVLLINUX32,            # on tannit32, uses 1 core
             APPLVLLINUX64,             # on speed-old, uses 1 core
+            APPLVLLINUX_S390X,         # vm (ibm-research)
             # other platforms
             #MACOSX32,                 # on minime
             JITWIN32,                  # on allegro_win32, SalsaSalsa
@@ -302,18 +322,22 @@ BuildmasterConfig = {
                         PYPYBUILDBOT,
                         LINUX32,
                         LINUX64,
+                        LINUX_S390X,
 
                         MACOSX32,
                         WIN32,
                         APPLVLLINUX32,
                         APPLVLLINUX64,
+                        APPLVLLINUX_S390X,
                         APPLVLWIN32,
 
                         LIBPYTHON_LINUX32,
                         LIBPYTHON_LINUX64,
+                        LIBPYTHON_LINUX_S390X,
 
                         JITLINUX32,
                         JITLINUX64,
+                        JITLINUX_S390X,
                         JITMACOSX64,
                         JITWIN32,
                         JITFREEBSD964,
@@ -355,6 +379,13 @@ BuildmasterConfig = {
                    "category": 'linux64',
                    #"locks": [TannitCPU.access('counting')],
                   },
+                  {"name": LINUX_S390X,
+                   "slavenames": ["ibm-research"],
+                   "builddir": LINUX_S390X,
+                   "factory": pypyOwnTestFactory,
+                   "category": 's390x',
+                   #"locks": [TannitCPU.access('counting')],
+                  },
                   {"name": APPLVLLINUX32,
                    #"slavenames": ["allegro32"],
                    "slavenames": ["tannit32"],
@@ -368,6 +399,13 @@ BuildmasterConfig = {
                    "builddir": APPLVLLINUX64,
                    "factory": pypyTranslatedAppLevelTestFactory64,
                    "category": "linux64",
+                   #"locks": [TannitCPU.access('counting')],
+                  },
+                  {"name": APPLVLLINUX_S390X,
+                   "slavenames": ["ibm-research"],
+                   "builddir": APPLVLLINUX_S390X,
+                   "factory": pypyTranslatedAppLevelTestFactoryS390X,
+                   "category": "s390x",
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name": LIBPYTHON_LINUX32,
@@ -385,6 +423,13 @@ BuildmasterConfig = {
                    "category": "linux64",
                    #"locks": [TannitCPU.access('counting')],
                   },
+                  {"name": LIBPYTHON_LINUX_S390X,
+                   "slavenames": ["ibm-research"],
+                   "builddir": LIBPYTHON_LINUX_S390X,
+                   "factory": pypyTranslatedLibPythonTestFactory,
+                   "category": "s390x",
+                   #"locks": [TannitCPU.access('counting')],
+                  },
                   {"name" : JITLINUX32,
                    #"slavenames": ["allegro32"],
                    "slavenames": ["tannit32"],
@@ -398,6 +443,13 @@ BuildmasterConfig = {
                    'builddir': JITLINUX64,
                    'factory': pypyJITTranslatedTestFactory64,
                    'category': 'linux64',
+                   #"locks": [TannitCPU.access('counting')],
+                  },
+                  {'name': JITLINUX_S390X,
+                   'slavenames': ["ibm-research"],
+                   'builddir': JITLINUX_S390X,
+                   'factory': pypyJITTranslatedTestFactoryS390X,
+                   'category': 'linux-s390x',
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name": JITBENCH,
