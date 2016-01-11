@@ -42,7 +42,7 @@ class PyPyTarball(object):
         'osx64':     'macosx-x86-64',
         'win32':     'win-x86-32',
         'freebsd64': 'freebsd-9-x86-64',
-        's390x':     's390-64',
+        's390x':     'linux-s390-64',
         }
 
     DESCRIPTIONS = {
