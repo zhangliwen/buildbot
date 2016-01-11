@@ -272,13 +272,10 @@ BuildmasterConfig = {
             # linux tests
             LINUX32,                   # on tannit32, uses all cores
             LINUX64,                   # on speed-old, uses all cores
-            LINUX_S390X,               # vm (ibm-research)
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on speed-old, uses 1 core
-            JITLINUX_S390X,            # vm (ibm-research)
             #APPLVLLINUX32,            # on tannit32, uses 1 core
             APPLVLLINUX64,             # on speed-old, uses 1 core
-            APPLVLLINUX_S390X,         # vm (ibm-research)
             # other platforms
             #MACOSX32,                 # on minime
             JITWIN32,                  # on allegro_win32, SalsaSalsa
@@ -290,6 +287,12 @@ BuildmasterConfig = {
             # buildbot selftest
             PYPYBUILDBOT               # on cobra
             ], branch='default', hour=0, minute=0),
+
+        Nightly("nightly-0-01", [
+            LINUX_S390X,               # vm (ibm-research)
+            JITLINUX_S390X,            # vm (ibm-research)
+            APPLVLLINUX_S390X,         # vm (ibm-research)
+            ], branch='s390x-backend', hour=2, minute=0),
 
         Nightly("nightly-1-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
@@ -380,7 +383,7 @@ BuildmasterConfig = {
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name": LINUX_S390X,
-                   "slavenames": ["ibm-research"],
+                   "slavenames": ["dje"],
                    "builddir": LINUX_S390X,
                    "factory": pypyOwnTestFactory,
                    "category": 's390x',
@@ -402,7 +405,7 @@ BuildmasterConfig = {
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name": APPLVLLINUX_S390X,
-                   "slavenames": ["ibm-research"],
+                   "slavenames": ["dje"],
                    "builddir": APPLVLLINUX_S390X,
                    "factory": pypyTranslatedAppLevelTestFactoryS390X,
                    "category": "s390x",
@@ -424,7 +427,7 @@ BuildmasterConfig = {
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name": LIBPYTHON_LINUX_S390X,
-                   "slavenames": ["ibm-research"],
+                   "slavenames": ["dje"],
                    "builddir": LIBPYTHON_LINUX_S390X,
                    "factory": pypyTranslatedLibPythonTestFactory,
                    "category": "s390x",
@@ -446,7 +449,7 @@ BuildmasterConfig = {
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {'name': JITLINUX_S390X,
-                   'slavenames': ["ibm-research"],
+                   'slavenames': ["dje"],
                    'builddir': JITLINUX_S390X,
                    'factory': pypyJITTranslatedTestFactoryS390X,
                    'category': 'linux-s390x',
