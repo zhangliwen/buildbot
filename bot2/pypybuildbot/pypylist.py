@@ -28,6 +28,7 @@ class PyPyTarball(object):
         'linux':    100,
         'linux64':   50,
         'osx':       30,
+        's390x':     20,
         'win32':     10,
         'linux_armhf_raspbian': 7,
         'linux_armhf_raring': 6,
@@ -41,6 +42,7 @@ class PyPyTarball(object):
         'osx64':     'macosx-x86-64',
         'win32':     'win-x86-32',
         'freebsd64': 'freebsd-9-x86-64',
+        's390x':     's390-64',
         }
 
     DESCRIPTIONS = {
