@@ -809,14 +809,18 @@ class JITBenchmark(factory.BuildFactory):
                      '--upload-executable', 'pypy-c' + postfix,
                      '--upload-project', 'PyPy',
                      '--revision', WithProperties('%(got_revision)s'),
-                     '--branch', WithProperties('%(branch)s'),
+                     # HACK: branches are not uploaded any more, so that
+                     # codespeed will display it, even if not "default"
+                     #'--branch', WithProperties('%(branch)s'),
                      '--upload-urls', 'http://speed.pypy.org/',
                      '--upload-baseline',
                      '--upload-baseline-executable', 'pypy-c-jit' + postfix,
                      '--upload-baseline-project', 'PyPy',
                      '--upload-baseline-revision',
                      WithProperties('%(got_revision)s'),
-                     '--upload-baseline-branch', WithProperties('%(branch)s'),
+                     # HACK: branches are not uploaded any more, so that
+                     # codespeed will display it, even if not "default"
+                     #'--upload-baseline-branch', WithProperties('%(branch)s'),
                      '--upload-baseline-urls', 'http://speed.pypy.org/',
                      ],
             workdir='./benchmarks',
