@@ -270,6 +270,7 @@ BuildmasterConfig = {
         Nightly("nightly-0-00", [
             # benchmarks
             # linux tests
+            LINUX32,                   # on tannit32, uses all cores
             LINUX64,                   # on speed-old, uses all cores
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on speed-old, uses 1 core
@@ -294,7 +295,6 @@ BuildmasterConfig = {
             ], branch='s390x-backend', hour=2, minute=0),
 
         Nightly("nightly-1-00", [
-            LINUX32,                   # on tannit32, uses all cores
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
