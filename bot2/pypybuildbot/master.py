@@ -66,7 +66,8 @@ pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
                                                             platform='linux64')
 pypyTranslatedAppLevelTestFactoryS390X = pypybuilds.Translated(lib_python=True,
                                                                app_tests=True,
-                                                               platform='s390x')
+                                                               platform='s390x',
+                                                               interpreter='python')
 
 # these are like the two above: the only difference is that they only run
 # lib-python tests,not -A tests
@@ -156,6 +157,7 @@ pypyJITTranslatedTestFactoryS390X = pypybuilds.Translated(
     lib_python=True,
     pypyjit=True,
     app_tests=True,
+    interpreter='python', # use cpython for now
     )
 
 pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark(host='tannit')
