@@ -484,7 +484,7 @@ BuildmasterConfig = {
                    "category": 'mac32'
                   },
                   {"name" : JITMACOSX64,
-                   "slavenames": ["rebuy-de", "xerxes", "tosh", "osx-10.9-x64-dw"],
+                   "slavenames": ["rebuy-de", "tosh", "osx-10.9-x64-dw"],  # "xerxes"
                    'builddir' : JITMACOSX64,
                    'factory' : pypyJITTranslatedTestFactoryOSX64,
                    'category' : 'mac64',
