@@ -2,7 +2,7 @@ import os
 import socket
 
 def we_are_debugging():
-    return socket.gethostname() != 'cobra'
+    return socket.gethostname() != 'baroquesoftware'
 
 def load(name):
     mod = __import__(name, {}, {}, ['__all__'])

@@ -44,11 +44,13 @@ def send_message(message, test=False):
         print message + '\n'
     else:
         from .main import app
-        return subprocess.call([
+        args = [
             app.config['BOT'],
             app.config['CHANNEL'],
             message,
-        ])
+        ]
+        print args
+        return subprocess.call(args)
 
 def get_short_id(owner, repo, branch):
     """

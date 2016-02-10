@@ -50,6 +50,10 @@ $ buildbot stop
 
 $ buildbot start
 
+OR
+
+$ ./restart_buildmaster_when_not_running
+
 To run a buildslave
 ===================
 Please refer to README_BUILDSLAVE
