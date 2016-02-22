@@ -406,7 +406,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
     # If target_tmpdir is empty, crash.
     tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
     pytest = "pytest"
-    factory.addStep(PytestCmd( 
+    factory.addStep(ShellCmd( 
         description="mkdir for tests",
         command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
                     tmp_or_crazy + pytest + "') if not os.path.exists(r'" + \
@@ -505,7 +505,7 @@ class Own(factory.BuildFactory):
         # If target_tmpdir is empty, crash.
         tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
         pytest = "pytest"
-        self.addStep(PytestCmd( 
+        self.addStep(ShellCmd( 
             description="mkdir for tests",
             command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
                         tmp_or_crazy + pytest + "') if not os.path.exists(r'" + \
@@ -527,9 +527,26 @@ class Own(factory.BuildFactory):
             haltOnFailure=False,
             ))
 
+        self.addStep(ShellCmd(
+            description="create virtualenv for tests",
+            command=['virtualenv', 'virt_test'],
+            haltOnFailure=True,
+            ))
+
+        if platform == 'win32':
+            virt_python = 'virt_test/Scripts/python'
+        else:
+            virt_python = 'virt_test/bin/python'
+
+        self.addStep(ShellCmd(
+            description="install requirments to virtual environment",
+            command=[virt_python, '-mpip', 'install', '-r', 'requirements.txt'],
+            haltOnFailure=True,
+            ))
+
         self.addStep(PytestCmd(
             description="pytest pypy",
-            command=["python", "testrunner/runner.py",
+            command=[virt_python, "testrunner/runner.py",
                      "--logfile=testrun.log",
                      "--config=pypy/testrunner_cfg.py",
                      "--config=~/machine_cfg.py",
@@ -544,7 +561,7 @@ class Own(factory.BuildFactory):
 
         self.addStep(PytestCmd(
             description="pytest rpython",
-            command=["python", "testrunner/runner.py",
+            command=[virt_python, "testrunner/runner.py",
                      "--logfile=testrun.log",
                      "--config=pypy/testrunner_cfg.py",
                      "--config=~/machine_cfg.py",
@@ -707,6 +724,7 @@ class NightlyBuild(factory.BuildFactory):
 
         self.addStep(Translate(translationArgs, targetArgs,
                                interpreter=interpreter))
+
         name = build_name(platform, flags=translationArgs)
         self.addStep(ShellCmd(
             description="compress pypy-c",
@@ -809,18 +827,14 @@ class JITBenchmark(factory.BuildFactory):
                      '--upload-executable', 'pypy-c' + postfix,
                      '--upload-project', 'PyPy',
                      '--revision', WithProperties('%(got_revision)s'),
-                     # HACK: branches are not uploaded any more, so that
-                     # codespeed will display it, even if not "default"
-                     #'--branch', WithProperties('%(branch)s'),
+                     '--branch', WithProperties('%(branch)s'),
                      '--upload-urls', 'http://speed.pypy.org/',
                      '--upload-baseline',
                      '--upload-baseline-executable', 'pypy-c-jit' + postfix,
                      '--upload-baseline-project', 'PyPy',
                      '--upload-baseline-revision',
                      WithProperties('%(got_revision)s'),
-                     # HACK: branches are not uploaded any more, so that
-                     # codespeed will display it, even if not "default"
-                     #'--upload-baseline-branch', WithProperties('%(branch)s'),
+                     '--upload-baseline-branch', WithProperties('%(branch)s'),
                      '--upload-baseline-urls', 'http://speed.pypy.org/',
                      ],
             workdir='./benchmarks',
