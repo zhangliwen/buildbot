@@ -534,7 +534,7 @@ class Own(factory.BuildFactory):
             ))
 
         if platform == 'win32':
-            virt_python = 'virt_test/Scripts/python'
+            virt_python = r'virt_test\Scripts\python.exe'
         else:
             virt_python = 'virt_test/bin/python'
 
