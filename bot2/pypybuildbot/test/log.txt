@@ -1,0 +1,626 @@
+. pypy/module/pypyjit/test_pypy_c/test_shift.py::TestShift::()::test_revert_shift_allcases::[94]
+. pypy/module/pypyjit/test_pypy_c/test_shift.py::TestShift::()::test_revert_shift_allcases::[95]
+F pypy/module/pypyjit/test_pypy_c/test_string.py::TestString::()::test_lookup_default_encoding
+ self = <pypy.module.pypyjit.test_pypy_c.test_string.TestString object at 0x00007fe8ae9babb8>
+ 
+     def test_lookup_default_encoding(self):
+         def main(n):
+             import string
+             i = 0
+             letters = string.letters
+             uletters = unicode(string.letters)
+             while i < n:
+                 i += letters[i % len(letters)] == uletters[i % len(letters)]
+             return i
+     
+         log = self.run(main, [300], import_site=True)
+         assert log.result == 300
+         loop, = log.loops_by_filename(self.filepath)
+         assert loop.match("""
+             i14 = int_lt(i6, i9)
+             guard_true(i14, descr=...)
+             guard_not_invalidated(descr=...)
+             i16 = int_eq(i6, %d)
+             guard_false(i16, descr=...)
+             i15 = int_mod(i6, i10)
+             i17 = int_rshift(i15, %d)
+             i18 = int_and(i10, i17)
+             i19 = int_add(i15, i18)
+             i21 = int_lt(i19, 0)
+             guard_false(i21, descr=...)
+             i22 = int_ge(i19, i10)
+             guard_false(i22, descr=...)
+             i23 = strgetitem(p11, i19)
+             i24 = int_ge(i19, i12)
+             guard_false(i24, descr=...)
+             i25 = unicodegetitem(p13, i19)
+             p27 = newstr(1)
+             strsetitem(p27, 0, i23)
+             p30 = call_r(ConstClass(ll_str2unicode__rpy_stringPtr), p27, descr=...)
+             guard_no_exception(descr=...)
+             i32 = call_i(ConstClass(_ll_2_str_eq_checknull_char__rpy_unicodePtr_UniChar), p30, i25, descr=...)
+             guard_true(i32, descr=...)
+             i34 = int_add(i6, 1)
+             --TICK--
+             jump(..., descr=...)
+ >       """ % (-sys.maxint-1, SHIFT))
+ 
+ pypy/module/pypyjit/test_pypy_c/test_string.py:53: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = [[i2 = getfield_gc_i(p0, descr=<FieldS pypy.interpreter.pyframe.PyFrame.inst_l... i89, p16, p18, i37, i42, p41, i57, p56, descr=TargetToken(139918786249504))
+ ]]
+ expected_src = '\n            i14 = int_lt(i6, i9)\n            guard_true(i14, descr=...)\n            guard_not_invalidated(descr=....ue(i32, descr=...)\n            i34 = int_add(i6, 1)\n            --TICK--\n            jump(..., descr=...)\n        '
+ kwds = {}
+ ops = [i73 = int_lt(i68, i37), guard_true(i73, descr=<Guard0x7f41618b0a70>), guard_not_invalidated(descr=<Guard0x7f41618d65d0>), i74 = int_eq(i68, -9223372036854775808), i75 = int_mod(i68, i42), i76 = int_rshift(i75, 63), ...]
+ matcher = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x000000001a761398>
+ 
+     def match(self, expected_src, **kwds):
+         ops = self.allops()
+         matcher = OpMatcher(ops)
+ >       return matcher.match(expected_src, **kwds)
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:186: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x000000001a761398>
+ expected_src = '\n            i14 = int_lt(i6, i9)\n            guard_true(i14, descr=...)\n            guard_not_invalidated(descr=....lt(ticker0, 0)\n            guard_false(ticker_cond0, descr=...)\n        \n            jump(..., descr=...)\n        '
+ ignore_ops = []
+ 
+     def match(self, expected_src, ignore_ops=[]):
+         def format(src, opindex=None):
+             if src is None:
+                 return ''
+             text = str(py.code.Source(src).deindent().indent())
+             lines = text.splitlines(True)
+             if opindex is not None and 0 <= opindex <= len(lines):
+                 lines.insert(opindex, '\n\t===== HERE =====\n')
+             return ''.join(lines)
+         #
+         expected_src = self.preprocess_expected_src(expected_src)
+         expected_ops = self.parse_ops(expected_src)
+         try:
+ >           self.match_loop(expected_ops, ignore_ops)
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:527: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x000000001a761398>
+ expected_ops = [('int_lt', 'i14', ['i6', 'i9'], None, True), ('guard_true', None, ['i14'], '...', True), ('guard_not_invalidated', No...775808'], None, True), ('guard_false', None, ['i16'], '...', True), ('int_mod', 'i15', ['i6', 'i10'], None, True), ...]
+ ignore_ops = []
+ 
+     def match_loop(self, expected_ops, ignore_ops):
+         """
+         A note about partial matching: the '...' operator is non-greedy,
+         i.e. it matches all the operations until it finds one that matches
+         what is after the '...'.  The '{{{' and '}}}' operators mark a
+         group of lines that can match in any order.
+         """
+         iter_exp_ops = iter(expected_ops)
+         iter_ops = RevertableIterator(self.ops)
+         for exp_op in iter_exp_ops:
+             try:
+                 if exp_op == '...':
+                     # loop until we find an operation which matches
+                     try:
+                         exp_op = iter_exp_ops.next()
+                     except StopIteration:
+                         # the ... is the last line in the expected_ops, so we just
+                         # return because it matches everything until the end
+                         return
+                     op = self.match_until(exp_op, iter_ops)
+                 elif exp_op == '{{{':
+                     self.match_any_order(iter_exp_ops, iter_ops, ignore_ops)
+                     continue
+                 else:
+                     op = self._next_op(iter_ops, ignore_ops=ignore_ops)
+                 try:
+ >                   self.match_op(op, exp_op)
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:503: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x000000001a761398>
+ op = i75 = int_mod(i68, i42), .2 = ('guard_false', None, ['i16'], '...', True)
+ 
+     def match_op(self, op, (exp_opname, exp_res, exp_args, exp_descr, _)):
+         if exp_opname == '--end--':
+             self._assert(op == '--end--', 'got more ops than expected')
+             return
+         self._assert(op != '--end--', 'got less ops than expected')
+ >       self._assert(op.name == exp_opname, "operation mismatch")
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:412: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x000000001a761398>
+ cond = False, message = 'operation mismatch'
+ 
+     def _assert(self, cond, message):
+         if not cond:
+ >           raise InvalidMatch(message, frame=sys._getframe(1))
+ E           InvalidMatch: operation mismatch
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:405: InvalidMatch
+ ---------- Captured stdout ----------
+ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Loops don't match
+ =================
+ loop id = None
+ ('operation mismatch',)
+ assert 'int_mod' == 'guard_false'
+   - int_mod
+   + guard_false
+ 
+ Ignore ops: []
+ Got:
+     i73 = int_lt(i68, i37)
+     guard_true(i73, descr=<Guard0x7f41618b0a70>)
+     guard_not_invalidated(descr=<Guard0x7f41618d65d0>)
+     i74 = int_eq(i68, -9223372036854775808)
+ 
+    ===== HERE =====
+     i75 = int_mod(i68, i42)
+     i76 = int_rshift(i75, 63)
+     i77 = int_and(i42, i76)
+     i78 = int_add(i75, i77)
+     i79 = int_lt(i78, 0)
+     guard_false(i79, descr=<Guard0x7f41618d6560>)
+     i80 = int_ge(i78, i42)
+     guard_false(i80, descr=<Guard0x7f41618d6528>)
+     i81 = strgetitem(p41, i78)
+     i82 = int_ge(i78, i57)
+     guard_false(i82, descr=<Guard0x7f41618d64b8>)
+     i83 = unicodegetitem(p56, i78)
+     p85 = newstr(1)
+     strsetitem(p85, 0, i81)
+     p86 = call_r(ConstClass(ll_str2unicode__rpy_stringPtr), p85, descr=<Callr 8 r EF=4 OS=2>)
+     guard_no_exception(descr=<Guard0x7f41618b0a18>)
+     i88 = call_i(ConstClass(_ll_2_str_eq_checknull_char__rpy_unicodePtr_UniChar), p86, i83, descr=<Calli 8 ri EF=0 OS=50>)
+     guard_true(i88, descr=<Guard0x7f41618b09c0>)
+     i89 = int_add(i68, 1)
+     i90 = getfield_raw_i(139918906561408, descr=<FieldS pypysig_long_struct.c_value 0>)
+     i91 = int_lt(i90, 0)
+     guard_false(i91, descr=<Guard0x7f41618d63a0>)
+     jump(p0, p1, p6, p7, p10, p12, i89, p16, p18, i37, i42, p41, i57, p56, descr=TargetToken(139918786249504))
+ 
+ Expected:
+     
+     i14 = int_lt(i6, i9)
+     guard_true(i14, descr=...)
+     guard_not_invalidated(descr=...)
+     i16 = int_eq(i6, -9223372036854775808)
+     guard_false(i16, descr=...)
+     i15 = int_mod(i6, i10)
+     i17 = int_rshift(i15, 63)
+     i18 = int_and(i10, i17)
+     i19 = int_add(i15, i18)
+     i21 = int_lt(i19, 0)
+     guard_false(i21, descr=...)
+     i22 = int_ge(i19, i10)
+     guard_false(i22, descr=...)
+     i23 = strgetitem(p11, i19)
+     i24 = int_ge(i19, i12)
+     guard_false(i24, descr=...)
+     i25 = unicodegetitem(p13, i19)
+     p27 = newstr(1)
+     strsetitem(p27, 0, i23)
+     p30 = call_r(ConstClass(ll_str2unicode__rpy_stringPtr), p27, descr=...)
+     guard_no_exception(descr=...)
+     i32 = call_i(ConstClass(_ll_2_str_eq_checknull_char__rpy_unicodePtr_UniChar), p30, i25, descr=...)
+     guard_true(i32, descr=...)
+     i34 = int_add(i6, 1)
+     
+     guard_not_invalidated?
+     ticker0 = getfield_raw_i(#, descr=<FieldS pypysig_long_struct.c_value .*>)
+     ticker_cond0 = int_lt(ticker0, 0)
+     guard_false(ticker_cond0, descr=...)
+     
+     jump(..., descr=...)
+F pypy/module/pypyjit/test_pypy_c/test_string.py::TestString::()::test_long
+ self = <pypy.module.pypyjit.test_pypy_c.test_string.TestString object at 0x000000000b0f1280>
+ 
+     def test_long(self):
+         def main(n):
+             import string
+             i = 1
+             while i < n:
+                 i += int(long(string.digits[i % len(string.digits)], 16))
+             return i
+     
+         log = self.run(main, [1100], import_site=True)
+         assert log.result == main(1100)
+         loop, = log.loops_by_filename(self.filepath)
+         assert loop.match("""
+             i11 = int_lt(i6, i7)
+             guard_true(i11, descr=...)
+             guard_not_invalidated(descr=...)
+             i13 = int_eq(i6, %d)         # value provided below
+             guard_false(i13, descr=...)
+             i15 = int_mod(i6, 10)
+             i17 = int_rshift(i15, %d)    # value provided below
+             i18 = int_and(10, i17)
+             i19 = int_add(i15, i18)
+             i21 = int_lt(i19, 0)
+             guard_false(i21, descr=...)
+             i22 = int_ge(i19, 10)
+             guard_false(i22, descr=...)
+             i23 = strgetitem(p10, i19)
+             p25 = newstr(1)
+             strsetitem(p25, 0, i23)
+             p93 = call_r(ConstClass(fromstr), p25, 16, descr=<Callr . ri EF=4>)
+             guard_no_exception(descr=...)
+             i95 = getfield_gc_i(p93, descr=<FieldS rpython.rlib.rbigint.rbigint.inst_size .*>)
+             i96 = int_gt(i95, #)
+             guard_false(i96, descr=...)
+             i94 = call_i(ConstClass(rbigint._toint_helper), p93, descr=<Calli . r EF=4>)
+             guard_no_exception(descr=...)
+             i95 = int_add_ovf(i6, i94)
+             guard_no_overflow(descr=...)
+             --TICK--
+             jump(..., descr=...)
+ >       """ % (-sys.maxint-1, SHIFT))
+ 
+ pypy/module/pypyjit/test_pypy_c/test_string.py:94: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = [[i2 = getfield_gc_i(p0, descr=<FieldS pypy.interpreter.pyframe.PyFrame.inst_l...jump(p0, p1, p6, p7, p10, p12, i89, i35, descr=TargetToken(139865204882848))
+ ]]
+ expected_src = '\n            i11 = int_lt(i6, i7)\n            guard_true(i11, descr=...)\n            guard_not_invalidated(descr=....f(i6, i94)\n            guard_no_overflow(descr=...)\n            --TICK--\n            jump(..., descr=...)\n        '
+ kwds = {}
+ ops = [i74 = int_lt(i69, i35), guard_true(i74, descr=<Guard0x7f34e7d98c28>), guard_not_invalidated(descr=<Guard0x7f34e7dbad78>), i75 = int_eq(i69, -9223372036854775808), i76 = int_mod(i69, 10), i77 = int_rshift(i76, 63), ...]
+ matcher = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x000000001cd43b40>
+ 
+     def match(self, expected_src, **kwds):
+         ops = self.allops()
+         matcher = OpMatcher(ops)
+ >       return matcher.match(expected_src, **kwds)
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:186: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x000000001cd43b40>
+ expected_src = '\n            i11 = int_lt(i6, i7)\n            guard_true(i11, descr=...)\n            guard_not_invalidated(descr=....lt(ticker0, 0)\n            guard_false(ticker_cond0, descr=...)\n        \n            jump(..., descr=...)\n        '
+ ignore_ops = []
+ 
+     def match(self, expected_src, ignore_ops=[]):
+         def format(src, opindex=None):
+             if src is None:
+                 return ''
+             text = str(py.code.Source(src).deindent().indent())
+             lines = text.splitlines(True)
+             if opindex is not None and 0 <= opindex <= len(lines):
+                 lines.insert(opindex, '\n\t===== HERE =====\n')
+             return ''.join(lines)
+         #
+         expected_src = self.preprocess_expected_src(expected_src)
+         expected_ops = self.parse_ops(expected_src)
+         try:
+ >           self.match_loop(expected_ops, ignore_ops)
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:527: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x000000001cd43b40>
+ expected_ops = [('int_lt', 'i11', ['i6', 'i7'], None, True), ('guard_true', None, ['i11'], '...', True), ('guard_not_invalidated', No...4775808'], None, True), ('guard_false', None, ['i13'], '...', True), ('int_mod', 'i15', ['i6', '10'], None, True), ...]
+ ignore_ops = []
+ 
+     def match_loop(self, expected_ops, ignore_ops):
+         """
+         A note about partial matching: the '...' operator is non-greedy,
+         i.e. it matches all the operations until it finds one that matches
+         what is after the '...'.  The '{{{' and '}}}' operators mark a
+         group of lines that can match in any order.
+         """
+         iter_exp_ops = iter(expected_ops)
+         iter_ops = RevertableIterator(self.ops)
+         for exp_op in iter_exp_ops:
+             try:
+                 if exp_op == '...':
+                     # loop until we find an operation which matches
+                     try:
+                         exp_op = iter_exp_ops.next()
+                     except StopIteration:
+                         # the ... is the last line in the expected_ops, so we just
+                         # return because it matches everything until the end
+                         return
+                     op = self.match_until(exp_op, iter_ops)
+                 elif exp_op == '{{{':
+                     self.match_any_order(iter_exp_ops, iter_ops, ignore_ops)
+                     continue
+                 else:
+                     op = self._next_op(iter_ops, ignore_ops=ignore_ops)
+                 try:
+ >                   self.match_op(op, exp_op)
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:503: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x000000001cd43b40>
+ op = i76 = int_mod(i69, 10), .2 = ('guard_false', None, ['i13'], '...', True)
+ 
+     def match_op(self, op, (exp_opname, exp_res, exp_args, exp_descr, _)):
+         if exp_opname == '--end--':
+             self._assert(op == '--end--', 'got more ops than expected')
+             return
+         self._assert(op != '--end--', 'got less ops than expected')
+ >       self._assert(op.name == exp_opname, "operation mismatch")
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:412: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x000000001cd43b40>
+ cond = False, message = 'operation mismatch'
+ 
+     def _assert(self, cond, message):
+         if not cond:
+ >           raise InvalidMatch(message, frame=sys._getframe(1))
+ E           InvalidMatch: operation mismatch
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:405: InvalidMatch
+ ---------- Captured stdout ----------
+ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Loops don't match
+ =================
+ loop id = None
+ ('operation mismatch',)
+ assert 'int_mod' == 'guard_false'
+   - int_mod
+   + guard_false
+ 
+ Ignore ops: []
+ Got:
+     i74 = int_lt(i69, i35)
+     guard_true(i74, descr=<Guard0x7f34e7d98c28>)
+     guard_not_invalidated(descr=<Guard0x7f34e7dbad78>)
+     i75 = int_eq(i69, -9223372036854775808)
+ 
+    ===== HERE =====
+     i76 = int_mod(i69, 10)
+     i77 = int_rshift(i76, 63)
+     i78 = int_and(10, i77)
+     i79 = int_add(i76, i78)
+     i80 = int_lt(i79, 0)
+     guard_false(i80, descr=<Guard0x7f34e7dbad08>)
+     i81 = int_ge(i79, 10)
+     guard_false(i81, descr=<Guard0x7f34e7dbacd0>)
+     i82 = strgetitem(ConstPtr(ptr55), i79)
+     p84 = newstr(1)
+     strsetitem(p84, 0, i82)
+     p85 = call_r(ConstClass(fromstr), p84, 16, descr=<Callr 8 ri EF=4>)
+     guard_no_exception(descr=<Guard0x7f34e7d98ac8>)
+     i86 = getfield_gc_i(p85, descr=<FieldS rpython.rlib.rbigint.rbigint.inst_size 24 pure>)
+     i87 = int_gt(i86, 2)
+     guard_false(i87, descr=<Guard0x7f34e7dbabb8>)
+     i88 = call_i(ConstClass(rbigint._toint_helper), p85, descr=<Calli 8 r EF=4>)
+     guard_no_exception(descr=<Guard0x7f34e7d98a18>)
+     i89 = int_add_ovf(i69, i88)
+     guard_no_overflow(descr=<Guard0x7f34e7dbab48>)
+     i90 = getfield_raw_i(139865325286272, descr=<FieldS pypysig_long_struct.c_value 0>)
+     i91 = int_lt(i90, 0)
+     guard_false(i91, descr=<Guard0x7f34e7dbaad8>)
+     jump(p0, p1, p6, p7, p10, p12, i89, i35, descr=TargetToken(139865204882848))
+ 
+ Expected:
+     
+     i11 = int_lt(i6, i7)
+     guard_true(i11, descr=...)
+     guard_not_invalidated(descr=...)
+     i13 = int_eq(i6, -9223372036854775808)         # value provided below
+     guard_false(i13, descr=...)
+     i15 = int_mod(i6, 10)
+     i17 = int_rshift(i15, 63)    # value provided below
+     i18 = int_and(10, i17)
+     i19 = int_add(i15, i18)
+     i21 = int_lt(i19, 0)
+     guard_false(i21, descr=...)
+     i22 = int_ge(i19, 10)
+     guard_false(i22, descr=...)
+     i23 = strgetitem(p10, i19)
+     p25 = newstr(1)
+     strsetitem(p25, 0, i23)
+     p93 = call_r(ConstClass(fromstr), p25, 16, descr=<Callr . ri EF=4>)
+     guard_no_exception(descr=...)
+     i95 = getfield_gc_i(p93, descr=<FieldS rpython.rlib.rbigint.rbigint.inst_size .*>)
+     i96 = int_gt(i95, #)
+     guard_false(i96, descr=...)
+     i94 = call_i(ConstClass(rbigint._toint_helper), p93, descr=<Calli . r EF=4>)
+     guard_no_exception(descr=...)
+     i95 = int_add_ovf(i6, i94)
+     guard_no_overflow(descr=...)
+     
+     guard_not_invalidated?
+     ticker0 = getfield_raw_i(#, descr=<FieldS pypysig_long_struct.c_value .*>)
+     ticker_cond0 = int_lt(ticker0, 0)
+     guard_false(ticker_cond0, descr=...)
+     
+     jump(..., descr=...)
+. pypy/module/pypyjit/test_pypy_c/test_string.py::TestString::()::test_str_mod
+F pypy/module/pypyjit/test_pypy_c/test_string.py::TestString::()::test_getattr_promote
+ self = <pypy.module.pypyjit.test_pypy_c.test_string.TestString object at 0x000000001f9d4090>
+ 
+     def test_getattr_promote(self):
+         def main(n):
+             class A(object):
+                 def meth_a(self):
+                     return 1
+                 def meth_b(self):
+                     return 2
+             a = A()
+     
+             l = ['a', 'b']
+             s = 0
+             for i in range(n):
+                 name = 'meth_' + l[i & 1]
+                 meth = getattr(a, name) # ID: getattr
+                 s += meth()
+             return s
+     
+         log = self.run(main, [1000])
+         assert log.result == main(1000)
+         loops = log.loops_by_filename(self.filepath)
+         assert len(loops) == 1
+         for loop in loops:
+ >           assert loop.match_by_id('getattr','''
+             guard_not_invalidated?
+             i32 = strlen(p31)
+             i34 = int_add(5, i32)
+             p35 = newstr(i34)
+             strsetitem(p35, 0, 109)
+             strsetitem(p35, 1, 101)
+             strsetitem(p35, 2, 116)
+             strsetitem(p35, 3, 104)
+             strsetitem(p35, 4, 95)
+             copystrcontent(p31, p35, 0, 5, i32)
+             i49 = call_i(ConstClass(_ll_2_str_eq_nonnull__rpy_stringPtr_rpy_stringPtr), p35, ConstPtr(ptr48), descr=<Calli [48] rr EF=0 OS=28>)
+             guard_value(i49, 1, descr=...)
+             ''')
+ 
+ pypy/module/pypyjit/test_pypy_c/test_string.py:169: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = [[i2 = getfield_gc_i(p0, descr=<FieldS pypy.interpreter.pyframe.PyFrame.inst_l...p39, p43, i116, i44, p56, i57, p59, p97, descr=TargetToken(140543888711456))
+ ]]
+ id = 'getattr'
+ expected_src = '\n            guard_not_invalidated?\n            i32 = strlen(p31)\n            i34 = int_add(5, i32)\n            p...tr), p35, ConstPtr(ptr48), descr=<Calli [48] rr EF=0 OS=28>)\n            guard_value(i49, 1, descr=...)\n            '
+ ignore_ops = [], kwds = {}
+ ops = [guard_not_invalidated(descr=<Guard0x7fd2ec958790>), i121 = strlen(p120), i123 = int_add(5, i121), p124 = newstr(i123), strsetitem(p124, 0, 109), strsetitem(p124, 1, 101), ...]
+ matcher = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x0000000012935be8>
+ 
+     def match_by_id(self, id, expected_src, ignore_ops=[], **kwds):
+         ops = list(self.ops_by_id(id, **kwds))
+         matcher = OpMatcher(ops, id)
+ >       return matcher.match(expected_src, ignore_ops=ignore_ops)
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:191: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x0000000012935be8>
+ expected_src = '\n            guard_not_invalidated?\n            i32 = strlen(p31)\n            i34 = int_add(5, i32)\n            p...tr), p35, ConstPtr(ptr48), descr=<Calli [48] rr EF=0 OS=28>)\n            guard_value(i49, 1, descr=...)\n            '
+ ignore_ops = []
+ 
+     def match(self, expected_src, ignore_ops=[]):
+         def format(src, opindex=None):
+             if src is None:
+                 return ''
+             text = str(py.code.Source(src).deindent().indent())
+             lines = text.splitlines(True)
+             if opindex is not None and 0 <= opindex <= len(lines):
+                 lines.insert(opindex, '\n\t===== HERE =====\n')
+             return ''.join(lines)
+         #
+         expected_src = self.preprocess_expected_src(expected_src)
+         expected_ops = self.parse_ops(expected_src)
+         try:
+ >           self.match_loop(expected_ops, ignore_ops)
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:527: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x0000000012935be8>
+ expected_ops = [('guard_not_invalidated', None, [], '...', False), ('strlen', 'i32', ['p31'], None, True), ('int_add', 'i34', ['5', '...ue), ('strsetitem', None, ['p35', '0', '109'], None, True), ('strsetitem', None, ['p35', '1', '101'], None, True), ...]
+ ignore_ops = []
+ 
+     def match_loop(self, expected_ops, ignore_ops):
+         """
+         A note about partial matching: the '...' operator is non-greedy,
+         i.e. it matches all the operations until it finds one that matches
+         what is after the '...'.  The '{{{' and '}}}' operators mark a
+         group of lines that can match in any order.
+         """
+         iter_exp_ops = iter(expected_ops)
+         iter_ops = RevertableIterator(self.ops)
+         for exp_op in iter_exp_ops:
+             try:
+                 if exp_op == '...':
+                     # loop until we find an operation which matches
+                     try:
+                         exp_op = iter_exp_ops.next()
+                     except StopIteration:
+                         # the ... is the last line in the expected_ops, so we just
+                         # return because it matches everything until the end
+                         return
+                     op = self.match_until(exp_op, iter_ops)
+                 elif exp_op == '{{{':
+                     self.match_any_order(iter_exp_ops, iter_ops, ignore_ops)
+                     continue
+                 else:
+                     op = self._next_op(iter_ops, ignore_ops=ignore_ops)
+                 try:
+ >                   self.match_op(op, exp_op)
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:503: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x0000000012935be8>
+ op = p134 = call_r(ConstClass(W_TypeObject._pure_lookup_where_with_method_cache), ConstPtr(ptr80), p124, ConstPtr(ptr81), descr=<Callr 8 rrr EF=4>)
+ .2 = ('call_i', 'i49', ['ConstClass(_ll_2_str_eq_nonnull__rpy_stringPtr_rpy_stringPtr)', 'p35', 'ConstPtr(ptr48)'], '<Calli [48] rr EF=0 OS=28>', True)
+ 
+     def match_op(self, op, (exp_opname, exp_res, exp_args, exp_descr, _)):
+         if exp_opname == '--end--':
+             self._assert(op == '--end--', 'got more ops than expected')
+             return
+         self._assert(op != '--end--', 'got less ops than expected')
+ >       self._assert(op.name == exp_opname, "operation mismatch")
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:412: 
+ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ 
+ self = <pypy.module.pypyjit.test_pypy_c.model.OpMatcher object at 0x0000000012935be8>
+ cond = False, message = 'operation mismatch'
+ 
+     def _assert(self, cond, message):
+         if not cond:
+ >           raise InvalidMatch(message, frame=sys._getframe(1))
+ E           InvalidMatch: operation mismatch
+ 
+ pypy/module/pypyjit/test_pypy_c/model.py:405: InvalidMatch
+ ---------- Captured stdout ----------
+ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Loops don't match
+ =================
+ loop id = 'getattr'
+ ('operation mismatch',)
+ assert 'call_r' == 'call_i'
+   - call_r
+   ?      ^
+   + call_i
+   ?      ^
+ 
+ Ignore ops: []
+ Got:
+     guard_not_invalidated(descr=<Guard0x7fd2ec958790>)
+     i121 = strlen(p120)
+     i123 = int_add(5, i121)
+     p124 = newstr(i123)
+     strsetitem(p124, 0, 109)
+     strsetitem(p124, 1, 101)
+     strsetitem(p124, 2, 116)
+     strsetitem(p124, 3, 104)
+     strsetitem(p124, 4, 95)
+     copystrcontent(p120, p124, 0, 5, i121)
+ 
+    ===== HERE =====
+     p134 = call_r(ConstClass(W_TypeObject._pure_lookup_where_with_method_cache), ConstPtr(ptr80), p124, ConstPtr(ptr81), descr=<Callr 8 rrr EF=4>)
+     guard_no_exception(descr=<Guard0x7fd2ec908bd0>)
+     p135 = getfield_gc_r(p134, descr=<FieldP tuple2.item0 8 pure>)
+     p136 = getfield_gc_r(p134, descr=<FieldP tuple2.item1 16 pure>)
+     guard_nonnull_class(p136, ConstClass(Function), descr=<Guard0x7fd2ec908b78>)
+     p137 = call_r(ConstClass(AbstractAttribute._find_map_attr_jit_pure), ConstPtr(ptr63), p124, 0, descr=<Callr 8 rri EF=0>)
+     guard_isnull(p137, descr=<Guard0x7fd2ec908b20>)
+ 
+ Expected:
+     
+     guard_not_invalidated?
+     i32 = strlen(p31)
+     i34 = int_add(5, i32)
+     p35 = newstr(i34)
+     strsetitem(p35, 0, 109)
+     strsetitem(p35, 1, 101)
+     strsetitem(p35, 2, 116)
+     strsetitem(p35, 3, 104)
+     strsetitem(p35, 4, 95)
+     copystrcontent(p31, p35, 0, 5, i32)
+     i49 = call_i(ConstClass(_ll_2_str_eq_nonnull__rpy_stringPtr_rpy_stringPtr), p35, ConstPtr(ptr48), descr=<Calli [48] rr EF=0 OS=28>)
+     guard_value(i49, 1, descr=...)
+. pypy/module/pypyjit/test_pypy_c/test_string.py::TestString::()::test_remove_duplicate_method_calls

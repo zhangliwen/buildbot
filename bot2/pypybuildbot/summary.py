@@ -602,6 +602,9 @@ class LongRepr(HtmlResource):
 
         return html.div([html.h2(self.getTitle(request)),
                          html.pre(longrepr),
+                         html.pre('builder: ' + builderName,
+                                  style='border-top:1px solid;'),
+                         html.pre('test: ' + self.getTitle(request).replace('.','/')),
                          py.xml.raw("<!-- %s -->" % outcome_set_cache.stats())
                          ]).unicode()
 

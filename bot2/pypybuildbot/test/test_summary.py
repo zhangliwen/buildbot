@@ -5,7 +5,7 @@ from buildbot.process import builder as process_builder
 from buildbot.process import factory as process_factory
 from pypybuildbot import summary
 from StringIO import StringIO
-import re, time
+import re, time, os
 
 class TestOutcomes(object):
 
@@ -855,3 +855,28 @@ class TestSummary(object):
         assert '(03 Dec..05 Dec)' in out
         # pruning of builds older than 7 days
         assert '(29 Nov)' not in out
+
+    def test_fail_body(self):
+        builder = status_builder.BuilderStatus('builder0', None, self.master, '')
+        with open(os.path.dirname(__file__) + '/log.txt') as fid:
+            log = fid.read()
+        add_builds(builder, [(60000, log)])
+        #fail = list(rev_outcome_set.failed)[0]
+
+ 
+        req = FakeRequest([builder], {
+            'builder': ['builder0'],
+            'build': [0],
+            'mod': [0],
+            })
+        longrepr = summary.LongRepr()
+        outcome_set = summary.outcome_set_cache.get(
+                            longrepr.getStatus(req),
+                            ('builder0', 0))
+        key = list(outcome_set.failed)[0]
+        req.args['mod'] = [key[0]]
+        req.args['testname'] = [key[1]]
+        out = longrepr.body(req)
+        print out
+        assert False
+
