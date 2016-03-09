@@ -66,8 +66,7 @@ pypyTranslatedAppLevelTestFactory64 = pypybuilds.Translated(lib_python=True,
                                                             platform='linux64')
 pypyTranslatedAppLevelTestFactoryS390X = pypybuilds.Translated(lib_python=True,
                                                                app_tests=True,
-                                                               platform='s390x',
-                                                               interpreter='python')
+                                                               platform='s390x')
 
 # these are like the two above: the only difference is that they only run
 # lib-python tests,not -A tests
@@ -156,9 +155,7 @@ pypyJITTranslatedTestFactoryS390X = pypybuilds.Translated(
     targetArgs=[],
     lib_python=True,
     pypyjit=True,
-    app_tests=True,
-    interpreter='python', # use cpython for now
-    )
+    app_tests=True)
 
 pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark(host='tannit')
 pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
@@ -289,12 +286,6 @@ BuildmasterConfig = {
             PYPYBUILDBOT               # on cobra
             ], branch='default', hour=0, minute=0),
 
-        Nightly("nightly-0-01", [
-            LINUX_S390X,               # vm (ibm-research)
-            JITLINUX_S390X,            # vm (ibm-research)
-            APPLVLLINUX_S390X,         # vm (ibm-research)
-            ], branch='s390x-backend', hour=2, minute=0),
-
         Nightly("nightly-1-00", [
             LINUX64,                   # on speed-old, uses all cores
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
@@ -316,6 +307,11 @@ BuildmasterConfig = {
             APPLVLLINUX64,             # on speed-old, uses 1 core
             ], branch="py3.3", hour=3, minute=0),
 
+        # S390X vm (ibm-research)
+        Nightly("nightly-4-00", [LINUX_S390X], branch='s390x-backend', hour=0, minute=0),
+        Nightly("nightly-4-01", [JITLINUX_S390X], branch='s390x-backend', hour=2, minute=0),
+        Nightly("nightly-4-02", [APPLVLLINUX_S390X], branch='s390x-backend', hour=5, minute=0),
+
         # this one has faithfully run every night even though the latest
         # change to that branch was in January 2013.  Re-enable one day.
         #Nightly("nighly-ppc", [
@@ -327,22 +323,18 @@ BuildmasterConfig = {
                         PYPYBUILDBOT,
                         LINUX32,
                         LINUX64,
-                        LINUX_S390X,
 
                         MACOSX32,
                         WIN32,
                         APPLVLLINUX32,
                         APPLVLLINUX64,
-                        APPLVLLINUX_S390X,
                         APPLVLWIN32,
 
                         LIBPYTHON_LINUX32,
                         LIBPYTHON_LINUX64,
-                        LIBPYTHON_LINUX_S390X,
 
                         JITLINUX32,
                         JITLINUX64,
-                        JITLINUX_S390X,
                         JITMACOSX64,
                         JITWIN32,
                         JITFREEBSD964,
@@ -360,6 +352,12 @@ BuildmasterConfig = {
                         #JITFREEBSD764,
                         #JITFREEBSD864,
                         #JITINDIANA32,
+
+                        LINUX_S390X,
+                        APPLVLLINUX_S390X,
+                        LIBPYTHON_LINUX_S390X,
+                        JITLINUX_S390X,
+
             ] + ARM.builderNames, properties=[]),
     ] + ARM.schedulers,
 
@@ -384,13 +382,6 @@ BuildmasterConfig = {
                    "category": 'linux64',
                    #"locks": [TannitCPU.access('counting')],
                   },
-                  {"name": LINUX_S390X,
-                   "slavenames": ["dje"],
-                   "builddir": LINUX_S390X,
-                   "factory": pypyOwnTestFactory,
-                   "category": 's390x',
-                   #"locks": [TannitCPU.access('counting')],
-                  },
                   {"name": APPLVLLINUX32,
                    #"slavenames": ["allegro32"],
                    "slavenames": ["tannit32"],
@@ -406,13 +397,6 @@ BuildmasterConfig = {
                    "category": "linux64",
                    #"locks": [TannitCPU.access('counting')],
                   },
-                  {"name": APPLVLLINUX_S390X,
-                   "slavenames": ["dje"],
-                   "builddir": APPLVLLINUX_S390X,
-                   "factory": pypyTranslatedAppLevelTestFactoryS390X,
-                   "category": "s390x",
-                   #"locks": [TannitCPU.access('counting')],
-                  },
                   {"name": LIBPYTHON_LINUX32,
                    "slavenames": ["tannit32"],
                    #"slavenames": ["allegro32"],
@@ -426,13 +410,6 @@ BuildmasterConfig = {
                    "builddir": LIBPYTHON_LINUX64,
                    "factory": pypyTranslatedLibPythonTestFactory,
                    "category": "linux64",
-                   #"locks": [TannitCPU.access('counting')],
-                  },
-                  {"name": LIBPYTHON_LINUX_S390X,
-                   "slavenames": ["dje"],
-                   "builddir": LIBPYTHON_LINUX_S390X,
-                   "factory": pypyTranslatedLibPythonTestFactory,
-                   "category": "s390x",
                    #"locks": [TannitCPU.access('counting')],
                   },
                   {"name" : JITLINUX32,
@@ -548,7 +525,26 @@ BuildmasterConfig = {
                    'builddir': PYPYBUILDBOT,
                    'factory': pypybuilds.PyPyBuildbotTestFactory(),
                    'category': 'buildbot',
-                   }
+                  },
+                  # S390X
+                  {"name": LINUX_S390X,
+                   "slavenames": ["dje"],
+                   "builddir": LINUX_S390X,
+                   "factory": pypyOwnTestFactory,
+                   "category": 's390x',
+                  },
+                  {"name": APPLVLLINUX_S390X,
+                   "slavenames": ["dje"],
+                   "builddir": APPLVLLINUX_S390X,
+                   "factory": pypyTranslatedAppLevelTestFactoryS390X,
+                   "category": "s390x",
+                  },
+                  {"name": LIBPYTHON_LINUX_S390X,
+                   "slavenames": ["dje"],
+                   "builddir": LIBPYTHON_LINUX_S390X,
+                   "factory": pypyTranslatedLibPythonTestFactory,
+                   "category": "s390x",
+                  },
 
                 ] + ARM.builders,
 
