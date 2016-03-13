@@ -302,10 +302,10 @@ BuildmasterConfig = {
             NUMPY_WIN,                  # on allegro_win32, SalsaSalsa
         ]),
 
-        Nightly("nightly-3-00-py3.3", [
+        Nightly("nightly-3-00-py3k", [
             LINUX64,                   # on speed-old, uses all cores
             APPLVLLINUX64,             # on speed-old, uses 1 core
-            ], branch="py3.3", hour=3, minute=0),
+            ], branch="py3k", hour=3, minute=0),
 
         # S390X vm (ibm-research)
         Nightly("nightly-4-00", [LINUX_S390X], branch='default', hour=0, minute=0),
