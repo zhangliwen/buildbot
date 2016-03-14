@@ -179,12 +179,10 @@ MACOSX32 = "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
-APPLVLLINUX_S390X = "pypy-c-app-level-linux-s390x"
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
 
 LIBPYTHON_LINUX32 = "pypy-c-lib-python-linux-x86-32"
 LIBPYTHON_LINUX64 = "pypy-c-lib-python-linux-x86-64"
-LIBPYTHON_LINUX_S390X = "pypy-c-lib-python-linux-s390x"
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
@@ -310,7 +308,6 @@ BuildmasterConfig = {
         # S390X vm (ibm-research)
         Nightly("nightly-4-00", [LINUX_S390X], branch='default', hour=0, minute=0),
         Nightly("nightly-4-01", [JITLINUX_S390X], branch='default', hour=2, minute=0),
-        Nightly("nightly-4-02", [APPLVLLINUX_S390X], branch='default', hour=5, minute=0),
 
         # this one has faithfully run every night even though the latest
         # change to that branch was in January 2013.  Re-enable one day.
@@ -354,8 +351,6 @@ BuildmasterConfig = {
                         #JITINDIANA32,
 
                         LINUX_S390X,
-                        APPLVLLINUX_S390X,
-                        LIBPYTHON_LINUX_S390X,
                         JITLINUX_S390X,
 
             ] + ARM.builderNames, properties=[]),
@@ -533,19 +528,6 @@ BuildmasterConfig = {
                    "factory": pypyOwnTestFactory,
                    "category": 's390x',
                   },
-                  {"name": APPLVLLINUX_S390X,
-                   "slavenames": ["dje"],
-                   "builddir": APPLVLLINUX_S390X,
-                   "factory": pypyTranslatedAppLevelTestFactoryS390X,
-                   "category": "s390x",
-                  },
-                  {"name": LIBPYTHON_LINUX_S390X,
-                   "slavenames": ["dje"],
-                   "builddir": LIBPYTHON_LINUX_S390X,
-                   "factory": pypyTranslatedLibPythonTestFactory,
-                   "category": "s390x",
-                  },
-
                 ] + ARM.builders,
 
     # http://readthedocs.org/docs/buildbot/en/latest/tour.html#debugging-with-manhole
