@@ -50,6 +50,7 @@ ARM = load('pypybuildbot.arm_master')
 
 TannitCPU = pypybuilds.TannitCPU
 WinSlaveLock = pypybuilds.WinSlaveLock
+SpeedOldLock = pypybuilds.SpeedOldLock
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
@@ -272,7 +273,7 @@ BuildmasterConfig = {
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on speed-old, uses 1 core
             #APPLVLLINUX32,            # on tannit32, uses 1 core
-            APPLVLLINUX64,             # on speed-old, uses 1 core
+            #APPLVLLINUX64,             # on speed-old, uses 1 core
             # other platforms
             #MACOSX32,                 # on minime
             JITWIN32,                  # on allegro_win32, SalsaSalsa
@@ -303,7 +304,7 @@ BuildmasterConfig = {
 
         Nightly("nightly-3-00-py3k", [
             LINUX64,                   # on speed-old, uses all cores
-            APPLVLLINUX64,             # on speed-old, uses 1 core
+            JITLINUX64,                # on speed-old, uses 1 core
             ], branch="py3k", hour=3, minute=0),
 
         # S390X vm (ibm-research)
@@ -378,7 +379,7 @@ BuildmasterConfig = {
                    "builddir": LINUX64,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux64',
-                   #"locks": [TannitCPU.access('counting')],
+                   "locks": [SpeedOldLock.access('counting')],
                   },
                   {"name": APPLVLLINUX32,
                    #"slavenames": ["allegro32"],
@@ -393,7 +394,7 @@ BuildmasterConfig = {
                    "builddir": APPLVLLINUX64,
                    "factory": pypyTranslatedAppLevelTestFactory64,
                    "category": "linux64",
-                   #"locks": [TannitCPU.access('counting')],
+                   "locks": [SpeedOldLock.access('counting')],
                   },
                   {"name": LIBPYTHON_LINUX32,
                    "slavenames": ["tannit32"],
@@ -408,7 +409,7 @@ BuildmasterConfig = {
                    "builddir": LIBPYTHON_LINUX64,
                    "factory": pypyTranslatedLibPythonTestFactory,
                    "category": "linux64",
-                   #"locks": [TannitCPU.access('counting')],
+                   "locks": [SpeedOldLock.access('counting')],
                   },
                   {"name" : JITLINUX32,
                    #"slavenames": ["allegro32"],
@@ -423,7 +424,7 @@ BuildmasterConfig = {
                    'builddir': JITLINUX64,
                    'factory': pypyJITTranslatedTestFactory64,
                    'category': 'linux64',
-                   #"locks": [TannitCPU.access('counting')],
+                   "locks": [SpeedOldLock.access('counting')],
                   },
                   {"name": JITBENCH,
                    "slavenames": ["tannit32"],
@@ -444,6 +445,7 @@ BuildmasterConfig = {
                     "builddir": JITBENCH64_NEW,
                     "factory": pypyJITBenchmarkFactory64_speed,
                     "category": "benchmark-run",
+                    "locks": [SpeedOldLock.access('exclusive')],
                     },
                   {"name": MACOSX32,
                    "slavenames": ["minime"],
