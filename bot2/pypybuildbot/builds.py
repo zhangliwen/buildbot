@@ -702,9 +702,9 @@ class TranslatedTests(factory.BuildFactory):
             workdir='.'))
         self.addStep(ShellCmd(
             description="copy ctypes resource cache",
-            # the || : ensures this always succeeds, eventually remove this step
-            command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy', '||', ':'],
-            haltOnFailure=True,
+            # eventually remove this step, not needed after 5.1
+            command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy'],
+            haltOnFailure=False,
             workdir='.'))
         self.addStep(ShellCmd(
             description="copy cffi import libraries",
