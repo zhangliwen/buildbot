@@ -702,7 +702,8 @@ class TranslatedTests(factory.BuildFactory):
             workdir='.'))
         self.addStep(ShellCmd(
             description="copy ctypes resource cache",
-            command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy'],
+            # the || : ensures this always succeeds, eventually remove this step
+            command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy', '||', ':'],
             haltOnFailure=True,
             workdir='.'))
         self.addStep(ShellCmd(
