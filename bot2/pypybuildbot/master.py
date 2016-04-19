@@ -175,6 +175,7 @@ pypyNumpyCompatabilityWin = pypybuilds.NativeNumpyTests(platform='win32')
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 LINUX_S390X = "own-linux-s390x"
+LINUX_S390X_2 = "own-linux-s390x-2"
 
 MACOSX32 = "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
@@ -523,6 +524,12 @@ BuildmasterConfig = {
                   {"name": LINUX_S390X,
                    "slavenames": ["dje"],
                    "builddir": LINUX_S390X,
+                   "factory": pypyOwnTestFactory,
+                   "category": 's390x',
+                  },
+                  {"name": LINUX_S390X_2,
+                   "slavenames": ["s390x-slave"],
+                   "builddir": LINUX_S390X_2,
                    "factory": pypyOwnTestFactory,
                    "category": 's390x',
                   },
