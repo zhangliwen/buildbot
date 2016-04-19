@@ -312,6 +312,7 @@ BuildmasterConfig = {
         Nightly("nightly-4-00", [LINUX_S390X], branch='default', hour=0, minute=0),
         Nightly("nightly-4-01", [JITLINUX_S390X], branch='default', hour=2, minute=0),
         Nightly("nightly-4-02", [JITLINUX_S390X_2], branch='default', hour=2, minute=0),
+        Nightly("nightly-4-03", [LINUX_S390X_2], branch='default', hour=0, minute=0),
 
         # this one has faithfully run every night even though the latest
         # change to that branch was in January 2013.  Re-enable one day.
