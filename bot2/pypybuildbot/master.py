@@ -291,7 +291,7 @@ BuildmasterConfig = {
             LINUX64,                   # on speed-old, uses all cores
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
-            JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
+            #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
         ], branch=None, hour=1, minute=0),
 
