@@ -176,7 +176,6 @@ pypyNumpyCompatabilityWin = pypybuilds.NativeNumpyTests(platform='win32')
 LINUX32 = "own-linux-x86-32"
 LINUX64 = "own-linux-x86-64"
 LINUX_S390X = "own-linux-s390x"
-LINUX_S390X_2 = "own-linux-s390x-2"
 
 MACOSX32 = "own-macosx-x86-32"
 WIN32 = "own-win-x86-32"
@@ -190,7 +189,6 @@ LIBPYTHON_LINUX64 = "pypy-c-lib-python-linux-x86-64"
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
 JITLINUX_S390X = 'pypy-c-jit-linux-s390x'
-JITLINUX_S390X_2 = 'pypy-c-jit-linux-s390x-2'
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 #JITMACOSX64_2 = "pypy-c-jit-macosx-x86-64-2"
 JITWIN32 = "pypy-c-jit-win-x86-32"
@@ -315,8 +313,6 @@ BuildmasterConfig = {
         # S390X vm (ibm-research)
         Nightly("nightly-4-00", [LINUX_S390X], branch='default', hour=0, minute=0),
         Nightly("nightly-4-01", [JITLINUX_S390X], branch='default', hour=2, minute=0),
-        Nightly("nightly-4-02", [JITLINUX_S390X_2], branch='default', hour=2, minute=0),
-        Nightly("nightly-4-03", [LINUX_S390X_2], branch='default', hour=0, minute=0),
 
         # this one has faithfully run every night even though the latest
         # change to that branch was in January 2013.  Re-enable one day.
@@ -361,7 +357,6 @@ BuildmasterConfig = {
 
                         LINUX_S390X,
                         JITLINUX_S390X,
-                        JITLINUX_S390X_2,
 
             ] + ARM.builderNames, properties=[]),
     ] + ARM.schedulers,
@@ -527,26 +522,14 @@ BuildmasterConfig = {
                   },
                   # S390X
                   {"name": LINUX_S390X,
-                   "slavenames": ["dje"],
+                   "slavenames": ["s390x-slave"],
                    "builddir": LINUX_S390X,
                    "factory": pypyOwnTestFactory,
-                   "category": 's390x',
-                  },
-                  {"name": LINUX_S390X_2,
-                   "slavenames": ["s390x-slave"],
-                   "builddir": LINUX_S390X_2,
-                   "factory": pypyOwnTestFactory,
-                   "category": 's390x',
+                   "category": 'linux-s390x',
                   },
                   {'name': JITLINUX_S390X,
-                   'slavenames': ["dje"],
-                   'builddir': JITLINUX_S390X,
-                   'factory': pypyJITTranslatedTestFactoryS390X,
-                   'category': 'linux-s390x',
-                  },
-                  {'name': JITLINUX_S390X_2,
                    'slavenames': ['s390x-slave'],
-                   'builddir': JITLINUX_S390X_2,
+                   'builddir': JITLINUX_S390X,
                    'factory': pypyJITTranslatedTestFactoryS390X,
                    'category': 'linux-s390x',
                   },
