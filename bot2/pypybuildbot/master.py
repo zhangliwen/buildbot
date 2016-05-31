@@ -306,8 +306,11 @@ BuildmasterConfig = {
                 branch="py3.5", hour=3, minute=0),
 
         Nightly("nightly-3-00-py3k", [
+            LINUX32,                   # on tannit32, uses all cores
+            JITLINUX32,                # on tannit32, uses 1 core
             LINUX64,                   # on bencher4, uses all cores
             JITLINUX64,                # on bencher4, uses 1 core
+            JITMACOSX64,               # on xerxes
             ], branch="py3k", hour=4, minute=0),
 
         # S390X vm (ibm-research)
