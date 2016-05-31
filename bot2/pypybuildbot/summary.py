@@ -600,9 +600,13 @@ class LongRepr(HtmlResource):
 
         longrepr = outcome_set.get_longrepr(namekey)
 
+        builderLink = html.a('%s build #%s' % (builderName, build),
+                             href="/builders/%s/builds/%s" % (
+                                 builderName, build))
+
         return html.div([html.h2(self.getTitle(request)),
                          html.pre(longrepr),
-                         html.pre('builder: ' + builderName,
+                         html.pre('builder: ' + builderLink,
                                   style='border-top:1px solid;'),
                          html.pre('test: ' + self.getTitle(request).replace('.','/')),
                          py.xml.raw("<!-- %s -->" % outcome_set_cache.stats())
