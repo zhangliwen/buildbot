@@ -547,4 +547,6 @@ BuildmasterConfig = {
     #                                    "buildmaster","XndZopHM"),
     'buildbotURL': 'http://buildbot.pypy.org/',  # with a trailing '/'!
     'projectURL': 'http://pypy.org/',
-    'projectName': 'PyPy'}
+    'projectName': 'PyPy',
+    'logMaxSize': 5*1024*1204, # 5M
+    }
