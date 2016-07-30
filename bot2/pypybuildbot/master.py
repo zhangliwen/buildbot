@@ -5,6 +5,7 @@ from buildbot.schedulers.forcesched import ForceScheduler
 from buildbot.schedulers.forcesched import ValidationError
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
+from buildbot.status.web import authz
 #from buildbot import manhole
 from pypybuildbot.pypylist import PyPyList, NumpyStatusList
 from pypybuildbot.ircbot import IRC  # side effects
@@ -23,7 +24,9 @@ if we_are_debugging():
 else:
     channel = '#pypy'
 
-status = WebStatus(httpPortNumber, allowForce=True)
+authz_cfg = authz.Authz(pingBuilder=False, forceBuild=True, forceAllBuilds=True,
+                        stopBuild=True, stopAllBuilds=True, cancelPendingBuild=True)
+status = WebStatus(httpPortNumber, authz=authz_cfg)
 ircbot = IRC(host="irc.freenode.org",
              nick="bbot2",
              channels=[channel],
