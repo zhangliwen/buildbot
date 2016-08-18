@@ -509,6 +509,10 @@ class SummaryPage(object):
                     extra = {}
                     if failed:
                         extra = {'class': "failSummary failed"}
+                    elif letter in (' ', '.'):
+                        # failure, but letter is " " or ".".
+                        # Replace with "E", which stands out more
+                        letter = 'E'
                     line.append([" ",html.a(letter, href=longrepr_url,
                                             **extra)])
                 else:
