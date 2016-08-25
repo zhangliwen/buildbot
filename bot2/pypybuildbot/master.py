@@ -6,6 +6,7 @@ from buildbot.schedulers.forcesched import ValidationError
 from buildbot.buildslave import BuildSlave
 from buildbot.status.html import WebStatus
 from buildbot.status.web import authz
+from buildbot.process.build import Build
 #from buildbot import manhole
 from pypybuildbot.pypylist import PyPyList, NumpyStatusList
 from pypybuildbot.ircbot import IRC  # side effects
@@ -17,6 +18,14 @@ class CustomForceScheduler(ForceScheduler):
         if not owner:
             raise ValidationError, "Please write your name in the corresponding field."
         return ForceScheduler.force(self, owner, builder_name, **kwargs)
+
+# Forbid "stop build" without a reason that starts with "!"
+def _checkStopBuild(self, reason=""):
+    if ": !" not in reason:
+        raise ValidationError, "Please write a reason that starts with '!'."
+    return _baseStopBuild(self, reason)
+_baseStopBuild = Build.stopBuild
+Build.stopBuild = _checkStopBuild
 
 
 if we_are_debugging():
