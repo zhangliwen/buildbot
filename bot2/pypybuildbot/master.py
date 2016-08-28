@@ -325,6 +325,7 @@ BuildmasterConfig = {
             LINUX64,                   # on bencher4, uses all cores
             JITLINUX64,                # on bencher4, uses 1 core
             JITMACOSX64,               # on xerxes
+            JITWIN32,                  # on allegro_win32, SalsaSalsa
             ], branch="py3k", hour=4, minute=0),
 
         # S390X vm (ibm-research)
