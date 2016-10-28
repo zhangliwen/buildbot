@@ -281,9 +281,9 @@ BuildmasterConfig = {
         # the benchmarks run on tannit and (planned) speed-old.python.org.
         # All the other linux tests run on bencher4.soft-dev.org.
         Nightly("nightly-0-00", [
-            # benchmarks
             # linux tests
             LINUX32,                   # on tannit32, uses all cores
+            LINUX64,                   # on bencher4, uses all cores
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on bencher4, uses 1 core
             #APPLVLLINUX32,            # on tannit32, uses 1 core
@@ -301,12 +301,11 @@ BuildmasterConfig = {
             ], branch='default', hour=0, minute=0),
 
         Nightly("nightly-1-00", [
-            LINUX64,                   # on bencher4, uses all cores
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
-        ], branch=None, hour=1, minute=0),
+        ], branch=None, hour=5, minute=0),
 
         Triggerable("NUMPY64_scheduler", [
             NUMPY_64,                  # on tannit64, uses 1 core, takes about 5min.
@@ -316,17 +315,17 @@ BuildmasterConfig = {
             NUMPY_WIN,                  # on allegro_win32, SalsaSalsa
         ]),
 
-        Nightly("nightly-3-01-py3.5", [LINUX64, JITLINUX64,],
-                branch="py3.5", hour=3, minute=0),
+        #Nightly("nightly-3-01-py3.5", [LINUX64, JITLINUX64,],
+        #        branch="py3.5", hour=3, minute=0),
 
-        Nightly("nightly-3-00-py3k", [
+        Nightly("nightly-3-00-py3.5", [
             LINUX32,                   # on tannit32, uses all cores
             JITLINUX32,                # on tannit32, uses 1 core
             LINUX64,                   # on bencher4, uses all cores
             JITLINUX64,                # on bencher4, uses 1 core
             JITMACOSX64,               # on xerxes
             JITWIN32,                  # on allegro_win32, SalsaSalsa
-            ], branch="py3k", hour=4, minute=0),
+            ], branch="py3.5", hour=3, minute=0),
 
         # S390X vm (ibm-research)
         Nightly("nightly-4-00", [LINUX_S390X], branch='default', hour=0, minute=0),
