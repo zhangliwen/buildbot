@@ -466,15 +466,15 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         # kill this step when the transition to test_pypy_c_new has been
         # completed
         # "old" test_pypy_c
-        factory.addStep(PytestCmd(
-            description="pypyjit tests",
-            command=prefix + ["python", "pypy/test_all.py",
-                     "--pypy=pypy/goal/pypy-c",
-                     "--resultlog=pypyjit.log",
-                     "pypy/module/pypyjit/test"],
-            logfiles={'pytestLog': 'pypyjit.log'},
-            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
-                }))
+        #factory.addStep(PytestCmd(
+        #    description="pypyjit tests",
+        #    command=prefix + ["python", "pypy/test_all.py",
+        #             "--pypy=pypy/goal/pypy-c",
+        #             "--resultlog=pypyjit.log",
+        #             "pypy/module/pypyjit/test"],
+        #    logfiles={'pytestLog': 'pypyjit.log'},
+        #    env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+        #        }))
         #
         # "new" test_pypy_c
         if platform == 'win32':
@@ -483,7 +483,8 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             cmd = 'pypy/goal/pypy-c'
         factory.addStep(PytestCmd(
             description="pypyjit tests",
-            command=prefix + [cmd, "pypy/test_all.py",
+            command=prefix + ["python", "pypy/test_all.py",
+                     "--pypy=%s" % (cmd,),
                      "--resultlog=pypyjit_new.log",
                      "pypy/module/pypyjit/test_pypy_c"],
             logfiles={'pytestLog': 'pypyjit_new.log'},
