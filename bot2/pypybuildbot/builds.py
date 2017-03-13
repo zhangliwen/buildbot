@@ -437,63 +437,27 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             app_tests = []
         factory.addStep(PytestCmd(
             description="app-level (-A) test",
-            command=prefix + ["python", "testrunner/runner.py",
-                     "--logfile=pytest-A.log",
-                     "--config=pypy/pytest-A.cfg",
-                     "--config=pypy/pytest-A.py",
-                     "--config=~/machine-A_cfg.py",
-                     "--root=pypy", "--timeout=3600"
+            command=prefix + ["python", "testrunner/app_level_tests.py",
                      ] + ["--config=%s" % cfg for cfg in app_tests],
             logfiles={'pytestLog': 'pytest-A.log'},
             timeout=4000,
-            env={"PYTHONPATH": ['.'],
-                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                 }))
 
     if lib_python:
         factory.addStep(PytestCmd(
             description="lib-python test",
-            command=prefix + ["python", "pypy/test_all.py",
-                     "--pypy=pypy/goal/pypy-c",
-                     "--timeout=3600",
-                     "--resultlog=cpython.log", "lib-python"],
+            command=prefix + ["python", "testrunner/lib_python_tests.py"],
             timeout=4000,
             logfiles={'pytestLog': 'cpython.log'},
             env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                 }))
 
     if pypyjit:
-        # run test_pypy_c tests, which is a mess because it needs to be
-        # started differently on pypy2 or pypy3
         factory.addStep(PytestCmd(
             description="pypyjit tests",
-            command=prefix + ["python", "-c", r"""
-import sys, subprocess
-
-if sys.platform == 'win32':
-    cmd = r'pypy\goal\pypy-c'
-else:
-    cmd = 'pypy/goal/pypy-c'
-
-g = subprocess.check_output([cmd, '-c', 'import sys;print(sys.version)'])
-if g.startswith('2.7'):
-    # PyPy 2: must run 'pypy-c py.test'
-    cmdline = [cmd, "pypy/test_all.py"]
-elif g.startswith('3'):
-    # PyPy 3: must run 'py.test --pypy=pypy-c'
-    cmdline = [sys.executable, "pypy/test_all.py", "--pypy=" + cmd]
-else:
-    raise Exception("pypy-c output: %r" % (data,))
-
-cmdline += ["--resultlog=pypyjit_new.log",
-            "pypy/module/pypyjit/test_pypy_c"]
-
-print("Running", cmdline)
-res = subprocess.call(cmdline)
-if res:
-    print("!!!!! error code ", res)
-    sys.exit(1)
-"""],
+            command=prefix + ["python", "testrunner/pypyjit_tests.py"],
+            timeout=4000,
             logfiles={'pytestLog': 'pypyjit_new.log'},
             env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                 }))
