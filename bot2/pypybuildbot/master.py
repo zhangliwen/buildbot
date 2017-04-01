@@ -297,7 +297,7 @@ BuildmasterConfig = {
             JITFREEBSD964,             # on tavendo
             JITMACOSX64,               # on xerxes
             # buildbot selftest
-            PYPYBUILDBOT               # on cobra
+            PYPYBUILDBOT               # on bencher4
             ], branch='default', hour=0, minute=0),
 
         Nightly("nightly-1-00", [
@@ -522,11 +522,13 @@ BuildmasterConfig = {
                    "category": 'linux-ppc64',
                    },
                   {'name': NUMPY_64,
-                   'slavenames': ["tannit64"],
+                   'slavenames': ["bencher4"],
+                   #'slavenames': ["tannit64"],
                    'builddir': NUMPY_64,
                    'factory': pypyNumpyCompatability,
                    'category': 'numpy',
-                   'locks': [TannitCPU.access('counting')],
+                   #'locks': [TannitCPU.access('counting')],
+                   "locks": [Bencher4Lock.access('counting')],
                   },
                   {'name': NUMPY_WIN,
                    'slavenames': ["allegro_win32", "SalsaSalsa"],
@@ -536,10 +538,11 @@ BuildmasterConfig = {
                    'category': 'numpy',
                   },
                   {'name': PYPYBUILDBOT,
-                   'slavenames': ['cobra'],
+                   'slavenames': ['bencher4'],
                    'builddir': PYPYBUILDBOT,
                    'factory': pypybuilds.PyPyBuildbotTestFactory(),
                    'category': 'buildbot',
+                   "locks": [Bencher4Lock.access('counting')],
                   },
                   # S390X
                   {"name": LINUX_S390X,
