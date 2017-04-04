@@ -297,7 +297,7 @@ BuildmasterConfig = {
             JITFREEBSD964,             # on tavendo
             JITMACOSX64,               # on xerxes
             # buildbot selftest
-            PYPYBUILDBOT               # on bencher4
+            #PYPYBUILDBOT               # on cobra
             ], branch='default', hour=0, minute=0),
 
         Nightly("nightly-1-00", [
@@ -308,11 +308,11 @@ BuildmasterConfig = {
         ], branch=None, hour=5, minute=0),
 
         Triggerable("NUMPY64_scheduler", [
-            NUMPY_64,                  # on tannit64, uses 1 core, takes about 5min.
+            #NUMPY_64,                  # on tannit64, uses 1 core, takes about 5min.
         ]),
 
         Triggerable("NUMPYWIN_scheduler", [
-            NUMPY_WIN,                  # on allegro_win32, SalsaSalsa
+            #NUMPY_WIN,                  # on allegro_win32, SalsaSalsa
         ]),
 
         #Nightly("nightly-3-01-py3.5", [LINUX64, JITLINUX64,],
@@ -538,7 +538,7 @@ BuildmasterConfig = {
                    'category': 'numpy',
                   },
                   {'name': PYPYBUILDBOT,
-                   'slavenames': ['bencher4'],
+                   'slavenames': ['cobra'],
                    'builddir': PYPYBUILDBOT,
                    'factory': pypybuilds.PyPyBuildbotTestFactory(),
                    'category': 'buildbot',
