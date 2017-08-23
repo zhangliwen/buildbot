@@ -333,11 +333,24 @@ def update_hg_old_method(platform, factory, repourl, workdir):
            workdir=workdir))
 
 def update_hg(platform, factory, repourl, workdir, use_branch,
-              force_branch=None):
+              force_branch=None, wipe_bookmarks=False):
     if not use_branch:
         assert force_branch is None
         update_hg_old_method(platform, factory, repourl, workdir)
         return
+
+    if wipe_bookmarks:
+        # We don't use bookmarks at all.  If a bookmark accidentally gets
+        # created and pushed to the server and we pull it down, it gets stuck
+        # here.  Deleting it from the server doesn't seem to delete it from
+        # the local checkout.  So, manually clean it up.
+        factory.addStep(ShellCmd(
+            description="cleanup bookmarks",
+            command=["rm", "-f", ".hg/bookmarks"],
+            workdir=workdir,
+            haltOnFailure=False,
+        ))
+
     factory.addStep(
             Mercurial(
                 repourl=repourl,
@@ -374,7 +387,7 @@ def setup_steps(platform, factory, workdir=None,
                                   doStepIf=ParseRevision.doStepIf))
     #
     update_hg(platform, factory, repourl, workdir, use_branch=True,
-              force_branch=force_branch)
+              force_branch=force_branch, wipe_bookmarks=True)
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
 
@@ -410,7 +423,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
     # If target_tmpdir is empty, crash.
     tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
     pytest = "pytest"
-    factory.addStep(ShellCmd( 
+    factory.addStep(ShellCmd(
         description="mkdir for tests",
         command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
                     tmp_or_crazy + pytest + "') if not os.path.exists(r'" + \
@@ -424,7 +437,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                    '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
     else:
         command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
-                   '+' + nDays, '-exec', 'rm', '-r', '{}', ';'] 
+                   '+' + nDays, '-exec', 'rm', '-r', '{}', ';']
     factory.addStep(SuccessAlways(
         description="cleanout old test files",
         command = command,
@@ -481,7 +494,7 @@ class Own(factory.BuildFactory):
         # If target_tmpdir is empty, crash.
         tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
         pytest = "pytest"
-        self.addStep(ShellCmd( 
+        self.addStep(ShellCmd(
             description="mkdir for tests",
             command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
                         tmp_or_crazy + pytest + "') if not os.path.exists(r'" + \
@@ -495,7 +508,7 @@ class Own(factory.BuildFactory):
                        '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
         else:
             command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
-                       '+' + nDays, '-exec', 'rm', '-r', '{}', ';'] 
+                       '+' + nDays, '-exec', 'rm', '-r', '{}', ';']
         self.addStep(SuccessAlways(
             description="cleanout old test files",
             command = command,
@@ -976,7 +989,7 @@ class NativeNumpyTests(factory.BuildFactory):
             workdir='pypy-c',
             haltOnFailure=True,
             ))
-        
+
         if platform == 'win32':
             self.addStep(ShellCmd(
                 description='move decompressed dir',
@@ -1010,7 +1023,7 @@ class NativeNumpyTests(factory.BuildFactory):
         # obtain a pypy-compatible branch of numpy
         numpy_url = 'https://www.bitbucket.org/pypy/numpy'
         update_git(platform, self, numpy_url, 'numpy_src', branch='master',
-                   alwaysUseLatest=True, # ignore pypy rev number when 
+                   alwaysUseLatest=True, # ignore pypy rev number when
                                          # triggered by a pypy build
                    )
 
