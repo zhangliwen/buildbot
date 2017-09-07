@@ -346,7 +346,8 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
         # the local checkout.  So, manually clean it up.
         factory.addStep(ShellCmd(
             description="cleanup bookmarks",
-            command=["rm", "-f", ".hg/bookmarks"],
+            command=["rm", "-f", ".hg/bookmarks"] if platform != 'win32'
+               else ["if exist .hg/bookmarks del .hg/bookmarks"],
             workdir=workdir,
             haltOnFailure=False,
         ))
