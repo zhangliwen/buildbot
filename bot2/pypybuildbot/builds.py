@@ -347,7 +347,7 @@ def update_hg(platform, factory, repourl, workdir, use_branch,
         factory.addStep(ShellCmd(
             description="cleanup bookmarks",
             command=["rm", "-f", ".hg/bookmarks"] if platform != 'win32'
-               else ["if exist .hg/bookmarks del .hg/bookmarks"],
+               else [r"cmd /c if exist .hg\bookmarks del .hg\bookmarks"],
             workdir=workdir,
             haltOnFailure=False,
         ))
