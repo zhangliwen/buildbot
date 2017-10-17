@@ -69,11 +69,17 @@ Bencher4Lock = pypybuilds.Bencher4Lock
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
-pypyOwnTestFactoryIndiana = pypybuilds.Own(platform="indiana32")
 pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 
 # OSX 32bit tests require a larger timeout to finish
-pypyOwnTestFactoryOSX32 = pypybuilds.Own(timeout=3*3600)
+pypyOwnTestFactoryOSX32 = pypybuilds.Own(timeout=3*3600) # XXX Own or RPython?
+
+pypyRPythonTestFactory = pypybuilds.RPython()
+pypyRPythonTestFactoryWin = pypybuilds.RPython(platform="win32")
+pypyJitOnlyRPythonTestFactory = pypybuilds.RPython(cherrypick="jit")
+
+# OSX 32bit tests require a larger timeout to finish
+pypyRPythonTestFactoryOSX32 = pypybuilds.RPython(timeout=3*3600) # XXX Own or RPython?
 
 pypyTranslatedAppLevelTestFactory = pypybuilds.Translated(lib_python=True,
                                                           app_tests=True)
@@ -116,15 +122,6 @@ pypyJITTranslatedTestFactory64 = pypybuilds.Translated(
     app_tests=True,
     platform='linux64',
     trigger='NUMPY64_scheduler',
-    )
-
-pypyJITTranslatedTestFactoryIndiana = pypybuilds.Translated(
-    translationArgs=jit_translation_args,
-    targetArgs=[],
-    lib_python=True,
-    pypyjit=True,
-    app_tests=True,
-    platform='openindiana32',
     )
 
 pypyJITTranslatedTestFactoryOSX = pypybuilds.Translated(
@@ -187,12 +184,20 @@ pypyNumpyCompatabilityWin = pypybuilds.NativeNumpyTests(platform='win32')
 
 #
 
-LINUX32 = "own-linux-x86-32"
-LINUX64 = "own-linux-x86-64"
-LINUX_S390X = "own-linux-s390x"
+LINUX32OWN = "own-linux-x86-32"
+LINUX64OWN = "own-linux-x86-64"
+LINUX_S390XOWN = "own-linux-s390x"
+MACOSX32OWN = "own-macosx-x86-32"
+WIN32OWN = "own-win-x86-32"
+WIN64OWN = "own-win-x86-64"
 
-MACOSX32 = "own-macosx-x86-32"
-WIN32 = "own-win-x86-32"
+LINUX32RPYTHON = "rpython-linux-x86-32"
+LINUX64RPYTHON = "rpython-linux-x86-64"
+LINUX_S390XRPYTHON = "rpython-linux-s390x"
+MACOSX32RPYTHON = "rpython-macosx-x86-32"
+WIN32RPYTHON = "rpython-win-x86-32"
+WIN64RPYTHON = "rpython-win-x86-64"
+
 APPLVLLINUX32 = "pypy-c-app-level-linux-x86-32"
 APPLVLLINUX64 = "pypy-c-app-level-linux-x86-64"
 APPLVLWIN32 = "pypy-c-app-level-win-x86-32"
@@ -218,26 +223,23 @@ NUMPY_WIN = "numpy-compatibility-win-x86-32"
 PYPYBUILDBOT = 'pypy-buildbot'
 JITFREEBSD964 = 'pypy-c-jit-freebsd-9-x86-64'
 
-WIN64 = "own-win-x86-64"
-INDIANA32 = "own-indiana-x86-32"
 JITWIN64 = "pypy-c-jit-win-x86-64"
 JITFREEBSD764 = 'pypy-c-jit-freebsd-7-x86-64'
 JITFREEBSD864 = 'pypy-c-jit-freebsd-8-x86-64'
-JITINDIANA32 = "pypy-c-jit-indiana-x86-32"
 JITBENCH64_NEW = 'jit-benchmark-linux-x86-64-single-run'
 inactive_slaves = [
-                  {"name": WIN64,
+                  {"name": WIN64OWN,
                    "slavenames": [],
-                   "builddir": WIN64,
+                   "builddir": WIN64OWN,
                    "factory": pypyOwnTestFactoryWin,
                    "category": 'win32'
                   },
-                  {'name': INDIANA32,
-                   'slavenames': [],
-                   'builddir': INDIANA32,
-                   'factory': pypyOwnTestFactoryIndiana,
-                   'category': 'openindiana32',
-                   },
+                  {"name": WIN64RPYTHON,
+                   "slavenames": [],
+                   "builddir": WIN64RPYTHON,
+                   "factory": pypyOwnTestFactoryWin,
+                   "category": 'win32'
+                  },
                   {"name" : JITWIN64,
                    "slavenames": [],
                    'builddir' : JITWIN64,
@@ -255,13 +257,6 @@ inactive_slaves = [
                    'builddir' : JITFREEBSD864,
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'
-                   },
-                  # openindiana
-                  {'name': JITINDIANA32,
-                   'slavenames': [],
-                   'builddir': JITINDIANA32,
-                   'factory': pypyJITTranslatedTestFactoryIndiana,
-                   'category': 'openindiana32',
                    },
                    ]
 extra_opts = {'xerxes': {'keepalive_interval': 15},
@@ -282,8 +277,12 @@ BuildmasterConfig = {
         # All the other linux tests run on bencher4.soft-dev.org.
         Nightly("nightly-0-00", [
             # linux tests
-            LINUX32,                   # on tannit32, uses all cores
-            LINUX64,                   # on bencher4, uses all cores
+            LINUX32OWN,                # on tannit32, uses all cores
+            LINUX64OWN,                # on bencher4, uses all cores
+            WIN32OWN,                  # on allegro_win32, SalsaSalsa
+            LINUX32RPYTHON,            # on tannit32, uses all cores
+            LINUX64RPYTHON,            # on bencher4, uses all cores
+            WIN32RPYTHON,              # on allegro_win32, SalsaSalsa
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on bencher4, uses 1 core
             #APPLVLLINUX32,            # on tannit32, uses 1 core
@@ -291,7 +290,6 @@ BuildmasterConfig = {
             # other platforms
             #MACOSX32,                 # on minime
             JITWIN32,                  # on allegro_win32, SalsaSalsa
-            WIN32,                     # on allegro_win32, SalsaSalsa
             #JITFREEBSD764,            # on headless
             #JITFREEBSD864,            # on ananke
             JITFREEBSD964,             # on tavendo
@@ -319,16 +317,21 @@ BuildmasterConfig = {
         #        branch="py3.5", hour=3, minute=0),
 
         Nightly("nightly-3-00-py3.5", [
-            LINUX32,                   # on tannit32, uses all cores
+            LINUX32OWN,                # on tannit32, uses all cores
+            LINUX32RPYTHON,            # on tannit32, uses all cores
             JITLINUX32,                # on tannit32, uses 1 core
-            LINUX64,                   # on bencher4, uses all cores
+            LINUX64OWN,                # on bencher4, uses all cores
+            LINUX64RPYTHON,            # on bencher4, uses all cores
             JITLINUX64,                # on bencher4, uses 1 core
             JITMACOSX64,               # on xerxes
             JITWIN32,                  # on allegro_win32, SalsaSalsa
             ], branch="py3.5", hour=3, minute=0),
 
         # S390X vm (ibm-research)
-        Nightly("nightly-4-00", [LINUX_S390X], branch='default', hour=0, minute=0),
+        Nightly("nightly-4-00", [
+            LINUX_S390XOWN,
+            LINUX_S390XRPYTHON,
+            ], branch='default', hour=0, minute=0),
         Nightly("nightly-4-01", [JITLINUX_S390X], branch='default', hour=2, minute=0),
 
         # this one has faithfully run every night even though the latest
@@ -340,11 +343,15 @@ BuildmasterConfig = {
         CustomForceScheduler('Force Scheduler',
             builderNames=[
                         PYPYBUILDBOT,
-                        LINUX32,
-                        LINUX64,
+                        LINUX32OWN,
+                        LINUX64OWN,
+                        MACOSX32OWN,
+                        WIN32OWN,
+                        LINUX32RPYTHON,
+                        LINUX64RPYTHON,
+                        MACOSX32RPYTHON,
+                        WIN32RPYTHON,
 
-                        MACOSX32,
-                        WIN32,
                         APPLVLLINUX32,
                         APPLVLLINUX64,
                         APPLVLWIN32,
@@ -364,15 +371,14 @@ BuildmasterConfig = {
                         JITBENCH64_NEW,
                         NUMPY_64,
                         NUMPY_WIN,
-                        #INDIANA32,
-                        #WIN64,
+                        #WIN64OWN,
                         #JITMACOSX64_2,
                         #JITWIN64,
                         #JITFREEBSD764,
                         #JITFREEBSD864,
-                        #JITINDIANA32,
 
-                        LINUX_S390X,
+                        LINUX_S390XOWN,
+                        LINUX_S390XRPYTHON,
                         JITLINUX_S390X,
 
             ] + ARM.builderNames, properties=[]),
@@ -385,18 +391,33 @@ BuildmasterConfig = {
                in passwords.iteritems()],
 
     'builders': [
-                  {"name": LINUX32,
+                  {"name": LINUX32OWN,
                    "slavenames": ["tannit32"],
-                   "builddir": LINUX32,
+                   "builddir": LINUX32OWN,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux32',
                    "locks": [TannitCPU.access('counting')],
                   },
-                  {"name": LINUX64,
+                  {"name": LINUX32RPYTHON,
+                   "slavenames": ["tannit32"],
+                   "builddir": LINUX32RPYTHON,
+                   "factory": pypyRPythonTestFactory,
+                   "category": 'linux32',
+                   "locks": [TannitCPU.access('counting')],
+                  },
+                  {"name": LINUX64OWN,
                    #"slavenames": ["bencher4", "speed-old"],
                    "slavenames": ["bencher4"],
-                   "builddir": LINUX64,
+                   "builddir": LINUX64OWN,
                    "factory": pypyOwnTestFactory,
+                   "category": 'linux64',
+                   "locks": [Bencher4Lock.access('counting')],
+                  },
+                  {"name": LINUX64RPYTHON,
+                   #"slavenames": ["bencher4", "speed-old"],
+                   "slavenames": ["bencher4"],
+                   "builddir": LINUX64RPYTHON,
+                   "factory": pypyRPythonTestFactory,
                    "category": 'linux64',
                    "locks": [Bencher4Lock.access('counting')],
                   },
@@ -469,10 +490,16 @@ BuildmasterConfig = {
                     "category": "benchmark-run",
                     "locks": [Bencher4Lock.access('exclusive')],
                     },
-                  {"name": MACOSX32,
+                  {"name": MACOSX32OWN,
                    "slavenames": ["minime"],
-                   "builddir": MACOSX32,
+                   "builddir": MACOSX32OWN,
                    "factory": pypyOwnTestFactoryOSX32,
+                   "category": 'mac32'
+                  },
+                  {"name": MACOSX32RPYTHON,
+                   "slavenames": ["minime"],
+                   "builddir": MACOSX32RPYTHON,
+                   "factory": pypyRPythonTestFactoryOSX32,
                    "category": 'mac32'
                   },
                   {"name" : JITMACOSX64,
@@ -487,10 +514,17 @@ BuildmasterConfig = {
                   # 'factory' : pypyJITTranslatedTestFactoryOSX64,
                   # 'category' : 'mac64',
                   # },
-                  {"name": WIN32,
+                  {"name": WIN32OWN,
                    "slavenames": ["SalsaSalsa", "allegro_win32", "anubis64"],
-                   "builddir": WIN32,
+                   "builddir": WIN32OWN,
                    "factory": pypyOwnTestFactoryWin,
+                   "locks": [WinSlaveLock.access('counting')],
+                   "category": 'win32',
+                  },
+                  {"name": WIN32RPYTHON,
+                   "slavenames": ["SalsaSalsa", "allegro_win32", "anubis64"],
+                   "builddir": WIN32RPYTHON,
+                   "factory": pypyRPythonTestFactoryWin,
                    "locks": [WinSlaveLock.access('counting')],
                    "category": 'win32',
                   },
@@ -545,10 +579,16 @@ BuildmasterConfig = {
                    "locks": [Bencher4Lock.access('counting')],
                   },
                   # S390X
-                  {"name": LINUX_S390X,
+                  {"name": LINUX_S390XOWN,
                    "slavenames": ["s390x-slave"],
-                   "builddir": LINUX_S390X,
+                   "builddir": LINUX_S390XOWN,
                    "factory": pypyOwnTestFactory,
+                   "category": 'linux-s390x',
+                  },
+                  {"name": LINUX_S390XRPYTHON,
+                   "slavenames": ["s390x-slave"],
+                   "builddir": LINUX_S390XRPYTHON,
+                   "factory": pypyRPythonTestFactory,
                    "category": 'linux-s390x',
                   },
                   {'name': JITLINUX_S390X,

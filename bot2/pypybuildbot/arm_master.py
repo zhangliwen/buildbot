@@ -18,6 +18,7 @@ pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(
         timeout=36000)
 pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=2 * 3600)
 pypyOwnTestFactoryARM = pypybuilds.Own(timeout=2 * 3600)
+pypyRPythonTestFactoryARM = pypybuilds.RPython(timeout=2 * 3600)
 
 pypyCrossTranslationFactoryARM = pypybuilds.NightlyBuild(
     translationArgs=crosstranslationargs + ['-O2'],
@@ -100,7 +101,8 @@ pypyARMHF_RARING_JITTranslatedTestFactory = pypybuilds.TranslatedTests(
     platform='linux-armhf-raring',
     )
 #
-LINUXARMHF = "own-linux-armhf"
+LINUXARMHFOWN = "own-linux-armhf"
+LINUXARMHFRPYTHON = "rpython-linux-armhf"
 APPLVLLINUXARM = "pypy-c-app-level-linux-armel"
 APPLVLLINUXARMHF_v7 = "pypy-c-app-level-linux-armhf-v7"
 APPLVLLINUXARMHF_RASPBIAN = "pypy-c-app-level-linux-armhf-raspbian"
