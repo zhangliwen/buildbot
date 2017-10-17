@@ -479,14 +479,14 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
 
 # ----
 
-class Own(factory.BuildFactory):
 
+class Untranslated(factory.BuildFactory):
     def __init__(self, platform='linux', cherrypick='', extra_cfgs=[], **kwargs):
         factory.BuildFactory.__init__(self)
 
         setup_steps(platform, self)
 
-        timeout=kwargs.get('timeout', 4000)
+        self.timeout=kwargs.get('timeout', 4000)
 
         self.addStep(shell.SetPropertyFromCommand(
                 command=['python', '-c', "import tempfile, os ;print"
@@ -494,21 +494,21 @@ class Own(factory.BuildFactory):
                  property="target_tmpdir"))
         # If target_tmpdir is empty, crash.
         tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
-        pytest = "pytest"
+        self.pytest = "pytest"
         self.addStep(ShellCmd(
             description="mkdir for tests",
             command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
-                        tmp_or_crazy + pytest + "') if not os.path.exists(r'" + \
-                        tmp_or_crazy + pytest + "') else True")],
+                        tmp_or_crazy + self.pytest + "') if not os.path.exists(r'" + \
+                        tmp_or_crazy + self.pytest + "') else True")],
             haltOnFailure=True,
             ))
 
         nDays = '3' #str, not int
         if platform == 'win32':
-            command = ['FORFILES', '/P', Interpolate(tmp_or_crazy + pytest),
+            command = ['FORFILES', '/P', Interpolate(tmp_or_crazy + self.pytest),
                        '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
         else:
-            command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
+            command = ['find', Interpolate(tmp_or_crazy + self.pytest), '-mtime',
                        '+' + nDays, '-exec', 'rm', '-r', '{}', ';']
         self.addStep(SuccessAlways(
             description="cleanout old test files",
@@ -524,44 +524,55 @@ class Own(factory.BuildFactory):
             ))
 
         if platform == 'win32':
-            virt_python = r'virt_test\Scripts\python.exe'
+            self.virt_python = r'virt_test\Scripts\python.exe'
         else:
-            virt_python = 'virt_test/bin/python'
+            self.virt_python = 'virt_test/bin/python'
 
         self.addStep(ShellCmd(
             description="install requirments to virtual environment",
-            command=[virt_python, '-mpip', 'install', '-r', 'requirements.txt'],
+            command=[self.virt_python, '-mpip', 'install', '-r',
+                     'requirements.txt'],
             haltOnFailure=True,
             ))
 
+
+
+class Own(Untranslated):
+    def __init__(self, platform='linux', cherrypick='', extra_cfgs=[], **kwargs):
+        Untranslated.__init__(self, platform=platform, cherrypick=cherrypick,
+                              extra_cfgs=extra_cfgs, **kwargs)
         self.addStep(PytestCmd(
             description="pytest pypy",
-            command=[virt_python, "testrunner/runner.py",
+            command=[self.virt_python, "testrunner/runner.py",
                      "--logfile=testrun.log",
                      "--config=pypy/testrunner_cfg.py",
                      "--config=~/machine_cfg.py",
-                     "--root=pypy", "--timeout=%s" % (timeout,)
+                     "--root=pypy", "--timeout=%s" % (self.timeout,)
                      ] + ["--config=%s" % cfg for cfg in extra_cfgs],
             logfiles={'pytestLog': 'testrun.log'},
-            timeout=timeout,
+            timeout=self.timeout,
             env={"PYTHONPATH": ['.'],
                  "PYPYCHERRYPICK": cherrypick,
-                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + self.pytest),
                  }))
 
+class RPython(Untranslated):
+    def __init__(self, platform='linux', cherrypick='', extra_cfgs=[], **kwargs):
+        Untranslated.__init__(self, platform=platform, cherrypick=cherrypick,
+                              extra_cfgs=extra_cfgs, **kwargs)
         self.addStep(PytestCmd(
             description="pytest rpython",
-            command=[virt_python, "testrunner/runner.py",
+            command=[self.virt_python, "testrunner/runner.py",
                      "--logfile=testrun.log",
                      "--config=pypy/testrunner_cfg.py",
                      "--config=~/machine_cfg.py",
-                     "--root=rpython", "--timeout=%s" % (timeout,)
+                     "--root=rpython", "--timeout=%s" % (self.timeout,)
                      ] + ["--config=%s" % cfg for cfg in extra_cfgs],
             logfiles={'pytestLog': 'testrun.log'},
-            timeout=timeout,
+            timeout=self.timeout,
             env={"PYTHONPATH": ['.'],
                  "PYPYCHERRYPICK": cherrypick,
-                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + self.pytest),
                  }))
 
 
