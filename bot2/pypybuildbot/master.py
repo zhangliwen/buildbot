@@ -11,6 +11,8 @@ from buildbot.process.build import Build
 from pypybuildbot.pypylist import PyPyList, NumpyStatusList
 from pypybuildbot.ircbot import IRC  # side effects
 from pypybuildbot.util import we_are_debugging
+from buildbot.changes import filter
+from buildbot.changes.hgpoller import HgPoller
 
 # Forbid "force build" with empty user name
 class CustomForceScheduler(ForceScheduler):
@@ -270,7 +272,10 @@ extra_opts = {'xerxes': {'keepalive_interval': 15},
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
-    'change_source': [],
+    'change_source': [
+        HgPoller('https://bitbucket.org/pypy/pypy/', workdir='hgpoller-workdir',
+                 branch='default', pollinterval=300),
+        ],
 
     'schedulers': [
         # the benchmarks run on tannit and (planned) speed-old.python.org.
@@ -280,9 +285,6 @@ BuildmasterConfig = {
             LINUX32OWN,                # on tannit32, uses all cores
             LINUX64OWN,                # on bencher4, uses all cores
             WIN32OWN,                  # on allegro_win32, SalsaSalsa
-            LINUX32RPYTHON,            # on tannit32, uses all cores
-            LINUX64RPYTHON,            # on bencher4, uses all cores
-            WIN32RPYTHON,              # on allegro_win32, SalsaSalsa
             JITLINUX32,                # on tannit32, uses 1 core
             JITLINUX64,                # on bencher4, uses 1 core
             #APPLVLLINUX32,            # on tannit32, uses 1 core
@@ -297,6 +299,15 @@ BuildmasterConfig = {
             # buildbot selftest
             #PYPYBUILDBOT               # on cobra
             ], branch='default', hour=0, minute=0),
+
+        Nightly("nightly-0-01", [
+            LINUX32RPYTHON,            # on tannit32, uses all cores
+            LINUX64RPYTHON,            # on bencher4, uses all cores
+            WIN32RPYTHON,              # on allegro_win32, SalsaSalsa
+            ], branch='default', hour=0, minute=0, onlyIfChanged=True,
+            fileIsImportant=None, # set this to only rpython changes
+            change_filter=filter.ChangeFilter(branch='default'),
+        ),
 
         Nightly("nightly-1-00", [
             JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
