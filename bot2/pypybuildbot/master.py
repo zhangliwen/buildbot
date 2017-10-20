@@ -4,6 +4,7 @@ from buildbot.scheduler import Nightly, Triggerable
 from buildbot.schedulers.forcesched import ForceScheduler
 from buildbot.schedulers.forcesched import ValidationError
 from buildbot.buildslave import BuildSlave
+from buildbot.buildslave.base import log
 from buildbot.status.html import WebStatus
 from buildbot.status.web import authz
 from buildbot.process.build import Build
@@ -269,12 +270,19 @@ extra_opts = {'xerxes': {'keepalive_interval': 15},
              'hhu-pypy-pi2': {'max_builds': 1},
              }
 
+def isRPython(change):
+    for fname in change.files:
+        if fname.startswith('rpython'):
+            log.msg('fileIsImportant filter isRPython got "%s"' % fname)
+            return True
+    return False
+
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
     'change_source': [
         HgPoller('https://bitbucket.org/pypy/pypy/', workdir='hgpoller-workdir',
-                 branch='default', pollinterval=300),
+                 branch='default', pollinterval=20*60),
         ],
 
     'schedulers': [
@@ -305,7 +313,7 @@ BuildmasterConfig = {
             LINUX64RPYTHON,            # on bencher4, uses all cores
             WIN32RPYTHON,              # on allegro_win32, SalsaSalsa
             ], branch='default', hour=0, minute=0, onlyIfChanged=True,
-            fileIsImportant=None, # set this to only rpython changes
+            fileIsImportant=isRPython,
             change_filter=filter.ChangeFilter(branch='default'),
         ),
 
