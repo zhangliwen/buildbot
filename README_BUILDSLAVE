@@ -1,9 +1,17 @@
 How to setup a buildslave for PyPy
 ==================================
 
-The recommended setup is to have a "pypy" in your path that will translate and
-a "python" (cpython) in your path that will run the test suites. You will also
-need a "virtualenv" in your path that will create a cpython virtualenv.
+The required setup is::
+- hg
+- "python" should run a cpython 2.6-2.7 that will run the test suites.
+- virtualenv that will use the "python" from above
+- all the build dependencies list here
+  http://doc.pypy.org/en/latest/build.html?highlight=dependencies#install-build-time-dependencies
+
+If your slave will be translating, you will also need
+- pypy in your path
+- at least 4GB of RAM for 32 bit, 6GB for 64 bit translations
+
 
 Then you will need to install the ``buildbot-slave`` package, which will
 install many other packages like twised, so you may prefer to run the
