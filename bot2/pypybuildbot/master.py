@@ -37,7 +37,8 @@ else:
     channel = '#pypy'
 
 authz_cfg = authz.Authz(pingBuilder=False, forceBuild=True, forceAllBuilds=True,
-                        stopBuild=True, stopAllBuilds=True, cancelPendingBuild=True)
+                        stopBuild=True, stopAllBuilds=True,
+                        cancelPendingBuild=True, pauseSlave=True)
 # xxx could maybe also say 'default_action=True' instead of all the
 # '*=True' in the line above
 status = WebStatus(httpPortNumber, authz=authz_cfg)
