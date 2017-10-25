@@ -510,19 +510,19 @@ BuildmasterConfig = {
                     "locks": [Bencher4Lock.access('exclusive')],
                     },
                   {"name": MACOSX32OWN,
-                   "slavenames": ["minime"],
+                   "slavenames": ["minime", "billenstein-sierra"],
                    "builddir": MACOSX32OWN,
                    "factory": pypyOwnTestFactoryOSX32,
                    "category": 'mac32'
                   },
                   {"name": MACOSX32RPYTHON,
-                   "slavenames": ["minime"],
+                   "slavenames": ["minime", "billenstein-sierra"],
                    "builddir": MACOSX32RPYTHON,
                    "factory": pypyRPythonTestFactoryOSX32,
                    "category": 'mac32'
                   },
                   {"name" : JITMACOSX64,
-                   "slavenames": ["rebuy-de", "tosh", "osx-10.9-x64-dw"],  # "xerxes"
+                   "slavenames": ["rebuy-de", "tosh", "osx-10.9-x64-dw", "billenstein-sierra"],  # "xerxes"
                    'builddir' : JITMACOSX64,
                    'factory' : pypyJITTranslatedTestFactoryOSX64,
                    'category' : 'mac64',
