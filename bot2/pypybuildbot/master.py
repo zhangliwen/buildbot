@@ -313,6 +313,7 @@ BuildmasterConfig = {
             LINUX32RPYTHON,            # on tannit32, uses all cores
             LINUX64RPYTHON,            # on bencher4, uses all cores
             WIN32RPYTHON,              # on allegro_win32, SalsaSalsa
+            LINUX_S390XRPYTHON,
             ], branch='default', hour=0, minute=0, onlyIfChanged=True,
             fileIsImportant=isRPython,
             change_filter=filter.ChangeFilter(branch='default'),
@@ -338,19 +339,25 @@ BuildmasterConfig = {
 
         Nightly("nightly-3-00-py3.5", [
             LINUX32OWN,                # on tannit32, uses all cores
-            LINUX32RPYTHON,            # on tannit32, uses all cores
             JITLINUX32,                # on tannit32, uses 1 core
             LINUX64OWN,                # on bencher4, uses all cores
-            LINUX64RPYTHON,            # on bencher4, uses all cores
             JITLINUX64,                # on bencher4, uses 1 core
             JITMACOSX64,               # on xerxes
             JITWIN32,                  # on allegro_win32, SalsaSalsa
             ], branch="py3.5", hour=3, minute=0),
 
+        # XXX disable this if you are SURE py3.5 and default rpython are identical
+        Nightly("nightly-3-01-py3.5", [
+            LINUX32RPYTHON,            # on tannit32, uses all cores
+            LINUX64RPYTHON,            # on bencher4, uses all cores
+            ], branch="py3.5", hour=3, minute=0, onlyIfChanged=True,
+            fileIsImportant=isRPython,
+            change_filter=filter.ChangeFilter(branch='py3.5'),
+        ),
+
         # S390X vm (ibm-research)
         Nightly("nightly-4-00", [
             LINUX_S390XOWN,
-            LINUX_S390XRPYTHON,
             ], branch='default', hour=0, minute=0),
         Nightly("nightly-4-01", [JITLINUX_S390X], branch='default', hour=2, minute=0),
 
@@ -511,13 +518,13 @@ BuildmasterConfig = {
                     "locks": [Bencher4Lock.access('exclusive')],
                     },
                   {"name": MACOSX32OWN,
-                   "slavenames": ["minime", "billenstein-sierra"],
+                   "slavenames": ["minime"],
                    "builddir": MACOSX32OWN,
                    "factory": pypyOwnTestFactoryOSX32,
                    "category": 'mac32'
                   },
                   {"name": MACOSX32RPYTHON,
-                   "slavenames": ["minime", "billenstein-sierra"],
+                   "slavenames": ["minime"],
                    "builddir": MACOSX32RPYTHON,
                    "factory": pypyRPythonTestFactoryOSX32,
                    "category": 'mac32'
