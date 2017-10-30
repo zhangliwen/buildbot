@@ -346,15 +346,6 @@ BuildmasterConfig = {
             JITWIN32,                  # on allegro_win32, SalsaSalsa
             ], branch="py3.5", hour=3, minute=0),
 
-        # XXX disable this if you are SURE py3.5 and default rpython are identical
-        Nightly("nightly-3-01-py3.5", [
-            LINUX32RPYTHON,            # on tannit32, uses all cores
-            LINUX64RPYTHON,            # on bencher4, uses all cores
-            ], branch="py3.5", hour=3, minute=0, onlyIfChanged=True,
-            fileIsImportant=isRPython,
-            change_filter=filter.ChangeFilter(branch='py3.5'),
-        ),
-
         # S390X vm (ibm-research)
         Nightly("nightly-4-00", [
             LINUX_S390XOWN,
