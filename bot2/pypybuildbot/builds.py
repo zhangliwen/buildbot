@@ -282,7 +282,7 @@ class ParseRevision(BuildStep):
 # a good idea, passing a "--rev" argument here changes the order of
 # the checkouts.  Then our revisions "12345:432bcbb1ba" are bogus.
 def _my_pullUpdate(self, res):
-    command = ['pull' , self.repourl]
+    command = ['pull', self.repourl]
     #if self.revision:                   <disabled!>
     #    command.extend(['--rev', self.revision])
     d = self._dovccmd(command)
@@ -447,7 +447,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         ))
 
     if app_tests:
-        if app_tests == True:
+        if app_tests is True:
             app_tests = []
         factory.addStep(PytestCmd(
             description="app-level (-A) test",
@@ -457,6 +457,28 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             timeout=4000,
             env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                 }))
+        test_interpreter = '../build/pypy/goal/pypy-c'
+        factory.addStep(ShellCmd(
+            description="Create virtualenv",
+            command=prefix + ['virtualenv', '--clear', '-p', test_interpreter,
+                'pypy-venv'],
+            workdir='venv',
+            flunkOnFailure=True))
+        if platform == 'win32':
+            virt_pypy = r'..\venv\pypy-venv\Scripts\python.exe'
+        else:
+            virt_pypy = '../venv/pypy-venv/bin/python'
+        factory.addStep(ShellCmd(
+            description="Install extra tests requirements",
+            command=prefix + [virt_pypy, '-m', 'pip', 'install',
+                '-r', '../build/extra_tests/requirements.txt'],
+            workdir='testing'))
+        factory.addStep(PytestCmd(
+            description="Run extra tests",
+            command=prefix + [virt_pypy, '-m', 'pytest',
+                '../build/extra_tests', '--resultlog=extra.log'],
+            logfiles={'pytestLog': 'extra.log'},
+            workdir='testing'))
 
     if lib_python:
         factory.addStep(PytestCmd(
