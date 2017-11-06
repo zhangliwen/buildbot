@@ -4,11 +4,12 @@ from buildbot.process.buildstep import BuildStep
 from buildbot.process import factory
 from buildbot.steps import shell, transfer
 from buildbot.steps.trigger import Trigger
-from buildbot.process.properties import WithProperties, Interpolate
+from buildbot.process.properties import WithProperties, Interpolate, Property
 from buildbot import locks
 from pypybuildbot.util import symlink_force
 from buildbot.status.results import SKIPPED, SUCCESS
 import os
+import json
 
 # buildbot supports SlaveLocks, which can be used to limit the amout of builds
 # to be run on each slave in parallel.  However, they assume that each
@@ -375,6 +376,7 @@ def update_git(platform, factory, repourl, workdir, branch='master',
                 alwaysUseLatest=alwaysUseLatest,
                 logEnviron=False))
 
+
 def setup_steps(platform, factory, workdir=None,
                 repourl='https://bitbucket.org/pypy/pypy/',
                 force_branch=None):
@@ -392,6 +394,14 @@ def setup_steps(platform, factory, workdir=None,
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
 
+    def extract_info(rc, stdout, stderr):
+        if rc == 0:
+            return json.loads(stdout)
+        else:
+            return {}
+    factory.addStep(shell.SetPropertyFromCommand(
+        command=['python', 'testrunner/get_info.py'],
+        extract_fn=extract_info))
 
 def build_name(platform, jit=False, flags=[], placeholder=None):
     if placeholder is None:
@@ -457,11 +467,10 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             timeout=4000,
             env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                 }))
-        test_interpreter = '../build/pypy/goal/pypy-c'
         factory.addStep(ShellCmd(
             description="Create virtualenv",
-            command=prefix + ['virtualenv', '--clear', '-p', test_interpreter,
-                'pypy-venv'],
+            command=prefix + ['virtualenv', '--clear', '-p',
+                Property('target_path'), 'pypy-venv'],
             workdir='venv',
             flunkOnFailure=True))
         if platform == 'win32':
