@@ -467,16 +467,23 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             timeout=4000,
             env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                 }))
+        if platform == 'win32':
+            virt_pypy = r'..\venv\pypy-venv\Scripts\python.exe'
+            clean = 'rmdir /s /q pypy-venv'
+        else:
+            virt_pypy = '../venv/pypy-venv/bin/python'
+            clean = 'rm -rf pypy-env'
+        factory.addStep(ShellCmd(
+            description="clean old virtualenv",
+            command=clean,
+            workdir='venv',
+            haltOnFailure=False))
         factory.addStep(ShellCmd(
             description="Create virtualenv",
             command=prefix + ['virtualenv', '--clear', '-p',
                 Property('target_path'), 'pypy-venv'],
             workdir='venv',
             flunkOnFailure=True))
-        if platform == 'win32':
-            virt_pypy = r'..\venv\pypy-venv\Scripts\python.exe'
-        else:
-            virt_pypy = '../venv/pypy-venv/bin/python'
         factory.addStep(ShellCmd(
             description="Install extra tests requirements",
             command=prefix + [virt_pypy, '-m', 'pip', 'install',
