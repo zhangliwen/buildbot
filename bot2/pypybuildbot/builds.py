@@ -473,15 +473,21 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         else:
             virt_pypy = '../venv/pypy-venv/bin/python'
             clean = 'rm -rf pypy-env'
+        target = Property('target_path')
         factory.addStep(ShellCmd(
             description="clean old virtualenv",
             command=clean,
             workdir='venv',
             haltOnFailure=False))
         factory.addStep(ShellCmd(
+            description="Install recent virtualenv",
+            command=prefix + [target, '-mpip', 'install', '--upgrade',
+                              'virtualenv'],
+            workdir='venv',
+            flunkOnFailure=True))
+        factory.addStep(ShellCmd(
             description="Create virtualenv",
-            command=prefix + ['virtualenv', '--clear', '-p',
-                Property('target_path'), 'pypy-venv'],
+            command=prefix + [target, '-mvirtualenv', '--clear', 'pypy-venv'],
             workdir='venv',
             flunkOnFailure=True))
         factory.addStep(ShellCmd(
@@ -555,16 +561,21 @@ class Untranslated(factory.BuildFactory):
             haltOnFailure=False,
             ))
 
+        if platform == 'win32':
+            self.virt_python = r'virt_test\Scripts\python.exe'
+            clean = 'rmdir /s /q virt-test'
+        else:
+            self.virt_python = 'virt_test/bin/python'
+            clean = 'rm -rf virt-test'
+        self.addStep(ShellCmd(
+            description="clean old virtualenv",
+            command=clean,
+            haltOnFailure=False))
         self.addStep(ShellCmd(
             description="create virtualenv for tests",
             command=['virtualenv', 'virt_test'],
             haltOnFailure=True,
             ))
-
-        if platform == 'win32':
-            self.virt_python = r'virt_test\Scripts\python.exe'
-        else:
-            self.virt_python = 'virt_test/bin/python'
 
         self.addStep(ShellCmd(
             description="install requirments to virtual environment",
