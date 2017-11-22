@@ -472,7 +472,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             clean = 'rmdir /s /q pypy-venv'
         else:
             virt_pypy = '../venv/pypy-venv/bin/python'
-            clean = 'rm -rf pypy-env'
+            clean = 'rm -rf pypy-venv'
         target = Property('target_path')
         factory.addStep(ShellCmd(
             description="clean old virtualenv",
