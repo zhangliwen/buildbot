@@ -563,14 +563,8 @@ class Untranslated(factory.BuildFactory):
 
         if platform == 'win32':
             self.virt_python = r'virt_test\Scripts\python.exe'
-            clean = 'rmdir /s /q virt-test'
         else:
             self.virt_python = 'virt_test/bin/python'
-            clean = 'rm -rf virt-test'
-        self.addStep(ShellCmd(
-            description="clean old virtualenv",
-            command=clean,
-            haltOnFailure=False))
         self.addStep(ShellCmd(
             description="create virtualenv for tests",
             command=['virtualenv', 'virt_test'],
