@@ -572,7 +572,14 @@ class Untranslated(factory.BuildFactory):
             ))
 
         self.addStep(ShellCmd(
-            description="install requirments to virtual environment",
+            description="update pip",
+            command=[self.virt_python, '-mpip', 'install', '--upgrade',
+                     'pip' , 'setuptools'],
+            haltOnFailure=True,
+            ))
+
+        self.addStep(ShellCmd(
+            description="install requirements to virtual environment",
             command=[self.virt_python, '-mpip', 'install', '-r',
                      'requirements.txt'],
             haltOnFailure=True,
