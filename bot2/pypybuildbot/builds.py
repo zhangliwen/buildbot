@@ -475,6 +475,10 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             clean = 'rm -rf pypy-venv'
         target = Property('target_path')
         factory.addStep(ShellCmd(
+            description="ensurepip",
+            command=prefix + [target, '-mensurepip'],
+            flunkOnFailure=True))
+        factory.addStep(ShellCmd(
             description="clean old virtualenv",
             command=clean,
             workdir='venv',
@@ -748,12 +752,6 @@ class TranslatedTests(factory.BuildFactory):
             description="reset permissions",
             command=['chmod', 'u+rw', '-R', 'build/lib_pypy'],
             haltOnFailure=True,
-            workdir='.'))
-        self.addStep(ShellCmd(
-            description="copy ctypes resource cache",
-            # eventually remove this step, not needed after 5.1
-            command=['cp', '-rv', 'pypy-c/lib_pypy/ctypes_config_cache', 'build/lib_pypy'],
-            haltOnFailure=False,
             workdir='.'))
         self.addStep(ShellCmd(
             description="copy cffi import libraries",
