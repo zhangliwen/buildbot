@@ -11,7 +11,7 @@ from buildbot.process.build import Build
 #from buildbot import manhole
 from pypybuildbot.pypylist import PyPyList, NumpyStatusList
 from pypybuildbot.ircbot import IRC  # side effects
-from pypybuildbot.util import we_are_debugging
+from pypybuildbot.util import we_are_debugging, isRPython
 from buildbot.changes import filter
 from buildbot.changes.hgpoller import HgPoller
 
@@ -63,7 +63,7 @@ status.putChild('numpy-status', NumpyStatusList(os.path.expanduser('~/numpy_comp
 
 pypybuilds = load('pypybuildbot.builds')
 
-# all ARM buildbot configuration si in arm_master.py
+# all ARM buildbot configuration is in arm_master.py
 ARM = load('pypybuildbot.arm_master')
 
 TannitCPU = pypybuilds.TannitCPU
@@ -270,13 +270,6 @@ extra_opts = {'xerxes': {'keepalive_interval': 15},
              'hhu-pypy-pi': {'max_builds': 1},
              'hhu-pypy-pi2': {'max_builds': 1},
              }
-
-def isRPython(change):
-    for fname in change.files:
-        if fname.startswith('rpython'):
-            log.msg('fileIsImportant filter isRPython got "%s"' % fname)
-            return True
-    return False
 
 BuildmasterConfig = {
     'slavePortnum': slavePortnum,

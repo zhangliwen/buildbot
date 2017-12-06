@@ -1,5 +1,5 @@
 from buildbot.scheduler import Nightly, Triggerable
-from pypybuildbot.util import load
+from pypybuildbot.util import load, isRPython
 
 pypybuilds = load('pypybuildbot.builds')
 ARMCrossLock = pypybuilds.ARMCrossLock
@@ -10,13 +10,13 @@ jit_translation_args = ['-Ojit']
 crosstranslationargs = ['--platform=arm', '--gcrootfinder=shadowstack']
 crosstranslationjitargs = ['--jit-backend=arm']
 # this one needs a larger timeout due to how it is run
-pypyJitBackendOnlyOwnTestFactoryARM = pypybuilds.Own(
+pypyJitBackendOnlyRPythonTestFactoryARM = pypybuilds.RPython(
         cherrypick=':'.join(["jit/backend/arm",
                             "jit/backend/llsupport",
                             "jit/backend/test",  # kill this one in case it is too slow
                             ]),
         timeout=36000)
-pypyJitOnlyOwnTestFactoryARM = pypybuilds.Own(cherrypick="jit", timeout=2 * 3600)
+pypyJitOnlyRPythonTestFactoryARM = pypybuilds.RPython(cherrypick="jit", timeout=2 * 3600)
 pypyOwnTestFactoryARM = pypybuilds.Own(timeout=2 * 3600)
 pypyRPythonTestFactoryARM = pypybuilds.RPython(timeout=2 * 3600)
 
@@ -146,13 +146,20 @@ schedulers = [
         BUILDJITLINUXARMHF_RASPBIAN,   # on hhu-cross-raspbianhf, uses 1 core
         BUILDJITLINUXARMHF_RARING,     # on hhu-cross-raring-armhf, uses 1 core
 
-        BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
-        BUILDLINUXARMHF_RASPBIAN,      # on hhu-cross-raspbianhf, uses 1 core
+        #BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
+        #BUILDLINUXARMHF_RASPBIAN,      # on hhu-cross-raspbianhf, uses 1 core
 
+        ], branch=None, hour=0, minute=0,
+    ),
+
+    Nightly("nightly-arm-0-01", [
         JITBACKENDONLYLINUXARMEL,      # on hhu-imx.53
         JITBACKENDONLYLINUXARMHF,
         JITBACKENDONLYLINUXARMHF_v7,   # on cubieboard-bob
-        ], branch=None, hour=0, minute=0),
+        ], branch='default', hour=0, minute=0, onlyIfChanged=True,
+        fileIsImportant=isRPython,
+        change_filter=filter.ChangeFilter(branch='default'),
+    ),
 
     Triggerable("APPLVLLINUXARM_scheduler", [
         APPLVLLINUXARM,            # triggered by BUILDLINUXARM, on hhu-beagleboard
@@ -182,7 +189,7 @@ builders = [
   {"name": JITBACKENDONLYLINUXARMEL,
    "slavenames": ['hhu-i.mx53'],
    "builddir": JITBACKENDONLYLINUXARMEL,
-   "factory": pypyJitBackendOnlyOwnTestFactoryARM,
+   "factory": pypyJitBackendOnlyRPythonTestFactoryARM,
    "category": 'linux-armel',
    "locks": [ARMBoardLock.access('counting')],
    },
@@ -191,7 +198,7 @@ builders = [
   {"name": JITBACKENDONLYLINUXARMHF,
    "slavenames": ['hhu-raspberry-pi', 'hhu-pypy-pi', 'hhu-pypy-pi2'],
    "builddir": JITBACKENDONLYLINUXARMHF,
-   "factory": pypyJitBackendOnlyOwnTestFactoryARM,
+   "factory": pypyJitBackendOnlyRPythonTestFactoryARM,
    "category": 'linux-armhf',
    "locks": [ARMBoardLock.access('counting')],
    },
@@ -199,7 +206,7 @@ builders = [
   {"name": JITBACKENDONLYLINUXARMHF_v7,
    "slavenames": ['cubieboard-bob'],
    "builddir": JITBACKENDONLYLINUXARMHF_v7,
-   "factory": pypyJitBackendOnlyOwnTestFactoryARM,
+   "factory": pypyJitBackendOnlyRPythonTestFactoryARM,
    "category": 'linux-armhf',
    "locks": [ARMBoardLock.access('counting')],
    },

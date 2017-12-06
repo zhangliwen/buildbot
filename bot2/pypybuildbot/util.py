@@ -17,3 +17,10 @@ def symlink_force(src, dst):
     if os.path.lexists(dst):
         os.remove(dst)
     os.symlink(src, dst)
+
+def isRPython(change):
+    for fname in change.files:
+        if fname.startswith('rpython'):
+            log.msg('fileIsImportant filter isRPython got "%s"' % fname)
+            return True
+    return False
