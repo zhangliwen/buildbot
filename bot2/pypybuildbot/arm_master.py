@@ -1,5 +1,6 @@
 from buildbot.scheduler import Nightly, Triggerable
 from pypybuildbot.util import load, isRPython
+from buildbot.changes import filter
 
 pypybuilds = load('pypybuildbot.builds')
 ARMCrossLock = pypybuilds.ARMCrossLock
@@ -51,15 +52,6 @@ pypyJITCrossTranslationFactoryRaspbianHF = pypybuilds.NightlyBuild(
     prefix=['schroot', '-c', 'raspbian', '--'],
     trigger='JITLINUXARMHF_RASPBIAN_scheduler')
 
-pypyJITCrossTranslationFactoryRaringHF = pypybuilds.NightlyBuild(
-    translationArgs=(crosstranslationargs
-                        + jit_translation_args
-                        + crosstranslationjitargs),
-    platform='linux-armhf-raring',
-    interpreter='pypy',
-    prefix=['schroot', '-c', 'raring', '--'],
-    trigger='JITLINUXARMHF_RARING_scheduler')
-
 pypyARMJITTranslatedTestFactory = pypybuilds.TranslatedTests(
     translationArgs=(crosstranslationargs
                         + jit_translation_args
@@ -91,15 +83,7 @@ pypyARMHF_RASPBIAN_TranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
     app_tests=True,
     platform='linux-armhf-raspbian',
 )
-pypyARMHF_RARING_JITTranslatedTestFactory = pypybuilds.TranslatedTests(
-    translationArgs=(crosstranslationargs
-                        + jit_translation_args
-                        + crosstranslationjitargs),
-    lib_python=True,
-    pypyjit=True,
-    app_tests=True,
-    platform='linux-armhf-raring',
-    )
+
 #
 LINUXARMHFOWN = "own-linux-armhf"
 LINUXARMHFRPYTHON = "rpython-linux-armhf"
@@ -110,7 +94,6 @@ APPLVLLINUXARMHF_RASPBIAN = "pypy-c-app-level-linux-armhf-raspbian"
 JITLINUXARM = "pypy-c-jit-linux-armel"
 JITLINUXARMHF_v7 = "pypy-c-jit-linux-armhf-v7"
 JITLINUXARMHF_RASPBIAN = "pypy-c-jit-linux-armhf-raspbian"
-JITLINUXARMHF_RARING = "pypy-c-jit-linux-armhf-raring"
 
 JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
 JITBACKENDONLYLINUXARMHF = "jitbackendonly-own-linux-armhf"
@@ -121,7 +104,6 @@ BUILDLINUXARM = "build-pypy-c-linux-armel"
 BUILDJITLINUXARM = "build-pypy-c-jit-linux-armel"
 BUILDLINUXARMHF_RASPBIAN = "build-pypy-c-linux-armhf-raspbian"
 BUILDJITLINUXARMHF_RASPBIAN = "build-pypy-c-jit-linux-armhf-raspbian"
-BUILDJITLINUXARMHF_RARING = "build-pypy-c-jit-linux-armhf-raring"
 
 builderNames = [
     APPLVLLINUXARM,
@@ -137,19 +119,25 @@ builderNames = [
     BUILDJITLINUXARM,
     BUILDLINUXARMHF_RASPBIAN,
     BUILDJITLINUXARMHF_RASPBIAN,
-    BUILDJITLINUXARMHF_RARING,
 ]
 
 schedulers = [
     Nightly("nighly-arm-0-00", [
         BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
         BUILDJITLINUXARMHF_RASPBIAN,   # on hhu-cross-raspbianhf, uses 1 core
-        BUILDJITLINUXARMHF_RARING,     # on hhu-cross-raring-armhf, uses 1 core
 
         #BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
         #BUILDLINUXARMHF_RASPBIAN,      # on hhu-cross-raspbianhf, uses 1 core
 
-        ], branch=None, hour=0, minute=0,
+        ], branch='default', hour=0, minute=0,
+        onlyIfChanged=True,
+    ),
+
+    Nightly("nightly-arm-3-00-py3.5", [
+        BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
+        BUILDJITLINUXARMHF_RASPBIAN,   # on hhu-cross-raspbianhf, uses 1 core
+        ], branch="py3.5", hour=3, minute=0,
+        onlyIfChanged=True,
     ),
 
     Nightly("nightly-arm-0-01", [
@@ -178,8 +166,6 @@ schedulers = [
         JITLINUXARMHF_v7,             # triggered by BUILDJITLINUXARMHF_RASPBIAN, on cubieboard-bob
     ]),
 
-    Triggerable("JITLINUXARMHF_RARING_scheduler", [ # triggered by BUILDJITLINUXARMHF_RARING
-    ])
 ]
 
 builders = [
@@ -282,13 +268,6 @@ builders = [
    "slavenames": ['hhu-cross-raspbianhf'],
    "builddir": BUILDJITLINUXARMHF_RASPBIAN,
    "factory": pypyJITCrossTranslationFactoryRaspbianHF,
-   "category": 'linux-armhf',
-   "locks": [ARMCrossLock.access('counting')],
-  },
-  {"name": BUILDJITLINUXARMHF_RARING,
-   "slavenames": ['hhu-cross-raring'],
-   "builddir": BUILDJITLINUXARMHF_RARING,
-   "factory": pypyJITCrossTranslationFactoryRaringHF,
    "category": 'linux-armhf',
    "locks": [ARMCrossLock.access('counting')],
   },

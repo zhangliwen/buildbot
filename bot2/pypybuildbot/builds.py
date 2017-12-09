@@ -728,14 +728,14 @@ class TranslatedTests(factory.BuildFactory):
         # copy pypy-c to the expected location within the pypy source checkout
         command = ('PYPY_C="pypy-c/bin/pypy";'
                    'if [ -e pypy-c/bin/pypy3 ]; then PYPY_C="pypy-c/bin/pypy3"; fi;'
-                   'cp -v $PYPY_C build/pypy/goal/pypy-c;')
+                   'cp -v $PYPY_C build/pypy/goal;')
         self.addStep(ShellCmd(
             description="move pypy-c",
             command=command,
             haltOnFailure=True,
             workdir='.'))
         # copy libpypy-c.so to the expected location within the pypy source checkout, if available
-        command = 'if [ -e pypy-c/bin/libpypy-c.so ]; then cp -v pypy-c/bin/libpypy-c.so build/pypy/goal/; fi;'
+        command = 'if [ -e pypy-c/bin/libpypy-c.so ]; then cp -v pypy-c/bin/libpypy-c.so build/pypy/goal; fi;'
         self.addStep(ShellCmd(
             description="move libpypy-c.so",
             command=command,

@@ -300,7 +300,9 @@ BuildmasterConfig = {
             JITMACOSX64,               # on xerxes
             # buildbot selftest
             #PYPYBUILDBOT               # on cobra
-            ], branch='default', hour=0, minute=0),
+            ], branch='default', hour=0, minute=0,
+            onlyIfChanged=True,
+        ),
 
         Nightly("nightly-0-01", [
             LINUX32RPYTHON,            # on tannit32, uses all cores
@@ -317,7 +319,9 @@ BuildmasterConfig = {
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
-        ], branch=None, hour=5, minute=0),
+            ], branch='default', hour=5, minute=0,
+            onlyIfChanged=True,
+        ),
 
         Triggerable("NUMPY64_scheduler", [
             #NUMPY_64,                  # on tannit64, uses 1 core, takes about 5min.
@@ -337,13 +341,17 @@ BuildmasterConfig = {
             JITLINUX64,                # on bencher4, uses 1 core
             JITMACOSX64,               # on xerxes
             JITWIN32,                  # on allegro_win32, SalsaSalsa
-            ], branch="py3.5", hour=3, minute=0),
+            ], branch="py3.5", hour=3, minute=0,
+            onlyIfChanged=True,
+        ),
 
         # S390X vm (ibm-research)
         Nightly("nightly-4-00", [
             LINUX_S390XOWN,
             ], branch='default', hour=0, minute=0),
-        Nightly("nightly-4-01", [JITLINUX_S390X], branch='default', hour=2, minute=0),
+        Nightly("nightly-4-01", [JITLINUX_S390X], branch='default', hour=2, minute=0,
+            onlyIfChanged=True,
+        ),
 
         # this one has faithfully run every night even though the latest
         # change to that branch was in January 2013.  Re-enable one day.
