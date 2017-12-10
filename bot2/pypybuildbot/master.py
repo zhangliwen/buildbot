@@ -319,8 +319,9 @@ BuildmasterConfig = {
             JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
-            ], branch='default', hour=5, minute=0,
-            onlyIfChanged=True,
+            ], branch=None, hour=5, minute=0,
+            # XXX causes hg updatee -r nnn from pypy/pypy instead of pypy/benchmarks
+            #onlyIfChanged=True,
         ),
 
         Triggerable("NUMPY64_scheduler", [
