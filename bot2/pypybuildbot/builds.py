@@ -726,24 +726,24 @@ class TranslatedTests(factory.BuildFactory):
             haltOnFailure=True,
             workdir='.'))
         # copy pypy-c to the expected location within the pypy source checkout
-        command = ('PYPY_C="pypy-c/bin/pypy";'
-                   'if [ -e pypy-c/bin/pypy3 ]; then PYPY_C="pypy-c/bin/pypy3"; fi;'
-                   'cp -v $PYPY_C build/pypy/goal;')
+        command = ('PYPY_C="pypy";'
+                   'if [ -e pypy-c/bin/pypy3 ]; then PYPY_C="pypy3"; fi;'
+                   'cp -v pypy-c/bin/$PYPY_C build/pypy/goal/$PYPY_C-c;')
         self.addStep(ShellCmd(
-            description="move pypy-c",
+            description="copy pypy-c",
             command=command,
             haltOnFailure=True,
             workdir='.'))
         # copy libpypy-c.so to the expected location within the pypy source checkout, if available
         command = 'if [ -e pypy-c/bin/libpypy-c.so ]; then cp -v pypy-c/bin/libpypy-c.so build/pypy/goal; fi;'
         self.addStep(ShellCmd(
-            description="move libpypy-c.so",
+            description="copy libpypy-c.so",
             command=command,
             haltOnFailure=True,
             workdir='.'))
         # copy generated and copied header files to build/include
         self.addStep(ShellCmd(
-            description="move header files",
+            description="copy header files",
             command=['cp', '-vr', 'pypy-c/include', 'build'],
             haltOnFailure=True,
             workdir='.'))
