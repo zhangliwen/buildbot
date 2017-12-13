@@ -735,7 +735,7 @@ class TranslatedTests(factory.BuildFactory):
             haltOnFailure=True,
             workdir='.'))
         # copy libpypy-c.so to the expected location within the pypy source checkout, if available
-        command = 'if [ -e pypy-c/bin/libpypy-c.so ]; then cp -v pypy-c/bin/libpypy-c.so build/pypy/goal; fi;'
+        command = 'cp -v pypy-c/bin/libpypy*-c.so build/pypy/goal/ || true'
         self.addStep(ShellCmd(
             description="copy libpypy-c.so",
             command=command,
