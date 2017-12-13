@@ -343,7 +343,7 @@ BuildmasterConfig = {
             JITMACOSX64,               # on xerxes
             JITWIN32,                  # on allegro_win32, SalsaSalsa
             ], branch="py3.5", hour=3, minute=0,
-            onlyIfChanged=True,
+            #onlyIfChanged=True,
         ),
 
         # S390X vm (ibm-research)

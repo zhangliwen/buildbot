@@ -137,7 +137,7 @@ schedulers = [
         BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
         BUILDJITLINUXARMHF_RASPBIAN,   # on hhu-cross-raspbianhf, uses 1 core
         ], branch="py3.5", hour=3, minute=0,
-        onlyIfChanged=True,
+        #onlyIfChanged=True,
     ),
 
     Nightly("nightly-arm-0-01", [
