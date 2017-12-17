@@ -470,9 +470,11 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         if platform == 'win32':
             virt_pypy = r'..\venv\pypy-venv\Scripts\python.exe'
             clean = 'rmdir /s /q pypy-venv'
+            virt_package = 'git+git://github.com/pypa/virtualenv@master'
         else:
             virt_pypy = '../venv/pypy-venv/bin/python'
             clean = 'rm -rf pypy-venv'
+            virt_package = 'virtualenv'
         target = Property('target_path')
         factory.addStep(ShellCmd(
             description="ensurepip",
@@ -486,7 +488,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         factory.addStep(ShellCmd(
             description="Install recent virtualenv",
             command=prefix + [target, '-mpip', 'install', '--upgrade',
-                              'git+git://github.com/pypa/virtualenv@master'],
+                              virt_package],
             workdir='venv',
             flunkOnFailure=True))
         factory.addStep(ShellCmd(
