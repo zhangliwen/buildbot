@@ -468,14 +468,17 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
                 }))
         if platform == 'win32':
-            virt_pypy = r'..\venv\pypy-venv\Scripts\python.exe'
+            virt_pypy = r'pypy-venv\Scripts\python.exe'
             clean = 'rmdir /s /q pypy-venv'
             virt_package = 'git+git://github.com/pypa/virtualenv@master'
         else:
-            virt_pypy = '../venv/pypy-venv/bin/python'
+            virt_pypy = 'pypy-venv/bin/python'
             clean = 'rm -rf pypy-venv'
             virt_package = 'virtualenv'
+        # set from testrunner/get_info.py
         target = Property('target_path')
+        venv_dir = Property('venv_dir', default = 'pypy-venv')
+        virt_pypy = Property('virt_pypy', default=virt_pypy)
         factory.addStep(ShellCmd(
             description="ensurepip",
             command=prefix + [target, '-mensurepip'],
@@ -493,20 +496,20 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             flunkOnFailure=True))
         factory.addStep(ShellCmd(
             description="Create virtualenv",
-            command=prefix + [target, '-mvirtualenv', '--clear', 'pypy-venv'],
+            command=prefix + [target, '-mvirtualenv', '--clear', venv_dir],
             workdir='venv',
             flunkOnFailure=True))
         factory.addStep(ShellCmd(
             description="Install extra tests requirements",
             command=prefix + [virt_pypy, '-m', 'pip', 'install',
                 '-r', '../build/extra_tests/requirements.txt'],
-            workdir='testing'))
+            workdir='venv'))
         factory.addStep(PytestCmd(
             description="Run extra tests",
             command=prefix + [virt_pypy, '-m', 'pytest',
                 '../build/extra_tests', '--resultlog=extra.log'],
             logfiles={'pytestLog': 'extra.log'},
-            workdir='testing'))
+            workdir='venv'))
 
     if lib_python:
         factory.addStep(PytestCmd(
