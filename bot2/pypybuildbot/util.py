@@ -1,5 +1,6 @@
 import os
 import socket
+from buildbot.buildslave.base import log
 
 def we_are_debugging():
     return socket.gethostname() != 'baroquesoftware'
