@@ -397,7 +397,7 @@ def setup_steps(platform, factory, workdir=None,
     factory.addStep(ShellCmd(
         description="fetch external dependencies",
         command=['python', 'get_externals.py',
-                 'platform=%s' % platform,],
+                 '--platform=%s' % platform,],
         flunkOnFailure=False,
         haltOnFailure=False,
         workdir=workdir))
