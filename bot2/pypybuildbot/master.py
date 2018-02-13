@@ -296,7 +296,7 @@ BuildmasterConfig = {
             JITWIN32,                  # on allegro_win32, SalsaSalsa
             #JITFREEBSD764,            # on headless
             #JITFREEBSD864,            # on ananke
-            JITFREEBSD964,             # on tavendo
+            #JITFREEBSD964,             # on tavendo
             JITMACOSX64,               # on xerxes
             # buildbot selftest
             #PYPYBUILDBOT               # on cobra
@@ -383,7 +383,7 @@ BuildmasterConfig = {
                         JITLINUX64,
                         JITMACOSX64,
                         JITWIN32,
-                        JITFREEBSD964,
+                        #JITFREEBSD964,
 
                         JITONLYLINUXPPC64,
                         JITBENCH,
