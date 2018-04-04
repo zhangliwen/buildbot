@@ -262,7 +262,13 @@ inactive_slaves = [
                    'factory' : pypyJITTranslatedTestFactoryFreeBSD,
                    "category": 'freebsd64'
                    },
-                   ]
+                  {"name" : JITFREEBSD964,
+                   "slavenames": ['hybridlogic', 'tavendo-freebsd-9.2-amd64'],
+                   'builddir' : JITFREEBSD964,
+                   'factory' : pypyJITTranslatedTestFactoryFreeBSD,
+                   "category": 'freebsd64'
+                   },
+                    ]
 extra_opts = {'xerxes': {'keepalive_interval': 15},
              'aurora': {'max_builds': 1},
              'salsa': {'max_builds': 1},
@@ -562,13 +568,7 @@ BuildmasterConfig = {
                    "locks": [WinSlaveLock.access('counting')],
                    'category' : 'win32',
                    },
-                  {"name" : JITFREEBSD964,
-                   "slavenames": ['hybridlogic', 'tavendo-freebsd-9.2-amd64'],
-                   'builddir' : JITFREEBSD964,
-                   'factory' : pypyJITTranslatedTestFactoryFreeBSD,
-                   "category": 'freebsd64'
-                   },
-                  # PPC
+                 # PPC
                   {"name": JITONLYLINUXPPC64,
                    "slavenames": ['gcc1'],
                    "builddir": JITONLYLINUXPPC64,
