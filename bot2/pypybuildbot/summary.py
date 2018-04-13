@@ -324,7 +324,7 @@ class SummaryPage(object):
     def __init__(self, status):
         self.sections = []
         self.cur_cat_branch=None
-        self.fixed_builder = False
+        self.n_builders = 0
         self.status = status
 
     def make_longrepr_url_for(self, outcome_set, namekey):
@@ -347,7 +347,7 @@ class SummaryPage(object):
             builder = cachekey[0]
             anchors.append('  ')
             timing = ""
-            if self.fixed_builder and info['elapsed'] is not None:
+            if self.n_builders == 1 and info['elapsed'] is not None:
                 timing = " in %s" % show_elapsed(info['elapsed'])
             if info['times'][1] is not None:
                 day = time.localtime(info['times'][1])[:3]
@@ -396,7 +396,7 @@ class SummaryPage(object):
         self.sections.append(html.h2(cat_anchor," ",branch_anchor, " ", extra))
 
     def _builder_anchor(self, builder):
-        if self.fixed_builder:
+        if self.n_builders > 0:
             url = self.status.getURLForThing(self.status.getBuilder(builder))
             cls = "builder"
         else:
@@ -409,7 +409,7 @@ class SummaryPage(object):
         return outcome_set.map.values()[0].key
 
     def _label(self, outcome_set):
-        if self.fixed_builder:
+        if self.n_builders > 0:
             # (rev, buildNumber)
             buildNumber = self._builder_num(outcome_set)[1]
             return (outcome_set.revision, buildNumber)
@@ -419,7 +419,7 @@ class SummaryPage(object):
 
     def _label_for_sorting(self, outcome_set):
         encodedrev = encode_rev_for_ordering(outcome_set.revision)
-        if self.fixed_builder:
+        if self.n_builders > 0:
             # (rev, buildNumber)
             buildNumber = self._builder_num(outcome_set)[1]
             return (encodedrev, buildNumber)
@@ -429,7 +429,7 @@ class SummaryPage(object):
 
     def _label_anchor(self, outcome_set, revsize):
         rev = outcome_set.revision
-        if self.fixed_builder:
+        if self.n_builders > 0:
             pick = "builder=%s&builds=%d" % self._builder_num(outcome_set)
         else:
             pick = "recentrev=%s" % rev
@@ -738,7 +738,7 @@ class Summary(HtmlResource):
         test_rev = make_test(only_recentrevs)
         test_branch = make_test(only_branches)
         test_builder = make_test(only_builder)
-        fixed_builder = bool(only_builder)
+        n_builders = len(only_builder) if only_builder else 0
         prune_old = not (only_builds or only_recentrevs or
                          only_builder or only_branches)
 
@@ -781,7 +781,7 @@ class Summary(HtmlResource):
                 else:
                     rev = got_rev
                     buildNumber = build.getNumber()
-                    if fixed_builder:
+                    if n_builders > 0:
                         builds = runs.setdefault((buildNumber, rev), {})
                     else:
                         builds = runs.setdefault(rev, {})
@@ -858,8 +858,7 @@ class Summary(HtmlResource):
         only_builder = request.args.get('builder', None)
         only_builds = None
         if only_builder is not None:
-            only_builder = only_builder[-1:] # pick exactly one
-            page.fixed_builder = True
+            page.n_builders = len(only_builder)
             build_select = request.args.get('builds', None)
             if build_select is not None:
                 only_builds = self._parse_builds(build_select)

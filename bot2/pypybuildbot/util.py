@@ -1,6 +1,6 @@
 import os
 import socket
-from buildbot.buildslave.base import log
+from twisted.python import log
 
 def we_are_debugging():
     return socket.gethostname() != 'baroquesoftware'

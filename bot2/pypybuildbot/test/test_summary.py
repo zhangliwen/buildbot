@@ -687,6 +687,45 @@ class TestSummary(object):
 
         assert 'TEST1' in out
 
+    def test_many_builders_query_builder(self):
+        builder0 = status_builder.BuilderStatus('builder0', None, self.master, '')
+        builder1 = status_builder.BuilderStatus('builder1', None, self.master, '')
+        add_builds(builder0, [('60000', "F TEST1\n. b"),
+                             ('60000', ". a\n. b"),
+                             ('60001', "F TEST1\n. b")])
+        add_builds(builder1, [('60000', "F TEST1\n. b"),
+                             ('60000', ". a\n. b"),
+                             ('60001', "F TEST1\n. b")])
+
+        s = summary.Summary()
+        res = witness_cat_branch(s)
+        req = FakeRequest([builder0, builder1])
+        req.args={'builder': ['builder0', 'builder1']}
+        out = s.body(req)
+        cat_branch = res()
+
+        runs = cat_branch[(None, METABRANCH)][0]
+        assert sorted(runs.keys()) == [(0, '60000'), (1, '60000'), (2, '60001')]
+        outcome = runs[(0, '60000')]['builder0']
+        assert outcome.revision == '60000'
+        assert outcome.key == ('builder0', 0)
+        outcome = runs[(1, '60000')]['builder0']
+        assert outcome.revision == '60000'
+        assert outcome.key == ('builder0', 1)
+        outcome = runs[(2, '60001')]['builder0']
+        assert outcome.revision == '60001'
+        assert outcome.key == ('builder0', 2)
+
+        runs = []
+        for m in re.finditer(r'builder=(\w+)&amp;builds=(\d+)', out):
+            runs.append((m.group(1), int(m.group(2))))
+
+        assert runs == [('builder1', 0),
+                        ('builder1', 1),
+                        ('builder1', 2)]
+
+        assert 'TEST1' in out
+
 
     def test_many_builds_query_builder_builds(self):
         builder = status_builder.BuilderStatus('builder0', None, self.master, '')
