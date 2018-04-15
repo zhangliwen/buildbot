@@ -290,12 +290,12 @@ BuildmasterConfig = {
         # All the other linux tests run on bencher4.soft-dev.org.
         Nightly("nightly-0-00", [
             # linux tests
-            LINUX32OWN,                # on tannit32, uses all cores
+            LINUX32OWN,                # on bencher4_32, uses all cores
             LINUX64OWN,                # on bencher4, uses all cores
             WIN32OWN,                  # on allegro_win32, SalsaSalsa
-            JITLINUX32,                # on tannit32, uses 1 core
+            JITLINUX32,                # on bencher4_32, uses 1 core
             JITLINUX64,                # on bencher4, uses 1 core
-            #APPLVLLINUX32,            # on tannit32, uses 1 core
+            #APPLVLLINUX32,            # on bencher4_32, uses 1 core
             #APPLVLLINUX64,             # on bencher4, uses 1 core
             # other platforms
             #MACOSX32,                 # on minime
@@ -311,7 +311,7 @@ BuildmasterConfig = {
         ),
 
         Nightly("nightly-0-01", [
-            LINUX32RPYTHON,            # on tannit32, uses all cores
+            LINUX32RPYTHON,            # on bencher4_32, uses all cores
             LINUX64RPYTHON,            # on bencher4, uses all cores
             WIN32RPYTHON,              # on allegro_win32, SalsaSalsa
             LINUX_S390XRPYTHON,
@@ -342,8 +342,8 @@ BuildmasterConfig = {
         #        branch="py3.5", hour=3, minute=0),
 
         Nightly("nightly-3-00-py3.5", [
-            LINUX32OWN,                # on tannit32, uses all cores
-            JITLINUX32,                # on tannit32, uses 1 core
+            LINUX32OWN,                # on bencher4_32, uses all cores
+            JITLINUX32,                # on bencher4_32, uses 1 core
             LINUX64OWN,                # on bencher4, uses all cores
             JITLINUX64,                # on bencher4, uses 1 core
             JITMACOSX64,               # on xerxes
@@ -418,14 +418,14 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": LINUX32OWN,
-                   "slavenames": ["tannit32", "bencher4_32"],
+                   "slavenames": ["bencher4_32"],
                    "builddir": LINUX32OWN,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux32',
                    "locks": [TannitCPU.access('counting')],
                   },
                   {"name": LINUX32RPYTHON,
-                   "slavenames": ["tannit32", "bencher4_32"],
+                   "slavenames": ["bencher4_32"],
                    "builddir": LINUX32RPYTHON,
                    "factory": pypyRPythonTestFactory,
                    "category": 'linux32',
@@ -449,7 +449,7 @@ BuildmasterConfig = {
                   },
                   {"name": APPLVLLINUX32,
                    #"slavenames": ["allegro32"],
-                   "slavenames": ["tannit32", "bencher4_32"],
+                   "slavenames": ["bencher4_32"],
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
                    'category': 'linux32',
@@ -464,7 +464,7 @@ BuildmasterConfig = {
                    "locks": [Bencher4Lock.access('counting')],
                   },
                   {"name": LIBPYTHON_LINUX32,
-                   "slavenames": ["tannit32", "bencher4_32"],
+                   "slavenames": ["bencher4_32"],
                    #"slavenames": ["allegro32"],
                    "builddir": LIBPYTHON_LINUX32,
                    "factory": pypyTranslatedLibPythonTestFactory,
@@ -481,7 +481,7 @@ BuildmasterConfig = {
                   },
                   {"name" : JITLINUX32,
                    #"slavenames": ["allegro32"],
-                   "slavenames": ["tannit32", "bencher4_32"],
+                   "slavenames": ["bencher4_32"],
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'linux32',
@@ -577,7 +577,6 @@ BuildmasterConfig = {
                    },
                   {'name': NUMPY_64,
                    'slavenames': ["bencher4"],
-                   #'slavenames': ["tannit64"],
                    'builddir': NUMPY_64,
                    'factory': pypyNumpyCompatability,
                    'category': 'numpy',

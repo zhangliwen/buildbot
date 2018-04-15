@@ -14,7 +14,7 @@ import json
 # buildbot supports SlaveLocks, which can be used to limit the amout of builds
 # to be run on each slave in parallel.  However, they assume that each
 # buildslave is on a differen physical machine, which is not the case for
-# tannit32 and tannit64.  As a result, we have to use a global lock, and
+# bencher4 and bencher4_32.  As a result, we have to use a global lock, and
 # manually tell each builder that uses tannit to acquire it.
 #
 # Look at the various "locks" session in master.py/BuildmasterConfig.  For
