@@ -321,8 +321,8 @@ BuildmasterConfig = {
         ),
 
         Nightly("nightly-1-00", [
-            JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
-            JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
+            #JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
+            #JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
             ], branch=None, hour=5, minute=0,
