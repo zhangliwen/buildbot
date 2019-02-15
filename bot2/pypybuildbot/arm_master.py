@@ -123,8 +123,8 @@ builderNames = [
 
 schedulers = [
     Nightly("nighly-arm-0-00", [
-        BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
-        BUILDJITLINUXARMHF_RASPBIAN,   # on hhu-cross-raspbianhf, uses 1 core
+        #BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
+        #BUILDJITLINUXARMHF_RASPBIAN,   # on hhu-cross-raspbianhf, uses 1 core
 
         #BUILDLINUXARM,                 # on hhu-cross-armel, uses 1 core
         #BUILDLINUXARMHF_RASPBIAN,      # on hhu-cross-raspbianhf, uses 1 core
