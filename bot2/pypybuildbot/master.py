@@ -292,14 +292,14 @@ BuildmasterConfig = {
             # linux tests
             LINUX32OWN,                # on bencher4_32, uses all cores
             LINUX64OWN,                # on bencher4, uses all cores
-            WIN32OWN,                  # on allegro_win32, SalsaSalsa
+            WIN32OWN,                  # on SalsaSalsa
             JITLINUX32,                # on bencher4_32, uses 1 core
             JITLINUX64,                # on bencher4, uses 1 core
             #APPLVLLINUX32,            # on bencher4_32, uses 1 core
             #APPLVLLINUX64,             # on bencher4, uses 1 core
             # other platforms
             #MACOSX32,                 # on minime
-            JITWIN32,                  # on allegro_win32, SalsaSalsa
+            JITWIN32,                  # on SalsaSalsa
             #JITFREEBSD764,            # on headless
             #JITFREEBSD864,            # on ananke
             #JITFREEBSD964,             # on tavendo
@@ -313,7 +313,7 @@ BuildmasterConfig = {
         Nightly("nightly-0-01", [
             LINUX32RPYTHON,            # on bencher4_32, uses all cores
             LINUX64RPYTHON,            # on bencher4, uses all cores
-            WIN32RPYTHON,              # on allegro_win32, SalsaSalsa
+            WIN32RPYTHON,              # on SalsaSalsa
             LINUX_S390XRPYTHON,
             ], branch='default', hour=0, minute=0, onlyIfChanged=True,
             fileIsImportant=isRPython,
@@ -335,7 +335,7 @@ BuildmasterConfig = {
         ]),
 
         Triggerable("NUMPYWIN_scheduler", [
-            #NUMPY_WIN,                  # on allegro_win32, SalsaSalsa
+            #NUMPY_WIN,                  # on SalsaSalsa
         ]),
 
         #Nightly("nightly-3-01-py3.5", [LINUX64, JITLINUX64,],
@@ -347,8 +347,8 @@ BuildmasterConfig = {
             LINUX64OWN,                # on bencher4, uses all cores
             JITLINUX64,                # on bencher4, uses 1 core
             JITMACOSX64,               # on xerxes
-            JITWIN32,                  # on allegro_win32, SalsaSalsa
-            ], branch="py3.5", hour=3, minute=0,
+            JITWIN32,                  # on SalsaSalsa
+            ], branch="py3.6", hour=3, minute=0,
             #onlyIfChanged=True,
         ),
 
@@ -541,28 +541,28 @@ BuildmasterConfig = {
                   # 'category' : 'mac64',
                   # },
                   {"name": WIN32OWN,
-                   "slavenames": ["SalsaSalsa", "allegro_win32", "anubis64"],
+                   "slavenames": ["SalsaSalsa", "anubis64"],
                    "builddir": WIN32OWN,
                    "factory": pypyOwnTestFactoryWin,
                    "locks": [WinSlaveLock.access('counting')],
                    "category": 'win32',
                   },
                   {"name": WIN32RPYTHON,
-                   "slavenames": ["SalsaSalsa", "allegro_win32", "anubis64"],
+                   "slavenames": ["SalsaSalsa", "anubis64"],
                    "builddir": WIN32RPYTHON,
                    "factory": pypyRPythonTestFactoryWin,
                    "locks": [WinSlaveLock.access('counting')],
                    "category": 'win32',
                   },
                  {"name": APPLVLWIN32,
-                   "slavenames": ["SalsaSalsa", "allegro_win32"],
+                   "slavenames": ["SalsaSalsa", ],
                    "builddir": APPLVLWIN32,
                    "factory": pypyTranslatedAppLevelTestFactoryWin,
                    "locks": [WinSlaveLock.access('counting')],
                    "category": "win32",
                   },
                   {"name" : JITWIN32,
-                   "slavenames": ["SalsaSalsa", "allegro_win32", "anubis64"],
+                   "slavenames": ["SalsaSalsa", "anubis64"],
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    "locks": [WinSlaveLock.access('counting')],
@@ -584,7 +584,7 @@ BuildmasterConfig = {
                    "locks": [Bencher4Lock.access('counting')],
                   },
                   {'name': NUMPY_WIN,
-                   'slavenames': ["allegro_win32", "SalsaSalsa"],
+                   'slavenames': ["SalsaSalsa"],
                    'builddir': NUMPY_WIN,
                    'factory': pypyNumpyCompatabilityWin,
                    "locks": [WinSlaveLock.access('counting')],
