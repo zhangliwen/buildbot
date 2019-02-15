@@ -115,10 +115,10 @@ builderNames = [
     JITBACKENDONLYLINUXARMEL,
     JITBACKENDONLYLINUXARMHF,
     JITBACKENDONLYLINUXARMHF_v7,
-    BUILDLINUXARM,
-    BUILDJITLINUXARM,
-    BUILDLINUXARMHF_RASPBIAN,
-    BUILDJITLINUXARMHF_RASPBIAN,
+    #BUILDLINUXARM,
+    #BUILDJITLINUXARM,
+    #BUILDLINUXARMHF_RASPBIAN,
+    #BUILDJITLINUXARMHF_RASPBIAN,
 ]
 
 schedulers = [
@@ -134,8 +134,8 @@ schedulers = [
     ),
 
     Nightly("nightly-arm-3-00-py3.5", [
-        BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
-        BUILDJITLINUXARMHF_RASPBIAN,   # on hhu-cross-raspbianhf, uses 1 core
+        #BUILDJITLINUXARM,              # on hhu-cross-armel, uses 1 core
+        #BUILDJITLINUXARMHF_RASPBIAN,   # on hhu-cross-raspbianhf, uses 1 core
         ], branch="py3.5", hour=3, minute=0,
         #onlyIfChanged=True,
     ),
@@ -244,36 +244,28 @@ builders = [
    },
   # Translation Builders for ARM
   {"name": BUILDLINUXARM,
-   "slavenames": [
-                    #'hhu-cross-armel',
-                 ],
+   "slavenames": ['hhu-cross-armel'],
    "builddir": BUILDLINUXARM,
    "factory": pypyCrossTranslationFactoryARM,
    "category": 'linux-armel',
    "locks": [ARMCrossLock.access('counting')],
    },
   {"name": BUILDJITLINUXARM,
-   "slavenames": [
-                    # 'hhu-cross-armel',
-                 ],
+   "slavenames": ['hhu-cross-armel'],
    "builddir": BUILDJITLINUXARM,
    "factory": pypyJITCrossTranslationFactoryARM,
    "category": 'linux-armel',
    "locks": [ARMCrossLock.access('counting')],
   },
   {"name": BUILDLINUXARMHF_RASPBIAN,
-   "slavenames": [
-                    #'hhu-cross-raspbianhf',
-                 ],
+   "slavenames": ['hhu-cross-raspbianhf'],
    "builddir": BUILDLINUXARMHF_RASPBIAN,
    "factory": pypyCrossTranslationFactoryRaspbianHF,
    "category": 'linux-armhf',
    "locks": [ARMCrossLock.access('counting')],
    },
   {"name": BUILDJITLINUXARMHF_RASPBIAN,
-   "slavenames": [
-                    #'hhu-cross-raspbianhf',
-                 ],
+   "slavenames": ['hhu-cross-raspbianhf'],
    "builddir": BUILDJITLINUXARMHF_RASPBIAN,
    "factory": pypyJITCrossTranslationFactoryRaspbianHF,
    "category": 'linux-armhf',
