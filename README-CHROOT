@@ -31,7 +31,7 @@ chosen since debian comes with gcc6:
 Commands to run once after a reboot to set the chroot:
 
     >>> have been copied into /etc/rc.local
-mount --bind /tmp /extra1/stretch32/tmp
+mount --rbind /tmp /extra1/stretch32/tmp
 mount --rbind /proc /extra1/stretch32/proc
 mount --rbind /sys /extra1/stretch32/sys
 mount --rbind /dev /extra1/stretch32/dev
@@ -43,7 +43,6 @@ Commands to build the chroot
 mkdir /extra1/stretch32
 sudo debootstrap --variant=buildd --arch=i386 stretch \
     /extra1/stretch32 http://deb.debian.org/debian
-rm /extra1/strech32/tmp
 LANG=C chroot /extra1/stretch32
 echo stretch32 > /etc/debian_chroot 
 adduser buildslave
