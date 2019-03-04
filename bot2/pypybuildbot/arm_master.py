@@ -87,32 +87,32 @@ pypyARMHF_RASPBIAN_TranslatedAppLevelTestFactory = pypybuilds.TranslatedTests(
 #
 LINUXARMHFOWN = "own-linux-armhf"
 LINUXARMHFRPYTHON = "rpython-linux-armhf"
-APPLVLLINUXARM = "pypy-c-app-level-linux-armel"
+# APPLVLLINUXARM = "pypy-c-app-level-linux-armel"
 APPLVLLINUXARMHF_v7 = "pypy-c-app-level-linux-armhf-v7"
-APPLVLLINUXARMHF_RASPBIAN = "pypy-c-app-level-linux-armhf-raspbian"
+# APPLVLLINUXARMHF_RASPBIAN = "pypy-c-app-level-linux-armhf-raspbian"
 
-JITLINUXARM = "pypy-c-jit-linux-armel"
+# JITLINUXARM = "pypy-c-jit-linux-armel"
 JITLINUXARMHF_v7 = "pypy-c-jit-linux-armhf-v7"
 JITLINUXARMHF_RASPBIAN = "pypy-c-jit-linux-armhf-raspbian"
 
-JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
+# JITBACKENDONLYLINUXARMEL = "jitbackendonly-own-linux-armel"
 JITBACKENDONLYLINUXARMHF = "jitbackendonly-own-linux-armhf"
 JITBACKENDONLYLINUXARMHF_v7 = "jitbackendonly-own-linux-armhf-v7"
 
 # build only
 BUILDLINUXARM = "build-pypy-c-linux-armel"
-BUILDJITLINUXARM = "build-pypy-c-jit-linux-armel"
+# BUILDJITLINUXARM = "build-pypy-c-jit-linux-armel"
 BUILDLINUXARMHF_RASPBIAN = "build-pypy-c-linux-armhf-raspbian"
 BUILDJITLINUXARMHF_RASPBIAN = "build-pypy-c-jit-linux-armhf-raspbian"
 
 builderNames = [
-    APPLVLLINUXARM,
+    # APPLVLLINUXARM,
     APPLVLLINUXARMHF_v7,
-    APPLVLLINUXARMHF_RASPBIAN,
-    JITLINUXARM,
+    # APPLVLLINUXARMHF_RASPBIAN,
+    # JITLINUXARM,
     JITLINUXARMHF_v7,
     JITLINUXARMHF_RASPBIAN,
-    JITBACKENDONLYLINUXARMEL,
+    # JITBACKENDONLYLINUXARMEL,
     JITBACKENDONLYLINUXARMHF,
     JITBACKENDONLYLINUXARMHF_v7,
     #BUILDLINUXARM,
@@ -141,7 +141,7 @@ schedulers = [
     ),
 
     Nightly("nightly-arm-0-01", [
-        JITBACKENDONLYLINUXARMEL,      # on hhu-imx.53
+        # JITBACKENDONLYLINUXARMEL,      # on hhu-imx.53
         JITBACKENDONLYLINUXARMHF,
         JITBACKENDONLYLINUXARMHF_v7,   # on cubieboard-bob
         ], branch='default', hour=0, minute=0, onlyIfChanged=True,
@@ -149,15 +149,15 @@ schedulers = [
         change_filter=filter.ChangeFilter(branch='default'),
     ),
 
-    Triggerable("APPLVLLINUXARM_scheduler", [
-        APPLVLLINUXARM,            # triggered by BUILDLINUXARM, on hhu-beagleboard
-    ]),
+    #Triggerable("APPLVLLINUXARM_scheduler", [
+    #    APPLVLLINUXARM,            # triggered by BUILDLINUXARM, on hhu-beagleboard
+    #]),
 
-    Triggerable("JITLINUXARM_scheduler", [
-        JITLINUXARM,               # triggered by BUILDJITLINUXARM, on hhu-beagleboard
-    ]),
+    #Triggerable("JITLINUXARM_scheduler", [
+    #    JITLINUXARM,               # triggered by BUILDJITLINUXARM, on hhu-beagleboard
+    #]),
     Triggerable("APPLVLLINUXARMHF_RASPBIAN_scheduler", [
-        APPLVLLINUXARMHF_RASPBIAN,  # triggered by BUILDLINUXARMHF_RASPBIAN
+        # APPLVLLINUXARMHF_RASPBIAN,  # triggered by BUILDLINUXARMHF_RASPBIAN
         APPLVLLINUXARMHF_v7,        # triggered by BUILDLINUXARMHF_RASPBIAN, on cubieboard-bob
     ]),
 
@@ -172,13 +172,13 @@ builders = [
   # ARM
   # armel
   ## armv7
-  {"name": JITBACKENDONLYLINUXARMEL,
-   "slavenames": ['hhu-i.mx53'],
-   "builddir": JITBACKENDONLYLINUXARMEL,
-   "factory": pypyJitBackendOnlyRPythonTestFactoryARM,
-   "category": 'linux-armel',
-   "locks": [ARMBoardLock.access('counting')],
-   },
+  #{"name": JITBACKENDONLYLINUXARMEL,
+  # "slavenames": ['hhu-i.mx53'],
+  # "builddir": JITBACKENDONLYLINUXARMEL,
+  # "factory": pypyJitBackendOnlyRPythonTestFactoryARM,
+  # "category": 'linux-armel',
+  # "locks": [ARMBoardLock.access('counting')],
+  # },
   # armhf
   ## armv6
   {"name": JITBACKENDONLYLINUXARMHF,
@@ -198,28 +198,28 @@ builders = [
    },
   # app level builders
   ## armv7 softfloat
-  {"name": APPLVLLINUXARM,
-   "slavenames": ["hhu-beagleboard"],
-   "builddir": APPLVLLINUXARM,
-   "factory": pypyARMTranslatedAppLevelTestFactory,
-   "category": "linux-armel",
-   "locks": [ARMBoardLock.access('counting')],
-   },
-  {"name": JITLINUXARM,
-   "slavenames": ["hhu-beagleboard"],
-   'builddir': JITLINUXARM,
-   'factory': pypyARMJITTranslatedTestFactory,
-   'category': 'linux-armel',
-   "locks": [ARMBoardLock.access('counting')],
-   },
+  #{"name": APPLVLLINUXARM,
+  # "slavenames": ["hhu-beagleboard"],
+  # "builddir": APPLVLLINUXARM,
+  # "factory": pypyARMTranslatedAppLevelTestFactory,
+  # "category": "linux-armel",
+  # "locks": [ARMBoardLock.access('counting')],
+  # },
+  #{"name": JITLINUXARM,
+  # "slavenames": ["hhu-beagleboard"],
+  # 'builddir': JITLINUXARM,
+  # 'factory': pypyARMJITTranslatedTestFactory,
+  # 'category': 'linux-armel',
+  # "locks": [ARMBoardLock.access('counting')],
+  # },
   ## armv6 hardfloat
-  {"name": APPLVLLINUXARMHF_RASPBIAN,
-   "slavenames": ['hhu-raspberry-pi', 'hhu-pypy-pi', 'hhu-pypy-pi2'],
-   "builddir": APPLVLLINUXARMHF_RASPBIAN,
-   "factory": pypyARMHF_RASPBIAN_TranslatedAppLevelTestFactory,
-   "category": "linux-armhf",
-   "locks": [ARMBoardLock.access('counting')],
-   },
+  #{"name": APPLVLLINUXARMHF_RASPBIAN,
+  # "slavenames": ['hhu-raspberry-pi', 'hhu-pypy-pi', 'hhu-pypy-pi2'],
+  # "builddir": APPLVLLINUXARMHF_RASPBIAN,
+  # "factory": pypyARMHF_RASPBIAN_TranslatedAppLevelTestFactory,
+  # "category": "linux-armhf",
+  # "locks": [ARMBoardLock.access('counting')],
+  # },
   {"name": JITLINUXARMHF_RASPBIAN,
    "slavenames": ['hhu-raspberry-pi', 'hhu-pypy-pi', 'hhu-pypy-pi2'],
    'builddir': JITLINUXARMHF_RASPBIAN,
