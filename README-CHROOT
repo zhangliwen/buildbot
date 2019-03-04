@@ -1,0 +1,55 @@
+Copied from bencher4, the venerable linux64 builder
+---------------------------------------------------------
+Buildslave runs in a chroot:
+
+    LANG=C chroot /mnt/ubuntu /bin/bash
+    su - buildslave
+
+
+Commands to run once after a reboot to set the chroot:
+
+    >>> have been copied into /etc/rc.local
+
+mount --bind /tmp /home/tmp
+mount --rbind /extra1 /home/extra1
+mount --rbind /proc /mnt/ubuntu/proc
+mount --rbind /sys /mnt/ubuntu/sys
+mount --rbind /dev /mnt/ubuntu/dev
+mount --rbind /run/lock /mnt/ubuntu/run/lock
+mount --rbind /run/shm /mnt/ubuntu/run/shm
+
+
+---------------------------------------------------------
+And here is the same for the 32-bit chroot
+---------------------------------------------------------
+32 bit buildslave runs in a debian strech chroot,
+chosen since debian comes with gcc6:
+
+    LANG=C chroot /extra1/stretch32 /bin/bash
+    su - buildslave
+
+Commands to run once after a reboot to set the chroot:
+
+    >>> have been copied into /etc/rc.local
+mount --bind /tmp /extra1/stretch32/tmp
+mount --rbind /proc /extra1/stretch32/proc
+mount --rbind /sys /extra1/stretch32/sys
+mount --rbind /dev /extra1/stretch32/dev
+mount --rbind /run/lock /extra1/stretch32/run/lock
+
+
+Commands to build the chroot
+
+mkdir /extra1/stretch32
+sudo debootstrap --variant=buildd --arch=i386 stretch \
+    /extra1/stretch32 http://deb.debian.org/debian
+rm /extra1/strech32/tmp
+LANG=C chroot /extra1/stretch32
+echo stretch32 > /etc/debian_chroot 
+adduser buildslave
+# go back out out of the chroot and set buildslave's UID to the UID on the host
+chmod buildslave.buildslave -R /extra1/stretch32/home/buildslave
+apt install virtualenv buildbot-slave python-pytest python-hypothesis
+
+and more from the instructions on https://bitbucket.org/pypy/buildbot
+
