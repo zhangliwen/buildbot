@@ -10,7 +10,7 @@ Commands to run once after a reboot to set the chroot:
 
     >>> have been copied into /etc/rc.local
 
-mount --bind /tmp /home/tmp
+mount --rbind /tmp /home/tmp
 mount --rbind /extra1 /home/extra1
 mount --rbind /proc /mnt/ubuntu/proc
 mount --rbind /sys /mnt/ubuntu/sys
@@ -48,7 +48,9 @@ echo stretch32 > /etc/debian_chroot
 adduser buildslave
 # go back out out of the chroot and set buildslave's UID to the UID on the host
 chmod buildslave.buildslave -R /extra1/stretch32/home/buildslave
-apt install virtualenv buildbot-slave python-pytest python-hypothesis
+
+apt install virtualenv buildbot-slave python-pytest python-hypothesis \
+netbase gdb ncurses-term pypy
 
 and more from the instructions on https://bitbucket.org/pypy/buildbot
 
