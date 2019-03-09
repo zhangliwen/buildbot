@@ -50,7 +50,11 @@ adduser buildslave
 chmod buildslave.buildslave -R /extra1/stretch32/home/buildslave
 
 apt install virtualenv buildbot-slave python-pytest python-hypothesis \
-netbase gdb ncurses-term pypy
+netbase gdb ncurses-term pypy locales
 
 and more from the instructions on https://bitbucket.org/pypy/buildbot
 
+also, to make the rlocale tests work
+
+dpkg-reconfigure locales
+# choose to generate all encodings, choose en_US.UTF-8
