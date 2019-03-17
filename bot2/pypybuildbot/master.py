@@ -217,7 +217,6 @@ JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 JITWIN32 = "pypy-c-jit-win-x86-32"
 
 JITONLYLINUXPPC64 = "jitonly-own-linux-ppc-64"
-JITBENCH = "jit-benchmark-linux-x86-32"
 JITBENCH64 = "jit-benchmark-linux-x86-64"
 CPYTHON_64 = "cpython-2-benchmark-x86-64"
 NUMPY_64 = "numpy-compatibility-linux-x86-64"
@@ -286,32 +285,32 @@ BuildmasterConfig = {
         ],
 
     'schedulers': [
-        # the benchmarks run on tannit and (planned) speed-old.python.org.
+        # the benchmarks run on benchmarker and (planned) speed-old.python.org.
         # All the other linux tests run on bencher4.soft-dev.org.
         Nightly("nightly-0-00", [
             # linux tests
-            LINUX32OWN,                # on bencher4_32, uses all cores
+            LINUX32OWN,                # on benchmarker4_32, uses all cores
             LINUX64OWN,                # on bencher4, uses all cores
             WIN32OWN,                  # on SalsaSalsa
-            JITLINUX32,                # on bencher4_32, uses 1 core
+            JITLINUX32,                # on benchmarker4_32, uses 1 core
             JITLINUX64,                # on bencher4, uses 1 core
-            #APPLVLLINUX32,            # on bencher4_32, uses 1 core
+            #APPLVLLINUX32,            
             #APPLVLLINUX64,             # on bencher4, uses 1 core
             # other platforms
             #MACOSX32,                 # on minime
             JITWIN32,                  # on SalsaSalsa
-            #JITFREEBSD764,            # on headless
-            #JITFREEBSD864,            # on ananke
-            #JITFREEBSD964,             # on tavendo
+            #JITFREEBSD764,
+            #JITFREEBSD864,
+            #JITFREEBSD964,
             JITMACOSX64,               # on xerxes
             # buildbot selftest
-            #PYPYBUILDBOT               # on cobra
+            #PYPYBUILDBOT,
             ], branch='default', hour=0, minute=0,
             onlyIfChanged=True,
         ),
 
         Nightly("nightly-0-01", [
-            LINUX32RPYTHON,            # on bencher4_32, uses all cores
+            LINUX32RPYTHON,            # on benchermarker_32, uses all cores
             LINUX64RPYTHON,            # on bencher4, uses all cores
             WIN32RPYTHON,              # on SalsaSalsa
             LINUX_S390XRPYTHON,
@@ -321,7 +320,6 @@ BuildmasterConfig = {
         ),
 
         Nightly("nightly-1-00", [
-            #JITBENCH,                  # on tannit32, uses 1 core (in part exclusively)
             #JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
             #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
@@ -392,7 +390,6 @@ BuildmasterConfig = {
                         #JITFREEBSD964,
 
                         JITONLYLINUXPPC64,
-                        JITBENCH,
                         JITBENCH64,
                         JITBENCH64_NEW,
                         NUMPY_64,
@@ -418,14 +415,14 @@ BuildmasterConfig = {
 
     'builders': [
                   {"name": LINUX32OWN,
-                   "slavenames": ["bencher4_32", "salsa_32"],
+                   "slavenames": ["salsa_32", "benchmarker_32"],
                    "builddir": LINUX32OWN,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux32',
                    "locks": [TannitCPU.access('counting')],
                   },
                   {"name": LINUX32RPYTHON,
-                   "slavenames": ["bencher4_32", "salsa_32"],
+                   "slavenames": ["salsa_32", "benchmarker_32"],
                    "builddir": LINUX32RPYTHON,
                    "factory": pypyRPythonTestFactory,
                    "category": 'linux32',
@@ -449,7 +446,7 @@ BuildmasterConfig = {
                   },
                   {"name": APPLVLLINUX32,
                    #"slavenames": ["allegro32"],
-                   "slavenames": ["bencher4_32"],
+                   "slavenames": ["benchmarker_32"],
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
                    'category': 'linux32',
@@ -481,7 +478,7 @@ BuildmasterConfig = {
                   },
                   {"name" : JITLINUX32,
                    #"slavenames": ["allegro32"],
-                   "slavenames": ["bencher4_32", "salsa_32"],
+                   "slavenames": ["bencher4_32", "salsa_32", "benchmarker_32"],
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'linux32',
@@ -495,15 +492,8 @@ BuildmasterConfig = {
                    'category': 'linux64',
                    "locks": [Bencher4Lock.access('counting')],
                   },
-                  {"name": JITBENCH,
-                   "slavenames": ["tannit32"],
-                   "builddir": JITBENCH,
-                   "factory": pypyJITBenchmarkFactory_tannit,
-                   "category": 'benchmark-run',
-                   # the locks are acquired with fine grain inside the build
-                  },
                   {"name": JITBENCH64,
-                   "slavenames": ["tannit64"],
+                   "slavenames": ["tannit64", "benchmarker"],
                    "builddir": JITBENCH64,
                    "factory": pypyJITBenchmarkFactory64_tannit,
                    "category": "benchmark-run",
