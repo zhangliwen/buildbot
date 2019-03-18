@@ -292,8 +292,10 @@ BuildmasterConfig = {
             LINUX32OWN,                # on benchmarker4_32, uses all cores
             LINUX64OWN,                # on bencher4, uses all cores
             WIN32OWN,                  # on SalsaSalsa
+            LINUX_S390XOWN,
             JITLINUX32,                # on benchmarker4_32, uses 1 core
             JITLINUX64,                # on bencher4, uses 1 core
+            JITLINUX_S390X,
             #APPLVLLINUX32,            
             #APPLVLLINUX64,             # on bencher4, uses 1 core
             # other platforms
@@ -348,14 +350,6 @@ BuildmasterConfig = {
             JITWIN32,                  # on SalsaSalsa
             ], branch="py3.6", hour=3, minute=0,
             #onlyIfChanged=True,
-        ),
-
-        # S390X vm (ibm-research)
-        Nightly("nightly-4-00", [
-            LINUX_S390XOWN,
-            ], branch='default', hour=0, minute=0),
-        Nightly("nightly-4-01", [JITLINUX_S390X], branch='default', hour=2, minute=0,
-            onlyIfChanged=True,
         ),
 
         # this one has faithfully run every night even though the latest

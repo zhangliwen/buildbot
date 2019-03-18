@@ -50,7 +50,7 @@ adduser buildslave
 chmod buildslave.buildslave -R /extra1/stretch32/home/buildslave
 
 apt install virtualenv buildbot-slave python-pytest python-hypothesis \
-netbase gdb ncurses-term pypy locales
+netbase gdb ncurses-term pypy locales mercurial
 
 and more from the instructions on https://bitbucket.org/pypy/buildbot
 
