@@ -293,7 +293,7 @@ assert hasattr(Mercurial, '_pullUpdate')
 Mercurial._pullUpdate = _my_pullUpdate
 
 
-def update_hg_old_method(platform, factory, repourl, workdir):
+def update_hg_old_method(platform, factory, repourl, workdir, revision):
     # baaaaaah.  Seems that the Mercurial class doesn't support
     # updating to a different branch than the one specified by
     # the user (like "default").  This is nonsense if we need
@@ -330,14 +330,14 @@ def update_hg_old_method(platform, factory, repourl, workdir):
     #
     # here, update without caring about branches
     factory.addStep(ShellCmd(description="hg update",
-           command=WithProperties("hg update --clean %(revision)s"),
+           command="hg update --clean %s" % revision,
            workdir=workdir))
 
-def update_hg(platform, factory, repourl, workdir, use_branch,
+def update_hg(platform, factory, repourl, workdir, use_branch, revision,
               force_branch=None, wipe_bookmarks=False):
     if not use_branch:
         assert force_branch is None
-        update_hg_old_method(platform, factory, repourl, workdir)
+        update_hg_old_method(platform, factory, repourl, workdir, revision)
         return
 
     if wipe_bookmarks:
@@ -389,7 +389,8 @@ def setup_steps(platform, factory, workdir=None,
     factory.addStep(ParseRevision(hideStepIf=ParseRevision.hideStepIf,
                                   doStepIf=ParseRevision.doStepIf))
     #
-    update_hg(platform, factory, repourl, workdir, use_branch=True,
+    revision=WithProperties("%(revision)s")
+    update_hg(platform, factory, repourl, workdir, revision, use_branch=True,
               force_branch=force_branch, wipe_bookmarks=True)
     #
     factory.addStep(CheckGotRevision(workdir=workdir))
@@ -812,8 +813,11 @@ class JITBenchmarkSingleRun(factory.BuildFactory):
     def __init__(self, platform='linux', host='speed_python', postfix=''):
         factory.BuildFactory.__init__(self)
 
+        # Always use the latest version on the single-run branch of the 
+        # benchmark repo,
+        # branch and revision refer to the pypy version to benchmark
         repourl = 'https://bitbucket.org/pypy/benchmarks'
-        update_hg(platform, self, repourl, 'benchmarks', use_branch=True,
+        update_hg(platform, self, repourl, 'benchmarks', '', use_branch=True,
                   force_branch='single-run')
         #
         setup_steps(platform, self)
@@ -859,7 +863,9 @@ class JITBenchmark(factory.BuildFactory):
 
         #
         repourl = 'https://bitbucket.org/pypy/benchmarks'
-        update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
+        # Always use the latest version on the benchmark repo,
+        # branch and revision refer to the pypy version to benchmark
+        update_hg(platform, self, repourl, 'benchmarks', 'default', use_branch=False)
         #
         setup_steps(platform, self)
         if host == 'benchmarker':
@@ -893,14 +899,14 @@ class JITBenchmark(factory.BuildFactory):
                      '--upload-project', 'PyPy',
                      '--revision', WithProperties('%(got_revision)s'),
                      '--branch', WithProperties('%(branch)s'),
-                     '--upload-urls', 'http://speed.pypy.org/',
+                     '--upload-urls', 'https://speed.pypy.org/',
                      '--upload-baseline',
                      '--upload-baseline-executable', 'pypy-c-jit' + postfix,
                      '--upload-baseline-project', 'PyPy',
                      '--upload-baseline-revision',
                      WithProperties('%(got_revision)s'),
                      '--upload-baseline-branch', WithProperties('%(branch)s'),
-                     '--upload-baseline-urls', 'http://speed.pypy.org/',
+                     '--upload-baseline-urls', 'https://speed.pypy.org/',
                      ],
             workdir='./benchmarks',
             timeout=3600))
@@ -927,7 +933,7 @@ class CPythonBenchmark(factory.BuildFactory):
 
         # check out and update benchmarks
         repourl = 'https://bitbucket.org/pypy/benchmarks'
-        update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
+        update_hg(platform, self, repourl, 'benchmarks', 'default', use_branch=False)
 
         # checks out and updates the repo
         setup_steps(platform, self, repourl='http://hg.python.org/cpython',
