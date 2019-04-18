@@ -333,7 +333,7 @@ def update_hg_old_method(platform, factory, repourl, workdir, revision):
            command="hg update --clean %s" % revision,
            workdir=workdir))
 
-def update_hg(platform, factory, repourl, workdir, use_branch, revision,
+def update_hg(platform, factory, repourl, workdir, revision, use_branch,
               force_branch=None, wipe_bookmarks=False):
     if not use_branch:
         assert force_branch is None
