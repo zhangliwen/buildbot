@@ -15,15 +15,15 @@ import json
 # to be run on each slave in parallel.  However, they assume that each
 # buildslave is on a differen physical machine, which is not the case for
 # bencher4 and bencher4_32.  As a result, we have to use a global lock, and
-# manually tell each builder that uses tannit to acquire it.
+# manually tell each builder that uses benchmarker to acquire it.
 #
 # Look at the various "locks" session in master.py/BuildmasterConfig.  For
 # benchmarks, the locks is aquired for the single steps: this way we can run
 # translations in parallel, but then the actual benchmarks are run in
 # sequence.
 
-# tannit has 8 logical CPUs, but only 4 physical ones, and memory for ~3 translations
-TannitCPU = locks.MasterLock('tannit_cpu', maxCount=3)
+# benchmarker has 8 logical CPUs, but only 4 physical ones, and memory for ~6 translations
+BenchmarkerLock = locks.MasterLock('benchmarker', maxCount=3)
 SpeedPythonCPU = locks.MasterLock('speed_python_cpu', maxCount=24)
 WinSlaveLock = locks.SlaveLock('win_cpu', maxCount=1)
 # speed-old has 24 cores, but memory for ~2 translations
@@ -809,7 +809,7 @@ class NightlyBuild(factory.BuildFactory):
             self.addStep(Trigger(schedulerNames=[trigger]))
 
 class JITBenchmarkSingleRun(factory.BuildFactory):
-    def __init__(self, platform='linux', host='tannit', postfix=''):
+    def __init__(self, platform='linux', host='speed_python', postfix=''):
         factory.BuildFactory.__init__(self)
 
         repourl = 'https://bitbucket.org/pypy/benchmarks'
@@ -817,8 +817,8 @@ class JITBenchmarkSingleRun(factory.BuildFactory):
                   force_branch='single-run')
         #
         setup_steps(platform, self)
-        if host == 'tannit':
-            lock = TannitCPU
+        if host == 'benchmarker':
+            lock = BenchmarkerLock
         elif host == 'speed_python':
             lock = SpeedPythonCPU
         else:
@@ -854,7 +854,7 @@ class JITBenchmarkSingleRun(factory.BuildFactory):
                                          workdir="."))
 
 class JITBenchmark(factory.BuildFactory):
-    def __init__(self, platform='linux', host='tannit', postfix=''):
+    def __init__(self, platform='linux', host='benchmarker', postfix=''):
         factory.BuildFactory.__init__(self)
 
         #
@@ -862,8 +862,8 @@ class JITBenchmark(factory.BuildFactory):
         update_hg(platform, self, repourl, 'benchmarks', use_branch=False)
         #
         setup_steps(platform, self)
-        if host == 'tannit':
-            lock = TannitCPU
+        if host == 'benchmarker':
+            lock = BenchmarkerLock
         elif host == 'speed_python':
             lock = SpeedPythonCPU
         else:
