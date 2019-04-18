@@ -66,7 +66,7 @@ pypybuilds = load('pypybuildbot.builds')
 # all ARM buildbot configuration is in arm_master.py
 ARM = load('pypybuildbot.arm_master')
 
-TannitCPU = pypybuilds.TannitCPU
+BenchmarkerLock = pypybuilds.BenchmarkerLock
 WinSlaveLock = pypybuilds.WinSlaveLock
 #SpeedOldLock = pypybuilds.SpeedOldLock
 Bencher4Lock = pypybuilds.Bencher4Lock
@@ -174,9 +174,9 @@ pypyJITTranslatedTestFactoryS390X = pypybuilds.Translated(
     pypyjit=True,
     app_tests=True)
 
-pypyJITBenchmarkFactory_tannit = pypybuilds.JITBenchmark(host='tannit')
-pypyJITBenchmarkFactory64_tannit = pypybuilds.JITBenchmark(platform='linux64',
-                                                           host='tannit',
+pypyJITBenchmarkFactory = pypybuilds.JITBenchmark(host='benchmarker')
+pypyJITBenchmarkFactory64 = pypybuilds.JITBenchmark(platform='linux64',
+                                                           host='benchmarker',
                                                            postfix='-64')
 pypyJITBenchmarkFactory64_speed = pypybuilds.JITBenchmarkSingleRun(
     platform='linux64',
@@ -286,7 +286,8 @@ BuildmasterConfig = {
 
     'schedulers': [
         # the benchmarks run on benchmarker and (planned) speed-old.python.org.
-        # All the other linux tests run on bencher4.soft-dev.org.
+        # 64 bit linux tests run on bencher4.soft-dev.org.
+        # 32 bit linux tests run on benchmarker.
         Nightly("nightly-0-00", [
             # linux tests
             LINUX32OWN,                # on benchmarker4_32, uses all cores
@@ -322,7 +323,7 @@ BuildmasterConfig = {
         ),
 
         Nightly("nightly-1-00", [
-            #JITBENCH64,                # on tannit64, uses 1 core (in part exclusively)
+            #JITBENCH64,                # on benchmarker, uses 1 core (in part exclusively)
             #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
             ], branch=None, hour=5, minute=0,
@@ -331,7 +332,7 @@ BuildmasterConfig = {
         ),
 
         Triggerable("NUMPY64_scheduler", [
-            #NUMPY_64,                  # on tannit64, uses 1 core, takes about 5min.
+            #NUMPY_64,                  # uses 1 core, takes about 5min.
         ]),
 
         Triggerable("NUMPYWIN_scheduler", [
@@ -413,14 +414,14 @@ BuildmasterConfig = {
                    "builddir": LINUX32OWN,
                    "factory": pypyOwnTestFactory,
                    "category": 'linux32',
-                   "locks": [TannitCPU.access('counting')],
+                   "locks": [BenchmarkerLock.access('counting')],
                   },
                   {"name": LINUX32RPYTHON,
                    "slavenames": ["salsa_32", "benchmarker32"],
                    "builddir": LINUX32RPYTHON,
                    "factory": pypyRPythonTestFactory,
                    "category": 'linux32',
-                   "locks": [TannitCPU.access('counting')],
+                   "locks": [BenchmarkerLock.access('counting')],
                   },
                   {"name": LINUX64OWN,
                    #"slavenames": ["bencher4", "speed-old"],
@@ -444,7 +445,7 @@ BuildmasterConfig = {
                    "builddir": APPLVLLINUX32,
                    "factory": pypyTranslatedAppLevelTestFactory,
                    'category': 'linux32',
-                   "locks": [TannitCPU.access('counting')],
+                   "locks": [BenchmarkerLock.access('counting')],
                   },
                   {"name": APPLVLLINUX64,
                    #"slavenames": ["bencher4", "speed-old"],
@@ -460,7 +461,7 @@ BuildmasterConfig = {
                    "builddir": LIBPYTHON_LINUX32,
                    "factory": pypyTranslatedLibPythonTestFactory,
                    'category': 'linux32',
-                   "locks": [TannitCPU.access('counting')],
+                   "locks": [BenchmarkerLock.access('counting')],
                   },
                   {"name": LIBPYTHON_LINUX64,
                    #"slavenames": ["bencher4", "speed-old"],
@@ -476,7 +477,7 @@ BuildmasterConfig = {
                    'builddir' : JITLINUX32,
                    'factory' : pypyJITTranslatedTestFactory,
                    'category' : 'linux32',
-                   "locks": [TannitCPU.access('counting')],
+                   "locks": [BenchmarkerLock.access('counting')],
                    },
                   {'name': JITLINUX64,
                    #'slavenames': ["bencher4", "speed-old"],
@@ -487,9 +488,9 @@ BuildmasterConfig = {
                    "locks": [Bencher4Lock.access('counting')],
                   },
                   {"name": JITBENCH64,
-                   "slavenames": ["tannit64", "benchmarker"],
+                   "slavenames": ["benchmarker"],
                    "builddir": JITBENCH64,
-                   "factory": pypyJITBenchmarkFactory64_tannit,
+                   "factory": pypyJITBenchmarkFactory64,
                    "category": "benchmark-run",
                    # the locks are acquired with fine grain inside the build
                    },
@@ -564,7 +565,7 @@ BuildmasterConfig = {
                    'builddir': NUMPY_64,
                    'factory': pypyNumpyCompatability,
                    'category': 'numpy',
-                   #'locks': [TannitCPU.access('counting')],
+                   'locks': [BenchmarkerLock.access('counting')],
                    "locks": [Bencher4Lock.access('counting')],
                   },
                   {'name': NUMPY_WIN,
