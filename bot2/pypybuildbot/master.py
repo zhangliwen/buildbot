@@ -323,10 +323,10 @@ BuildmasterConfig = {
         ),
 
         Nightly("nightly-1-00", [
-            #JITBENCH64,                # on benchmarker, uses 1 core (in part exclusively)
+            JITBENCH64,                # on benchmarker, uses 1 core (in part exclusively)
             #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
-            ], branch=None, hour=5, minute=0,
+            ], branch=None, hour=7, minute=0,
             # XXX causes hg updatee -r nnn from pypy/pypy instead of pypy/benchmarks
             #onlyIfChanged=True,
         ),
@@ -342,7 +342,7 @@ BuildmasterConfig = {
         #Nightly("nightly-3-01-py3.5", [LINUX64, JITLINUX64,],
         #        branch="py3.5", hour=3, minute=0),
 
-        Nightly("nightly-3-00-py3.5", [
+        Nightly("nightly-3-00-py3.6", [
             LINUX32OWN,                # on bencher4_32, uses all cores
             JITLINUX32,                # on bencher4_32, uses 1 core
             LINUX64OWN,                # on bencher4, uses all cores
@@ -350,7 +350,7 @@ BuildmasterConfig = {
             JITMACOSX64,               # on xerxes
             JITWIN32,                  # on SalsaSalsa
             ], branch="py3.6", hour=3, minute=0,
-            #onlyIfChanged=True,
+            onlyIfChanged=True,
         ),
 
         # this one has faithfully run every night even though the latest
