@@ -350,7 +350,7 @@ BuildmasterConfig = {
             JITMACOSX64,               # on xerxes
             JITWIN32,                  # on SalsaSalsa
             ], branch="py3.6", hour=3, minute=0,
-            onlyIfChanged=True,
+            # onlyIfChanged=True, # doesn't work - no builds are triggered 2019-04-23
         ),
 
         # this one has faithfully run every night even though the latest
