@@ -514,6 +514,12 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                 '-r', '../build/extra_tests/requirements.txt'],
             workdir='venv'))
         factory.addStep(PytestCmd(
+            description="Run -D tests",
+            command=prefix + [virt_pypy, '-m', 'pytest', '-D',
+                '../build/pypy', '--resultlog=test-D.log'],
+            logfiles={'pytestLog': 'test-D.log'},
+            workdir='venv'))
+        factory.addStep(PytestCmd(
             description="Run extra tests",
             command=prefix + [virt_pypy, '-m', 'pytest',
                 '../build/extra_tests', '--resultlog=extra.log'],
@@ -813,7 +819,7 @@ class JITBenchmarkSingleRun(factory.BuildFactory):
     def __init__(self, platform='linux', host='speed_python', postfix=''):
         factory.BuildFactory.__init__(self)
 
-        # Always use the latest version on the single-run branch of the 
+        # Always use the latest version on the single-run branch of the
         # benchmark repo,
         # branch and revision refer to the pypy version to benchmark
         repourl = 'https://bitbucket.org/pypy/benchmarks'
