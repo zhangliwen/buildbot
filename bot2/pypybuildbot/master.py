@@ -19,13 +19,13 @@ from buildbot.changes.hgpoller import HgPoller
 class CustomForceScheduler(ForceScheduler):
     def force(self, owner, builder_name, **kwargs):
         if not owner:
-            raise ValidationError, "Please write your name in the corresponding field."
+            raise ValidationError("Please write your name in the corresponding field.")
         return ForceScheduler.force(self, owner, builder_name, **kwargs)
 
 # Forbid "stop build" without a reason that starts with "!"
 def _checkStopBuild(self, reason=""):
     if ": !" not in reason:
-        raise ValidationError, "Please write a reason that starts with '!'."
+        raise ValidationError("Please write a reason that starts with '!'.")
     return _baseStopBuild(self, reason)
 _baseStopBuild = Build.stopBuild
 Build.stopBuild = _checkStopBuild
@@ -70,6 +70,7 @@ BenchmarkerLock = pypybuilds.BenchmarkerLock
 WinSlaveLock = pypybuilds.WinSlaveLock
 #SpeedOldLock = pypybuilds.SpeedOldLock
 Bencher4Lock = pypybuilds.Bencher4Lock
+AARCH64Lock = pypybuilds.Bencher4Lock
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
@@ -190,6 +191,7 @@ pypyNumpyCompatabilityWin = pypybuilds.NativeNumpyTests(platform='win32')
 
 LINUX32OWN = "own-linux-x86-32"
 LINUX64OWN = "own-linux-x86-64"
+AARCH64OWN = "own-linux-aarch64"
 LINUX_S390XOWN = "own-linux-s390x"
 MACOSX32OWN = "own-macosx-x86-32"
 WIN32OWN = "own-win-x86-32"
@@ -197,6 +199,7 @@ WIN64OWN = "own-win-x86-64"
 
 LINUX32RPYTHON = "rpython-linux-x86-32"
 LINUX64RPYTHON = "rpython-linux-x86-64"
+AARCH64RPYTHON = "rpython-linux-aarch64"
 LINUX_S390XRPYTHON = "rpython-linux-s390x"
 MACOSX32RPYTHON = "rpython-macosx-x86-32"
 WIN32RPYTHON = "rpython-win-x86-32"
@@ -211,6 +214,7 @@ LIBPYTHON_LINUX64 = "pypy-c-lib-python-linux-x86-64"
 
 JITLINUX32 = "pypy-c-jit-linux-x86-32"
 JITLINUX64 = "pypy-c-jit-linux-x86-64"
+JITAARCH64 = "pypy-c-jit-linux-aarch64"
 JITLINUX_S390X = 'pypy-c-jit-linux-s390x'
 JITMACOSX64 = "pypy-c-jit-macosx-x86-64"
 #JITMACOSX64_2 = "pypy-c-jit-macosx-x86-64-2"
@@ -292,10 +296,12 @@ BuildmasterConfig = {
             # linux tests
             LINUX32OWN,                # on benchmarker4_32, uses all cores
             LINUX64OWN,                # on bencher4, uses all cores
+            AARCH64OWN,
             WIN32OWN,                  # on SalsaSalsa
             LINUX_S390XOWN,
             JITLINUX32,                # on benchmarker4_32, uses 1 core
             JITLINUX64,                # on bencher4, uses 1 core
+            JITAARCH64,
             JITLINUX_S390X,
             #APPLVLLINUX32,            
             #APPLVLLINUX64,             # on bencher4, uses 1 core
@@ -315,6 +321,7 @@ BuildmasterConfig = {
         Nightly("nightly-0-01", [
             LINUX32RPYTHON,            # on benchermarker_32, uses all cores
             LINUX64RPYTHON,            # on bencher4, uses all cores
+            AARCH64RPYTHON,            
             WIN32RPYTHON,              # on SalsaSalsa
             LINUX_S390XRPYTHON,
             ], branch='default', hour=0, minute=0, onlyIfChanged=True,
@@ -346,7 +353,9 @@ BuildmasterConfig = {
             LINUX32OWN,                # on bencher4_32, uses all cores
             JITLINUX32,                # on bencher4_32, uses 1 core
             LINUX64OWN,                # on bencher4, uses all cores
+            AARCH64OWN,
             JITLINUX64,                # on bencher4, uses 1 core
+            JITAARCH64,                
             JITMACOSX64,               # on xerxes
             JITWIN32,                  # on SalsaSalsa
             ], branch="py3.6", hour=3, minute=0,
@@ -364,10 +373,12 @@ BuildmasterConfig = {
                         PYPYBUILDBOT,
                         LINUX32OWN,
                         LINUX64OWN,
+                        AARCH64OWN,
                         MACOSX32OWN,
                         WIN32OWN,
                         LINUX32RPYTHON,
                         LINUX64RPYTHON,
+                        AARCH64RPYTHON,
                         MACOSX32RPYTHON,
                         WIN32RPYTHON,
 
@@ -380,6 +391,7 @@ BuildmasterConfig = {
 
                         JITLINUX32,
                         JITLINUX64,
+                        JITAARCH64,
                         JITMACOSX64,
                         JITWIN32,
                         #JITFREEBSD964,
@@ -431,6 +443,13 @@ BuildmasterConfig = {
                    "category": 'linux64',
                    "locks": [Bencher4Lock.access('counting')],
                   },
+                  {"name": AARCH64OWN,
+                   "slavenames": ["aarch64_aws"],
+                   "builddir": AARCH64OWN,
+                   "factory": pypyOwnTestFactory,
+                   "category": 'linux64',
+                   "locks": [AARCH64Lock.access('counting')],
+                  },
                   {"name": LINUX64RPYTHON,
                    #"slavenames": ["bencher4", "speed-old"],
                    "slavenames": ["bencher4", "benchmarker64"],
@@ -438,6 +457,13 @@ BuildmasterConfig = {
                    "factory": pypyRPythonTestFactory,
                    "category": 'linux64',
                    "locks": [Bencher4Lock.access('counting')],
+                  },
+                  {"name": AARCH64RPYTHON,
+                   "slavenames": ["aarch64_aws"],
+                   "builddir": AARCH64RPYTHON,
+                   "factory": pypyRPythonTestFactory,
+                   "category": 'linux64',
+                   "locks": [AARCH64Lock.access('counting')],
                   },
                   {"name": APPLVLLINUX32,
                    #"slavenames": ["allegro32"],
@@ -486,6 +512,14 @@ BuildmasterConfig = {
                    'factory': pypyJITTranslatedTestFactory64,
                    'category': 'linux64',
                    "locks": [Bencher4Lock.access('counting')],
+                  },
+                  {'name': JITAARCH64,
+                   #'slavenames': ["bencher4", "speed-old"],
+                   'slavenames': ["aarch64_aws"],
+                   'builddir': JITAARCH64,
+                   'factory': pypyJITTranslatedTestFactory64,
+                   'category': 'linux64',
+                   "locks": [AARCH64Lock.access('counting')],
                   },
                   {"name": JITBENCH64,
                    "slavenames": ["benchmarker"],
