@@ -25,8 +25,9 @@ class PyPyTarball(object):
         }
 
     PLATFORM_PRIORITY = {
-        'linux':    100,
-        'linux64':   50,
+        'linux64':  100,
+        'linux':     50,
+        'aarch64':   40,
         'osx':       30,
         'win32':     20,
         's390x':     10,
@@ -38,6 +39,7 @@ class PyPyTarball(object):
     PLATFORMS = {
         'linux':     'linux-x86-32',
         'linux64':   'linux-x86-64',
+        'aarch64':   'aarch64',
         'osx':       'macosx-x86-32',
         'osx64':     'macosx-x86-64',
         'win32':     'win-x86-32',
