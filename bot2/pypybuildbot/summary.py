@@ -665,6 +665,17 @@ def encode_rev_for_ordering(rev):
 
 class Summary(HtmlResource):
 
+    PLATFORM_PRIORITY = {
+        'linux64':       1,
+        'linux32':       2,
+        'aarch64':       3,
+        'mac64':         4,
+        'win32':         5,
+        'linux-s390x':   6,
+        'linux-armhf':   7,
+        'benchmark-run': 8,
+        }
+
     def __init__(self, categories=[], branch_order_prefixes=[]):
         HtmlResource.__init__(self)
         self.putChild('longrepr', LongRepr())
@@ -826,13 +837,7 @@ class Summary(HtmlResource):
                     break
             else:
                 branch_key = (len(self.branch_order_prefixes)+1, branch)
-        for i, catprefix in enumerate(self.categories):
-            if category.startswith(catprefix):
-                # kill '-' to make 'linux32' sort before 'linux-armel'
-                category = category.replace('-', '')
-                break
-        else:
-            i = len(self.categories)
+        i = self.PLATFORM_PRIORITY.get(category, len(self.categories))
         cat_key = (i, category)
         return cat_key + branch_key
 
