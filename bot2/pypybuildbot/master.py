@@ -274,7 +274,7 @@ inactive_slaves = [
                     ]
 extra_opts = {'xerxes': {'keepalive_interval': 15},
              'aurora': {'max_builds': 1},
-             'salsa': {'max_builds': 1},
+             'SalsaSalsa': {'max_builds': 1},
              'hhu-raspberry-pi': {'max_builds': 1},
              'hhu-pypy-pi': {'max_builds': 1},
              'hhu-pypy-pi2': {'max_builds': 1},
@@ -584,7 +584,7 @@ BuildmasterConfig = {
                    "slavenames": ["SalsaSalsa", "anubis64"],
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
-                   "locks": [WinSlaveLock.access('counting')],
+                   "locks": [WinSlaveLock.access('exclusive')],
                    'category' : 'win32',
                    },
                  # PPC
