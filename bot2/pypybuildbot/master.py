@@ -175,6 +175,14 @@ pypyJITTranslatedTestFactoryS390X = pypybuilds.Translated(
     pypyjit=True,
     app_tests=True)
 
+pypyJITTranslatedTestFactoryAARCH64 = pypybuilds.Translated(
+    platform='aarch64',
+    translationArgs=jit_translation_args,
+    targetArgs=[],
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True)
+
 pypyJITBenchmarkFactory = pypybuilds.JITBenchmark(host='benchmarker')
 pypyJITBenchmarkFactory64 = pypybuilds.JITBenchmark(platform='linux64',
                                                            host='benchmarker',
@@ -517,7 +525,7 @@ BuildmasterConfig = {
                    #'slavenames': ["bencher4", "speed-old"],
                    'slavenames': ["aarch64_aws"],
                    'builddir': JITAARCH64,
-                   'factory': pypyJITTranslatedTestFactory64,
+                   'factory': pypyJITTranslatedTestFactoryAARCH64,
                    'category': 'aarch64',
                    "locks": [AARCH64Lock.access('counting')],
                   },
