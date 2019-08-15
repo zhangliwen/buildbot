@@ -80,10 +80,11 @@ class PyPyUpload(transfer.FileUpload):
             os.chmod(self.masterdest, 0644)
         except OSError:
             pass
-        try:
-            symlink_force(os.path.basename(self.masterdest), self.symlinkname)
-        except OSError:
-            pass
+        if os.stat(self.masterdest).st_size > 10:
+            try:
+                symlink_force(os.path.basename(self.masterdest), self.symlinkname)
+            except OSError:
+                pass
 
 class PyPyDownload(transfer.FileDownload):
     parms = transfer.FileDownload.parms + ['basename']
