@@ -300,10 +300,12 @@ BuildmasterConfig = {
         # the benchmarks run on benchmarker and (planned) speed-old.python.org.
         # 64 bit linux tests run on bencher4.soft-dev.org.
         # 32 bit linux tests run on benchmarker.
-        Nightly("nightly-translate", [
+        Nightly("nightly-0-00", [
             # linux tests
             LINUX32OWN,                # on benchmarker4_32, uses all cores
             LINUX64OWN,                # on bencher4, uses all cores
+            AARCH64OWN,
+            WIN32OWN,                  # on SalsaSalsa
             LINUX_S390XOWN,
             JITLINUX32,                # on benchmarker4_32, uses 1 core
             JITLINUX64,                # on bencher4, uses 1 core
@@ -324,21 +326,13 @@ BuildmasterConfig = {
             onlyIfChanged=True,
         ),
 
-        Nightly("nightly-own", [
-            # linux tests
-            AARCH64OWN,
-            WIN32OWN,                  # on SalsaSalsa
-            ], branch='default', hour=3, minute=0,
-            onlyIfChanged=True,
-        ),
-
         Nightly("nightly-0-01", [
             LINUX32RPYTHON,            # on benchermarker_32, uses all cores
             LINUX64RPYTHON,            # on bencher4, uses all cores
             AARCH64RPYTHON,            
             WIN32RPYTHON,              # on SalsaSalsa
             LINUX_S390XRPYTHON,
-            ], branch='default', hour=3, minute=0, onlyIfChanged=True,
+            ], branch='default', hour=0, minute=0, onlyIfChanged=True,
             fileIsImportant=isRPython,
             change_filter=filter.ChangeFilter(branch='default'),
         ),
@@ -363,15 +357,16 @@ BuildmasterConfig = {
         #Nightly("nightly-3-01-py3.5", [LINUX64, JITLINUX64,],
         #        branch="py3.5", hour=3, minute=0),
 
-        Nightly("nightly-py3.6", [
+        Nightly("nightly-3-00-py3.6", [
             LINUX32OWN,                # on bencher4_32, uses all cores
             JITLINUX32,                # on bencher4_32, uses 1 core
             LINUX64OWN,                # on bencher4, uses all cores
+            AARCH64OWN,
             JITLINUX64,                # on bencher4, uses 1 core
             JITAARCH64,                
             JITMACOSX64,               # on xerxes
             JITWIN32,                  # on SalsaSalsa
-            ], branch="py3.6", hour=7, minute=0,
+            ], branch="py3.6", hour=3, minute=0,
             # onlyIfChanged=True, # doesn't work - no builds are triggered 2019-04-23
         ),
 
