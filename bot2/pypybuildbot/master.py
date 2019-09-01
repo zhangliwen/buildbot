@@ -70,7 +70,7 @@ BenchmarkerLock = pypybuilds.BenchmarkerLock
 WinSlaveLock = pypybuilds.WinSlaveLock
 #SpeedOldLock = pypybuilds.SpeedOldLock
 Bencher4Lock = pypybuilds.Bencher4Lock
-AARCH64Lock = pypybuilds.Bencher4Lock
+AARCH64Lock = pypybuilds.AARCH64Lock
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
@@ -311,7 +311,7 @@ BuildmasterConfig = {
             JITLINUX64,                # on bencher4, uses 1 core
             JITAARCH64,
             JITLINUX_S390X,
-            #APPLVLLINUX32,            
+            #APPLVLLINUX32,
             #APPLVLLINUX64,             # on bencher4, uses 1 core
             # other platforms
             #MACOSX32,                 # on minime
@@ -329,7 +329,7 @@ BuildmasterConfig = {
         Nightly("nightly-0-01", [
             LINUX32RPYTHON,            # on benchermarker_32, uses all cores
             LINUX64RPYTHON,            # on bencher4, uses all cores
-            AARCH64RPYTHON,            
+            AARCH64RPYTHON,
             WIN32RPYTHON,              # on SalsaSalsa
             LINUX_S390XRPYTHON,
             ], branch='default', hour=0, minute=0, onlyIfChanged=True,
@@ -363,7 +363,7 @@ BuildmasterConfig = {
             LINUX64OWN,                # on bencher4, uses all cores
             AARCH64OWN,
             JITLINUX64,                # on bencher4, uses 1 core
-            JITAARCH64,                
+            JITAARCH64,
             JITMACOSX64,               # on xerxes
             JITWIN32,                  # on SalsaSalsa
             ], branch="py3.6", hour=3, minute=0,
