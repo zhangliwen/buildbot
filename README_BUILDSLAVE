@@ -1,7 +1,13 @@
 How to setup a buildslave for PyPy
 ==================================
 
-The required setup is::
+There are three documented ways to run a PyPy buildslave:
+
+- "bare metal" on the host machine, described below
+- in a chroot, setting up the chroot is described in `README-CHROOT`
+- via docker on a centos6-based image, see docker/Dockerfile
+
+In all cases the required setup is::
 - hg
 - "python" should run a cpython 2.6-2.7 that will run the test suites.
 - virtualenv that will use the "python" from above
