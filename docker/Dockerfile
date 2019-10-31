@@ -5,7 +5,7 @@
 # docker build -t buildslave -f docker/Dockerfile .
 #
 # To create the buildslave configuration, call
-# docker run --rm -v<build_dir>:/build_dir \
+# docker run --rm --user $UID -v<abspath/to/builder/dir>:/build_dir> \
 #    -eSLAVENAME=<name> -ePASSWORD=<password> buildslave
 # Then you can examine the <build_dir>/buildbot.tac file.
 #
@@ -15,7 +15,8 @@
 # kill the process.
 #
 # To enter the buildslave image
-# docker run -it -v<abspath/to/builder/dir>:/build_dir> buildslave /bin/bash
+# docker run -it --user $UID -v<abspath/to/builder/dir>:/build_dir> \
+#     buildslave /bin/bash
 
 FROM centos:centos6
 
