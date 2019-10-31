@@ -14,9 +14,19 @@
 # to "hang" the console running the slave. To stop the slave, simply CTRL-C or
 # kill the process.
 #
-# To enter the buildslave image
+# You might want to keep the PYPY_USESSION_DIR where the testing/building
+# artifacts are. Docker will not do this for you, so do something like this
+# to save the files outside the docker
+#
+# mkdir -p build_dir/tmp
+# docker run --rm --user $UID -v<abspath/to/builder/dir>:/build_dir> \
+#     -ePYPY_USESSION_DIR=/build_dir/tmp buildslave
+#
+# To enter the buildslave image, add a shell command to the end
+#
 # docker run -it --user $UID -v<abspath/to/builder/dir>:/build_dir> \
-#     buildslave /bin/bash
+#     -ePYPY_USESSION_DIR=/build_dir/tmp buildslave /bin/bash
+#
 
 FROM centos:centos6
 
