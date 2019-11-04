@@ -56,12 +56,12 @@ RUN yum install -y python27 python27-python-virtualenv
 
 # build a python 2.7 virtualenv, use the scl-installed version of python2.7
 # since centos6 itself has python2.6
-ENV LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64
+ENV LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64:/usr/local/lib64
 RUN /opt/rh/python27/root/usr/bin/python -mvirtualenv /python27_virt
 ENV PATH=/python27_virt/bin:$PATH
 RUN pip install --upgrade pip setuptools
 RUN pip install buildbot-slave pytest hypothesis cffi vmprof mercurial
-ENV PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig
+ENV PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig
 
 CMD if [ -e /build_dir/buildbot.tac ]; then \
     buildslave start --nodaemon /build_dir; \
