@@ -319,6 +319,14 @@ def update_hg_old_method(platform, factory, repourl, workdir, revision):
                              workdir=workdir,
                              timeout=3600,
                              haltOnFailure=True))
+    if platform == "win32":
+        # Clean out files via DOS to avoid long filename limitations in hg
+        command = 'for /F "usebackq tokens=1,2" %I IN (`hg stat`) DO @IF "?" == "%I" DEL %J'
+        factory.addStep(
+            ShellCmd(description="clean up files",
+                     command=command,
+                     workdir=workdir,
+                     haltOnFailure=True))
     #
     factory.addStep(
         ShellCmd(description="hg purge",
