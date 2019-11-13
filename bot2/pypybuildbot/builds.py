@@ -343,8 +343,8 @@ def update_hg(platform, factory, repourl, workdir, revision, use_branch,
         return
 
     if platform == "win32":
-        # Clean out files via DOS to avoid long filename limitations in hg
-        command = 'for /F "usebackq tokens=1,2" %I IN (`hg stat`) DO @IF "?" == "%I" DEL %J'
+        # Clean out files via hackery to avoid long filename limitations in hg
+        command = 'hg update -r null & rmdir /q /s lib_pypy extra_tests pypy'
         factory.addStep(
             ShellCmd(description="clean up files",
                      command=command,
