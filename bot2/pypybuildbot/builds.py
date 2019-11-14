@@ -349,7 +349,7 @@ def update_hg(platform, factory, repourl, workdir, revision, use_branch,
             ShellCmd(description="clean up files",
                      command=command,
                      workdir=workdir,
-                     haltOnFailure=True))
+                     haltOnFailure=False))
 
     if wipe_bookmarks:
         # We don't use bookmarks at all.  If a bookmark accidentally gets
