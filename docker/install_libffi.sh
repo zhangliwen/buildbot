@@ -12,7 +12,7 @@ function check_sha256sum {
     rm "${fname}.sha256"
 }
 
-curl -#O "https://mirrors.ocf.berkeley.edu/debian/pool/main/libf/libffi/libffi_${LIBFFI_VERSION}.orig.tar.gz"
+curl -q -#O "https://mirrors.ocf.berkeley.edu/debian/pool/main/libf/libffi/libffi_${LIBFFI_VERSION}.orig.tar.gz"
 check_sha256sum "libffi_${LIBFFI_VERSION}.orig.tar.gz" ${LIBFFI_SHA256}
 tar zxf libffi*.orig.tar.gz
 PATH=/opt/perl/bin:$PATH
@@ -22,7 +22,11 @@ if [ "$1" == "manylinux1" ]; then
 else
   STACK_PROTECTOR_FLAGS="-fstack-protector-strong"
 fi
-./configure --prefix=/usr/local CFLAGS="-g -O2 $STACK_PROTECTOR_FLAGS -Wformat -Werror=format-security"
+if [ "$2" == "m32" ]; then
+  setarch i386 ./configure --prefix=/usr/local CFLAGS="-m32 -g -O2 $STACK_PROTECTOR_FLAGS -Wformat -Werror=format-security"
+else
+  ./configure --prefix=/usr/local CFLAGS="-g -O2 $STACK_PROTECTOR_FLAGS -Wformat -Werror=format-security"
+fi
 make install
 popd
 rm -rf libffi*

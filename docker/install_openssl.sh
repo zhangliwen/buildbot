@@ -13,12 +13,16 @@ function check_sha256sum {
     rm "${fname}.sha256"
 }
 
-curl -#O "${OPENSSL_URL}/${OPENSSL_NAME}.tar.gz"
+curl -q -#O "${OPENSSL_URL}/${OPENSSL_NAME}.tar.gz"
 check_sha256sum ${OPENSSL_NAME}.tar.gz ${OPENSSL_SHA256}
 tar zxf ${OPENSSL_NAME}.tar.gz
 PATH=/opt/perl/bin:$PATH
 pushd ${OPENSSL_NAME}
-./config no-comp enable-ec_nistp_64_gcc_128 no-shared no-dynamic-engine --prefix=/usr/local --openssldir=/usr/local
+if [ "$2" == "m32" ]; then
+  setarch i386 ./config no-comp no-shared no-dynamic-engine -m32 --prefix=/usr/local --openssldir=/usr/local
+else
+  ./config no-comp enable-ec_nistp_64_gcc_128 no-shared no-dynamic-engine --prefix=/usr/local --openssldir=/usr/local
+fi
 make depend
 make -j4
 # avoid installing the docs
