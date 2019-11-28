@@ -1,11 +1,12 @@
 # Build with something like this, where
 #  -t is the name of the image
 #  -f is this file
+#  1001 is the UID of the user to run as
 #  the random_name is a random directory
-# linux32 docker build -t buildslave_i686 -f docker/Dockerfile random_name 
+# linux32 docker build -t buildslave --build-arg BUILDSLAVE_UID=1001 -f docker/Dockerfile random_name
 #
 # To create the buildslave configuration, call
-# docker run --rm --user buildslave -v<abspath/to/builder/dir>:/build_dir> \
+# docker run -it --rm -v<abspath/to/builder/dir>:/build_dir> \
 #    -eSLAVENAME=<name> -ePASSWORD=<password> buildslave_i686
 # Then you can examine the <build_dir>/buildbot.tac file.
 #
@@ -20,7 +21,7 @@
 # Use PYPY_MAKE_PORTABLE to package a built PyPy in a portable fashion (that
 # is the motivation for doing this in the first place, right?)
 #
-# linux32 docker run --rm --user buildslave -v<abspath/to/builder/dir>:/build_dir> \
+# linux32 docker run -it --rm -v<abspath/to/builder/dir>:/build_dir> \
 #     -ePYPY_MAKE_PORTABLE=1 buildslave
 #
 # Use HOME since the default for docker is /, which
@@ -31,7 +32,7 @@
 # to save the files outside the docker
 #
 # mkdir -p build_dir/tmp
-# linux32 docker run --rm --user buildslave -v<abspath/to/builder/dir>:/build_dir> \
+# linux32 docker run -it --rm -v<abspath/to/builder/dir>:/build_dir> \
 #     -ePYPY_USESSION_DIR=/build_dir/tmp -ePYPY_MAKE_PORTABLE=1 \
 #     -eHOME=/buildslave_home -v/home/buildslave:/buildslave_home buildslave_i686
 #
@@ -72,8 +73,12 @@ ENV PATH=/python27_virt/bin:$PATH
 RUN pip install --upgrade pip setuptools
 RUN pip install buildbot-slave pytest hypothesis cffi vmprof mercurial virtualenv
 
+# Define a user
+ARG BUILDSLAVE_UID=1001
+RUN adduser buildslave --uid=$BUILDSLAVE_UID
+
 CMD if [ -e /build_dir/buildbot.tac ]; then \
-    buildslave start --nodaemon /build_dir; \
+    su buildslave -c "buildslave start --nodaemon /build_dir"; \
   else \
-    buildslave create-slave /build_dir buildbot.pypy.org:10407 $SLAVENAME $PASSWORD; \
+    su buildslave -c "buildslave create-slave /build_dir buildbot.pypy.org:10407 $SLAVENAME $PASSWORD"; \
   fi
