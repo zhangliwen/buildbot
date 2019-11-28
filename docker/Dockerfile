@@ -2,11 +2,11 @@
 #  -t is the name of the image
 #  -f is this file
 #  the random_name is a random directory
-# docker build -t buildslave -f docker/Dockerfile random_name 
+# docker build -t buildslave_x86_64 -f docker/Dockerfile random_name 
 #
 # To create the buildslave configuration, call
 # docker run --rm --user buildslave -v<abspath/to/builder/dir>:/build_dir> \
-#    -eSLAVENAME=<name> -ePASSWORD=<password> buildslave
+#    -eSLAVENAME=<name> -ePASSWORD=<password> buildslave_x86_64
 # Then you can examine the <build_dir>/buildbot.tac file.
 #
 # To run the buildslave (after the stage above succeeds) you no longer need the
@@ -21,10 +21,10 @@
 # is the motivation for doing this in the first place, right?)
 #
 # docker run --rm --user buildslave -v<abspath/to/builder/dir>:/build_dir> \
-#     -ePYPY_MAKE_PORTABLE=1 buildslave
+#     -ePYPY_MAKE_PORTABLE=1 buildslave_x86_64
 #
 # Use HOME since the default for docker is /, which
-# is not avaialbe to the buildslave user
+# is not available to the buildslave user
 #
 # You might want to keep the PYPY_USESSION_DIR where the testing/building
 # artifacts are. Docker will not do this for you, so do something like this
@@ -33,12 +33,12 @@
 # mkdir -p build_dir/tmp
 # docker run --rm --user buildslave -v<abspath/to/builder/dir>:/build_dir> \
 #     -ePYPY_USESSION_DIR=/build_dir/tmp -ePYPY_MAKE_PORTABLE=1 \
-#     -eHOME=/buildslave_home -v/home/buildslave:/buildslave_home buildslave
+#     -eHOME=/buildslave_home -v/home/buildslave:/buildslave_home buildslave_x86_64
 #
 # To enter the buildslave image, add a shell command to the end
 #
 # docker run -it --user buildslave -v<abspath/to/builder/dir>:/build_dir> \
-#     -ePYPY_USESSION_DIR=/build_dir/tmp buildslave /bin/bash
+#     -ePYPY_USESSION_DIR=/build_dir/tmp buildslave_x86_64 /bin/bash
 #
 
 FROM quay.io/pypa/manylinux2010_x86_64:latest
