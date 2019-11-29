@@ -2,8 +2,8 @@
 #  -t is the name of the image
 #  -f is this file
 #  1001 is the UID of the user to run as
-#  the random_name is a random directory
-# linux32 docker build -t buildslave --build-arg BUILDSLAVE_UID=1001 -f docker/Dockerfile random_name
+#  docker is the directory where install_ffi.sh is
+# docker build -t buildslave_i686 --build-arg BUILDSLAVE_UID=1001 -f docker/Dockerfile32 docker
 #
 # To create the buildslave configuration, call
 # docker run -it --rm -v<abspath/to/builder/dir>:/build_dir> \
@@ -21,24 +21,24 @@
 # Use PYPY_MAKE_PORTABLE to package a built PyPy in a portable fashion (that
 # is the motivation for doing this in the first place, right?)
 #
-# linux32 docker run -it --rm -v<abspath/to/builder/dir>:/build_dir> \
-#     -ePYPY_MAKE_PORTABLE=1 buildslave
+# docker run -it --rm -v<abspath/to/builder/dir>:/build_dir> \
+#     -ePYPY_MAKE_PORTABLE=1 buildslave_i686
 #
 # Use HOME since the default for docker is /, which
-# is not available to the buildslave user
+# is not available to the buildslave_i686 user
 #
 # You might want to keep the PYPY_USESSION_DIR where the testing/building
 # artifacts are. Docker will not do this for you, so do something like this
 # to save the files outside the docker
 #
 # mkdir -p build_dir/tmp
-# linux32 docker run -it --rm -v<abspath/to/builder/dir>:/build_dir> \
+# docker run -it --rm -v<abspath/to/builder/dir>:/build_dir> \
 #     -ePYPY_USESSION_DIR=/build_dir/tmp -ePYPY_MAKE_PORTABLE=1 \
 #     -eHOME=/buildslave_home -v/home/buildslave:/buildslave_home buildslave_i686
 #
 # To enter the buildslave image, add a shell command to the end
 #
-# linux32 docker run -it --user buildslave -v<abspath/to/builder/dir>:/build_dir> \
+# docker run -it -v<abspath/to/builder/dir>:/build_dir> \
 #     -ePYPY_USESSION_DIR=/build_dir/tmp buildslave_i686 /bin/bash
 #
 
@@ -47,8 +47,8 @@ WORKDIR /root
 
 RUN yum -y update
 RUN yum install -y wget bzip2-devel zlib-devel glibc-devel libX11-devel \
-   libXt-devel patch expat-devel libXft-devel tk-devel gdbm-devel \
-   perl xz-devel ncurses-devel sqlite-devel prelink python-virtualenv pypy
+   libXt-devel patch expat-devel libXft-devel tk-devel gdbm-devel gdb \
+   perl xz-devel ncurses-devel sqlite-devel gc-devel prelink python-virtualenv
 
 # Taken from pyca/infra/cryptography-manylinux
 # centos6 libffi is buggy, download and use a newer one
@@ -60,7 +60,12 @@ RUN sh install_libffi.sh manylinux2010 m32 2>&1 | tee /root/install_libffi.log
 RUN sh install_openssl.sh manylinux2010 m32 2>&1 | tee /root/install_openssl.log
 
 # get a pypy for translation. On x86_64 we can use portable pypy
-# on i686 we use the old one provided by yum
+# on i686 we used python to bootstrap a translation, packaged and copied it out
+# of the docker. 
+# XXX update this to use a release version when we have one
+
+ADD pypy-c-jit-98156-b7f6c003d6d5-linux.tar.bz2 /opt
+RUN ln -s /opt/pypy-c-jit-98156-b7f6c003d6d5-linux/bin/pypy /usr/local/bin/pypy   
 # RUN wget -q https://bitbucket.org/squeaky/portable-pypy/downloads/pypy-7.0.0-linux_x86_64-portable.tar.bz2 -O - | tar -C /opt -xj
 # RUN ln -s /opt/pypy-7.0.0-linux_x86_64-portable/bin/pypy /usr/local/bin/pypy
 

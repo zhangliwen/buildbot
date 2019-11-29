@@ -2,8 +2,8 @@
 #  -t is the name of the image
 #  -f is this file
 #  1001 is the UID of the user to run as
-#  the random_name is a random directory
-# docker build -t buildslave_x86_64 --build-arg BUILDSLAVE_UID=1001 -f docker/Dockerfile random_name 
+#  docker is the directory where install_ffi.sh is
+# docker build -t buildslave_x86_64 --build-arg BUILDSLAVE_UID=1001 -f docker/Dockerfile docker 
 #
 # To create the buildslave configuration, call
 # docker run -it --rm -v<abspath/to/builder/dir>:/build_dir> \
@@ -25,7 +25,7 @@
 #     -ePYPY_MAKE_PORTABLE=1 buildslave_x86_64
 #
 # Use HOME since the default for docker is /, which
-# is not available to the buildslave user
+# is not available to the buildslave_x86_64 user
 #
 # You might want to keep the PYPY_USESSION_DIR where the testing/building
 # artifacts are. Docker will not do this for you, so do something like this
@@ -38,7 +38,7 @@
 #
 # To enter the buildslave image, add a shell command to the end
 #
-# docker run -it --user buildslave -v<abspath/to/builder/dir>:/build_dir> \
+# docker run -it -v<abspath/to/builder/dir>:/build_dir> \
 #     -ePYPY_USESSION_DIR=/build_dir/tmp buildslave_x86_64 /bin/bash
 #
 
@@ -47,8 +47,8 @@ WORKDIR /root
 
 RUN yum -y update
 RUN yum install -y wget bzip2-devel zlib-devel glibc-devel libX11-devel \
-   libXt-devel patch expat-devel libXft-devel tk-devel gdbm-devel \
-   perl xz-devel ncurses-devel sqlite-devel prelink python-virtualenv pypy
+   libXt-devel patch expat-devel libXft-devel tk-devel gdbm-devel gdb \
+   perl xz-devel ncurses-devel sqlite-devel gc-devel prelink python-virtualenv
 
 # Taken from pyca/infra/cryptography-manylinux
 # centos6 libffi is buggy, download and use a newer one
