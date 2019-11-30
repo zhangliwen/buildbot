@@ -24,17 +24,13 @@
 # docker run -it --rm -v<abspath/to/builder/dir>:/build_dir> \
 #     -ePYPY_MAKE_PORTABLE=1 buildslave_x86_64
 #
-# Use HOME since the default for docker is /, which
-# is not available to the buildslave_x86_64 user
-#
 # You might want to keep the PYPY_USESSION_DIR where the testing/building
 # artifacts are. Docker will not do this for you, so do something like this
 # to save the files outside the docker
 #
 # mkdir -p build_dir/tmp
 # docker run -it --rm -v<abspath/to/builder/dir>:/build_dir> \
-#     -ePYPY_USESSION_DIR=/build_dir/tmp -ePYPY_MAKE_PORTABLE=1 \
-#     -eHOME=/buildslave_home -v/home/buildslave:/buildslave_home buildslave_x86_64
+#     -ePYPY_USESSION_DIR=/build_dir/tmp -ePYPY_MAKE_PORTABLE=1 buildslave_x86_64
 #
 # To enter the buildslave image, add a shell command to the end
 #
@@ -58,6 +54,10 @@ ADD install_openssl.sh /root/install_openssl.sh
 ADD install_libffi.sh /root/install_libffi.sh
 RUN sh install_libffi.sh manylinux2010 2>&1 | tee /root/install_libffi.log
 RUN sh install_openssl.sh manylinux2010 2>&1 | tee /root/install_openssl.log
+ADD install_xz5.sh /root/install_xz5.sh
+ADD lasse_collin_pubkey.txt /root/lasse_collin_pubkey.txt
+ADD xz-5.2.4.tar.gz.sig /root/xz-5.2.4.tar.gz.sig
+RUN sh install_xz5.sh manylinux2010 m32 # 2>&1 | tee /root/install_xz5.log
 
 # get a pypy for translation. On x86_64 we can use portable pypy
 RUN wget -q https://bitbucket.org/squeaky/portable-pypy/downloads/pypy-7.0.0-linux_x86_64-portable.tar.bz2 -O - | tar -C /opt -xj
@@ -70,7 +70,7 @@ RUN yum clean packages
 RUN virtualenv -p /opt/python/cp27-cp27mu/bin/python /python27_virt
 ENV PATH=/python27_virt/bin:$PATH
 RUN pip install --upgrade pip setuptools
-RUN pip install buildbot-slave pytest hypothesis cffi vmprof mercurial virtualenv
+RUN pip install buildbot-slave pytest hypothesis==4.42 cffi vmprof mercurial virtualenv
 
 # Define a user
 ARG BUILDSLAVE_UID=1001
