@@ -81,6 +81,7 @@ RUN pip install buildbot-slave pytest hypothesis==4.42 cffi vmprof mercurial vir
 # Define a user
 ARG BUILDSLAVE_UID=1001
 RUN adduser buildslave --uid=$BUILDSLAVE_UID
+RUN echo parallel=4 > /home/buildslave/machine_cfg.py
 
 CMD if [ -e /build_dir/buildbot.tac ]; then \
     su buildslave -c "buildslave start --nodaemon /build_dir"; \
