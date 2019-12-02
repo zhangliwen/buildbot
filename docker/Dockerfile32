@@ -1,7 +1,7 @@
 # Build with something like this, where
 #  -t is the name of the image
 #  -f is this file
-#  1001 is the UID of the user to run as
+#  1001 is the UID of the user to run as, you might want to use $UID
 #  docker is the directory where install_ffi.sh is
 # docker build -t buildslave_i686 --build-arg BUILDSLAVE_UID=1001 -f docker/Dockerfile32 docker
 #
@@ -64,8 +64,8 @@ RUN sh install_xz5.sh manylinux2010 m32 # 2>&1 | tee /root/install_xz5.log
 # of the docker. 
 # XXX update this to use a release version when we have one
 
-ADD pypy-c-jit-98156-b7f6c003d6d5-linux.tar.bz2 /opt
-RUN ln -s /opt/pypy-c-jit-98156-b7f6c003d6d5-linux/bin/pypy /usr/local/bin/pypy   
+ADD pypy-c-jit-98204-a8a24325ea83-linux.tar.bz2 /opt
+RUN ln -s /opt/pypy-c-jit-98204-a8a24325ea83-linux/bin/pypy /usr/local/bin/pypy   
 # RUN wget -q https://bitbucket.org/squeaky/portable-pypy/downloads/pypy-7.0.0-linux_x86_64-portable.tar.bz2 -O - | tar -C /opt -xj
 # RUN ln -s /opt/pypy-7.0.0-linux_x86_64-portable/bin/pypy /usr/local/bin/pypy
 
