@@ -391,12 +391,21 @@ def update_git(platform, factory, repourl, workdir, branch='master',
 def setup_steps(platform, factory, workdir=None,
                 repourl='https://bitbucket.org/pypy/pypy/',
                 force_branch=None):
-    # XXX: this assumes that 'hg' is in the path
-    import getpass
-    if getpass.getuser() == 'antocuni':
-        # for debugging
-        repourl = '/home/antocuni/pypy/default'
-    #
+    factory.addStep(shell.SetPropertyFromCommand(
+            command=['python', '-c', "import tempfile, os ;print"
+                     " tempfile.gettempdir() + os.path.sep"],
+             property="target_tmpdir"))
+    # If target_tmpdir is empty, crash.
+    factory.tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
+    factory.pytest = "pytest"
+    factory.addStep(ShellCmd(
+        description="mkdir for tests",
+        command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
+                    factory.tmp_or_crazy + factory.pytest + "') if not os.path.exists(r'" + \
+                    factory.tmp_or_crazy + factory.pytest + "') else True")],
+        haltOnFailure=True,
+        ))
+
     factory.addStep(ParseRevision(hideStepIf=ParseRevision.hideStepIf,
                                   doStepIf=ParseRevision.doStepIf))
     #
@@ -447,27 +456,12 @@ def get_extension(platform):
         return ".tar.bz2"
 
 def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyjit):
-    factory.addStep(shell.SetPropertyFromCommand(
-            command=['python', '-c', "import tempfile, os ;print"
-                     " tempfile.gettempdir() + os.path.sep"],
-             property="target_tmpdir"))
-    # If target_tmpdir is empty, crash.
-    tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
-    pytest = "pytest"
-    factory.addStep(ShellCmd(
-        description="mkdir for tests",
-        command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
-                    tmp_or_crazy + pytest + "') if not os.path.exists(r'" + \
-                    tmp_or_crazy + pytest + "') else True")],
-        haltOnFailure=True,
-        ))
-
     nDays = '3' #str, not int
     if platform == 'win32':
-        command = ['FORFILES', '/P', Interpolate(tmp_or_crazy + pytest),
+        command = ['FORFILES', '/P', Interpolate(factory.tmp_or_crazy + factory.pytest),
                    '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
     else:
-        command = ['find', Interpolate(tmp_or_crazy + pytest), '-mtime',
+        command = ['find', Interpolate(factory.tmp_or_crazy + factory.pytest), '-mtime',
                    '+' + nDays, '-exec', 'rm', '-r', '{}', ';']
     factory.addStep(SuccessAlways(
         description="cleanout old test files",
@@ -485,7 +479,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
                      ] + ["--config=%s" % cfg for cfg in app_tests],
             logfiles={'pytestLog': 'pytest-A.log'},
             timeout=4000,
-            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + factory.pytest),
                 }))
         if platform == 'win32':
             virt_pypy = r'pypy-venv\Scripts\python.exe'
@@ -543,7 +537,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             command=prefix + ["python", "testrunner/lib_python_tests.py"],
             timeout=4000,
             logfiles={'pytestLog': 'cpython.log'},
-            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + factory.pytest),
                 }))
 
     if pypyjit:
@@ -552,7 +546,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             command=prefix + ["python", "testrunner/pypyjit_tests.py"],
             timeout=4000,
             logfiles={'pytestLog': 'pypyjit_new.log'},
-            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + pytest),
+            env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + factory.pytest),
                 }))
 
 
@@ -565,29 +559,14 @@ class Untranslated(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.timeout=kwargs.get('timeout', 4000)
-
-        self.addStep(shell.SetPropertyFromCommand(
-                command=['python', '-c', "import tempfile, os ;print"
-                         " tempfile.gettempdir() + os.path.sep"],
-                 property="target_tmpdir"))
-        # If target_tmpdir is empty, crash.
-        tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
-        self.pytest = "pytest"
-        self.addStep(ShellCmd(
-            description="mkdir for tests",
-            command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
-                        tmp_or_crazy + self.pytest + "') if not os.path.exists(r'" + \
-                        tmp_or_crazy + self.pytest + "') else True")],
-            haltOnFailure=True,
-            ))
+        self.timeout=kwargs.get('timeout', 1000)
 
         nDays = '3' #str, not int
         if platform == 'win32':
-            command = ['FORFILES', '/P', Interpolate(tmp_or_crazy + self.pytest),
+            command = ['FORFILES', '/P', Interpolate(self.tmp_or_crazy + self.pytest),
                        '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
         else:
-            command = ['find', Interpolate(tmp_or_crazy + self.pytest), '-mtime',
+            command = ['find', Interpolate(self.tmp_or_crazy + self.pytest), '-mtime',
                        '+' + nDays, '-exec', 'rm', '-r', '{}', ';']
         self.addStep(SuccessAlways(
             description="cleanout old test files",
@@ -690,7 +669,11 @@ class Translated(factory.BuildFactory):
             command=prefix + ["python", "pypy/tool/release/package.py",
                               "--targetdir=.",
                               "--archive-name", WithProperties(name)],
-            workdir='build'))
+            workdir='build',
+            env={
+                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + self.pytest),
+                },
+            ))
         nightly = '~/nightly/'
         extension = get_extension(platform)
         pypy_c_rel = "build/" + name + extension
