@@ -13,7 +13,7 @@ ln -s  $PWD/libatomic_ops $PWD/bdwgc/libatomic_ops
 cd bdwgc
 autoreconf -vif
 automake --add-missing
-./configure
+./configure --prefix=/usr/local
 make
 make install
 popd
