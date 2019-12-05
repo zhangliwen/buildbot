@@ -559,7 +559,7 @@ class Untranslated(factory.BuildFactory):
 
         setup_steps(platform, self)
 
-        self.timeout=kwargs.get('timeout', 1000)
+        self.timeout=kwargs.get('timeout', 2000)
 
         nDays = '3' #str, not int
         if platform == 'win32':
