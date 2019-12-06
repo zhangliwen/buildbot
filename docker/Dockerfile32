@@ -46,7 +46,7 @@ WORKDIR /root
 RUN yum -y update
 RUN yum install -y wget bzip2-devel zlib-devel glibc-devel libX11-devel \
    libXt-devel patch expat-devel libXft-devel tk-devel gdbm-devel gdb vim \
-   perl xz-devel ncurses-devel sqlite-devel prelink python-virtualenv
+   perl xz-devel sqlite-devel prelink python-virtualenv
 
 # Taken from pyca/infra/cryptography-manylinux
 # centos6 libffi is buggy, download and use a newer one
@@ -61,6 +61,8 @@ ADD install_xz5.sh /root/install_xz5.sh
 ADD lasse_collin_pubkey.txt /root/lasse_collin_pubkey.txt
 ADD xz-5.2.4.tar.gz.sig /root/xz-5.2.4.tar.gz.sig
 RUN sh install_xz5.sh manylinux2010 m32 2>&1 | tee /root/install_xz5.log
+ADD install_ncurses.sh /root/install_ncurses.sh 
+RUN /root/install_ncurses.sh 2>&1 | tee /root/install_ncurses.sh
 # centos6 provides gc7.1, which does not work in a docker. Use a newer version
 # This is for testing only
 Add install_gc.sh /root/install_gc.sh

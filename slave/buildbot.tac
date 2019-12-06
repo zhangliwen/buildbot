@@ -29,10 +29,10 @@ def find_passwd(slavename):
     return 'default_password'
   
 
-buildmaster_host = 'localhost'
+buildmaster_host = 'buildbot.pypy.org'
 port = 10407
-slavename = 'localhost'
-passwd = find_passwd(slavename)
+slavename = 'benchmarker64'
+passwd = "Qn9iYWPzCaCLvB1+CRE"
 keepalive = 600
 usepty = 0
 umask = None
