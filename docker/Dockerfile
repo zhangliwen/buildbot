@@ -62,11 +62,11 @@ ADD lasse_collin_pubkey.txt /root/lasse_collin_pubkey.txt
 ADD xz-5.2.4.tar.gz.sig /root/xz-5.2.4.tar.gz.sig
 RUN sh install_xz5.sh manylinux2010 2>&1 | tee /root/install_xz5.log
 ADD install_ncurses.sh /root/install_ncurses.sh 
-RUN /root/install_ncurses.sh 2>&1 | tee /root/install_ncurses.sh
+RUN /root/install_ncurses.sh 2>&1 | tee /root/install_ncurses.log
 # centos6 provides gc7.1, which does not work in a docker. Use a newer version
 # This is for testing only
 Add install_gc.sh /root/install_gc.sh
-RUN sh /root/install_gc.sh 2>&1 | tee /root/install_gc.sh
+RUN sh /root/install_gc.sh 2>&1 | tee /root/install_gc.log
 
 # prefer our libraries in /usr/local/lib
 ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
