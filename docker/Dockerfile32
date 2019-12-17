@@ -90,8 +90,9 @@ RUN pip install buildbot-slave pytest hypothesis==4.42 cffi vmprof mercurial vir
 
 # Define a user
 ARG BUILDSLAVE_UID=1001
+ARG PARALLEL_BUILDS=4
 RUN adduser buildslave --uid=$BUILDSLAVE_UID
-RUN echo parallel_runs=4 > /home/buildslave/machine_cfg.py
+RUN echo parallel_runs=$PARALLEL_BUILDS > /home/buildslave/machine_cfg.py
 
 # NOTE: always use
 # su buildslave

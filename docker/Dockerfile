@@ -48,6 +48,11 @@ RUN yum install -y wget bzip2-devel zlib-devel glibc-devel libX11-devel \
    libXt-devel patch expat-devel libXft-devel tk-devel gdbm-devel gdb vim \
    perl xz-devel sqlite-devel prelink python-virtualenv
 
+# manylinux2010 uses a buggy gcc. Replace it.
+RUN yum -y remove devtoolset-8-binutils devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-gcc-gfortran
+RUN yum -y install devtoolset-7-binutils devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran
+ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 # Taken from pyca/infra/cryptography-manylinux
 # centos6 libffi is buggy, download and use a newer one
 # also use the version of openssl that latests pyca/cryptography uses
@@ -90,8 +95,9 @@ RUN pip install buildbot-slave pytest hypothesis==4.42 cffi vmprof mercurial vir
 
 # Define a user
 ARG BUILDSLAVE_UID=1001
+ARG PARALLEL_BUILDS=4
 RUN adduser buildslave --uid=$BUILDSLAVE_UID
-RUN echo parallel_runs=4 > /home/buildslave/machine_cfg.py
+RUN echo parallel_runs=$PARALLEL_BUILDS > /home/buildslave/machine_cfg.py
 
 # NOTE: always use
 # su buildslave
