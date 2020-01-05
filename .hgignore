@@ -35,6 +35,8 @@ http.log*
 *-win-32
 *-win-x86-32
 *-win-x86-64
+*-aarch64
+*-s390x
 slave/pypy-buildbot
 master/pypy-buildbot
 *.swp
