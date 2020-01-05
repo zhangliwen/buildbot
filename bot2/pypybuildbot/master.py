@@ -1,8 +1,8 @@
 
 import os
 from buildbot.scheduler import Nightly, Triggerable
-from buildbot.schedulers.forcesched import ForceScheduler
-from buildbot.schedulers.forcesched import ValidationError
+from buildbot.schedulers.forcesched import (ForceScheduler, ValidationError,
+         CodebaseParameter, StringParameter, BaseParameter, UserNameParameter)
 from buildbot.buildslave import BuildSlave
 from buildbot.buildslave.base import log
 from buildbot.status.html import WebStatus
@@ -17,10 +17,42 @@ from buildbot.changes.hgpoller import HgPoller
 
 # Forbid "force build" with empty user name
 class CustomForceScheduler(ForceScheduler):
+    def __init__(self, name, builderNames,
+            username=UserNameParameter(),
+            reason=StringParameter(name="reason", default="force build", length=20),
+
+            codebases=None,
+            
+            properties=[ CodebaseParameter('PyPy repo', label='PyPy Repo'),
+                       ]):
+            ForceScheduler.__init__(self, name, builderNames, username=username,
+                    reason=reason, codebases=codebases, properties=properties) 
+
     def force(self, owner, builder_name, **kwargs):
         if not owner:
             raise ValidationError("Please write your name in the corresponding field.")
         return ForceScheduler.force(self, owner, builder_name, **kwargs)
+
+class BenchmarkForceScheduler(CustomForceScheduler):
+    '''
+    A ForceScheduler with an extra field: benchmark_branch
+    '''
+    def __init__(self, name, builderNames,
+            benchmark_branch=StringParameter(name="benchmark_branch",
+                                             label="Benchmark repo branch:",
+                                             default="", length=20),
+            **kwargs):
+        CustomForceScheduler.__init__(self, name, builderNames, **kwargs)
+        if self.checkIfType(benchmark_branch, BaseParameter):
+            self.benchmark_branch = benchmark_branch
+        else:
+            config.error("ForceScheduler benchmark_branch must be a StringParameter: %r" %
+                         pypy_branch)
+        self.all_fields.append(benchmark_branch)
+        self.forcedProperties.append(benchmark_branch)
+
+    def force(self, owner, builderNames=None, **kwargs):
+        CustomForceScheduler.force(self, owner, builderNames, **kwargs)
 
 # Forbid "stop build" without a reason that starts with "!"
 def _checkStopBuild(self, reason=""):
@@ -375,8 +407,12 @@ BuildmasterConfig = {
         #Nightly("nighly-ppc", [
         #    JITONLYLINUXPPC64,         # on gcc1
         #    ], branch='ppc-jit-backend', hour=1, minute=0),
-
-        CustomForceScheduler('Force Scheduler',
+        BenchmarkForceScheduler('Force Build ',
+            builderNames=[
+                        JITBENCH64,
+                        JITBENCH64_NEW,
+                    ], properties=[]),
+        CustomForceScheduler('Force Build',
             builderNames=[
                         PYPYBUILDBOT,
                         LINUX32OWN,
@@ -405,8 +441,6 @@ BuildmasterConfig = {
                         #JITFREEBSD964,
 
                         JITONLYLINUXPPC64,
-                        JITBENCH64,
-                        JITBENCH64_NEW,
                         NUMPY_64,
                         NUMPY_WIN,
                         #WIN64OWN,

@@ -4,7 +4,7 @@ from buildbot.process.buildstep import BuildStep
 from buildbot.process import factory
 from buildbot.steps import shell, transfer
 from buildbot.steps.trigger import Trigger
-from buildbot.process.properties import WithProperties, Interpolate, Property
+from buildbot.process.properties import WithProperties, Interpolate, Property, renderer
 from buildbot import locks
 from pypybuildbot.util import symlink_force
 from buildbot.status.results import SKIPPED, SUCCESS
@@ -863,9 +863,45 @@ class JITBenchmark(factory.BuildFactory):
 
         #
         repourl = 'https://bitbucket.org/pypy/benchmarks'
-        # Always use the latest version on the benchmark repo,
-        # branch and revision refer to the pypy version to benchmark
-        update_hg(platform, self, repourl, 'benchmarks', 'default', use_branch=False)
+        # benchmark_branch is the branch in the benchmark repo,
+        # the rest refer to the pypy version to benchmark
+       
+        # Since we want to use the benchmark_branch, copy the hg update steps
+        if platform == 'win32':
+            command = "if not exist .hg rmdir /q /s ."
+        else:
+            command = "if [ ! -d .hg ]; then rm -fr * .[a-z]*; fi"
+        self.addStep(ShellCmd(description="rmdir?",
+                                 command=command,
+                                 workdir='./benchmarks',
+                                 haltOnFailure=False))
+        #
+        if platform == "win32":
+            command = "if not exist .hg %s"
+        else:
+            command = "if [ ! -d .hg ]; then %s; fi"
+        command = command % ("hg clone -U " + repourl + " .")
+        self.addStep(ShellCmd(description="hg clone",
+                                 command=command,
+                                 workdir='./benchmarks',
+                                 timeout=3600,
+                                 haltOnFailure=True))
+        #
+        self.addStep(
+            ShellCmd(description="hg purge",
+                 command="hg --config extensions.purge= purge --all",
+                 workdir='./benchmarks',
+                 haltOnFailure=True))
+        #
+        self.addStep(ShellCmd(description="hg pull",
+                                 command="hg pull",
+                                 workdir='./benchmarks'))
+        #
+        # update with the branch
+        self.addStep(ShellCmd(description="hg update",
+            command=Interpolate("hg update --clean %(prop:benchmark_branch)s"),
+            workdir='./benchmarks'))
+
         #
         setup_steps(platform, self)
         if host == 'benchmarker':
@@ -875,7 +911,12 @@ class JITBenchmark(factory.BuildFactory):
         else:
             assert False, 'unknown host %s' % host
 
-        #
+        def extract_info(rc, stdout, stderr):
+            if rc == 0:
+                return json.loads(stdout)
+            else:
+                return {}
+        
         self.addStep(
             Translate(
                 translationArgs=['-Ojit'],
@@ -885,29 +926,37 @@ class JITBenchmark(factory.BuildFactory):
                 locks=[lock.access('counting')],
                 )
             )
-        pypy_c_rel = "../build/pypy/goal/pypy-c"
+        @renderer
+        def get_cmd(props):
+            # set from testrunner/get_info.py
+            target = props.getProperty('target_path')
+            exe = os.path.split(target)[-1][:-2]
+            rev = props.getProperty('got_revision')
+            branch = props.getProperty('branch')
+            command=["python", "runner.py", '--output-filename', 'result.json',
+                     '--changed', target,
+                     '--baseline', target,
+                     '--args', ',--jit off',
+                     '--upload',
+                     '--upload-executable', exe + postfix,
+                     '--upload-project', 'PyPy',
+                     '--revision', rev,
+                     '--branch', branch,
+                     '--upload-urls', 'https://speed.pypy.org/',
+                     '--upload-baseline',
+                     '--upload-baseline-executable', exe + '-jit' + postfix,
+                     '--upload-baseline-project', 'PyPy',
+                     '--upload-baseline-revision', rev,
+                     '--upload-baseline-branch', branch,
+                     '--upload-baseline-urls', 'https://speed.pypy.org/',
+                     ] 
+            return command  
+
         self.addStep(ShellCmd(
             # this step needs exclusive access to the CPU
             locks=[lock.access('exclusive')],
             description="run benchmarks on top of pypy-c",
-            command=["python", "runner.py", '--output-filename', 'result.json',
-                     '--changed', pypy_c_rel,
-                     '--baseline', pypy_c_rel,
-                     '--args', ',--jit off',
-                     '--upload',
-                     '--upload-executable', 'pypy-c' + postfix,
-                     '--upload-project', 'PyPy',
-                     '--revision', WithProperties('%(got_revision)s'),
-                     '--branch', WithProperties('%(branch)s'),
-                     '--upload-urls', 'https://speed.pypy.org/',
-                     '--upload-baseline',
-                     '--upload-baseline-executable', 'pypy-c-jit' + postfix,
-                     '--upload-baseline-project', 'PyPy',
-                     '--upload-baseline-revision',
-                     WithProperties('%(got_revision)s'),
-                     '--upload-baseline-branch', WithProperties('%(branch)s'),
-                     '--upload-baseline-urls', 'https://speed.pypy.org/',
-                     ],
+            command=get_cmd,
             workdir='./benchmarks',
             timeout=3600))
         # a bit obscure hack to get both os.path.expand and a property
