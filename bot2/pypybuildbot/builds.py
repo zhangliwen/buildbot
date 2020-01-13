@@ -503,14 +503,14 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             workdir='venv',
             haltOnFailure=False))
         factory.addStep(ShellCmd(
-            description="Install recent virtualenv",
-            command=prefix + [target, '-mpip', 'install', '--upgrade',
-                              'pip', 'setuptools', virt_package],
+            description="Create virtualenv",
+            command=prefix + [target, '-mvirtualenv', '--clear', venv_dir],
             workdir='venv',
             flunkOnFailure=True))
         factory.addStep(ShellCmd(
-            description="Create virtualenv",
-            command=prefix + [target, '-mvirtualenv', '--clear', venv_dir],
+            description="Install recent virtualenv",
+            command=prefix + [target, '-mpip', 'install', '--upgrade',
+                              'pip', 'setuptools', virt_package],
             workdir='venv',
             flunkOnFailure=True))
         factory.addStep(ShellCmd(
