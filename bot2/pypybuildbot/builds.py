@@ -933,6 +933,8 @@ class JITBenchmark(factory.BuildFactory):
             exe = os.path.split(target)[-1][:-2]
             rev = props.getProperty('got_revision')
             branch = props.getProperty('branch')
+            if branch == 'None' or branch is None:
+                branch = 'default'
             command=["python", "runner.py", '--output-filename', 'result.json',
                      '--changed', target,
                      '--baseline', target,
