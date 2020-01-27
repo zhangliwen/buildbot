@@ -14,6 +14,7 @@ from pypybuildbot.ircbot import IRC  # side effects
 from pypybuildbot.util import we_are_debugging, isRPython
 from buildbot.changes import filter
 from buildbot.changes.hgpoller import HgPoller
+from twisted.web.static import File
 
 # Forbid "force build" with empty user name
 class CustomForceScheduler(ForceScheduler):
@@ -91,6 +92,7 @@ status.putChild('summary', summary.Summary(categories=['linux',
 status.putChild('nightly', PyPyList(os.path.expanduser('~/nightly'),
                                     defaultType='application/octet-stream'))
 status.putChild('numpy-status', NumpyStatusList(os.path.expanduser('~/numpy_compat')))
+status.putChild('benchmark-results', File(os.path.expanduser('~/bench_results')))
 
 
 pypybuilds = load('pypybuildbot.builds')
