@@ -931,6 +931,7 @@ class JITBenchmark(factory.BuildFactory):
             # set from testrunner/get_info.py
             target = props.getProperty('target_path')
             exe = os.path.split(target)[-1][:-2]
+            project = opros.getProperty('project', default='PyPy')
             rev = props.getProperty('got_revision')
             branch = props.getProperty('branch')
             if branch == 'None' or branch is None:
@@ -941,13 +942,13 @@ class JITBenchmark(factory.BuildFactory):
                      '--args', ',--jit off',
                      '--upload',
                      '--upload-executable', exe + postfix,
-                     '--upload-project', 'PyPy',
+                     '--upload-project', project,
                      '--revision', rev,
                      '--branch', branch,
                      '--upload-urls', 'https://speed.pypy.org/',
                      '--upload-baseline',
                      '--upload-baseline-executable', exe + '-jit' + postfix,
-                     '--upload-baseline-project', 'PyPy',
+                     '--upload-baseline-project', project,
                      '--upload-baseline-revision', rev,
                      '--upload-baseline-branch', branch,
                      '--upload-baseline-urls', 'https://speed.pypy.org/',
