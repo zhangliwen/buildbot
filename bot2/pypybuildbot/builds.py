@@ -931,7 +931,7 @@ class JITBenchmark(factory.BuildFactory):
             # set from testrunner/get_info.py
             target = props.getProperty('target_path')
             exe = os.path.split(target)[-1][:-2]
-            project = opros.getProperty('project', default='PyPy')
+            project = props.getProperty('project', default='PyPy')
             rev = props.getProperty('got_revision')
             branch = props.getProperty('branch')
             if branch == 'None' or branch is None:
