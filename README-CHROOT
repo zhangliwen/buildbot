@@ -61,7 +61,7 @@ chown buildslave.buildslave -R /opt/xenial32/home/buildslave
 apt install virtualenv buildbot-slave python-pytest python-hypothesis \
 netbase gdb ncurses-term pypy locales mercurial
 
-and more from the instructions on https://bitbucket.org/pypy/buildbot
+and more from the instructions on https://foss.heptapod.net/pypy/buildbot
 
 also, to make the rlocale tests work
 

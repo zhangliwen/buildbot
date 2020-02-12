@@ -74,10 +74,8 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 # get a pypy for translation. On x86_64 we can use portable pypy
 # XXX update this to use release versions when we have one
 
-RUN wget -q http://buildbot.pypy.org/nightly/trunk/pypy-c-jit-98204-a8a24325ea83-linux.tar.bz2 -O - | tar -C /opt -xj
+RUN wget -q https://bitbucket.org/pypy/pypy/downloads/pypy2.7-v7.3.0-linux32.tar.bz2 -O - | tar -C /opt -xj
 RUN ln -s /opt/pypy-c-jit-98204-a8a24325ea83-linux/bin/pypy /usr/local/bin/pypy
-# RUN wget -q https://bitbucket.org/squeaky/portable-pypy/downloads/pypy-7.0.0-linux_x86_64-portable.tar.bz2 -O - | tar -C /opt -xj
-# RUN ln -s /opt/pypy-7.0.0-linux_x86_64-portable/bin/pypy /usr/local/bin/pypy
 
 RUN yum clean packages
 

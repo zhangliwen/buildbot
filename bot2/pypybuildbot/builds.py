@@ -389,7 +389,7 @@ def update_git(platform, factory, repourl, workdir, branch='master',
 
 
 def setup_steps(platform, factory, workdir=None,
-                repourl='https://bitbucket.org/pypy/pypy/',
+                repourl='https://foss.heptapod.net/pypy/pypy/',
                 force_branch=None):
     factory.addStep(shell.SetPropertyFromCommand(
             command=['python', '-c', "import tempfile, os ;print"
@@ -816,7 +816,7 @@ class JITBenchmarkSingleRun(factory.BuildFactory):
         # Always use the latest version on the single-run branch of the
         # benchmark repo,
         # branch and revision refer to the pypy version to benchmark
-        repourl = 'https://bitbucket.org/pypy/benchmarks'
+        repourl = 'https://foss.heptapod.net/pypy/benchmarks'
         update_hg(platform, self, repourl, 'benchmarks', '', use_branch=True,
                   force_branch='single-run')
         #
@@ -862,7 +862,7 @@ class JITBenchmark(factory.BuildFactory):
         factory.BuildFactory.__init__(self)
 
         #
-        repourl = 'https://bitbucket.org/pypy/benchmarks'
+        repourl = 'https://foss.heptapod.net/pypy/benchmarks'
         # benchmark_branch is the branch in the benchmark repo,
         # the rest refer to the pypy version to benchmark
        
@@ -984,7 +984,7 @@ class CPythonBenchmark(factory.BuildFactory):
         factory.BuildFactory.__init__(self)
 
         # check out and update benchmarks
-        repourl = 'https://bitbucket.org/pypy/benchmarks'
+        repourl = 'https://foss.heptapod.net/pypy/benchmarks'
         update_hg(platform, self, repourl, 'benchmarks', 'default', use_branch=False)
 
         # checks out and updates the repo
@@ -1049,7 +1049,7 @@ class PyPyBuildbotTestFactory(factory.BuildFactory):
         # clone
         self.addStep(
             Mercurial(
-                repourl='https://bitbucket.org/pypy/buildbot',
+                repourl='https://foss.heptapod.net/pypy/buildbot',
                 mode='incremental',
                 method='fresh',
                 defaultBranch='default',
@@ -1152,7 +1152,7 @@ class NativeNumpyTests(factory.BuildFactory):
             ))
 
         # obtain a pypy-compatible branch of numpy
-        numpy_url = 'https://www.bitbucket.org/pypy/numpy'
+        numpy_url = 'https://foss.heptapod.net/pypy/numpy'
         update_git(platform, self, numpy_url, 'numpy_src', branch='master',
                    alwaysUseLatest=True, # ignore pypy rev number when
                                          # triggered by a pypy build
