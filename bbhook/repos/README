@@ -1,2 +1,2 @@
 You must manually clone the repositories you want to follow. They must have
-the same path as on bitbucket (e.g., pypy/pypy must be in repos/pypy/pypy).
+the same path as on heptapod (e.g., pypy/pypy must be in repos/pypy/pypy).

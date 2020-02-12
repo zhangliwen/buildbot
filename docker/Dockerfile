@@ -81,7 +81,7 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 # RUN wget -q http://buildbot.pypy.org/nightly/trunk/pypy-c-jit-98204-a8a24325ea83-linux.tar.bz2 -O - | tar -C /opt -xj
 # RUN ln -s /opt/pypy-c-jit-98204-a8a24325ea83-linux/bin/pypy /usr/local/bin/pypy
-RUN wget -q https://bitbucket.org/squeaky/portable-pypy/downloads/pypy-7.0.0-linux_x86_64-portable.tar.bz2 -O - | tar -C /opt -xj
+RUN wget -q https://bitbucket.org/pypy/pypy/downloads/pypy2.7-v7.3.0-linux64.tar.bz2 -O - | tar -C /opt -xj
 RUN ln -s /opt/pypy-7.0.0-linux_x86_64-portable/bin/pypy /usr/local/bin/pypy
 
 RUN yum clean packages

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 """
-POST hook for bitbucket. So far, it just sends the email diff.
+POST hook for foss.heptapod.net. So far, it just sends the email diff.
 
 The idea is that the buildmaster user runs it inside a screen session on
-codespeak.
+the buildmaster.
 """
 
 import json
@@ -25,7 +25,7 @@ def test_form():
     return """
         <html>
             <p>
-                This is the pypy bitbucket hook.
+                This is the pypy foss.heptapod.net hook.
                 Use the following form only for testing
             </p>
             <form method=post>
@@ -54,7 +54,7 @@ def handle_payload():
 
 class DefaultConfig(object):
     LOCAL_REPOS = py.path.local(__file__).dirpath('repos')
-    REMOTE_BASE = 'http://bitbucket.org'
+    REMOTE_BASE = 'http://foss.heptapod.net'
     USE_COLOR_CODES = True
     LISTFILES = False
     #
