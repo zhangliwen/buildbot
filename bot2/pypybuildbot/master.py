@@ -326,7 +326,7 @@ BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
     'change_source': [
-        HgPoller('https://bitbucket.org/pypy/pypy/', workdir='hgpoller-workdir',
+        HgPoller('https://foss.heptapod.net/pypy/pypy/', workdir='hgpoller-workdir',
                  branch='default', pollinterval=20*60),
         ],
 
