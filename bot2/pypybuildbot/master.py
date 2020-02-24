@@ -41,7 +41,7 @@ class BenchmarkForceScheduler(CustomForceScheduler):
     def __init__(self, name, builderNames,
             benchmark_branch=StringParameter(name="benchmark_branch",
                                              label="Benchmark repo branch:",
-                                             default="", length=20),
+                                             default="default", length=20),
             **kwargs):
         CustomForceScheduler.__init__(self, name, builderNames, **kwargs)
         if self.checkIfType(benchmark_branch, BaseParameter):
