@@ -327,7 +327,7 @@ def update_hg_old_method(platform, factory, repourl, workdir, revision):
                  haltOnFailure=True))
     #
     factory.addStep(ShellCmd(description="hg pull",
-                             command="hg pull",
+                             command="hg pull %s" % repourl,
                              workdir=workdir))
     #
     # here, update without caring about branches
@@ -894,7 +894,7 @@ class JITBenchmark(factory.BuildFactory):
                  haltOnFailure=True))
         #
         self.addStep(ShellCmd(description="hg pull",
-                                 command="hg pull",
+                                 command="hg pull %s" % repourl,
                                  workdir='./benchmarks'))
         #
         # update with the branch
