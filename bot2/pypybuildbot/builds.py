@@ -888,19 +888,24 @@ class JITBenchmark(factory.BuildFactory):
                                  haltOnFailure=True))
         #
         self.addStep(
-            ShellCmd(description="hg purge",
+            ShellCmd(description="benchmrk: hg purge",
                  command="hg --config extensions.purge= purge --all",
                  workdir='./benchmarks',
                  haltOnFailure=True))
         #
-        self.addStep(ShellCmd(description="hg pull",
+        self.addStep(ShellCmd(description="benchmrk: hg pull",
                                  command="hg pull %s" % repourl,
                                  workdir='./benchmarks'))
         #
         # update with the branch
-        self.addStep(ShellCmd(description="hg update",
+        self.addStep(ShellCmd(description="benchmrk: hg update",
             command=Interpolate("hg update --clean %(prop:benchmark_branch)s"),
             workdir='./benchmarks'))
+
+        self.addStep(ShellCmd(description="benchmrk: hg report revision",
+            command=Interpolate("hg parents --template='got_revision:{rev}:{node}'"),
+            workdir='./benchmarks'))
+
 
         #
         setup_steps(platform, self)
