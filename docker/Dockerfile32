@@ -46,7 +46,7 @@ WORKDIR /root
 RUN yum -y update
 RUN yum install -y wget bzip2-devel zlib-devel glibc-devel libX11-devel \
    libXt-devel patch expat-devel libXft-devel tk-devel gdbm-devel gdb vim \
-   perl xz-devel sqlite-devel prelink python-virtualenv
+   perl sqlite-devel prelink python-virtualenv
 
 # Taken from pyca/infra/cryptography-manylinux
 # centos6 libffi is buggy, download and use a newer one

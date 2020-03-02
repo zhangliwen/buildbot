@@ -46,7 +46,7 @@ WORKDIR /root
 RUN yum -y update
 RUN yum install -y wget bzip2-devel zlib-devel glibc-devel libX11-devel \
    libXt-devel patch expat-devel libXft-devel tk-devel gdbm-devel gdb vim \
-   perl xz-devel sqlite-devel prelink python-virtualenv
+   perl sqlite-devel prelink python-virtualenv
 
 # manylinux2010 uses a buggy gcc. Replace it.
 RUN yum -y remove devtoolset-8-binutils devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-gcc-gfortran
