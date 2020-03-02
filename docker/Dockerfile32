@@ -83,7 +83,8 @@ RUN yum clean packages
 # since centos6 itself has python2.6
 RUN virtualenv -p /opt/python/cp27-cp27mu/bin/python /python27_virt
 ENV PATH=/python27_virt/bin:$PATH
-RUN pip install --upgrade pip setuptools
+RUN pip install --upgrade pip
+RUN pip install --upgrade setuptools
 RUN pip install buildbot-slave pytest hypothesis==4.42 cffi vmprof mercurial virtualenv
 
 # Define a user
