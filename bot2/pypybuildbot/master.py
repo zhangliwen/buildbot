@@ -332,9 +332,11 @@ BuildmasterConfig = {
         # and then the nightly schedulers use them.  We see them in the build pages
         # in the "Revision" property.  Any build with such a "Revision" property will
         # use exactly that revision (at least in our nightly builds).
+        # NOTE obscure hack: we can't give the exact same URL to both, so we use
+        # small variants
         HgPoller('https://foss.heptapod.net/pypy/pypy/', workdir='hgpoller-workdir',
                  branch='default', pollinterval=20*60),
-        HgPoller('https://foss.heptapod.net/pypy/pypy/', workdir='hgpoller-workdir',
+        HgPoller('https://foss.heptapod.net/pypy/pypy', workdir='hgpoller-workdir',
                  branch='py3.6', pollinterval=20*60+17),
         ],
 
