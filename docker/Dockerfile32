@@ -71,11 +71,11 @@ RUN sh /root/install_gc.sh 2>&1 | tee /root/install_gc.log
 # prefer our libraries in /usr/local/lib
 ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
-# get a pypy for translation. On x86_64 we can use portable pypy
-# XXX update this to use release versions when we have one
-
 RUN wget -q https://bitbucket.org/pypy/pypy/downloads/pypy2.7-v7.3.0-linux32.tar.bz2 -O - | tar -C /opt -xj
-RUN ln -s /opt/pypy-c-jit-98204-a8a24325ea83-linux/bin/pypy /usr/local/bin/pypy
+RUN ln -s /opt/pypy2.7-v7.3.0-linux32/bin/pypy /usr/local/bin/pypy
+RUN pypy -mensurepip
+RUN pypy -mpip install --upgrade pip
+RUN pypy -mpip install --upgrade setuptools wheel
 
 RUN yum clean packages
 
