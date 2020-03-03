@@ -326,8 +326,16 @@ BuildmasterConfig = {
     'slavePortnum': slavePortnum,
 
     'change_source': [
+        # For now, you should list here the branches on which the various Nightly run.
+        # This should be fixed more properly in the next revision of heptapod.
+        # These HgPollers are used to get the revision at the head in these branches
+        # and then the nightly schedulers use them.  We see them in the build pages
+        # in the "Revision" property.  Any build with such a "Revision" property will
+        # use exactly that revision (at least in our nightly builds).
         HgPoller('https://foss.heptapod.net/pypy/pypy/', workdir='hgpoller-workdir',
                  branch='default', pollinterval=20*60),
+        HgPoller('https://foss.heptapod.net/pypy/pypy/', workdir='hgpoller-workdir',
+                 branch='py3.6', pollinterval=20*60+17),
         ],
 
     'schedulers': [
