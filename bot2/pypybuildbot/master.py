@@ -385,9 +385,8 @@ BuildmasterConfig = {
             JITBENCH64,                # on benchmarker, uses 1 core (in part exclusively)
             #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
-            ], branch=None, hour=7, minute=0,
-            # XXX causes hg updatee -r nnn from pypy/pypy instead of pypy/benchmarks
-            #onlyIfChanged=True,
+            ], branch='default', hour=7, minute=0,
+            onlyIfChanged=True,
         ),
 
         Triggerable("NUMPY64_scheduler", [
@@ -411,7 +410,7 @@ BuildmasterConfig = {
             JITMACOSX64,               # on xerxes
             JITWIN32,                  # on SalsaSalsa
             ], branch="py3.6", hour=3, minute=0,
-            # onlyIfChanged=True, # doesn't work - no builds are triggered 2019-04-23
+            onlyIfChanged=True # uses the second HgPoller?
         ),
 
         # this one has faithfully run every night even though the latest
