@@ -660,6 +660,13 @@ class Translated(factory.BuildFactory):
         self.addStep(Translate(translationArgs, targetArgs,
                                interpreter=interpreter))
 
+        # win32 needs setuptools to successfully build the cffi extensions
+        target = Property('target_path')
+        self.addStep(ShellCmd(
+            description="ensurepip",
+            command=prefix + [target, '-mensurepip'],
+            flunkOnFailure=True))
+
         name = build_name(platform, pypyjit, translationArgs)
         self.addStep(ShellCmd(
             description="compress pypy-c",
