@@ -484,11 +484,9 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         if platform == 'win32':
             virt_pypy = r'pypy-venv\Scripts\python.exe'
             clean = 'rmdir /s /q pypy-venv'
-            virt_package = 'git+git://github.com/pypa/virtualenv@master'
         else:
             virt_pypy = 'pypy-venv/bin/python'
             clean = 'rm -rf pypy-venv'
-            virt_package = 'virtualenv'
         # set from testrunner/get_info.py
         target = Property('target_path')
         venv_dir = Property('venv_dir', default = 'pypy-venv')
@@ -505,7 +503,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         factory.addStep(ShellCmd(
             description="Install recent virtualenv",
             command=prefix + [target, '-mpip', 'install', '--upgrade',
-                              'pip', 'setuptools', virt_package],
+                              'pip', 'setuptools', 'virtualenv'],
             workdir='venv',
             flunkOnFailure=True))
         factory.addStep(ShellCmd(
