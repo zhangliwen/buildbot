@@ -98,7 +98,7 @@ status.putChild('benchmark-results', File(os.path.expanduser('~/bench_results'))
 pypybuilds = load('pypybuildbot.builds')
 
 # all ARM buildbot configuration is in arm_master.py
-ARM = load('pypybuildbot.arm_master')
+# ARM = load('pypybuildbot.arm_master')
 
 BenchmarkerLock = pypybuilds.BenchmarkerLock
 WinSlaveLock = pypybuilds.WinSlaveLock
@@ -464,8 +464,8 @@ BuildmasterConfig = {
                         LINUX_S390XRPYTHON,
                         JITLINUX_S390X,
 
-            ] + ARM.builderNames, properties=[]),
-    ] + ARM.schedulers,
+            ]), #  + ARM.builderNames, properties=[]),
+    ], # + ARM.schedulers,
 
     'status': [status, ircbot],
 
@@ -688,7 +688,7 @@ BuildmasterConfig = {
                    'factory': pypyJITTranslatedTestFactoryS390X,
                    'category': 'linux-s390x',
                   },
-                ] + ARM.builders,
+                ], # + ARM.builders,
 
     # http://readthedocs.org/docs/buildbot/en/latest/tour.html#debugging-with-manhole
     #'manhole': manhole.PasswordManhole("tcp:1234:interface=127.0.0.1",
