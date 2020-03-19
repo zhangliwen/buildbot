@@ -18,21 +18,14 @@ from twisted.web.static import File
 
 # Forbid "force build" with empty user name
 class CustomForceScheduler(ForceScheduler):
-    def __init__(self, name, builderNames,
-            username=UserNameParameter(),
-            reason=StringParameter(name="reason", default="force build", length=20),
-
-            codebases=None,
-            
-            properties=[ CodebaseParameter('PyPy repo', label='PyPy Repo'),
-                       ]):
-            ForceScheduler.__init__(self, name, builderNames, username=username,
-                    reason=reason, codebases=codebases, properties=properties) 
+    def __init__(self, *args, **kwargs):
+        ForceScheduler.__init__(self, *args, properties=[], **kwargs)
 
     def force(self, owner, builder_name, **kwargs):
         if not owner:
             raise ValidationError("Please write your name in the corresponding field.")
         return ForceScheduler.force(self, owner, builder_name, **kwargs)
+
 
 class BenchmarkForceScheduler(CustomForceScheduler):
     '''
@@ -42,6 +35,7 @@ class BenchmarkForceScheduler(CustomForceScheduler):
             benchmark_branch=StringParameter(name="benchmark_branch",
                                              label="Benchmark repo branch:",
                                              default="default", length=20),
+            properties=[ CodebaseParameter('PyPy repo', label='PyPy Repo')],
             **kwargs):
         CustomForceScheduler.__init__(self, name, builderNames, **kwargs)
         if self.checkIfType(benchmark_branch, BaseParameter):
