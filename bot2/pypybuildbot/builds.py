@@ -481,25 +481,30 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             timeout=4000,
             env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + factory.pytest),
                 }))
-        if platform == 'win32':
-            virt_pypy = r'pypy-venv\Scripts\python.exe'
-            clean = 'rmdir /s /q pypy-venv'
-        else:
-            virt_pypy = 'pypy-venv/bin/python'
-            clean = 'rm -rf pypy-venv'
         # set from testrunner/get_info.py
         target = Property('target_path')
         venv_dir = Property('venv_dir', default = 'pypy-venv')
         virt_pypy = Property('virt_pypy', default=virt_pypy)
-        factory.addStep(ShellCmd(
-            description="ensurepip",
-            command=prefix + [target, '-mensurepip'],
-            flunkOnFailure=True))
+        if platform == 'win32':
+            virt_pypy = r'pypy-venv\Scripts\python.exe'
+            clean = 'rmdir /s /q pypy-venv'
+            copy = ''
+        else:
+            virt_pypy = 'pypy-venv/bin/python'
+            clean = 'rm -rf pypy-venv'
+            copy = 'cp %s %s/lib*.so bin' % (target, os.path.dirname(target))
         factory.addStep(ShellCmd(
             description="clean old virtualenv",
             command=clean,
             workdir='venv',
             haltOnFailure=False))
+        # If we already have a bin directory, virtualenv will expect to find
+        # the executables there (on linux). So copy them over.
+        if platform.startswith('linux'):
+            factory.addStep(ShellCmd(
+                    description="copy executable to bin on linux"
+                    command=copy,
+                ))
         factory.addStep(ShellCmd(
             description="Install recent virtualenv",
             command=prefix + [target, '-mpip', 'install', '--upgrade',
