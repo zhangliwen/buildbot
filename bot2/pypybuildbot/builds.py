@@ -488,11 +488,9 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         if platform == 'win32':
             virt_pypy = r'pypy-venv\Scripts\python.exe'
             clean = 'rmdir /s /q pypy-venv'
-            copy = ''
         else:
             virt_pypy = 'pypy-venv/bin/python'
             clean = 'rm -rf pypy-venv'
-            copy = 'cp %s %s/lib*.so bin' % (target, os.path.dirname(target))
         factory.addStep(ShellCmd(
             description="clean old virtualenv",
             command=clean,
@@ -500,10 +498,10 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             haltOnFailure=False))
         # If we already have a bin directory, virtualenv will expect to find
         # the executables there (on linux). So copy them over.
-        if platform.startswith('linux'):
+        if platform == 'linux':
             factory.addStep(ShellCmd(
-                    description="copy executable to bin on linux"
-                    command=copy,
+                    description="copy executable to bin on linux",
+                    command=['cp', target, 'pypy/goal/*.so', 'bin'],
                 ))
         factory.addStep(ShellCmd(
             description="Install recent virtualenv",
