@@ -482,9 +482,6 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + factory.pytest),
                 }))
         # set from testrunner/get_info.py
-        target = Property('target_path')
-        venv_dir = Property('venv_dir', default = 'pypy-venv')
-        virt_pypy = Property('virt_pypy', default=virt_pypy)
         if platform == 'win32':
             virt_pypy = r'pypy-venv\Scripts\python.exe'
             clean = 'rmdir /s /q pypy-venv'
@@ -496,6 +493,9 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             command=clean,
             workdir='venv',
             haltOnFailure=False))
+        target = Property('target_path')
+        venv_dir = Property('venv_dir', default = 'pypy-venv')
+        virt_pypy = Property('virt_pypy', default=virt_pypy)
         # If we already have a bin directory, virtualenv will expect to find
         # the executables there (on linux). So copy them over.
         if platform == 'linux':
