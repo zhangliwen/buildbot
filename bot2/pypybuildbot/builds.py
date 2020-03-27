@@ -344,7 +344,8 @@ def update_hg(platform, factory, repourl, workdir, revision, use_branch,
 
     if platform == "win32":
         # Clean out files via hackery to avoid long filename limitations in hg
-        command = 'hg update -r null & rmdir /q /s lib_pypy extra_tests pypy'
+        command = ('hg update -r null & FOR /D %F in (pypy,lib_pypy,extra_tests)',
+                   'DO IF EXIST %F rm /r /s %F')
         factory.addStep(
             ShellCmd(description="clean up files",
                      command=command,
@@ -498,7 +499,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         virt_pypy = Property('virt_pypy', default=virt_pypy)
         # If we already have a bin directory, virtualenv will expect to find
         # the executables there (on linux). So copy them over.
-        if platform == 'linux':
+        if platform.startswith('linux'):
             factory.addStep(ShellCmd(
                     description="copy executable to bin on linux",
                     # Need to use list for Property in command
