@@ -501,7 +501,13 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         if platform == 'linux':
             factory.addStep(ShellCmd(
                     description="copy executable to bin on linux",
-                    command=['cp', target, 'pypy/goal/*.so', 'bin'],
+                    # Need to use list for Property in command
+                    command=['cp', target, 'bin'],
+                ))
+            factory.addStep(ShellCmd(
+                    description="copy *.so to bin on linux",
+                    # Need to use string for '*' in command
+                    command='cp pypy/goal/*.so bin',
                 ))
         factory.addStep(ShellCmd(
             description="Install recent virtualenv",
