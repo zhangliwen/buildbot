@@ -344,7 +344,7 @@ def update_hg(platform, factory, repourl, workdir, revision, use_branch,
 
     if platform == "win32":
         # Clean out files via hackery to avoid long filename limitations in hg
-        command = ('hg update -r null & FOR /D %F in (pypy,lib_pypy,extra_tests)',
+        command = ('hg update -r null & FOR /D %F in (pypy,lib_pypy,extra_tests) '
                    'DO IF EXIST %F rm /r /s %F')
         factory.addStep(
             ShellCmd(description="clean up files",
@@ -503,7 +503,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             factory.addStep(ShellCmd(
                     description="copy executable to bin on linux",
                     # Need to use list for Property in command
-                    command=['cp', target, 'bin'],
+                    command=['cp', target, 'bin/pypy'],
                 ))
             factory.addStep(ShellCmd(
                     description="copy *.so to bin on linux",
