@@ -20,7 +20,7 @@ If your slave will be translating, you will also need
 - at least 4GB of RAM for 32 bit, 6GB for 64 bit translations
 
 On MacOS, you will need to use CPython2.7.16+ in order to download and build
-the xz pakcage since it requires a modern SSL.
+the xz package since it requires a modern SSL.
 
 Then you will need to install the ``buildbot-slave`` package, which will
 install many other packages like twised, so you may prefer to run the
