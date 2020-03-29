@@ -9,12 +9,11 @@ There are three documented ways to run a PyPy buildslave:
 
 In all cases the required setup is::
 - hg
-- "python" should run a cpython 2.6 for -2.7 that will run the test suites.
+- "python" should run a cpython 2.6-2.7 that will run the test suites.
 - virtualenv that will use the "python" from above
 - cffi for testing
 - all the build dependencies list here
   http://doc.pypy.org/en/latest/build.html?highlight=dependencies#install-build-time-dependencies
-
 
 If your slave will be translating, you will also need
 - pypy in your path
