@@ -601,3 +601,15 @@ form.command_forcebuild .force-nested > .label {
 form.command_forcebuild .force-any .force-text {
     display: inline;
 }
+
+.level1 {
+    font-size-adjust: 0.8;
+}
+.level2 {
+    margin-left: 2em;
+    font-size-adjust: 0.7;
+}
+
+.filelink {
+    text-align: left;
+}
