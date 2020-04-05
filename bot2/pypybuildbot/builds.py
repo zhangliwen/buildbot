@@ -344,8 +344,8 @@ def update_hg(platform, factory, repourl, workdir, revision, use_branch,
 
     if platform == "win32":
         # Clean out files via hackery to avoid long filename limitations in hg
-        command = ('hg update -r null & FOR /D %F in (pypy,lib_pypy,extra_tests) '
-                   'DO IF EXIST %F rmdir /q /s %F')
+        command = ('hg update -r null & FOR /D %%F in (pypy,lib_pypy,extra_tests) '
+                   'DO IF EXIST %%F rmdir /q /s %%F')
         factory.addStep(
             ShellCmd(description="clean up files",
                      command=command,
