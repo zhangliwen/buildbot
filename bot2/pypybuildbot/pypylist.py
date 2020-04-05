@@ -1,12 +1,14 @@
 import os.path
 import datetime
 import itertools
+import collections
 import py
 import cgi
 import urllib
 import sys
 from twisted.web.static import File, formatFileSize
-from buildbot.status.web.base import DirectoryLister
+from twisted.python import log
+from buildbot.status.web.base import DirectoryLister, ContextMixin
 
 class PyPyTarball(object):
 
@@ -123,7 +125,7 @@ class PyPyDirectory(object):
         if self.filename == 'trunk':
             self.last_mod_time = sys.maxsize
             return
-        self.last_mod_time = self.filePath.getmtime()
+        self.last_mod_time = self.filePath.getModificationTime()
 
     def key(self):
         return (self.last_mod_time)
@@ -242,4 +244,83 @@ class PyPyDirectoryLister(DirectoryLister):
 
 class NumpyStatusList(PyPyList):
     pass
+
+
+class ReleaseList(File):
+    def directoryListing(self):
+        return ReleaseLister(self.path,
+                                self.listNames(),
+                                self.contentTypes,
+                                self.contentEncodings,
+                                self.defaultType)
+
+class ReleaseLister(DirectoryLister, ContextMixin):
+    """This variant of the static.DirectoryLister uses a template
+    for rendering."""
+
+    pageTitle = 'PyPy Releases'
+
+    def render(self, request):
+        cxt = self.getContext(request)
+
+        if self.dirs is None:
+            directory = os.listdir(self.path)
+            directory.sort()
+        else:
+            directory = self.dirs
+
+        dirs, files = self._getFilesAndDirectories(directory)
+        releases = {}
+        releases['other'] = []
+        for f in files:
+            fname = urllib.unquote(f['href'])
+            dd = py.path.local(self.path).join(fname)
+            date = datetime.date.fromtimestamp(dd.mtime())
+            f['date'] = date.isoformat()
+            # Assume dir is non-recursive
+            v = f['text'].split('-')
+            if v[0].startswith('pypy') and len(v) > 2:
+                python, pypy = v[:2]
+                indx = pypy.find('rc')
+                if indx > 0:
+                    pypy = pypy[:indx]
+                pypy = pypy.replace('+', '')
+                python = python.replace('pypy', '')
+                if pypy in releases:
+                    releases[pypy][python].append(f)
+                else:
+                    releases[pypy] = collections.defaultdict(list)
+                    releases[pypy][python] = [f]
+            else:
+                releases['other'].append(f)
+                    
+        # build a sorted list of the releases
+        # first, the ones that start with 'v', then the rest
+        def f(a):
+            #          major, minor, rev, rc
+            if a == 'other':
+                return 0
+            factors = [40000 ,1000,  20,  1]
+            vals = a.split('.')
+            if len(vals) < 3:
+                # not a version number
+                return 1
+            if a[0] == 'v':
+                vals[0] = vals[0][1:]
+                base = int(1e6)
+            else:
+                base = 0
+            base += sum([int('0' + x) * y for x, y in zip(vals, factors)])
+            return base
+        
+        cxt['path'] = cgi.escape(urllib.unquote(request.uri))
+        cxt['directories'] = dirs
+        cxt['releases'] = releases
+        cxt['headings'] = sorted(releases.keys(), key=f, reverse=True)
+        template = request.site.buildbot_service.templates.get_template("release.html")
+        data = template.render(**cxt)
+        if isinstance(data, unicode):
+            data = data.encode("utf-8")
+        return data
+
 

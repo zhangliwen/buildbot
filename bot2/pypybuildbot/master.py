@@ -9,7 +9,7 @@ from buildbot.status.html import WebStatus
 from buildbot.status.web import authz
 from buildbot.process.build import Build
 #from buildbot import manhole
-from pypybuildbot.pypylist import PyPyList, NumpyStatusList
+from pypybuildbot.pypylist import PyPyList, NumpyStatusList, ReleaseList
 from pypybuildbot.ircbot import IRC  # side effects
 from pypybuildbot.util import we_are_debugging, isRPython
 from buildbot.changes import filter
@@ -87,6 +87,7 @@ status.putChild('nightly', PyPyList(os.path.expanduser('~/nightly'),
                                     defaultType='application/octet-stream'))
 status.putChild('numpy-status', NumpyStatusList(os.path.expanduser('~/numpy_compat')))
 status.putChild('benchmark-results', File(os.path.expanduser('~/bench_results')))
+status.putChild('pypy', ReleaseList(os.path.expanduser('~/mirror')))
 
 
 pypybuilds = load('pypybuildbot.builds')
