@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>PyPy Releases</h1>
+
+{% set row_class = cycler('alt', '') %}
+
+<section>
+<details open>
+<summary class="level1">PyPy version {{ headings[0] }}</summary>
+{% for p, ff in releases[headings[0]].items() %}
+  <details open>
+  <summary class="level2">Python {{ p }} </summary>
+  <table>
+  <tr class="{{ row_class.next() }}">
+  <th style="min-width:18em">Name</th>
+  <th style="min-width:8em">Size</th>
+  <th style="min-width:10em">Date</th>
+  </tr>
+  {% for f in ff %}
+    <tr class="file {{ row_class.next() }}">
+    <td class="filelink"><a href="{{ f.href }}">{{ f.text }}</a></td>
+    <td>{{ f.size }}</td>
+    <td>{{ f.date }}</td>
+    </tr>
+  {% endfor %}
+  </table></details>
+{% endfor %}
+</details></section>
+
+<section>
+{% for r in headings[1:] %}
+  <details>
+   {% if r != 'other' %}
+      <summary class=level1>PyPy version {{ r }}</summary>
+      {% for p, ff in releases[r].items() %}
+        {% if p|length %}
+        <details>
+        <summary class="level2">Python {{ p }} </summary>
+        {% endif %}
+        <table>
+        <tr class="{{ row_class.next() }}">
+        <th style="min-width:18em">Name</th>
+        <th style="min-width:8em">Size</th>
+        <th style="min-width:10em">Date</th>
+        </tr>
+        {% for f in ff %}
+          <tr class="file {{ row_class.next() }}">
+          <td class="filelink"><a href="{{ f.href }}">{{ f.text }}</a></td>
+          <td>{{ f.size }}</td>
+          <td>{{ f.date }}</td>
+          </tr>
+        {% endfor %}
+        </table>
+        {% if p|length %}
+        </details>
+        {% endif %}
+      {% endfor %}
+   {% else %}
+      <summary class="level1">{{ r }}</summary>
+        <table>
+        <tr class="{{ row_class.next() }}">
+        <th style="min-width:18em">Name</th>
+        <th style="min-width:8em">Size</th>
+        <th style="min-width:10em">Date</th>
+        </tr>
+        {% for f in releases[r] %}
+          <tr class="file {{ row_class.next() }}">
+          <td class="filelink"><a href="{{ f.href }}">{{ f.text }}</a></td>
+          <td>{{ f.size }}</td>
+          <td>{{ f.date }}</td>
+          </tr>
+        {% endfor %}
+        </table>
+   {% endif %}
+  </details>
+{% endfor %}
+</table>
+</section>
+
+<table>
+{% if directories|length %}
+<tr class="{{ row_class.next() }}">
+<th style="min-width:18em">Name</th>
+<th style="min-width:8em">Size</th>
+<th style="min-width:10em">Date</th>
+</tr>
+{% endif %}
+{% for d in directories %}  
+  <tr class="directory {{ row_class.next() }}">
+    <td class="filelink"><a href="{{ d.href }}"><b>{{ d.text }}</b></a></td>
+    <td><b>{{ d.size }}</b></td>
+  </tr>
+{% endfor %}
+</table>
+
+{% endblock %}
