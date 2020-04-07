@@ -87,7 +87,7 @@ status.putChild('nightly', PyPyList(os.path.expanduser('~/nightly'),
                                     defaultType='application/octet-stream'))
 status.putChild('numpy-status', NumpyStatusList(os.path.expanduser('~/numpy_compat')))
 status.putChild('benchmark-results', File(os.path.expanduser('~/bench_results')))
-status.putChild('pypy', ReleaseList(os.path.expanduser('~/mirror')))
+status.putChild('pypy', ReleaseList(os.path.expanduser('~/public_html/mirror')))
 
 
 pypybuilds = load('pypybuildbot.builds')
