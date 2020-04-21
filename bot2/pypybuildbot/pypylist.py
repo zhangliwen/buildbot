@@ -262,8 +262,8 @@ class ReleaseLister(DirectoryLister, ContextMixin):
 
     def render(self, request):
         cxt = self.getContext(request)
-        cxt['path_to_root'] = 'pypy/'
-        cxt['stylesheet'] = 'pypy/default.css'
+        cxt['path_to_root'] = '/pypy/'
+        cxt['stylesheet'] = '/pypy/default.css'
 
         if self.dirs is None:
             directory = os.listdir(self.path)
