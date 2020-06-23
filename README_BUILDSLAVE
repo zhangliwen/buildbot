@@ -11,7 +11,7 @@ In all cases the required setup is::
 - hg
 - "python" should run a cpython 2.6-2.7 that will run the test suites.
 - virtualenv that will use the "python" from above
-- cffi for testing
+- pytest, hypothesis, cffi for testing, pywin32 on windows
 - all the build dependencies list here
   http://doc.pypy.org/en/latest/build.html?highlight=dependencies#install-build-time-dependencies
 
@@ -21,6 +21,9 @@ If your slave will be translating, you will also need
 
 On MacOS, you will need to use CPython2.7.16+ in order to download and build
 the xz package since it requires a modern SSL.
+
+On windows, you will need to add `externals/bin` to your PATH before running
+the buildslave.
 
 Then you will need to install the ``buildbot-slave`` package, which will
 install many other packages like twised, so you may prefer to run the
