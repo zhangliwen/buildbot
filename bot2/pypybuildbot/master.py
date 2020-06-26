@@ -110,6 +110,7 @@ pypyOwnTestFactoryOSX32 = pypybuilds.Own(timeout=3*3600) # XXX Own or RPython?
 
 pypyRPythonTestFactory = pypybuilds.RPython()
 pypyRPythonTestFactoryWin = pypybuilds.RPython(platform="win32")
+pypyRPythonTestFactoryAarch64 = pypybuilds.RPython(timeout=3*3600)
 pypyJitOnlyRPythonTestFactory = pypybuilds.RPython(cherrypick="jit")
 
 # OSX 32bit tests require a larger timeout to finish
@@ -509,7 +510,7 @@ BuildmasterConfig = {
                   {"name": AARCH64RPYTHON,
                    "slavenames": ["aarch64_aws"],
                    "builddir": AARCH64RPYTHON,
-                   "factory": pypyRPythonTestFactory,
+                   "factory": pypyRPythonTestFactoryAarch64,
                    "category": 'aarch64',
                    "locks": [AARCH64Lock.access('counting')],
                   },
