@@ -10,12 +10,16 @@ There are three documented ways to run a PyPy buildslave:
 In all cases the required setup is::
 - hg
 - "python" should run a python 2.6-2.7 that will run the test suites.
-  This can be pypy2.7
+  This should be pypy2.7 on windows to prevent problems with mixing runtimes,
+  (cpython is built with an ancient MSVC) but the buildbot itself requires
+  pywin32 which is not supported, so you must use cpython on windows to run the
+  buildbot. One way to have python.exe be an alias to pypy.exe is to create a
+  PyPy2 virtual env and copy pypy.exe to python.exe. But now how can you run
+  the buildbot? Create a CPython virtualenv, rename the python.exe in it to
+  "python_for_buildbot" and run the buildbot with "python_for_buildbot.exe 
+  buildslave start"
 - virtualenv that will use the "python" from above
-- pytest, hypothesis, cffi for testing, pywin32 on windows
-  to get pywin32 on pypy-as-python, do
-  `pypy -mpip install git+https://github.com/mhammond/pywin32@b228` since
-  after b228 there is no support for python2.
+- pytest, hypothesis, cffi for testing
 - all the build dependencies list here
   http://doc.pypy.org/en/latest/build.html?highlight=dependencies#install-build-time-dependencies
 
