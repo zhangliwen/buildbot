@@ -9,9 +9,13 @@ There are three documented ways to run a PyPy buildslave:
 
 In all cases the required setup is::
 - hg
-- "python" should run a cpython 2.6-2.7 that will run the test suites.
+- "python" should run a python 2.6-2.7 that will run the test suites.
+  This can be pypy2.7
 - virtualenv that will use the "python" from above
 - pytest, hypothesis, cffi for testing, pywin32 on windows
+  to get pywin32 on pypy-as-python, do
+  `pypy -mpip install git+https://github.com/mhammond/pywin32@b228` since
+  after b228 there is no support for python2.
 - all the build dependencies list here
   http://doc.pypy.org/en/latest/build.html?highlight=dependencies#install-build-time-dependencies
 

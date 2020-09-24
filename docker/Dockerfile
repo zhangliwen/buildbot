@@ -78,8 +78,8 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 # get a pypy for translation.
 
-RUN wget -q https://bitbucket.org/pypy/pypy/downloads/pypy2.7-v7.3.0-linux64.tar.bz2 -O - | tar -C /opt -xj
-RUN ln -s /opt/pypy2.7-v7.3.0-linux64/bin/pypy /usr/local/bin/pypy
+RUN wget -q https://downloads.python.org/pypy/pypy2.7-v7.3.1-linux64.tar.bz2 -O - | tar -C /opt -xj
+RUN ln -s /opt/pypy2.7-v7.3.1-linux64/bin/pypy /usr/local/bin/pypy
 RUN pypy -mensurepip
 RUN pypy -mpip install --upgrade pip
 RUN pypy -mpip install --upgrade setuptools wheel
