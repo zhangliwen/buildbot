@@ -103,6 +103,7 @@ AARCH64Lock = pypybuilds.AARCH64Lock
 
 pypyOwnTestFactory = pypybuilds.Own()
 pypyOwnTestFactoryWin = pypybuilds.Own(platform="win32")
+pypyOwnTestFactoryWin64 = pypybuilds.Own(platform="win64")
 pypyJitOnlyOwnTestFactory = pypybuilds.Own(cherrypick="jit")
 
 # OSX 32bit tests require a larger timeout to finish
@@ -110,6 +111,7 @@ pypyOwnTestFactoryOSX32 = pypybuilds.Own(timeout=3*3600) # XXX Own or RPython?
 
 pypyRPythonTestFactory = pypybuilds.RPython()
 pypyRPythonTestFactoryWin = pypybuilds.RPython(platform="win32")
+pypyRPythonTestFactoryWin64 = pypybuilds.RPython(platform="win64")
 pypyRPythonTestFactoryAarch64 = pypybuilds.RPython(timeout=3*3600)
 pypyJitOnlyRPythonTestFactory = pypybuilds.RPython(cherrypick="jit")
 
@@ -180,6 +182,16 @@ pypyJITTranslatedTestFactoryOSX64 = pypybuilds.Translated(
 
 pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
     platform="win32",
+    translationArgs=jit_translation_args,
+    targetArgs=[],
+    lib_python=True,
+    pypyjit=True,
+    app_tests=True,
+    trigger='NUMPYWIN_scheduler',
+    )
+
+pypyJITTranslatedTestFactoryWin64 = pypybuilds.Translated(
+    platform="win364",
     translationArgs=jit_translation_args,
     targetArgs=[],
     lib_python=True,
@@ -273,24 +285,6 @@ JITFREEBSD764 = 'pypy-c-jit-freebsd-7-x86-64'
 JITFREEBSD864 = 'pypy-c-jit-freebsd-8-x86-64'
 JITBENCH64_NEW = 'jit-benchmark-linux-x86-64-single-run'
 inactive_slaves = [
-                  {"name": WIN64OWN,
-                   "slavenames": [],
-                   "builddir": WIN64OWN,
-                   "factory": pypyOwnTestFactoryWin,
-                   "category": 'win32'
-                  },
-                  {"name": WIN64RPYTHON,
-                   "slavenames": [],
-                   "builddir": WIN64RPYTHON,
-                   "factory": pypyOwnTestFactoryWin,
-                   "category": 'win32'
-                  },
-                  {"name" : JITWIN64,
-                   "slavenames": [],
-                   'builddir' : JITWIN64,
-                   'factory' : pypyJITTranslatedTestFactoryWin,
-                   'category' : 'win32',
-                   },
                   {"name" : JITFREEBSD764,
                    "slavenames": [],
                    'builddir' : JITFREEBSD764,
@@ -432,6 +426,7 @@ BuildmasterConfig = {
                         AARCH64RPYTHON,
                         MACOSX32RPYTHON,
                         WIN32RPYTHON,
+                        WIN64RPYTHON,
 
                         APPLVLLINUX32,
                         APPLVLLINUX64,
@@ -450,9 +445,9 @@ BuildmasterConfig = {
                         JITONLYLINUXPPC64,
                         NUMPY_64,
                         NUMPY_WIN,
-                        #WIN64OWN,
+                        WIN64OWN,
                         #JITMACOSX64_2,
-                        #JITWIN64,
+                        JITWIN64,
                         #JITFREEBSD764,
                         #JITFREEBSD864,
 
@@ -608,15 +603,17 @@ BuildmasterConfig = {
                   # 'factory' : pypyJITTranslatedTestFactoryOSX64,
                   # 'category' : 'mac64',
                   # },
+
+                  # Windows
                   {"name": WIN32OWN,
-                   "slavenames": ["SalsaSalsa", "SalsaSalsa64"],
+                   "slavenames": ["SalsaSalsa"],
                    "builddir": WIN32OWN,
                    "factory": pypyOwnTestFactoryWin,
                    "locks": [WinSlaveLock.access('counting')],
                    "category": 'win32',
                   },
                   {"name": WIN32RPYTHON,
-                   "slavenames": ["SalsaSalsa", "SalsaSalsa64"],
+                   "slavenames": ["SalsaSalsa"],
                    "builddir": WIN32RPYTHON,
                    "factory": pypyRPythonTestFactoryWin,
                    "locks": [WinSlaveLock.access('counting')],
@@ -630,12 +627,31 @@ BuildmasterConfig = {
                    "category": "win32",
                   },
                   {"name" : JITWIN32,
-                   "slavenames": ["SalsaSalsa", "SalsaSalsa64"],
+                   "slavenames": ["SalsaSalsa"],
                    'builddir' : JITWIN32,
                    'factory' : pypyJITTranslatedTestFactoryWin,
                    "locks": [WinSlaveLock.access('counting')],
                    'category' : 'win32',
                    },
+                  {"name": WIN64OWN,
+                   "slavenames": ["SalsaSalsa64"],
+                   "builddir": WIN64OWN,
+                   "factory": pypyOwnTestFactoryWin64,
+                   "category": 'win64'
+                  },
+                  {"name": WIN64RPYTHON,
+                   "slavenames": ["SalsaSalsa64"],
+                   "builddir": WIN64RPYTHON,
+                   "factory": pypyOwnTestFactoryWin64,
+                   "category": 'win64'
+                  },
+                  {"name" : JITWIN64,
+                   "slavenames": ["SalsaSalsa64"],
+                   'builddir' : JITWIN64,
+                   'factory' : pypyJITTranslatedTestFactoryWin64,
+                   'category' : 'win64',
+                   },
+
                  # PPC
                   {"name": JITONLYLINUXPPC64,
                    "slavenames": ['gcc1'],
