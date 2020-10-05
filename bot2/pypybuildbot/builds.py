@@ -300,7 +300,7 @@ def update_hg_old_method(platform, factory, repourl, workdir, revision):
     # updating to a different branch than the one specified by
     # the user (like "default").  This is nonsense if we need
     # an auxiliary check-out :-(  At least I didn't find how.
-    if platform == 'win32':
+    if platform in ("win32", "win64"):
         command = "if not exist .hg rmdir /q /s ."
     else:
         command = "if [ ! -d .hg ]; then rm -fr * .[a-z]*; fi"
@@ -309,7 +309,7 @@ def update_hg_old_method(platform, factory, repourl, workdir, revision):
                              workdir=workdir,
                              haltOnFailure=False))
     #
-    if platform == "win32":
+    if platform in ("win32", "win64"):
         command = "if not exist .hg %s"
     else:
         command = "if [ ! -d .hg ]; then %s; fi"
@@ -342,7 +342,7 @@ def update_hg(platform, factory, repourl, workdir, revision, use_branch,
         update_hg_old_method(platform, factory, repourl, workdir, revision)
         return
 
-    if platform == "win32":
+    if platform in ("win32", "win64"):
         # Clean out files via hackery to avoid long filename limitations in hg
         command = ('hg update -r null & FOR /D %%F in (pypy,lib_pypy,extra_tests) '
                    'DO IF EXIST %%F rmdir /q /s %%F')
@@ -357,10 +357,13 @@ def update_hg(platform, factory, repourl, workdir, revision, use_branch,
         # created and pushed to the server and we pull it down, it gets stuck
         # here.  Deleting it from the server doesn't seem to delete it from
         # the local checkout.  So, manually clean it up.
+        if platform in ('win32', 'win64'):
+            command = [r"cmd /c if exist .hg\bookmarks del .hg\bookmarks"]
+        else:
+            command=["rm", "-f", ".hg/bookmarks"]
         factory.addStep(ShellCmd(
             description="cleanup bookmarks",
-            command=["rm", "-f", ".hg/bookmarks"] if platform != 'win32'
-               else [r"cmd /c if exist .hg\bookmarks del .hg\bookmarks"],
+            command = command,
             workdir=workdir,
             haltOnFailure=False,
         ))
@@ -451,14 +454,14 @@ def build_name(platform, jit=False, flags=[], placeholder=None):
 
 
 def get_extension(platform):
-    if platform == "win32":
+    if platform in ("win32", "win64"):
         return ".zip"
     else:
         return ".tar.bz2"
 
 def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyjit):
     nDays = '3' #str, not int
-    if platform == 'win32':
+    if platform in ("win32", "win64"):
         command = ['FORFILES', '/P', Interpolate(factory.tmp_or_crazy + factory.pytest),
                    '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
     else:
@@ -483,7 +486,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
             env={"TMPDIR": Interpolate('%(prop:target_tmpdir)s' + factory.pytest),
                 }))
         # set from testrunner/get_info.py
-        if platform == 'win32':
+        if platform in ("win32", "win64"):
             virt_pypy = r'pypy-venv\Scripts\python.exe'
             clean = 'rmdir /s /q pypy-venv'
         else:
@@ -570,7 +573,7 @@ class Untranslated(factory.BuildFactory):
         self.timeout=kwargs.get('timeout', 2000)
 
         nDays = '3' #str, not int
-        if platform == 'win32':
+        if platform in ("win32", "win64"):
             command = ['FORFILES', '/P', Interpolate(self.tmp_or_crazy + self.pytest),
                        '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
         else:
@@ -583,7 +586,7 @@ class Untranslated(factory.BuildFactory):
             haltOnFailure=False,
             ))
 
-        if platform == 'win32':
+        if platform in ("win32", "win64"):
             self.virt_python = r'virt_test\Scripts\python.exe'
         else:
             self.virt_python = 'virt_test/bin/python'
@@ -882,7 +885,7 @@ class JITBenchmark(factory.BuildFactory):
         # the rest refer to the pypy version to benchmark
        
         # Since we want to use the benchmark_branch, copy the hg update steps
-        if platform == 'win32':
+        if platform in ("win32", "win64"):
             command = "if not exist .hg rmdir /q /s ."
         else:
             command = "if [ ! -d .hg ]; then rm -fr * .[a-z]*; fi"
@@ -891,7 +894,7 @@ class JITBenchmark(factory.BuildFactory):
                                  workdir='./benchmarks',
                                  haltOnFailure=False))
         #
-        if platform == "win32":
+        if platform in ("win32", "win64"):
             command = "if not exist .hg %s"
         else:
             command = "if [ ! -d .hg ]; then %s; fi"
@@ -1112,7 +1115,7 @@ class NativeNumpyTests(factory.BuildFactory):
         self.addStep(ParseRevision(hideStepIf=ParseRevision.hideStepIf,
                                   doStepIf=ParseRevision.doStepIf))
         # download corresponding nightly build
-        if platform == 'win32':
+        if platform in ("win32", "win64"):
             target = r'pypy-c\pypy.exe'
             untar = ['unzip']
             sep = '\\'
@@ -1141,7 +1144,7 @@ class NativeNumpyTests(factory.BuildFactory):
             haltOnFailure=True,
             ))
 
-        if platform == 'win32':
+        if platform in ("win32", "win64"):
             self.addStep(ShellCmd(
                 description='move decompressed dir',
                 command = ['mv', '*/*', '.'],
@@ -1190,7 +1193,7 @@ class NativeNumpyTests(factory.BuildFactory):
             timeout=4000,
             workdir='numpy_src',
         ))
-        if platform != 'win32':
+        if platform in ("win32", "win64"):
             self.addStep(ShellCmd(
                 description="install jinja2",
                 command=['install/bin/pip', 'install', 'jinja2'],
