@@ -191,7 +191,7 @@ pypyJITTranslatedTestFactoryWin = pypybuilds.Translated(
     )
 
 pypyJITTranslatedTestFactoryWin64 = pypybuilds.Translated(
-    platform="win364",
+    platform="win64",
     translationArgs=jit_translation_args,
     targetArgs=[],
     lib_python=True,
