@@ -671,6 +671,7 @@ class Summary(HtmlResource):
         'aarch64':       3,
         'mac64':         4,
         'win32':         5,
+        'win64':         5,
         'linux-s390x':   6,
         'linux-armhf':   7,
         'benchmark-run': 8,
