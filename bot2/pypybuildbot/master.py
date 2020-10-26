@@ -379,6 +379,14 @@ BuildmasterConfig = {
             onlyIfChanged=True,
         ),
 
+        Nightly("nightly-1-01", [
+            JITBENCH64,                # on benchmarker, uses 1 core (in part exclusively)
+            #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
+
+            ], branch='py3.6', hour=11, minute=0,
+            onlyIfChanged=True,
+        ),
+
         Triggerable("NUMPY64_scheduler", [
             #NUMPY_64,                  # uses 1 core, takes about 5min.
         ]),
