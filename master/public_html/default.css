@@ -1,3 +1,6 @@
+
+/* Copy this to public_html/mirror so it is picked up by downloads.python.org/pypy */
+
 body.interface {
 	margin-left: 30px;
 	margin-right: 30px;
@@ -612,6 +615,19 @@ form.command_forcebuild .force-any .force-text {
     padding-top: 5px;
 }
 
+.level3 {
+    margin-left: 4em;
+    display: table;
+}
+
 .filelink {
     text-align: left;
+}
+
+tr.rc {
+    display: none;
+}
+
+input:checked ~ table tr.rc {
+    display: table-row;
 }
