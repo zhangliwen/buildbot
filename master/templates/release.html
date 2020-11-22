@@ -7,28 +7,41 @@
 
 <h1>PyPy Releases</h1>
 
+<a href=https://www.pypy.org/download_advanced.html#checksum>Checksums</a> for the downloads
+
 {% set row_class = cycler('alt', '') %}
 
 <section>
-<details open>
-<summary class="level1">PyPy version {{ headings[0] }}</summary>
-{% for p, ff in releases[headings[0]].items() %}
   <details open>
-  <summary class="level2">Python {{ p }} </summary>
-  <table>
-  <tr class="{{ row_class.next() }}">
-  <th style="min-width:18em">Name</th>
-  <th style="min-width:8em">Size</th>
-  <th style="min-width:10em">Date</th>
-  </tr>
+  <summary class="level1">PyPy version {{ headings[0] }}</summary>
+{% for p, ff in releases[headings[0]].items() %}
+    <details open>
+    <summary class="level2">Python {{ p }} </summary>
+    {% if ff[0].rc > 0 %}
+    <input id="{{ headings[0] }}-input" class="level2" type="checkbox" checked="true">
+    {% else %}
+    <input id="{{ headings[0] }}-input" class="level2" type="checkbox">
+    {% endif %}
+    <label for="{{ headings[0] }}-input">Show release candidates</label>
+    <table class="level3">
+      <tr class="{{ row_class.next() }}">
+        <th style="min-width:18em">Name</th>
+        <th style="min-width:8em">Size</th>
+        <th style="min-width:10em">Date</th>
+      </tr>
   {% for f in ff %}
-    <tr class="file {{ row_class.next() }}">
-    <td class="filelink"><a href="{{ f.href }}">{{ f.text }}</a></td>
-    <td>{{ f.size }}</td>
-    <td>{{ f.date }}</td>
-    </tr>
+      {% if f.rc > 0 %}
+      <tr class="file rc {{ row_class.next() }}">
+      {% else %}
+      <tr class="file {{ row_class.next() }}">
+      {% endif %}
+        <td class="filelink"><a href="{{ f.href }}">{{ f.text }}</a></td>
+        <td>{{ f.size }}</td>
+        <td>{{ f.date }}</td>
+      </tr>
   {% endfor %}
-  </table></details>
+    </table>
+  </details>
 {% endfor %}
 </details></section>
 
@@ -38,21 +51,34 @@
    {% if r != 'other' %}
       <summary class=level1>PyPy version {{ r }}</summary>
       {% for p, ff in releases[r].items() %}
-        {% if p|length %}
         <details>
         <summary class="level2">Python {{ p }} </summary>
+        {% if ff[0].rc > 0 %}
+        <input id="{{ r }}-input" class="level2" type="checkbox" checked="true">
+        {% else %}
+        <input id="{{ r }}-input" class="level2" type="checkbox">
         {% endif %}
-        <table>
+        <label for="{{ r }}-input">Show release candidates</label>
+        {% if p|length %}
+        <table class="level3">
+        {% else %}
+        <table class="level2">
+        {% endif %}
+
         <tr class="{{ row_class.next() }}">
         <th style="min-width:18em">Name</th>
         <th style="min-width:8em">Size</th>
         <th style="min-width:10em">Date</th>
         </tr>
         {% for f in ff %}
+          {% if f.rc > 0 %}
+          <tr class="file rc {{ row_class.next() }}">
+          {% else %}
           <tr class="file {{ row_class.next() }}">
-          <td class="filelink"><a href="{{ f.href }}">{{ f.text }}</a></td>
-          <td>{{ f.size }}</td>
-          <td>{{ f.date }}</td>
+          {% endif %}
+            <td class="filelink"><a href="{{ f.href }}">{{ f.text }}</a></td>
+            <td>{{ f.size }}</td>
+            <td>{{ f.date }}</td>
           </tr>
         {% endfor %}
         </table>
@@ -62,7 +88,7 @@
       {% endfor %}
    {% else %}
       <summary class="level1">{{ r }}</summary>
-        <table>
+        <table class="level2">
         <tr class="{{ row_class.next() }}">
         <th style="min-width:18em">Name</th>
         <th style="min-width:8em">Size</th>

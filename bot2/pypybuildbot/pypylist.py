@@ -264,6 +264,9 @@ class ReleaseLister(DirectoryLister, ContextMixin):
 
     def render(self, request):
         cxt = self.getContext(request)
+        # Keep stylesheet under /pypy so it is picked up by
+        # downloads.python.org/pypy. This means you must copy it to
+        # public_html/mirror
         cxt['path_to_root'] = '/pypy/'
         cxt['stylesheet'] = '/pypy/default.css'
 
@@ -281,6 +284,7 @@ class ReleaseLister(DirectoryLister, ContextMixin):
             dd = py.path.local(self.path).join(fname)
             date = datetime.date.fromtimestamp(dd.mtime())
             f['date'] = date.isoformat()
+            f['rc'] = 0
             # Assume dir is non-recursive
             v = f['text'].split('-')
             if v[0].startswith('pypy') and len(v) > 2:
@@ -288,6 +292,7 @@ class ReleaseLister(DirectoryLister, ContextMixin):
                 indx = pypy.find('rc')
                 if indx > 0:
                     pypy = pypy[:indx]
+                    f['rc'] = 1
                 pypy = pypy.replace('+', '')
                 python = python.replace('pypy', '')
                 if pypy in releases:
