@@ -40,3 +40,4 @@ http.log*
 slave/pypy-buildbot
 master/pypy-buildbot
 *.swp
+master/state.sqlite
