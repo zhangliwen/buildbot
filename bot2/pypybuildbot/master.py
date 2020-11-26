@@ -327,7 +327,7 @@ BuildmasterConfig = {
         HgPoller('https://foss.heptapod.net/pypy/pypy/', workdir='hgpoller-workdir',
                  branch='default', pollinterval=20*60),
         HgPoller('https://foss.heptapod.net/pypy/pypy', workdir='hgpoller-workdir',
-                 branch='py3.6', pollinterval=20*60+17),
+                 branch='py3.7', pollinterval=20*60+17),
         ],
 
     'schedulers': [
@@ -366,7 +366,7 @@ BuildmasterConfig = {
             AARCH64RPYTHON,
             WIN32RPYTHON,              # on SalsaSalsa
             LINUX_S390XRPYTHON,
-            ], branch='default', hour=0, minute=0, onlyIfChanged=True,
+            ], branch='default', hour=1, minute=0, onlyIfChanged=True,
             fileIsImportant=isRPython,
             change_filter=filter.ChangeFilter(branch='default'),
         ),
@@ -383,7 +383,7 @@ BuildmasterConfig = {
             JITBENCH64,                # on benchmarker, uses 1 core (in part exclusively)
             #JITBENCH64_NEW,            # on speed64, uses 1 core (in part exclusively)
 
-            ], branch='py3.6', hour=11, minute=0,
+            ], branch='py3.7', hour=11, minute=0,
             onlyIfChanged=True,
         ),
 
@@ -398,7 +398,7 @@ BuildmasterConfig = {
         #Nightly("nightly-3-01-py3.5", [LINUX64, JITLINUX64,],
         #        branch="py3.5", hour=3, minute=0),
 
-        Nightly("nightly-3-00-py3.6", [
+        Nightly("nightly-3-00-py3.7", [
             LINUX32OWN,                # on bencher4_32, uses all cores
             JITLINUX32,                # on bencher4_32, uses 1 core
             LINUX64OWN,                # on bencher4, uses all cores
@@ -406,8 +406,9 @@ BuildmasterConfig = {
             JITLINUX64,                # on bencher4, uses 1 core
             JITAARCH64,
             JITMACOSX64,               # on xerxes
+            WIN32OWN,                  # on SalsaSalsa
             JITWIN32,                  # on SalsaSalsa
-            ], branch="py3.6", hour=3, minute=0,
+            ], branch="py3.7", hour=3, minute=0,
             onlyIfChanged=True # uses the second HgPoller?
         ),
 
