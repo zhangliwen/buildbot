@@ -301,7 +301,7 @@ def update_hg_old_method(platform, factory, repourl, workdir, revision):
     # the user (like "default").  This is nonsense if we need
     # an auxiliary check-out :-(  At least I didn't find how.
     if platform in ("win32", "win64"):
-        command = "if not exist .hg rmdir /q /s ."
+        command = "if NOT EXIST .hg rmdir /q /s ."
     else:
         command = "if [ ! -d .hg ]; then rm -fr * .[a-z]*; fi"
     factory.addStep(ShellCmd(description="rmdir?",
@@ -310,7 +310,7 @@ def update_hg_old_method(platform, factory, repourl, workdir, revision):
                              haltOnFailure=False))
     #
     if platform in ("win32", "win64"):
-        command = "if not exist .hg %s"
+        command = "if NOT EXIST .hg %s"
     else:
         command = "if [ ! -d .hg ]; then %s; fi"
     command = command % ("hg clone -U " + repourl + " .")
@@ -358,7 +358,7 @@ def update_hg(platform, factory, repourl, workdir, revision, use_branch,
         # here.  Deleting it from the server doesn't seem to delete it from
         # the local checkout.  So, manually clean it up.
         if platform in ('win32', 'win64'):
-            command = [r"cmd /c if exist .hg\bookmarks del .hg\bookmarks"]
+            command = [r"cmd /c if EXIST .hg\bookmarks del .hg\bookmarks"]
         else:
             command=["rm", "-f", ".hg/bookmarks"]
         factory.addStep(ShellCmd(
@@ -488,7 +488,7 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         # set from testrunner/get_info.py
         if platform in ("win32", "win64"):
             virt_pypy = r'pypy-venv\Scripts\python.exe'
-            clean = 'rmdir /s /q pypy-venv'
+            clean = 'if EXIST pypy-venv rmdir /s /q pypy-venv'
         else:
             virt_pypy = 'pypy-venv/bin/python'
             clean = 'rm -rf pypy-venv'
@@ -886,7 +886,7 @@ class JITBenchmark(factory.BuildFactory):
        
         # Since we want to use the benchmark_branch, copy the hg update steps
         if platform in ("win32", "win64"):
-            command = "if not exist .hg rmdir /q /s ."
+            command = "if NOT EXIST .hg rmdir /q /s ."
         else:
             command = "if [ ! -d .hg ]; then rm -fr * .[a-z]*; fi"
         self.addStep(ShellCmd(description="rmdir?",
@@ -895,7 +895,7 @@ class JITBenchmark(factory.BuildFactory):
                                  haltOnFailure=False))
         #
         if platform in ("win32", "win64"):
-            command = "if not exist .hg %s"
+            command = "if NOT EXIST .hg %s"
         else:
             command = "if [ ! -d .hg ]; then %s; fi"
         command = command % ("hg clone -U " + repourl + " .")
