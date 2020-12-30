@@ -646,14 +646,14 @@ BuildmasterConfig = {
                    "slavenames": ["SalsaSalsa64"],
                    "builddir": WIN64OWN,
                    "factory": pypyOwnTestFactoryWin64,
-                   "category": 'win64'
+                   "category": 'win64',
                    "locks": [WinSlaveLock.access('counting')],
                   },
                   {"name": WIN64RPYTHON,
                    "slavenames": ["SalsaSalsa64"],
                    "builddir": WIN64RPYTHON,
                    "factory": pypyOwnTestFactoryWin64,
-                   "category": 'win64'
+                   "category": 'win64',
                    "locks": [WinSlaveLock.access('counting')],
                   },
                   {"name" : JITWIN64,
