@@ -647,18 +647,21 @@ BuildmasterConfig = {
                    "builddir": WIN64OWN,
                    "factory": pypyOwnTestFactoryWin64,
                    "category": 'win64'
+                   "locks": [WinSlaveLock.access('counting')],
                   },
                   {"name": WIN64RPYTHON,
                    "slavenames": ["SalsaSalsa64"],
                    "builddir": WIN64RPYTHON,
                    "factory": pypyOwnTestFactoryWin64,
                    "category": 'win64'
+                   "locks": [WinSlaveLock.access('counting')],
                   },
                   {"name" : JITWIN64,
                    "slavenames": ["SalsaSalsa64"],
                    'builddir' : JITWIN64,
                    'factory' : pypyJITTranslatedTestFactoryWin64,
                    'category' : 'win64',
+                   "locks": [WinSlaveLock.access('counting')],
                    },
 
                  # PPC
