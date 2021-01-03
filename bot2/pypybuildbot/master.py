@@ -331,15 +331,16 @@ BuildmasterConfig = {
         ],
 
     'schedulers': [
-        # the benchmarks run on benchmarker and (planned) speed-old.python.org.
+        # the benchmarks run on benchmarker
         # 64 bit linux tests run on bencher4.soft-dev.org.
         # 32 bit linux tests run on benchmarker.
+        # windows tests run on SalsaSalsa
         Nightly("nightly-0-00", [
             # linux tests
             LINUX32OWN,                # on benchmarker4_32, uses all cores
             LINUX64OWN,                # on bencher4, uses all cores
             AARCH64OWN,
-            WIN32OWN,                  # on SalsaSalsa
+            WIN64OWN,                  # on SalsaSalsa
             LINUX_S390XOWN,
             JITLINUX32,                # on benchmarker4_32, uses 1 core
             JITLINUX64,                # on bencher4, uses 1 core
@@ -349,7 +350,7 @@ BuildmasterConfig = {
             #APPLVLLINUX64,             # on bencher4, uses 1 core
             # other platforms
             #MACOSX32,                 # on minime
-            JITWIN32,                  # on SalsaSalsa
+            JITWIN64,                  # on SalsaSalsa
             #JITFREEBSD764,
             #JITFREEBSD864,
             #JITFREEBSD964,
@@ -364,7 +365,7 @@ BuildmasterConfig = {
             LINUX32RPYTHON,            # on benchermarker_32, uses all cores
             LINUX64RPYTHON,            # on bencher4, uses all cores
             AARCH64RPYTHON,
-            WIN32RPYTHON,              # on SalsaSalsa
+            WIN64RPYTHON,              # on SalsaSalsa
             LINUX_S390XRPYTHON,
             ], branch='default', hour=1, minute=0, onlyIfChanged=True,
             fileIsImportant=isRPython,
@@ -406,8 +407,8 @@ BuildmasterConfig = {
             JITLINUX64,                # on bencher4, uses 1 core
             JITAARCH64,
             JITMACOSX64,               # on xerxes
-            WIN32OWN,                  # on SalsaSalsa
-            JITWIN32,                  # on SalsaSalsa
+            WIN64OWN,                  # on SalsaSalsa
+            JITWIN64,                  # on SalsaSalsa
             ], branch="py3.7", hour=3, minute=0,
             onlyIfChanged=True # uses the second HgPoller?
         ),
