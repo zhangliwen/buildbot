@@ -40,7 +40,7 @@
 # This will enter the docker as root. Don't do "su - buildslave",
 # do "su buildslave"
 
-FROM quay.io/pypa/manylinux2010_i686:latest
+FROM quay.io/pypa/manylinux2010_i686:2021-02-06-3d322a5
 WORKDIR /root
 
 RUN yum -y update
@@ -74,7 +74,7 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 RUN wget -q https://downloads.python.org/pypy/pypy2.7-v7.3.1-linux32.tar.bz2 -O - | tar -C /opt -xj
 RUN ln -s /opt/pypy2.7-v7.3.1-linux32/bin/pypy /usr/local/bin/pypy
 RUN pypy -mensurepip
-RUN pypy -mpip install --upgrade pip
+RUN pypy -mpip install --upgrade pip==20.3.4
 RUN pypy -mpip install --upgrade setuptools wheel
 
 RUN yum clean packages
@@ -83,7 +83,7 @@ RUN yum clean packages
 # since centos6 itself has python2.6
 RUN virtualenv -p /opt/python/cp27-cp27mu/bin/python /python27_virt
 ENV PATH=/python27_virt/bin:$PATH
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip==20.3.4
 RUN pip install --upgrade setuptools
 RUN pip install buildbot-slave pytest hypothesis==4.42 cffi vmprof mercurial virtualenv
 
