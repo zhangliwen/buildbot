@@ -653,7 +653,7 @@ BuildmasterConfig = {
                   {"name": WIN64RPYTHON,
                    "slavenames": ["SalsaSalsa64"],
                    "builddir": WIN64RPYTHON,
-                   "factory": pypyOwnTestFactoryWin64,
+                   "factory": pypyRPythonTestFactoryWin64,
                    "category": 'win64',
                    "locks": [WinSlaveLock.access('counting')],
                   },
