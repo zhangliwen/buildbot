@@ -72,26 +72,28 @@ RUN sh /root/install_gc.sh 2>&1 | tee /root/install_gc.log
 # prefer our libraries in /usr/local/lib
 ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
-# get a pypy for translation.
-
-#RUN wget -q https://downloads.python.org/pypy/pypy2.7-v7.3.3-aarch64.tar.bz2 -O - | tar -C /opt -xj
-#RUN ln -s /opt/pypy2.7-v7.3.3-aarch64/bin/pypy /usr/local/bin/pypy
-#RUN pypy -mensurepip
-#RUN pypy -mpip install --upgrade pip=20.3.4
-#RUN pypy -mpip install --upgrade setuptools wheel
-
 RUN yum clean packages
 
-# build a python 2.7 virtualenv, use the /opt/python/cp27-cp27mu/bin/python
-# since centos6 itself has python2.6
-RUN which python2
-RUN virtualenv -p python2 /python27_virt
+# build python 2.7.18 and link it to a virtualenv
+# since centos7 has python2.7.5
+RUN wget http://python.org/ftp/python/2.7.18/Python-2.7.18.tar.xz
+RUN tar xf Python-2.7.18.tar.xz
+RUN (cd Python-2.7.18 && ./configure --prefix=/usr/local --enable-unicode=ucs4 --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib" && make && make altinstall)
+RUN /usr/local/bin/python2.7 -m ensurepip
+RUN /usr/local/bin/python2.7 -m pip install virtualenv
+run /usr/local/bin/python2.7 -m virtualenv /python27_virt
 ENV PATH=/python27_virt/bin:$PATH
-RUN ln -s /python27_virt/bin/python /python27_virt/bin/pypy
 RUN pip install --upgrade pip==20.3.4
 RUN pip install --upgrade setuptools
 RUN pip install buildbot-slave pytest hypothesis==4.42 cffi mercurial virtualenv
 RUN pip install git+https://github.com/vmprof/vmprof-python.git
+
+# get a pypy for translation.
+RUN wget -q http://buildbot.pypy.org/nightly/trunk/pypy-c-jit-101966-b6accdd41458-aarch64.tar.bz2 -O - | tar -C /opt -xj
+RUN ln -s /opt/pypy-c-jit-101966-b6accdd41458-aarch64/bin/pypy /usr/local/bin/pypy
+RUN pypy -mensurepip
+RUN pypy -mpip install --upgrade pip==20.3.4
+RUN pypy -mpip install --upgrade setuptools wheel
 
 # Define a user
 ARG BUILDSLAVE_UID=1001
