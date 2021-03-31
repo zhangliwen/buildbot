@@ -502,14 +502,14 @@ def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyj
         virt_pypy = Property('virt_pypy', default=virt_pypy)
         # If we already have a bin directory, virtualenv will expect to find
         # the executables there (on linux). So copy them over.
-        if platform.startswith('linux'):
+        if platform.startswith('linux') or platform in ('aarch64', 's390x'):
             factory.addStep(ShellCmd(
-                    description="copy executable to bin on linux",
+                    description="copy executable to bin",
                     # Need to use list for Property in command
                     command=['cp', target, 'bin/pypy'],
                 ))
             factory.addStep(ShellCmd(
-                    description="copy *.so to bin on linux",
+                    description="copy *.so to bin",
                     # Need to use string for '*' in command
                     command='cp pypy/goal/*.so bin',
                 ))
