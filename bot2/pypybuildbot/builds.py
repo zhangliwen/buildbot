@@ -398,7 +398,9 @@ def setup_steps(platform, factory, workdir=None,
     factory.addStep(shell.SetPropertyFromCommand(
             command=['python', '-c', "import tempfile, os ;print"
                      " tempfile.gettempdir() + os.path.sep"],
-             property="target_tmpdir"))
+            property="target_tmpdir"),
+            env={'TMPDIR': "${TMPDIR}"},
+    )
     # If target_tmpdir is empty, crash.
     factory.tmp_dir = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
     factory.pytest = "pytest"
