@@ -400,13 +400,13 @@ def setup_steps(platform, factory, workdir=None,
                      " tempfile.gettempdir() + os.path.sep"],
              property="target_tmpdir"))
     # If target_tmpdir is empty, crash.
-    factory.tmp_or_crazy = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
+    factory.tmp_dir = '%(prop:target_tmpdir:-crazy/name/so/mkdir/fails/)s'
     factory.pytest = "pytest"
     factory.addStep(ShellCmd(
         description="mkdir for tests",
         command=['python', '-c', Interpolate("import os;  os.mkdir(r'" + \
-                    factory.tmp_or_crazy + factory.pytest + "') if not os.path.exists(r'" + \
-                    factory.tmp_or_crazy + factory.pytest + "') else True")],
+                    factory.tmp_dir + factory.pytest + "') if not os.path.exists(r'" + \
+                    factory.tmp_dir + factory.pytest + "') else True")],
         haltOnFailure=True,
         ))
 
@@ -462,10 +462,10 @@ def get_extension(platform):
 def add_translated_tests(factory, prefix, platform, app_tests, lib_python, pypyjit):
     nDays = '3' #str, not int
     if platform in ("win32", "win64"):
-        command = ['FORFILES', '/P', Interpolate(factory.tmp_or_crazy + factory.pytest),
+        command = ['FORFILES', '/P', Interpolate(factory.tmp_dir + factory.pytest),
                    '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
     else:
-        command = ['find', Interpolate(factory.tmp_or_crazy + factory.pytest), '-mtime',
+        command = ['find', Interpolate(factory.tmp_dir + factory.pytest), '-mtime',
                    '+' + nDays, '-exec', 'rm', '-r', '{}', ';']
     factory.addStep(SuccessAlways(
         description="cleanout old test files",
@@ -574,10 +574,10 @@ class Untranslated(factory.BuildFactory):
 
         nDays = '3' #str, not int
         if platform in ("win32", "win64"):
-            command = ['FORFILES', '/P', Interpolate(self.tmp_or_crazy + self.pytest),
+            command = ['FORFILES', '/P', Interpolate(self.tmp_dir + self.pytest),
                        '/D', '-' + nDays, '/c', "cmd /c rmdir /q /s @path"]
         else:
-            command = ['find', Interpolate(self.tmp_or_crazy + self.pytest), '-mtime',
+            command = ['find', Interpolate(self.tmp_dir + self.pytest), '-mtime',
                        '+' + nDays, '-exec', 'rm', '-r', '{}', ';']
         self.addStep(SuccessAlways(
             description="cleanout old test files",
@@ -628,7 +628,7 @@ class Own(Untranslated):
             timeout=self.timeout,
             env={"PYTHONPATH": ['.'],
                  "PYPYCHERRYPICK": cherrypick,
-                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + self.pytest),
+                 "TMPDIR": Interpolate(self.tmp_dir + self.pytest),
                  }))
 
 class RPython(Untranslated):
@@ -647,7 +647,7 @@ class RPython(Untranslated):
             timeout=self.timeout,
             env={"PYTHONPATH": ['.'],
                  "PYPYCHERRYPICK": cherrypick,
-                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + self.pytest),
+                 "TMPDIR": Interpolate(self.tmp_dir + self.pytest),
                  }))
 
 
@@ -689,7 +689,7 @@ class Translated(factory.BuildFactory):
                               "--archive-name", WithProperties(name)],
             workdir='build',
             env={
-                 "TMPDIR": Interpolate('%(prop:target_tmpdir)s' + self.pytest),
+                 "TMPDIR": Interpolate(self.tmp_dir + self.pytest),
                 },
             ))
         nightly = '~/nightly/'
