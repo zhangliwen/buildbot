@@ -409,6 +409,7 @@ BuildmasterConfig = {
             JITMACOSX64,               # on xerxes
             WIN64OWN,                  # on SalsaSalsa
             JITWIN64,                  # on SalsaSalsa
+            JITLINUX_S390X,
             ], branch="py3.7", hour=3, minute=0,
             onlyIfChanged=True # uses the second HgPoller?
         ),
