@@ -48,7 +48,7 @@ The MASTERHOST currently is ``buildbot.pypy.org``. The
 value for PORT is ``10407``.
 SLAVENAME and PASSWORD can be freely chosen. These values need to be added to
 the slaveinfo.py configuration file on the MASTERHOST, ask in the IRC channel
-(#pypy on freenode.net) for the settings to be added. BASEDIR is a path to a
+(#pypy on irc.libera.chat) for the settings to be added. BASEDIR is a path to a
 local directory that will be created to contain all the files will be used by
 the buildslave. 
 
