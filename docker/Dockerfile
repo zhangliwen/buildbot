@@ -81,7 +81,7 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 RUN wget -q https://downloads.python.org/pypy/pypy2.7-v7.3.1-linux64.tar.bz2 -O - | tar -C /opt -xj
 RUN ln -s /opt/pypy2.7-v7.3.1-linux64/bin/pypy /usr/local/bin/pypy
 RUN pypy -mensurepip
-RUN pypy -mpip install --upgrade pip=20.3.4
+RUN pypy -mpip install --upgrade pip==20.3.4
 RUN pypy -mpip install --upgrade setuptools wheel
 
 RUN yum clean packages
@@ -90,7 +90,7 @@ RUN yum clean packages
 # since centos6 itself has python2.6
 RUN virtualenv -p /opt/python/cp27-cp27mu/bin/python /python27_virt
 ENV PATH=/python27_virt/bin:$PATH
-RUN pip install --upgrade pip=20.3.4
+RUN pip install --upgrade pip==20.3.4
 RUN pip install --upgrade setuptools
 RUN pip install buildbot-slave pytest hypothesis==4.42 cffi vmprof mercurial virtualenv
 
