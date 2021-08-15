@@ -328,7 +328,7 @@ BuildmasterConfig = {
                  branch='default', pollinterval=20*60),
         HgPoller('https://foss.heptapod.net/pypy/pypy', workdir='hgpoller-workdir',
                  branch='py3.7', pollinterval=20*60+17),
-        HgPoller('https://foss.heptapod.net/pypy/pypy', workdir='hgpoller-workdir',
+        HgPoller('http://foss.heptapod.net/pypy/pypy', workdir='hgpoller-workdir',
                  branch='py3.8', pollinterval=20*60+17),
         ],
 
