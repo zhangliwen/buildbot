@@ -328,6 +328,8 @@ BuildmasterConfig = {
                  branch='default', pollinterval=20*60),
         HgPoller('https://foss.heptapod.net/pypy/pypy', workdir='hgpoller-workdir',
                  branch='py3.7', pollinterval=20*60+17),
+        HgPoller('https://foss.heptapod.net/pypy/pypy', workdir='hgpoller-workdir',
+                 branch='py3.8', pollinterval=20*60+17),
         ],
 
     'schedulers': [
@@ -396,9 +398,6 @@ BuildmasterConfig = {
             #NUMPY_WIN,                  # on SalsaSalsa
         ]),
 
-        #Nightly("nightly-3-01-py3.5", [LINUX64, JITLINUX64,],
-        #        branch="py3.5", hour=3, minute=0),
-
         Nightly("nightly-3-00-py3.7", [
             LINUX32OWN,                # on bencher4_32, uses all cores
             JITLINUX32,                # on bencher4_32, uses 1 core
@@ -414,11 +413,21 @@ BuildmasterConfig = {
             onlyIfChanged=True # uses the second HgPoller?
         ),
 
-        # this one has faithfully run every night even though the latest
-        # change to that branch was in January 2013.  Re-enable one day.
-        #Nightly("nighly-ppc", [
-        #    JITONLYLINUXPPC64,         # on gcc1
-        #    ], branch='ppc-jit-backend', hour=1, minute=0),
+        Nightly("nightly-1-30-py3.8", [
+            LINUX32OWN,                # on bencher4_32, uses all cores
+            JITLINUX32,                # on bencher4_32, uses 1 core
+            LINUX64OWN,                # on bencher4, uses all cores
+            AARCH64OWN,
+            JITLINUX64,                # on bencher4, uses 1 core
+            JITAARCH64,
+            JITMACOSX64,               # on xerxes
+            WIN64OWN,                  # on SalsaSalsa
+            JITWIN64,                  # on SalsaSalsa
+            JITLINUX_S390X,
+            ], branch="py3.8", hour=1, minute=30,
+            onlyIfChanged=True # uses the second HgPoller?
+        ),
+
         BenchmarkForceScheduler('Force Build ',
             builderNames=[
                         JITBENCH64,
