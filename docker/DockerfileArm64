@@ -89,11 +89,15 @@ RUN pip install buildbot-slave pytest hypothesis==4.42 cffi mercurial virtualenv
 RUN pip install git+https://github.com/vmprof/vmprof-python.git
 
 # get a pypy for translation.
-RUN wget -q http://buildbot.pypy.org/nightly/trunk/pypy-c-jit-101966-b6accdd41458-aarch64.tar.bz2 -O - | tar -C /opt -xj
-RUN ln -s /opt/pypy-c-jit-101966-b6accdd41458-aarch64/bin/pypy /usr/local/bin/pypy
+RUN wget -q http://buildbot.pypy.org/nightly/trunk/pypy-c-jit-103155-2a8e54e21b18-aarch64.tar.bz2 -O - | tar -C /opt -xj
+RUN ln -s /opt/pypy-c-jit-103155-2a8e54e21b18-aarch64/bin/pypy /usr/local/bin/pypy
 RUN pypy -mensurepip
 RUN pypy -mpip install --upgrade pip==20.3.4
 RUN pypy -mpip install --upgrade setuptools wheel
+
+# Remove newer sqlite3 from /usr/local/lib since it does not match the headers
+# in /usr/include
+rm -rf /usr/local/lib/sqlite3*
 
 # Define a user
 ARG BUILDSLAVE_UID=1001
