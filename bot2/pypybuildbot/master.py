@@ -61,7 +61,7 @@ Build.stopBuild = _checkStopBuild
 if we_are_debugging():
     channel = '#buildbot-test'
 else:
-    channel = '#pypy'
+    channel = '#pypy-bbot'
 
 authz_cfg = authz.Authz(pingBuilder=False, forceBuild=True, forceAllBuilds=True,
                         stopBuild=True, stopAllBuilds=True,
