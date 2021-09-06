@@ -97,7 +97,7 @@ RUN pypy -mpip install --upgrade setuptools wheel
 
 # Remove newer sqlite3 from /usr/local/lib since it does not match the headers
 # in /usr/include
-RUN rm -rf /usr/local/lib/sqlite3*
+RUN rm -rf /usr/local/lib/libsqlite3*
 
 # Define a user
 ARG BUILDSLAVE_UID=1001
